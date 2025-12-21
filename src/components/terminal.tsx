@@ -33,8 +33,27 @@ export function XTermComponent({ height }: { height: number }) {
     useEffect(() => {
         terminal.current = new Terminal({
             theme: {
-                background: '#1e1e1e',
-                foreground: '#f1f1f1',
+                background: '#0a0a0a', // Ultra-dark background
+                foreground: '#d8dce0', // Softer bright foreground
+                cursor: '#6fa0ff', // Blue cursor
+                cursorAccent: '#0a0a0a', // Dark cursor accent
+                selection: '#1e1e1e', // Dark selection
+                black: '#0a0a0a',
+                red: '#ff6eb8', // Light pink
+                green: '#3bc95f', // Vibrant green
+                yellow: '#ff4d9e', // Pink
+                blue: '#6fa0ff', // Bright blue
+                magenta: '#b88dff', // Rich purple
+                cyan: '#2dd4d1', // Vibrant cyan
+                white: '#d8dce0',
+                brightBlack: '#3a3a3a',
+                brightRed: '#ff6eb8',
+                brightGreen: '#3bc95f',
+                brightYellow: '#2fb8ff', // Sky blue
+                brightBlue: '#75c7ff', // Light blue
+                brightMagenta: '#b88dff',
+                brightCyan: '#2dd4d1',
+                brightWhite: '#ffffff',
             },
         })
         terminal.current.onResize((size: { cols: number; rows: number }) => {
@@ -230,7 +249,7 @@ export const BottomTerminal: React.FC = () => {
                         style={{
                             cursor: 'row-resize',
                             height: '4px',
-                            background: 'rgb(61, 66, 77)',
+                            background: '#1e1e1e',
                         }}
                     ></div>
                     <div

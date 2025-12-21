@@ -2466,24 +2466,29 @@ free servers .disabled_command .shortcut__block {
 }
 
 .terminalOuterContainer {
+    background-color: var(--oxo-base00);
 }
 
 .terminalContainer {
     width: 100%;
     padding: 8px 18px;
+    background-color: var(--oxo-base00);
 }
 
 .terminalInnerContainer {
     overflow: clip;
+    background-color: var(--oxo-base00);
 }
 
 .terminalContainer .header {
     display: flex;
     align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--oxo-base02);
 }
 
 .terminalInnerContainer .icon {
-    color: #bbb;
+    color: var(--oxo-base04);
     font-size: 18px;
     margin: auto;
     width: 24px;
@@ -2491,19 +2496,26 @@ free servers .disabled_command .shortcut__block {
 }
 
 .terminalTitle {
-    color: #bbb;
+    color: var(--oxo-base05);
     flex-grow: 1;
     font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
 }
 
 .closeButton {
-    color: #bbb;
+    color: var(--oxo-base04);
     font-size: 18px;
+    transition: color 0.15s ease;
+}
+
+.closeButton:hover {
+    color: var(--oxo-pink);
 }
 
 .tipArea {
     display: flex;
-    color: #999;
+    color: var(--oxo-base03);
     font-size: 12px;
     align-items: center;
     margin-bottom: 4px;
