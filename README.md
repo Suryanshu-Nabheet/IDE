@@ -1,54 +1,118 @@
-# Cursor
+# CodeX
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/getcursor/cursor/blob/main/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]() [![](https://dcbadge.vercel.app/api/server/PJEgRywgRy?style=flat&compact=true)](https://discord.gg/PJEgRywgRy)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Suryanshu-Nabheet/CodeX/blob/main/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
-**[Cursor](https://cursor.so) is an editor made for programming with AI.** It's early days, but right now Cursor can help you with a few things...
+**[CodeX](https://github.com/Suryanshu-Nabheet/CodeX) is an enterprise-level AI-powered code editor with the beautiful Oxocarbon theme.** Built for developers who demand both power and aesthetics.
 
--   **Write**: Generate 10-100 lines of code with an AI that's smarter than Copilot
--   **Diff**: Ask the AI to edit a block of code, see only proposed changes
--   **Chat**: ChatGPT-style interface that understands your current file
--   **And more**: ask to fix lint errors, generate tests/comments on hover, etc.
+## Features
+
+-   **AI-Powered Coding**: Generate 10-100 lines of code with advanced AI assistance
+-   **Smart Diff View**: See only proposed changes with intelligent diff highlighting
+-   **Integrated Chat**: ChatGPT-style interface that understands your codebase
+-   **Oxocarbon Theme**: Beautiful IBM Carbon-inspired dark theme with high contrast
+-   **LSP Support**: Full Language Server Protocol support for multiple languages
+-   **Integrated Terminal**: Powerful terminal with multiple instances and tabs
+-   **Git Integration**: Built-in git support with inline blame and diff viewer
+-   **Extension System**: Extensible architecture for custom plugins
 
 <p align="center">
-<a href="https://cursor.so/">
 <img src="https://user-images.githubusercontent.com/4297743/227696390-0c1886c7-0cda-4528-9259-0b2944892d4c.png" width="1000"><br>
-</a>
 </p>
 
 ## Getting Started
 
-Head over to [our website](https://cursor.so/) to download and try out the editor.
+### Prerequisites
 
-Feel free to file tickets for bugs or feature requests. Upvote 👍 the ones you'd like us to prioritize.
+-   Node.js 16 or higher
+-   npm or yarn
 
-## Roadmap
+### Installation
 
-Long term, our plan is to build Cursor into the world's most productive development environment. Using LLMs, we want to do things like:
+Clone the repository and install dependencies:
 
--   "Heal" your repository when you're halfway through a refactor
--   Allow you to code by editing a "pseudocode" version of your codebase
--   Auto-fix errors as soon as they show up in your terminal
--   Embed AI-written documentation into the UI
-
-## Development
-
-We welcome PRs :) To get started:
-
-```
-git clone git@github.com:getcursor/cursor.git
-cd cursor
-npm i
+```bash
+git clone https://github.com/Suryanshu-Nabheet/CodeX.git
+cd CodeX
+npm install
 ```
 
-Then, download some non-versioned dependencies (ripgrep binaries and language server js):
+Download non-versioned dependencies (ripgrep binaries and language server js):
 
-```
+```bash
 ./setup.sh # Mac/Linux
 ./setup.ps1 # Windows
 ```
 
-Finally, to run the client:
+### Running CodeX
 
-```
+Start the development server:
+
+```bash
 npm start
 ```
+
+### Building
+
+Create a distributable package:
+
+```bash
+npm run make
+```
+
+## Oxocarbon Theme
+
+CodeX features the stunning Oxocarbon theme, inspired by IBM Carbon Design System. The color palette balances industrial grays with vibrant blues, creating a modern and professional coding environment that's easy on the eyes during long coding sessions.
+
+## Roadmap
+
+Our vision is to build CodeX into the world's most productive and beautiful development environment:
+
+-   **Smart Refactoring**: AI-assisted refactoring across your entire codebase
+-   **Collaborative Editing**: Real-time collaboration with team members
+-   **Advanced Debugging**: Integrated debugging with AI-powered error analysis
+-   **Cloud Sync**: Sync settings and extensions across devices
+-   **Performance Optimization**: Lightning-fast startup and response times
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## Development
+
+### Project Structure
+
+-   `/src` - Source code
+    -   `/components` - React components
+    -   `/features` - Redux slices and business logic
+    -   `/main` - Electron main process
+-   `/assets` - Icons, fonts, and static assets
+-   `/tutor` - Tutorial files
+
+### Tech Stack
+
+-   **Electron** - Desktop application framework
+-   **React** - UI framework
+-   **Redux** - State management
+-   **CodeMirror 6** - Code editor
+-   **TypeScript** - Type-safe development
+-   **Tailwind CSS** - Styling
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+-   Inspired by the original Cursor editor
+-   Oxocarbon theme by [nyoom-engineering](https://github.com/nyoom-engineering/oxocarbon.nvim)
+-   IBM Carbon Design System
+
+## Support
+
+-   📧 Email: suryanshu@codex.dev
+-   🐛 Issues: [GitHub Issues](https://github.com/Suryanshu-Nabheet/CodeX/issues)
+-   💬 Discussions: [GitHub Discussions](https://github.com/Suryanshu-Nabheet/CodeX/discussions)
+
+---
+
+**Made with ❤️ by Suryanshu Nabheet**

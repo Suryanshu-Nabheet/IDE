@@ -4,7 +4,7 @@ import { EditorView, ViewUpdate } from '@codemirror/view'
 import { vimStateField } from './codemirror-vim/index'
 import { historyField } from '@codemirror/commands'
 import { EditorState } from '@codemirror/state'
-import { vscodeDark } from '../vscodeTheme'
+import { oxocarbon } from '../oxocarbonTheme'
 
 import CodeMirror, { ReactCodeMirrorRef } from './react-codemirror/index'
 import { throttleCallback } from './componentUtils'
@@ -286,7 +286,7 @@ export default function Editor({ tabId }: { tabId: number }) {
                     tabId={tabId}
                     key={filePath}
                     viewKey={tab.paneId}
-                    theme={vscodeDark}
+                    theme={oxocarbon}
                     ref={editorRef}
                     customDispatch={customDispatch}
                     autoFocus={isPaneActive && isRenaming == null}

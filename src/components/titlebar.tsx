@@ -279,7 +279,7 @@ export function TitleBar({
         >
             <SearchFiles />
             <CommandPalette />
-            <div className="titleOnTitleBar">Cursor - v{appVersion}</div>
+            <div className="titleOnTitleBar">CodeX - v{appVersion}</div>
             <div className="titlebar__left">
                 {isWindows && <MenuBar />}
                 <div className="titlebar__left_rest"></div>

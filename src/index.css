@@ -3,66 +3,87 @@
 @tailwind utilities;
 
 :root {
-    --background: #1e1e1e;
-    --text: #abb2bf;
-    --active-text: #fafafa;
+    /* Oxocarbon Color Palette - IBM Carbon Inspired */
+    /* Base colors */
+    --oxo-base00: #161616; /* Background */
+    --oxo-base01: #262626; /* Lighter background */
+    --oxo-base02: #393939; /* Selection background */
+    --oxo-base03: #525252; /* Comments, invisibles */
+    --oxo-base04: #dde1e6; /* Dark foreground */
+    --oxo-base05: #f2f4f8; /* Default foreground */
+    --oxo-base06: #ffffff; /* Light foreground */
+    
+    /* Accent colors */
+    --oxo-blue: #78a9ff;
+    --oxo-cyan: #3ddbd9;
+    --oxo-teal: #08bdba;
+    --oxo-light-blue: #82cfff;
+    --oxo-sky-blue: #33b1ff;
+    --oxo-pink: #ee5396;
+    --oxo-light-pink: #ff7eb6;
+    --oxo-green: #42be65;
+    --oxo-purple: #be95ff;
 
-    --title-bar-background: #484747;
+    /* Application theme variables */
+    --background: var(--oxo-base00);
+    --text: var(--oxo-base04);
+    --active-text: var(--oxo-base05);
 
-    --left-pane-background: #252526;
-    --left-pane-hover: #404040;
-    --left-pane-selected: #444;
+    --title-bar-background: var(--oxo-base01);
 
-    --selected-text: #2a649ee3;
-    --selection-match: #b0c6f345;
-    --tab-active: #1e1e1e;
-    --tab-not-active: #2d2d2d;
-    --tab-bar-background: #252526;
-    --tab-inactive-font: #616876;
+    --left-pane-background: var(--oxo-base01);
+    --left-pane-hover: var(--oxo-base02);
+    --left-pane-selected: var(--oxo-base02);
 
-    --button: #666;
+    --selected-text: var(--oxo-blue);
+    --selection-match: rgba(120, 169, 255, 0.3);
+    --tab-active: var(--oxo-base00);
+    --tab-not-active: var(--oxo-base01);
+    --tab-bar-background: var(--oxo-base01);
+    --tab-inactive-font: var(--oxo-base03);
 
-    --marked-text: #123d68e3;
+    --button: var(--oxo-base03);
 
-    --old-scrollbar-background: #1e1e1e;
-    /* The same thing but with a little transparency */
-    --scrollbar-background: #1e1e1e5b;
-    --scrollbar: #424242;
+    --marked-text: var(--oxo-sky-blue);
+
+    --old-scrollbar-background: var(--oxo-base00);
+    --scrollbar-background: rgba(22, 22, 22, 0.36);
+    --scrollbar: var(--oxo-base03);
     --white-scrollbar-background: #ccc;
     --white-scrollbar: #888;
 
-    --pane-border: rgb(61, 66, 77);
+    --pane-border: var(--oxo-base02);
 
     --diff-add: #e5feeb;
-    --other-diff-add: rgba(229, 254, 235, 0.2);
-    --diff-bright-add: #ccffd8;
+    --other-diff-add: rgba(66, 190, 101, 0.2);
+    --diff-bright-add: var(--oxo-green);
 
     --diff-delete: #ffe5e5;
-    --diff-bright-delete: #ffcccc;
+    --diff-bright-delete: var(--oxo-light-pink);
 
-    --chatbar-border: rgb(61, 66, 77);
-    --chatbar-background: #252526;
-    --user-chat-bubble: #5a6f80;
-    --assistant-chat-bubble: #93979a;
+    --chatbar-border: var(--oxo-base02);
+    --chatbar-background: var(--oxo-base01);
+    --user-chat-bubble: var(--oxo-blue);
+    --assistant-chat-bubble: var(--oxo-base03);
 
-    --input-background: #3c3c3c;
-    --input-text: #fafafa;
+    --input-background: var(--oxo-base02);
+    --input-text: var(--oxo-base05);
 
-    --chat-text: #fff;
+    --chat-text: var(--oxo-base05);
 
-    --vscode-theme-editor-background: #282c34;
-    --vscode-blue: #2d6198;
-    --link-vscode-blue: hsl(211, 54%, 80%);
+    --vscode-theme-editor-background: var(--oxo-base00);
+    --vscode-blue: var(--oxo-blue);
+    --link-vscode-blue: var(--oxo-light-blue);
 
-    --submit-button: hsl(165deg 70% 40%);
-    --reject-button: hsl(0deg 70% 40%);
-    --submit-transparent-button: hsla(165deg 70% 40% / 0.5);
-    --reject-transparent-button: hsla(0deg 70% 40% / 0.5);
-    --cancel-button: #555;
-    --continue-button: var(--vscode-blue);
-    --full-continue-button: #158b13;
+    --submit-button: var(--oxo-green);
+    --reject-button: var(--oxo-pink);
+    --submit-transparent-button: rgba(66, 190, 101, 0.5);
+    --reject-transparent-button: rgba(238, 83, 150, 0.5);
+    --cancel-button: var(--oxo-base03);
+    --continue-button: var(--oxo-blue);
+    --full-continue-button: var(--oxo-green);
 
-    --ai-color: #438ad6;
+    --ai-color: var(--oxo-purple);
 }
 
 @font-face {

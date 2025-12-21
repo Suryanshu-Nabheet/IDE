@@ -1,13 +1,13 @@
 {
-    "homepage": "https://cursor.so",
-    "name": "cursor",
+    "homepage": "https://github.com/Suryanshu-Nabheet/CodeX",
+    "name": "codex",
     "author": {
-        "name": "Cursor AI, Inc.",
-        "email": "hiring@cursor.so"
+        "name": "Suryanshu Nabheet",
+        "email": "suryanshu@codex.dev"
     },
-    "productName": "Cursor",
-    "version": "0.1.11",
-    "description": "Cursor is an AI-first coding environment.",
+    "productName": "CodeX",
+    "version": "1.0.0",
+    "description": "CodeX is an enterprise-level AI-powered code editor with the Oxocarbon theme.",
     "main": ".webpack/main",
     "scripts": {
         "fix": "eslint --ext .ts,.tsx --fix .",
