@@ -1,6 +1,6 @@
 import React from 'react'
 
-// Premium Material-style file icons with vibrant colors
+// Professional VS Code-style file icons with proper logos and designs
 
 interface FileIconProps {
     fileName: string
@@ -8,274 +8,236 @@ interface FileIconProps {
     isOpen?: boolean
 }
 
-// Icon color palette
+// Icon color palette matching VS Code Material Theme
 const colors = {
     javascript: '#F7DF1E',
     typescript: '#3178C6',
     react: '#61DAFB',
     python: '#3776AB',
+    pythonAlt: '#FFD43B',
     css: '#1572B6',
     html: '#E34F26',
     json: '#FFC107',
-    markdown: '#0D1117',
+    markdown: '#519ABA',
     git: '#F05032',
     config: '#6B7280',
     image: '#10B981',
     text: '#9CA3AF',
-    folder: '#6fa0ff',
-    folderOpen: '#75c7ff',
+    folder: '#90A4AE',
+    folderOpen: '#90A4AE',
+    tsx: '#3178C6',
 }
 
-// JavaScript Icon
-const JavaScriptIcon = () => (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.javascript} />
-        <text
-            x="12"
-            y="17"
-            fontSize="14"
-            fontWeight="bold"
-            fill="#000"
-            textAnchor="middle"
-            fontFamily="Arial"
-        >
-            JS
-        </text>
-    </svg>
-)
-
-// TypeScript Icon
+// TypeScript Icon - Professional TS logo
 const TypeScriptIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.typescript} />
-        <text
-            x="12"
-            y="17"
-            fontSize="14"
-            fontWeight="bold"
-            fill="#fff"
-            textAnchor="middle"
-            fontFamily="Arial"
-        >
-            TS
-        </text>
+        <rect width="24" height="24" rx="2" fill={colors.typescript} />
+        <path
+            d="M12.5 8.5h3v1h-1.5v5h-1v-5h-1.5v-1zm4.5 0h3.5v1h-2.5v1.5h2v1h-2v2h-1v-5.5z"
+            fill="white"
+        />
     </svg>
 )
 
-// React/JSX Icon
+// JavaScript Icon - Professional JS logo
+const JavaScriptIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="24" height="24" rx="2" fill={colors.javascript} />
+        <path
+            d="M13.5 8.5h1v4.5c0 1.1-.9 2-2 2s-2-.9-2-2h1c0 .6.4 1 1 1s1-.4 1-1v-4.5zm2.5 0h3.5v1h-2.5v1h2v1h-2v1.5h2.5v1h-3.5v-5.5z"
+            fill="#000"
+        />
+    </svg>
+)
+
+// React/TSX Icon - React atom logo
 const ReactIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill="#222" />
-        <circle cx="12" cy="12" r="2" fill={colors.react} />
+        <rect width="24" height="24" rx="2" fill="#20232A" />
         <ellipse
             cx="12"
             cy="12"
-            rx="8"
-            ry="3"
+            rx="6.5"
+            ry="2.5"
             stroke={colors.react}
-            strokeWidth="1.5"
+            strokeWidth="0.8"
             fill="none"
         />
         <ellipse
             cx="12"
             cy="12"
-            rx="8"
-            ry="3"
+            rx="6.5"
+            ry="2.5"
             stroke={colors.react}
-            strokeWidth="1.5"
+            strokeWidth="0.8"
             fill="none"
             transform="rotate(60 12 12)"
         />
         <ellipse
             cx="12"
             cy="12"
-            rx="8"
-            ry="3"
+            rx="6.5"
+            ry="2.5"
             stroke={colors.react}
-            strokeWidth="1.5"
+            strokeWidth="0.8"
             fill="none"
             transform="rotate(120 12 12)"
         />
+        <circle cx="12" cy="12" r="1.5" fill={colors.react} />
     </svg>
 )
 
-// Python Icon
+// Python Icon - Python logo style
 const PythonIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.python} />
-        <text
-            x="12"
-            y="17"
-            fontSize="13"
-            fontWeight="bold"
-            fill="#FFD43B"
-            textAnchor="middle"
-            fontFamily="Arial"
-        >
-            PY
-        </text>
+        <rect width="24" height="24" rx="2" fill="#20232A" />
+        <path
+            d="M12 6c-2.2 0-4 1.8-4 4v1h4v.5H8c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1v-1.5c0-1.1.9-2 2-2h2c1.1 0 2-.9 2-2v-2c0-1.1-.9-2-2-2h-1z"
+            fill={colors.python}
+        />
+        <path
+            d="M12 18c2.2 0 4-1.8 4-4v-1h-4v-.5h4c1.1 0 2-.9 2-2v-2c0-1.1-.9-2-2-2h-1v1.5c0 1.1-.9 2-2 2h-2c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1z"
+            fill={colors.pythonAlt}
+        />
+        <circle cx="10" cy="9" r="0.7" fill="#fff" />
+        <circle cx="14" cy="15" r="0.7" fill="#20232A" />
     </svg>
 )
 
-// CSS Icon
+// CSS Icon - CSS3 shield logo
 const CSSIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.css} />
-        <text
-            x="12"
-            y="17"
-            fontSize="13"
-            fontWeight="bold"
-            fill="#fff"
-            textAnchor="middle"
-            fontFamily="Arial"
-        >
-            CSS
-        </text>
+        <path d="M5 3l1.5 16.5L12 21l5.5-1.5L19 3H5z" fill={colors.css} />
+        <path
+            d="M12 5v14l-4-1.1L7 5h5zm0 5.5h-3l.2 2h2.8v2h-2.5l-.2-1h-1l.3 2 3.4.9v-2.4h-2.8l-.2-1.5h3v-2z"
+            fill="white"
+        />
     </svg>
 )
 
-// HTML Icon
+// HTML Icon - HTML5 shield logo
 const HTMLIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.html} />
-        <text
-            x="12"
-            y="17"
-            fontSize="11"
-            fontWeight="bold"
-            fill="#fff"
-            textAnchor="middle"
-            fontFamily="Arial"
-        >
-            HTML
-        </text>
+        <path d="M5 3l1.5 16.5L12 21l5.5-1.5L19 3H5z" fill={colors.html} />
+        <path
+            d="M12 5v14l-4-1.1L7 5h5zm-2 5v2h2v2h-2v2h3v-2h-1v-2h1v-2H10z"
+            fill="white"
+        />
     </svg>
 )
 
-// JSON Icon
+// JSON Icon - Curly braces design
 const JSONIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.json} />
-        <text
-            x="12"
-            y="17"
-            fontSize="12"
-            fontWeight="bold"
-            fill="#000"
-            textAnchor="middle"
-            fontFamily="Arial"
-        >
-            JSON
-        </text>
+        <rect width="24" height="24" rx="2" fill="#20232A" />
+        <path
+            d="M8 7c-.5 0-1 .5-1 1v2c0 .5-.5 1-1 1v2c.5 0 1 .5 1 1v2c0 .5.5 1 1 1h1v-1H8v-2.5c0-.8-.3-1.5-1-1.5 .7 0 1-.7 1-1.5V8h1V7H8zm8 0h-1v1h1v2.5c0 .8.3 1.5 1 1.5-.7 0-1 .7-1 1.5V16h-1v1h1c.5 0 1-.5 1-1v-2c0-.5.5-1 1-1v-2c-.5 0-1-.5-1-1V8c0-.5-.5-1-1-1z"
+            fill={colors.json}
+        />
     </svg>
 )
 
-// Markdown Icon
+// Markdown Icon - M with document
 const MarkdownIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.markdown} />
-        <text
-            x="12"
-            y="17"
-            fontSize="13"
-            fontWeight="bold"
-            fill="#fff"
-            textAnchor="middle"
-            fontFamily="Arial"
-        >
-            MD
-        </text>
+        <rect width="24" height="24" rx="2" fill="#20232A" />
+        <path
+            d="M7 9v6h1.5v-4.5l1.5 1.8 1.5-1.8V15H13V9h-1.5L10 11.3 8.5 9H7zm7 0v4.5h1.5L18 11v4h1.5V9H18l-2.5 2.5L13 9h-1z"
+            fill={colors.markdown}
+        />
     </svg>
 )
 
-// Git Icon
+// Git Icon - Git logo
 const GitIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.git} />
+        <rect width="24" height="24" rx="2" fill="#20232A" />
         <path
-            d="M11.5 3L20.5 12L11.5 21L2.5 12L11.5 3Z"
-            fill="#fff"
-            transform="translate(0.5, 0)"
+            d="M11.3 5.7l-5.6 5.6c-.4.4-.4 1 0 1.4l5.6 5.6c.4.4 1 .4 1.4 0l5.6-5.6c.4-.4.4-1 0-1.4l-5.6-5.6c-.4-.4-1-.4-1.4 0z"
+            fill={colors.git}
         />
-        <circle cx="12" cy="12" r="2.5" fill={colors.git} />
+        <circle cx="9.5" cy="12" r="1.2" fill="white" />
+        <circle cx="14.5" cy="12" r="1.2" fill="white" />
     </svg>
 )
 
-// Config Icon
+// Config/Settings Icon - Gear
 const ConfigIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.config} />
+        <rect width="24" height="24" rx="2" fill="#20232A" />
         <circle
             cx="12"
             cy="12"
-            r="3"
-            stroke="#fff"
-            strokeWidth="1.5"
+            r="2.5"
+            stroke={colors.config}
+            strokeWidth="1.2"
             fill="none"
         />
         <path
-            d="M12 8V6M12 18V16M16 12H18M6 12H8"
-            stroke="#fff"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-        />
-        <path
-            d="M14.5 9.5L16 8M8 16L9.5 14.5M14.5 14.5L16 16M8 8L9.5 9.5"
-            stroke="#fff"
-            strokeWidth="1.5"
+            d="M12 7v1.5M12 15.5V17M17 12h-1.5M8.5 12H7M15.5 8.5l-1 1M9.5 14.5l-1 1M15.5 15.5l-1-1M9.5 9.5l-1-1"
+            stroke={colors.config}
+            strokeWidth="1.2"
             strokeLinecap="round"
         />
     </svg>
 )
 
-// Image Icon
+// Image Icon - Picture frame
 const ImageIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" fill={colors.image} />
+        <rect width="24" height="24" rx="2" fill="#20232A" />
         <rect
-            x="5"
+            x="6"
             y="7"
-            width="14"
+            width="12"
             height="10"
             rx="1"
-            stroke="#fff"
-            strokeWidth="1.5"
+            stroke={colors.image}
+            strokeWidth="1.2"
             fill="none"
         />
-        <circle cx="9" cy="10.5" r="1.5" fill="#fff" />
+        <circle cx="9" cy="10" r="1.2" fill={colors.image} />
         <path
-            d="M5 15L8 12L11 15L15 11L19 15V16C19 16.5 18.5 17 18 17H6C5.5 17 5 16.5 5 16V15Z"
-            fill="#fff"
+            d="M6 15l3-3 2 2 3-3 4 4v2H6v-2z"
+            fill={colors.image}
+            opacity="0.7"
         />
     </svg>
 )
 
-// Folder Icon
+// Folder Icon - Professional folder design
 const FolderIcon = ({ isOpen }: { isOpen?: boolean }) => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-            d="M4 6C4 4.89543 4.89543 4 6 4H9L11 6H18C19.1046 6 20 6.89543 20 8V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6Z"
-            fill={isOpen ? colors.folderOpen : colors.folder}
-        />
-        {isOpen && (
+        {isOpen ? (
+            <>
+                <path
+                    d="M4 6c0-1.1.9-2 2-2h4l2 2h6c1.1 0 2 .9 2 2v1H4V6z"
+                    fill={colors.folderOpen}
+                    opacity="0.7"
+                />
+                <path
+                    d="M4 9h16v9c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V9z"
+                    fill={colors.folderOpen}
+                />
+            </>
+        ) : (
             <path
-                d="M4 10H20V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V10Z"
-                fill={colors.folderOpen}
-                opacity="0.7"
+                d="M4 6c0-1.1.9-2 2-2h4l2 2h6c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V6z"
+                fill={colors.folder}
             />
         )}
     </svg>
 )
 
-// Default File Icon
+// Default File Icon - Generic document
 const DefaultFileIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
-            d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z"
+            d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z"
             fill={colors.text}
         />
-        <path d="M14 2V8H20" fill="#fff" opacity="0.3" />
+        <path d="M14 2v6h6" fill="white" opacity="0.3" />
+        <path d="M8 14h8M8 17h5" stroke="white" strokeWidth="1" opacity="0.5" />
     </svg>
 )
 
@@ -297,7 +259,11 @@ export const FileIcon: React.FC<FileIconProps> = ({
     const name = fileName.toLowerCase()
 
     // Special file names
-    if (name === 'package.json' || name === 'package-lock.json') {
+    if (
+        name === 'package.json' ||
+        name === 'package-lock.json' ||
+        name === 'tsconfig.json'
+    ) {
         return (
             <div className="file-icon-container">
                 <JSONIcon />
@@ -313,7 +279,7 @@ export const FileIcon: React.FC<FileIconProps> = ({
         )
     }
 
-    if (name === '.gitignore' || name === '.gitattributes') {
+    if (name === '.gitignore' || name === '.gitattributes' || name === '.git') {
         return (
             <div className="file-icon-container">
                 <GitIcon />
@@ -325,9 +291,10 @@ export const FileIcon: React.FC<FileIconProps> = ({
         name.includes('config') ||
         name === '.env' ||
         name === '.env.local' ||
-        name === 'tsconfig.json' ||
         name === 'webpack.config.js' ||
-        name === 'vite.config.js'
+        name === 'vite.config.js' ||
+        name === '.eslintrc' ||
+        name === '.prettierrc'
     ) {
         return (
             <div className="file-icon-container">
