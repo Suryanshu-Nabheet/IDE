@@ -16,6 +16,7 @@ import {
     NotLoggedInError,
     streamSource,
 } from '../../utils'
+import { log } from '../../utils/logger'
 import { getViewId } from '../codemirror/codemirrorSelectors'
 import {
     FullCodeMirrorState,
@@ -331,7 +332,11 @@ export async function getPayload({
         apiKey: oaiKey,
         customModel: openAIModel,
     }
-    console.log({ data })
+    log.debug(
+        'Sending chat request',
+        { userRequest: data.userRequest },
+        'chatThunks'
+    )
 
     // document.cookie = `repo_path=${state.global.rootPath}`
     return data
