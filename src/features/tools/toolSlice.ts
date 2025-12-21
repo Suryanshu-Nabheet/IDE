@@ -1,5 +1,6 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { FullState, ToolState } from '../window/state'
+import { log } from '../../utils/logger'
 
 const initialState: ToolState = {
     openLeftTab: 'filetree',
@@ -22,7 +23,11 @@ export const refreshLoginDetails = createAsyncThunk(
     async (arg: null, { dispatch }) => {
         const newUserCreds = await connector.getUserCreds()
         dispatch(login(newUserCreds))
-        console.log('FINISHED REFRESH LOGIN HERE')
+        log.debug(
+            'Finished refreshing login details',
+            newUserCreds,
+            'toolSlice'
+        )
     }
 )
 
@@ -32,11 +37,12 @@ export const signInCursor = createAsyncThunk(
         await dispatch(refreshLoginDetails(null))
         const state = (getState() as FullState).toolState
 
-        console.log('CALLING SIGN IN CURSOR')
+        log.info('Initiating sign in', undefined, 'toolSlice')
         if (state.cursorLogin.accessToken && state.cursorLogin.profile) {
+            log.debug('User already logged in', undefined, 'toolSlice')
             return
         } else {
-            console.log('CALL PASSES TO LOGIN CURSOR')
+            log.info('Proceeding to login', undefined, 'toolSlice')
             await connector.loginCursor()
         }
     }
@@ -48,11 +54,16 @@ export const signOutCursor = createAsyncThunk(
         await dispatch(refreshLoginDetails(null))
         const state = (getState() as FullState).toolState
 
-        console.log('CALLING SIGN OUT CURSOR')
+        log.info('Initiating sign out', undefined, 'toolSlice')
         if (state.cursorLogin.accessToken && state.cursorLogin.profile) {
-            console.log('CALL PASSES TO LOGOUT CURSOR')
+            log.info('Proceeding to logout', undefined, 'toolSlice')
             await connector.logoutCursor()
         } else {
+            log.debug(
+                'User not logged in, skipping logout',
+                undefined,
+                'toolSlice'
+            )
             return
         }
     }
@@ -63,21 +74,30 @@ export const upgradeCursor = createAsyncThunk(
     async (payload: null, { dispatch, getState }) => {
         await dispatch(refreshLoginDetails(null))
         const state = (getState() as FullState).toolState
-        console.log('FINISHED REFRESH LOGIN OUTSIDE')
-        console.log('CALLING UPGRADE CURSOR')
+        log.debug(
+            'Finished refreshing login for upgrade',
+            undefined,
+            'toolSlice'
+        )
+        log.info('Initiating upgrade', undefined, 'toolSlice')
         if (
             state.cursorLogin.accessToken &&
             state.cursorLogin.profile &&
             state.cursorLogin.stripeId
         ) {
+            log.debug('User already has subscription', undefined, 'toolSlice')
             return
         } else if (
             !(state.cursorLogin.accessToken && state.cursorLogin.profile)
         ) {
-            console.log('UPGRADE CURSOR PASSES TO LOGIN')
+            log.info(
+                'User not logged in, proceeding to login',
+                undefined,
+                'toolSlice'
+            )
             await connector.loginCursor()
         } else {
-            console.log('UPGRADE CURSOR PASSES TO PAY')
+            log.info('Proceeding to payment', undefined, 'toolSlice')
             await connector.payCursor()
         }
     }
@@ -141,7 +161,7 @@ export const toolSlice = createSlice({
                 stripeProfile?: string | null
             }>
         ) {
-            console.log('Triggered with', action.payload)
+            log.debug('Login action triggered', action.payload, 'toolSlice')
             if (action.payload.accessToken) {
                 state.cursorLogin.accessToken = action.payload.accessToken
             } else if (action.payload.accessToken === null) {
