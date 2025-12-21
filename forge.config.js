@@ -1,6 +1,6 @@
 module.exports = {
     packagerConfig: {
-        name: 'Cursor',
+        name: 'CodeX',
         icon: 'assets/icon/icon',
         extraResource: [
             './lsp',

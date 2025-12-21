@@ -103,7 +103,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
--   Inspired by the original Cursor editor
+-   Inspired by the original CodeX editor
 -   Oxocarbon theme by [nyoom-engineering](https://github.com/nyoom-engineering/oxocarbon.nvim)
 -   IBM Carbon Design System
 

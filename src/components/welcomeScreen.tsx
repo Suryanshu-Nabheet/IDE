@@ -270,7 +270,7 @@ export function WelcomeScreen() {
                         Optional: Copilot
                     </h2>
                     <p className="key-bindings-subheading subheading">
-                        Cursor comes with a built-in Github Copilot integration.
+                        CodeX comes with a built-in Github Copilot integration.
                     </p>
                     <CopilotPanel />
                 </div>

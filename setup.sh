@@ -14,8 +14,8 @@ if ! command_exists unzip; then
     exit 1
 fi
 
-wget https://cursor.so/resources.zip
-wget https://cursor.so/lsp.zip
+wget https://codex.so/resources.zip
+wget https://codex.so/lsp.zip
 
 unzip resources.zip
 unzip lsp.zip

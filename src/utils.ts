@@ -1,5 +1,5 @@
-export const API_ROOT = 'https://aicursor.com'
-export const HOMEPAGE_ROOT = 'https://cursor.so'
+export const API_ROOT = 'https://aiCodeX.com'
+export const HOMEPAGE_ROOT = 'https://aiCodeX.so'
 
 export class ExpectedBackendError extends Error {
     public title: string | null = null
@@ -17,7 +17,7 @@ export class NoAuthRateLimitError extends ExpectedBackendError {
 
 export class AuthRateLimitError extends ExpectedBackendError {
     constructor(
-        message = "It seems like you're making an unusual number of AI requests. Please try again later. If you think this is a mistake, please contact admin@cursor.so"
+        message = "It seems like you're making an unusual number of AI requests. Please try again later. If you think this is a mistake, please contact admin@aiCodeX.so"
     ) {
         super(message)
         this.name = 'AuthRateLimitError'
@@ -37,7 +37,7 @@ export class NoAuthLocalRateLimitError extends ExpectedBackendError {
 
 export class NoAuthGlobalOldRateLimitError extends ExpectedBackendError {
     constructor(
-        message = "If you've enjoyed using Cursor, please consider subscribing to one of our paid plans. Otherwise, you can enter your Open AI key (gear icon) to continue using the AI features at-cost."
+        message = "If you've enjoyed using CodeX, please consider subscribing to one of our paid plans. Otherwise, you can enter your Open AI key (gear icon) to continue using the AI features at-cost."
     ) {
         super(message)
         this.name = 'NoAuthGlobalOldRateLimitError'
@@ -47,7 +47,7 @@ export class NoAuthGlobalOldRateLimitError extends ExpectedBackendError {
 
 export class NoAuthGlobalNewRateLimitError extends ExpectedBackendError {
     constructor(
-        message = "We're currently experiencing a high volume of requests. Please try again in a few minutes. For support, please contact admin@cursor.so."
+        message = "We're currently experiencing a high volume of requests. Please try again in a few minutes. For support, please contact admin@aiCodeX.so."
     ) {
         super(message)
         this.name = 'NoAuthGlobalNewRateLimitError'
