@@ -40,7 +40,7 @@ function check() {
                     lspStore(store).clear()
 
                     // Then we quit and install
-                    todesktop.autoUpdater.restartAndInstall()
+                    todesktop.autoUpdater?.restartAndInstall()
                 }, 100)
             }
         })
@@ -48,14 +48,14 @@ function check() {
 }
 
 export default function setupAutoUpdater() {
-    todesktop.autoUpdater.on('update-downloaded', check)
+    todesktop.autoUpdater?.on('update-downloaded', check)
 
     app.on('ready', function () {
         if (isAppInApplicationsFolder) {
             if (app.isPackaged) {
-                todesktop.autoUpdater.checkForUpdates()
+                todesktop.autoUpdater?.checkForUpdates()
                 setInterval(() => {
-                    todesktop.autoUpdater.checkForUpdates()
+                    todesktop.autoUpdater?.checkForUpdates()
                 }, 1000 * 60 * 15)
             }
         }
