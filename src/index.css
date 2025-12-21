@@ -3,26 +3,28 @@
 @tailwind utilities;
 
 :root {
-    /* Oxocarbon Color Palette - IBM Carbon Inspired */
-    /* Base colors */
-    --oxo-base00: #161616; /* Background */
-    --oxo-base01: #262626; /* Lighter background */
-    --oxo-base02: #393939; /* Selection background */
-    --oxo-base03: #525252; /* Comments, invisibles */
-    --oxo-base04: #dde1e6; /* Dark foreground */
-    --oxo-base05: #f2f4f8; /* Default foreground */
-    --oxo-base06: #ffffff; /* Light foreground */
+    /* Oxocarbon Color Palette - Premium Dark Edition */
+    /* Enhanced with deeper blacks and richer tones for a luxurious feel */
     
-    /* Accent colors */
-    --oxo-blue: #78a9ff;
-    --oxo-cyan: #3ddbd9;
-    --oxo-teal: #08bdba;
-    --oxo-light-blue: #82cfff;
-    --oxo-sky-blue: #33b1ff;
-    --oxo-pink: #ee5396;
-    --oxo-light-pink: #ff7eb6;
-    --oxo-green: #42be65;
-    --oxo-purple: #be95ff;
+    /* Base colors - Darker and more premium */
+    --oxo-base00: #0a0a0a; /* Deeper background - almost pure black */
+    --oxo-base01: #1a1a1a; /* Darker lighter background */
+    --oxo-base02: #2a2a2a; /* Darker selection background */
+    --oxo-base03: #4a4a4a; /* Slightly lighter for better contrast */
+    --oxo-base04: #c8d0d8; /* Softer dark foreground */
+    --oxo-base05: #e8ecf0; /* Brighter default foreground */
+    --oxo-base06: #ffffff; /* Pure white for maximum contrast */
+    
+    /* Accent colors - More vibrant and saturated for premium feel */
+    --oxo-blue: #6fa0ff;      /* Slightly brighter blue */
+    --oxo-cyan: #2dd4d1;      /* More vibrant cyan */
+    --oxo-teal: #06b8b5;      /* Richer teal */
+    --oxo-light-blue: #75c7ff; /* Brighter light blue */
+    --oxo-sky-blue: #2fb8ff;   /* More vibrant sky blue */
+    --oxo-pink: #ff4d9e;       /* More saturated pink */
+    --oxo-light-pink: #ff6eb8; /* Brighter light pink */
+    --oxo-green: #3bc95f;      /* More vibrant green */
+    --oxo-purple: #b88dff;     /* Richer purple */
 
     /* Application theme variables */
     --background: var(--oxo-base00);
@@ -36,7 +38,7 @@
     --left-pane-selected: var(--oxo-base02);
 
     --selected-text: var(--oxo-blue);
-    --selection-match: rgba(120, 169, 255, 0.3);
+    --selection-match: rgba(111, 160, 255, 0.25);
     --tab-active: var(--oxo-base00);
     --tab-not-active: var(--oxo-base01);
     --tab-bar-background: var(--oxo-base01);
@@ -47,7 +49,7 @@
     --marked-text: var(--oxo-sky-blue);
 
     --old-scrollbar-background: var(--oxo-base00);
-    --scrollbar-background: rgba(22, 22, 22, 0.36);
+    --scrollbar-background: rgba(10, 10, 10, 0.4);
     --scrollbar: var(--oxo-base03);
     --white-scrollbar-background: #ccc;
     --white-scrollbar: #888;
@@ -55,7 +57,7 @@
     --pane-border: var(--oxo-base02);
 
     --diff-add: #e5feeb;
-    --other-diff-add: rgba(66, 190, 101, 0.2);
+    --other-diff-add: rgba(59, 201, 95, 0.2);
     --diff-bright-add: var(--oxo-green);
 
     --diff-delete: #ffe5e5;
@@ -77,8 +79,8 @@
 
     --submit-button: var(--oxo-green);
     --reject-button: var(--oxo-pink);
-    --submit-transparent-button: rgba(66, 190, 101, 0.5);
-    --reject-transparent-button: rgba(238, 83, 150, 0.5);
+    --submit-transparent-button: rgba(59, 201, 95, 0.5);
+    --reject-transparent-button: rgba(255, 77, 158, 0.5);
     --cancel-button: var(--oxo-base03);
     --continue-button: var(--oxo-blue);
     --full-continue-button: var(--oxo-green);
