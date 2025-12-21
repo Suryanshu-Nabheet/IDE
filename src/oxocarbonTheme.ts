@@ -14,13 +14,13 @@ import { tags as t } from '@lezer/highlight'
 const colors = {
     // Background/Dark Grays - Deeper and more premium
     base00: '#0a0a0a', // Deeper background - almost pure black
-    base01: '#1a1a1a', // Darker lighter background
-    base02: '#2a2a2a', // Darker selection background
-    base03: '#4a4a4a', // Slightly lighter for better contrast
+    base01: '#141414', // Even darker lighter background
+    base02: '#1e1e1e', // Darker selection background
+    base03: '#3a3a3a', // Darker gray for subtle elements
 
     // Foreground/Light Grays & Whites - Enhanced contrast
-    base04: '#c8d0d8', // Softer dark foreground
-    base05: '#e8ecf0', // Brighter default foreground
+    base04: '#a0a8b0', // Darker muted foreground
+    base05: '#d8dce0', // Softer bright foreground
     base06: '#ffffff', // Pure white for maximum contrast
 
     // Accent Colors - More vibrant and saturated for premium feel

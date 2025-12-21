@@ -7,11 +7,11 @@ module.exports = {
                 // Oxocarbon color palette - Premium Dark Edition
                 oxo: {
                     base00: '#0a0a0a',
-                    base01: '#1a1a1a',
-                    base02: '#2a2a2a',
-                    base03: '#4a4a4a',
-                    base04: '#c8d0d8',
-                    base05: '#e8ecf0',
+                    base01: '#141414',
+                    base02: '#1e1e1e',
+                    base03: '#3a3a3a',
+                    base04: '#a0a8b0',
+                    base05: '#d8dce0',
                     base06: '#ffffff',
                     blue: '#6fa0ff',
                     cyan: '#2dd4d1',
