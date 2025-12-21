@@ -131,7 +131,7 @@
         "node-fetch": "^3.3.0",
         "node-gzip": "^1.1.2",
         "node-machine-id": "^1.1.12",
-        "node-pty": "^0.10.1",
+        "node-pty": "^1.0.0",
         "posthog-js": "^1.50.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
