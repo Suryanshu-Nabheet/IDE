@@ -93,15 +93,13 @@ function updateSyncViews(codeMirrorState: CodeMirrorState, tabIds: number[]) {
         const customDispatch = (tr: Transaction) =>
             syncDispatch(tr, currentView, ...otherViews)
 
-        currentView.dispatch = (
-            ...input: (Transaction | TransactionSpec)[]
-        ) => {
-            customDispatch(
-                input.length == 1 && input[0] instanceof Transaction
-                    ? input[0]
-                    : currentView.state.update(...(input as TransactionSpec[]))
-            )
-        }
+        currentView.dispatch = ((...input: any[]) => {
+            if (input.length === 1 && input[0] instanceof Transaction) {
+                customDispatch(input[0])
+            } else {
+                customDispatch(currentView.state.update(...input))
+            }
+        }) as typeof currentView.dispatch
     }
 }
 
