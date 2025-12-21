@@ -353,10 +353,83 @@ function Folder({ fid }: { fid: number }) {
 
 export function FileTree() {
     const rootFolderId = 1
+    const dispatch = useAppDispatch()
+    const rootFolder = useAppSelector(getFolder(rootFolderId))
+    const isOpen = useAppSelector(getFolderOpen(rootFolderId))
+    const fileChildren = useAppSelector(getNotDeletedFiles(rootFolderId))
+
+    const toggleOpen = () => {
+        dispatch(gs.loadFolder({ folderId: rootFolderId, goDeep: false }))
+        dispatch(gs.setFolderOpen({ folderId: rootFolderId, isOpen: !isOpen }))
+    }
+
+    useEffect(() => {
+        dispatch(gs.setFolderOpen({ folderId: rootFolderId, isOpen: true }))
+    }, [])
+
     return (
-        // Check size of folders
         <div className="window__leftpane colortheme">
-            <Folder fid={rootFolderId} />
+            {/* Sticky project header */}
+            <div
+                className="filetree__project-header"
+                onClick={toggleOpen}
+                onContextMenu={() => {
+                    dispatch(
+                        gs.setFolderOpen({
+                            folderId: rootFolderId,
+                            isOpen: true,
+                        })
+                    )
+                    dispatch(gs.rightClickFolder(rootFolderId))
+                }}
+            >
+                <div className="folder__icon">
+                    {isOpen ? (
+                        <FontAwesomeIcon icon={faChevronDown} />
+                    ) : (
+                        <FontAwesomeIcon icon={faChevronRight} />
+                    )}
+                </div>
+                <div className="folder__name truncate">{rootFolder.name}</div>
+                <div className="folder__hoverbuttons">
+                    <div
+                        className="folder__hoverbutton"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            dispatch(
+                                gs.newFile({ parentFolderId: rootFolderId })
+                            )
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faFileCirclePlus} />
+                    </div>
+                    <div
+                        className="folder__hoverbutton"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            dispatch(
+                                gs.newFolder({ parentFolderId: rootFolderId })
+                            )
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faFolderPlus} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="filetree__content">
+                {isOpen && (
+                    <>
+                        {rootFolder.folderIds?.map((fid: number) => {
+                            return <Folder key={`folder-${fid}`} fid={fid} />
+                        })}
+                        {fileChildren.map((fid: number) => {
+                            return <File key={`file-${fid}`} fid={fid} />
+                        })}
+                    </>
+                )}
+            </div>
         </div>
     )
 }

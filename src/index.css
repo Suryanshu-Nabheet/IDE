@@ -327,14 +327,43 @@ body {
 }
 
 .window__leftpane {
-    padding-bottom: 1rem;
+    padding-bottom: 0;
     min-width: 10rem;
-    overflow-y: auto;
+    overflow-y: hidden;
     background-color: var(--left-pane-background);
     box-sizing: border-box;
     height: 100%;
     flex-grow: 1;
     overflow-x: clip;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sticky project header */
+.filetree__project-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--left-pane-background);
+    border-bottom: 1px solid var(--pane-border);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.filetree__project-header:hover {
+    background-color: var(--left-pane-hover);
+}
+
+/* Scrollable file tree content */
+.filetree__content {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: clip;
+    padding-bottom: 1rem;
 }
 
 .folder {
