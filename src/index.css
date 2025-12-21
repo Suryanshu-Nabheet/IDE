@@ -347,17 +347,24 @@ body {
     top: 0;
     z-index: 10;
     background-color: var(--left-pane-background);
-    border-bottom: 1px solid var(--pane-border);
+    border-bottom: 1px solid var(--oxo-base02);
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.75rem 0.5rem;
     display: flex;
     align-items: center;
     user-select: none;
     flex-shrink: 0;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .filetree__project-header:hover {
     background-color: var(--left-pane-hover);
+}
+
+.filetree__project-header .folder__name {
+    color: var(--oxo-base05);
+    font-weight: 600;
 }
 
 /* Scrollable file tree content */
@@ -379,6 +386,7 @@ body {
     display: flex;
     align-items: center;
     text-align: right;
+    opacity: 0.9;
 }
 
 .file__icon svg {
@@ -491,25 +499,23 @@ li.rta__item--selected mark {
 .folder__line,
 .file__line {
     cursor: pointer;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
     padding-right: 0.5rem;
     padding-left: 0.5rem;
     width: 100%;
     box-sizing: border-box;
-
     user-select: none;
     display: flex;
-
     text-align: left;
     height: 2rem;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    border-radius: 4px;
+    margin: 1px 4px;
 }
 
 .file__no_highlight:hover {
-    /* transparent */
-    /*   background-color: rgba(0, 0, 0, 0) !important;  */
     background-color: rgba(0, 0, 0, 0);
-    /* cursor: default !important; */
 }
 
 .folder__line:hover,
