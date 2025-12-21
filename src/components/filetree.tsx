@@ -25,8 +25,6 @@ function offset(depth: number) {
     return `${depth * 1 + 1}rem`
 }
 
-    'bz2',
-    'xz',
 import { FileIcon } from './fileIcons'
 
 export function getIconElement(fname: string) {
@@ -135,7 +133,11 @@ function Folder({ fid }: { fid: number }) {
                 }}
             >
                 <div className="folder__icon">
-                    <FileIcon fileName={folder.name} isFolder={true} isOpen={isOpen} />
+                    <FileIcon
+                        fileName={folder.name}
+                        isFolder={true}
+                        isOpen={isOpen}
+                    />
                 </div>
                 <div className="folder__chevron">
                     {isOpen ? (

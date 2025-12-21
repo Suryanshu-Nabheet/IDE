@@ -418,7 +418,6 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-}
 
 .file__path {
     overflow: hidden;
