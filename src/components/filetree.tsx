@@ -5,13 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faChevronDown,
     faChevronRight,
-    faCode,
-    faCodeMerge,
-    faEyeSlash,
-    faFile,
-    faGear,
-    faImage,
-    faInfoCircle,
 } from '@fortawesome/sharp-solid-svg-icons'
 import * as gs from '../features/globalSlice'
 
@@ -32,169 +25,12 @@ function offset(depth: number) {
     return `${depth * 1 + 1}rem`
 }
 
-// Thank you GPT-3
-const CODE_EXTENSIONS = [
-    'py',
-    'js',
-    'css',
-    'rb',
-    'java',
-    'php',
-    'c',
-    'cpp',
-    'go',
-    'swift',
-    'sql',
-    'scss',
-    'ts',
-    'sh',
-    'bat',
-    'pl',
-    'vb',
-    'clj',
-    'kt',
-    'rs',
-    'fs',
-    'coffee',
-    'lua',
-    'typescript',
-    'jsx',
-    'tsx',
-]
-
-const MARKUP_EXTENSIONS = ['html', 'htm', 'xml', 'xhtml']
-
-const INFO_EXTENSIONS = ['md', 'markdown', 'rst']
-
-const CONFIG_EXTENSIONS = [
-    'json',
-    'yml',
-    'conf',
-    'cfg',
-    'ini',
-    'xml',
-    'properties',
-    'hocon',
-    'env',
-    'toml',
-    'inf',
-    'plist',
-    'yaml',
-    'ini',
-    'reg',
-    'vbs',
-    'config.js',
-    'config.ts',
-    'rules.js',
-    'rules.ts',
-]
-
-const IMAGE_EXTENSIONS = [
-    'png',
-    'jpg',
-    'jpeg',
-    'gif',
-    'bmp',
-    'svg',
-    'webp',
-    'tiff',
-    'psd',
-    'eps',
-    'ai',
-    'raw',
-    'cr2',
-    'nef',
-    'orf',
-]
-
-const BINARY_EXTENSIONS = [
-    'zip',
-    'exe',
-    'bin',
-    'img',
-    'iso',
-    'dmg',
-    'deb',
-    'rar',
-    '7z',
-    'tar',
-    'gz',
     'bz2',
     'xz',
-    'lz',
-    'lzma',
-    'arj',
-    'cab',
-    'z',
-    'lzh',
-    'ace',
-]
+import { FileIcon } from './fileIcons'
 
 export function getIconElement(fname: string) {
-    const isMatch = (exts: string[]) => {
-        return exts.some((ext) => fname.endsWith('.' + ext))
-    }
-    let iconTextValue = null
-
-    let iconClassValue = null
-    let iconElement = null
-    if (isMatch(['js'])) {
-        iconTextValue = 'js'
-        iconClassValue = 'js'
-    } else if (isMatch(['py'])) {
-        iconTextValue = 'py'
-        iconClassValue = 'py'
-    } else if (isMatch(['ts'])) {
-        iconTextValue = 'ts'
-        iconClassValue = 'ts'
-    } else if (isMatch(['tsx'])) {
-        iconTextValue = 'tx'
-        iconClassValue = 'tsx'
-    } else if (isMatch(['jsx'])) {
-        iconTextValue = 'jx'
-        iconClassValue = 'jsx'
-    } else if (isMatch(['css'])) {
-        iconTextValue = ' #'
-        iconClassValue = 'css'
-    } else if (isMatch(['html'])) {
-        iconTextValue = '<>'
-        iconClassValue = 'html'
-    } else if (isMatch(['json'])) {
-        iconTextValue = '{}'
-        iconClassValue = 'json'
-    } else if (isMatch(['sh'])) {
-        iconTextValue = ' $'
-        iconClassValue = 'sh'
-    }
-
-    if (iconTextValue != null) {
-        iconElement = (
-            <div className={`file__icon_text file__icon_${iconClassValue}`}>
-                {iconTextValue.toUpperCase()}
-            </div>
-        )
-    }
-
-    if (iconElement == null) {
-        let icon = faFile
-
-        if (isMatch(CONFIG_EXTENSIONS)) {
-            icon = faGear
-        } else if (isMatch(CODE_EXTENSIONS)) {
-            icon = faCodeMerge
-        } else if (isMatch(IMAGE_EXTENSIONS)) {
-            icon = faImage
-        } else if (isMatch(BINARY_EXTENSIONS)) {
-            icon = faEyeSlash
-        } else if (isMatch(MARKUP_EXTENSIONS)) {
-            icon = faCode
-        } else if (isMatch(INFO_EXTENSIONS)) {
-            icon = faInfoCircle
-        }
-        iconElement = <FontAwesomeIcon icon={icon} />
-    }
-
-    return iconElement
+    return <FileIcon fileName={fname} />
 }
 
 function File({ fid }: { fid: number }) {
@@ -299,6 +135,9 @@ function Folder({ fid }: { fid: number }) {
                 }}
             >
                 <div className="folder__icon">
+                    <FileIcon fileName={folder.name} isFolder={true} isOpen={isOpen} />
+                </div>
+                <div className="folder__chevron">
                     {isOpen ? (
                         <FontAwesomeIcon icon={faChevronDown} />
                     ) : (
