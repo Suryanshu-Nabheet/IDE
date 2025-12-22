@@ -2047,12 +2047,8 @@ cm-diff-cancel > div {
     margin: 0px 4px;
 }
 
-.folder__line:hover .folder__hoverbuttons {
-    display: block;
-}
-
 .folder__hoverbuttons {
-    display: none;
+    display: block;
     text-align: right;
     margin-left: auto;
     padding-right: 0px;
