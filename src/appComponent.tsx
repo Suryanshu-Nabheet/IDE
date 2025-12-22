@@ -152,24 +152,8 @@ function SSHPopup() {
     )
 }
 
-// A component that renders a button to open a file dialog
-function FileDialog() {
-    // Get the dispatch function from the app context
-    const dispatch = useAppDispatch()
-    return (
-        // Render a div with a click handler that dispatches an action to open a folder
-        <div
-            className="filedialog"
-            onClick={() => dispatch(gs.openFolder(null))}
-        >
-            Open Folder
-        </div>
-    )
-}
-
 export function App() {
     const dispatch = useAppDispatch()
-    const isNotFirstTime = useAppSelector(gsel.getIsNotFirstTime)
     const rootPath = useAppSelector(getRootPath)
     const folders = useAppSelector(getFolders)
     const leftSideExpanded = useAppSelector(tsel.getLeftSideExpanded)
@@ -184,9 +168,6 @@ export function App() {
 
     const commandBarOpen = useAppSelector(csel.getIsCommandBarOpen)
     const currentActiveTab = useAppSelector(getFocusedTab)
-
-    // Get the currently opened filename
-    const activeFilePath = useAppSelector(gsel.getCurrentFilePath)
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
@@ -252,12 +233,7 @@ export function App() {
         }
     }, [rootPath])
 
-    const screenState =
-        isNotFirstTime == false
-            ? 'welcome'
-            : Object.keys(folders).length <= 1
-            ? 'folder'
-            : 'normal'
+    const screenState = Object.keys(folders).length <= 1 ? 'welcome' : 'normal'
 
     const [dragging, setDragging] = useState(false)
     const [leftSideWidth, setLeftSideWidth] = useState(250)
@@ -296,12 +272,6 @@ export function App() {
             />
             <div className="window relative" style={{ height: windowHeight }}>
                 {screenState === 'welcome' && <WelcomeScreen />}
-                {screenState === 'folder' && (
-                    <>
-                        <SSHPopup />
-                        <FileDialog />
-                    </>
-                )}
                 {screenState === 'normal' && (
                     <>
                         <div
