@@ -5,7 +5,7 @@
 :root {
     /* Oxocarbon Color Palette - Premium Dark Edition */
     /* Enhanced with deeper blacks and richer tones for a luxurious feel */
-    
+
     /* Base colors - Darker and more premium */
     --oxo-base00: #0a0a0a; /* Deeper background - almost pure black */
     --oxo-base01: #141414; /* Even darker lighter background */
@@ -14,17 +14,17 @@
     --oxo-base04: #a0a8b0; /* Darker muted foreground */
     --oxo-base05: #d8dce0; /* Softer bright foreground */
     --oxo-base06: #ffffff; /* Pure white for maximum contrast */
-    
+
     /* Accent colors - More vibrant and saturated for premium feel */
-    --oxo-blue: #6fa0ff;      /* Slightly brighter blue */
-    --oxo-cyan: #2dd4d1;      /* More vibrant cyan */
-    --oxo-teal: #06b8b5;      /* Richer teal */
+    --oxo-blue: #6fa0ff; /* Slightly brighter blue */
+    --oxo-cyan: #2dd4d1; /* More vibrant cyan */
+    --oxo-teal: #06b8b5; /* Richer teal */
     --oxo-light-blue: #75c7ff; /* Brighter light blue */
-    --oxo-sky-blue: #2fb8ff;   /* More vibrant sky blue */
-    --oxo-pink: #ff4d9e;       /* More saturated pink */
+    --oxo-sky-blue: #2fb8ff; /* More vibrant sky blue */
+    --oxo-pink: #ff4d9e; /* More saturated pink */
     --oxo-light-pink: #ff6eb8; /* Brighter light pink */
-    --oxo-green: #3bc95f;      /* More vibrant green */
-    --oxo-purple: #b88dff;     /* Richer purple */
+    --oxo-green: #3bc95f; /* More vibrant green */
+    --oxo-purple: #b88dff; /* Richer purple */
 
     /* Application theme variables */
     --background: var(--oxo-base00);
@@ -86,6 +86,11 @@
     --full-continue-button: var(--oxo-green);
 
     --ai-color: var(--oxo-purple);
+
+    /* Transition variables for consistent animations */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.2s ease;
+    --transition-slow: 0.3s ease;
 }
 
 @font-face {
@@ -215,15 +220,16 @@ body {
     background-color: var(--left-pane-background);
 }
 
+/* ============================================
+   TITLEBAR - Compact and Professional
+   ============================================ */
 .titlebar {
     width: 100%;
     background-color: var(--title-bar-background);
     color: var(--text);
     text-align: center;
     border-bottom: 1px solid var(--pane-border);
-
     text-align: right;
-
     display: flex;
     align-items: center;
     -webkit-app-region: drag;
@@ -241,13 +247,14 @@ body {
 }
 
 .titlebar__right_filler {
-    width: 2rem;
+    width: 1.5rem;
 }
 
 .titlebar__right {
     margin-left: auto;
     display: flex;
     align-items: center;
+    gap: 4px;
     -webkit-app-region: no-drag !important;
 }
 
@@ -256,43 +263,60 @@ body {
 }
 
 .titlebar__right_spinner {
-    margin-left: 24px;
+    margin-left: 16px;
 }
 
 .titlebar__ai_button,
 .titlebar__right_button {
-    margin-left: 8px;
-    padding: 0px 8px;
+    margin-left: 4px;
+    padding: 0px 6px;
     -webkit-app-region: no-drag !important;
+    transition: all var(--transition-normal);
 }
 
 .titlebar__ai_button:hover,
-..titlebar__right_button:hover {
+.titlebar__right_button:hover {
     cursor: pointer;
 }
 
 .titlebar__right_button_with_text {
-    margin-left: 12px;
-    margin-right: 12px;
+    margin-left: 8px;
+    margin-right: 8px;
 }
 
 .titlebar__ai_button,
 .titlebar__right_button {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: #888;
 }
 
 .titlebar__right_button > svg {
     color: #888 !important;
+    transition: color var(--transition-fast);
 }
+
+.titlebar__right_button:hover > svg {
+    color: #aaa !important;
+}
+
 .titlebar__ai_button > svg {
     color: var(--ai-color) !important;
+    transition: color var(--transition-fast);
+}
+
+.titlebar__ai_button:hover > svg {
+    color: var(--oxo-light-blue) !important;
 }
 
 .titlebar__special_button {
     background-color: rgba(67, 138, 214, 0.2);
-    border-radius: 5px;
-    padding: 4px 8px;
+    border-radius: 4px;
+    padding: 3px 6px;
+    transition: background-color var(--transition-normal);
+}
+
+.titlebar__special_button:hover {
+    background-color: rgba(67, 138, 214, 0.3);
 }
 
 .titlebar__special_button > div {
@@ -315,17 +339,19 @@ body {
 }
 
 .titlebar__right_button_with_text {
-    font-size: 1.15rem;
+    font-size: 0.95rem;
     background-color: var(--cancel-button);
     color: #fff;
-    border-radius: 5px;
-    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+    padding: 3px 8px;
+    transition: all var(--transition-normal);
 }
 
 .titlebar__ai_button:hover,
 .titlebar__right_button:hover,
 .titlebar__right_button_with_text:hover {
-    opacity: 0.8;
+    opacity: 0.85;
+    transform: translateY(-1px);
 }
 
 .window__leftpane {
@@ -341,6 +367,9 @@ body {
     flex-direction: column;
 }
 
+/* ============================================
+   FILE TREE - Compact and Organized
+   ============================================ */
 /* Sticky project header */
 .filetree__project-header {
     position: sticky;
@@ -349,13 +378,14 @@ body {
     background-color: var(--left-pane-background);
     border-bottom: 1px solid var(--oxo-base02);
     cursor: pointer;
-    padding: 0.75rem 0.5rem;
+    padding: 0.6rem 0.5rem;
     display: flex;
     align-items: center;
     user-select: none;
     flex-shrink: 0;
     font-weight: 600;
     letter-spacing: 0.02em;
+    transition: background-color var(--transition-fast);
 }
 
 .filetree__project-header:hover {
@@ -499,8 +529,8 @@ li.rta__item--selected mark {
 .folder__line,
 .file__line {
     cursor: pointer;
-    padding-top: 0.35rem;
-    padding-bottom: 0.35rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
     padding-right: 0.5rem;
     padding-left: 0.5rem;
     width: 100%;
@@ -508,8 +538,8 @@ li.rta__item--selected mark {
     user-select: none;
     display: flex;
     text-align: left;
-    height: 2rem;
-    transition: background-color 0.15s ease, transform 0.1s ease;
+    height: 1.75rem;
+    transition: background-color var(--transition-fast), transform 0.1s ease;
     border-radius: 4px;
     margin: 1px 4px;
 }
@@ -521,6 +551,7 @@ li.rta__item--selected mark {
 .folder__line:hover,
 .file__line:hover {
     background-color: var(--left-pane-hover);
+    transform: translateX(2px);
 }
 
 .rta__entity--selected .file__line:hover {
@@ -528,8 +559,8 @@ li.rta__item--selected mark {
 }
 
 .file__line_selected {
-    /*   background-color: var(--left-pane-selected) !important; */
-    background-color: var(--left-pane-selected); /* !important;*/
+    background-color: var(--left-pane-selected);
+    box-shadow: inset 2px 0 0 var(--oxo-blue);
 }
 
 .pane {
@@ -656,10 +687,12 @@ li.rta__item--selected mark {
     transform: translate(-50%, -50%);
 }
 
+/* ============================================
+   TAB BAR - Compact and Professional
+   ============================================ */
 .window__tabbarcontainer {
     width: 100%;
-    /* add shadow to bottom of tab bar */
-    /*   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5); */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .tabbar {
@@ -668,8 +701,7 @@ li.rta__item--selected mark {
     z-index: 0;
     width: 100%;
     max-width: 100%;
-    height: 48px;
-
+    height: 32px;
     box-sizing: border-box;
     white-space: nowrap;
     overflow-x: auto;
@@ -678,6 +710,9 @@ li.rta__item--selected mark {
     display: flex;
 }
 
+/* ============================================
+   SCROLLBAR STYLING - Premium Feel
+   ============================================ */
 *:focus {
     outline: none;
 }
@@ -691,6 +726,11 @@ li.rta__item--selected mark {
 *::-webkit-scrollbar-thumb {
     background: var(--scrollbar);
     border-radius: 15px;
+    transition: background var(--transition-fast);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--oxo-base04);
 }
 
 .cover-bar {
@@ -724,8 +764,9 @@ li.rta__item--selected mark {
 }
 
 .textarea__editable::-webkit-scrollbar {
-    background: none; /*var(--white-scrollbar-background);*/
+    background: none;
 }
+
 .textarea__editable::-webkit-scrollbar-thumb {
     background: var(--white-scrollbar);
     border-radius: 15px;
@@ -735,6 +776,9 @@ li.rta__item--selected mark {
     background-color: var(--background);
 }
 
+/* ============================================
+   TAB STYLING - Compact and Smooth
+   ============================================ */
 .tab {
     display: inline-block;
     height: 100%;
@@ -743,6 +787,12 @@ li.rta__item--selected mark {
     color: var(--text);
     user-select: none;
     cursor: pointer;
+    transition: background-color var(--transition-fast);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tab:hover {
+    background-color: var(--oxo-base02);
 }
 
 .tab > div {
@@ -751,25 +801,28 @@ li.rta__item--selected mark {
     justify-content: center;
     height: 100%;
     width: 100%;
-    padding: 0px 12px 0px 24px;
+    padding: 0px 8px 0px 12px;
 }
 
 .tab__is_active {
+    background-color: var(--tab-active);
+    box-shadow: inset 0 -2px 0 var(--oxo-blue);
+}
+
+.tab__is_active:hover {
     background-color: var(--tab-active);
 }
 
 .tab__path {
     color: var(--text);
-    /* add left padding of 20px */
-    padding: 0 0 0 20px;
-    min-height: 30px;
+    padding: 0 0 0 16px;
+    min-height: 24px;
     background-color: var(--tab-active);
-    /* add a shadow below the tab */
-    margin: 0 0 5px 0;
-    box-shadow: 0 5px 5px -5px black;
-
+    margin: 0 0 4px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
+    font-size: 0.85rem;
 }
 
 .tab > div > div {
@@ -777,11 +830,13 @@ li.rta__item--selected mark {
 }
 
 .tab__icon {
-    margin-right: 8px;
+    margin-right: 6px;
+    font-size: 0.9rem;
 }
 
 .tab__name {
-    margin-right: 12px;
+    margin-right: 8px;
+    font-size: 0.85rem;
 }
 
 .tab__is_deleted .tab__name {
@@ -791,11 +846,16 @@ li.rta__item--selected mark {
 
 .tab__close {
     cursor: pointer;
-    padding-left: 0.5rem;
-    padding-right: 0.25rem;
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
+    padding: 0.3rem;
     box-sizing: border-box;
+    border-radius: 3px;
+    transition: all var(--transition-fast);
+    opacity: 0.6;
+}
+
+.tab__close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
 }
 
 .app__righttopwrapper {
@@ -2056,18 +2116,21 @@ cm-diff-cancel > div {
     color: #777;
 }
 
+/* ============================================
+   TAB BAR HOVER BUTTONS - Compact and Smooth
+   ============================================ */
 .tabbar__hoverbuttons {
     display: inline-flex;
     flex-grow: 1;
     align-items: center;
     justify-content: flex-start;
     padding-right: 0px;
-    min-width: 70px;
+    min-width: 60px;
     color: #999;
     height: 100%;
-    margin-left: 20px;
+    margin-left: 12px;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity var(--transition-normal);
 }
 
 .window__tabbarcontainer:hover .tabbar__hoverbuttons {
@@ -2079,12 +2142,17 @@ cm-diff-cancel > div {
 }
 
 .tabbar__hoverbutton {
-    margin: auto 4px;
+    margin: auto 3px;
+    padding: 4px;
+    border-radius: 3px;
+    transition: all var(--transition-fast);
+    font-size: 0.9rem;
 }
 
 .tabbar__hoverbutton:hover {
-    opacity: 0.8;
+    background-color: rgba(255, 255, 255, 0.1);
     cursor: pointer;
+    transform: scale(1.1);
 }
 
 .leftside-icon-bar {
@@ -2270,9 +2338,12 @@ cm-diff-cancel > div {
     font-size: 20px !important;
 }
 
+/* ============================================
+   MENU BAR - Compact and Professional
+   ============================================ */
 .menuGroup {
     display: flex;
-    margin-left: 16px;
+    margin-left: 12px;
     text-align: left;
     align-items: center;
     -webkit-app-region: no-drag;
@@ -2281,25 +2352,29 @@ cm-diff-cancel > div {
 
 .menu {
     display: inline-block;
-    margin-right: 8px;
-    padding: 4px 8px;
-    border-radius: 5px;
+    margin-right: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    transition: background-color var(--transition-fast);
+    cursor: pointer;
 }
 
 .menu:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .menu__options {
     display: block;
     position: absolute;
     z-index: 1;
-    background-color: #333;
-    border-radius: 5px;
+    background-color: var(--oxo-base02);
+    border: 1px solid var(--oxo-base03);
+    border-radius: 4px;
     padding: 4px 0;
     margin-top: 4px;
-    min-width: 120px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    min-width: 180px;
+    box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.4);
 }
 
 .menu:hover .menu__options {
@@ -2307,23 +2382,24 @@ cm-diff-cancel > div {
 }
 
 .menu__option {
-    color: #fff;
-    padding: 8px 12px;
+    color: var(--oxo-base05);
+    padding: 6px 12px;
     cursor: pointer;
     display: flex;
-    /*     justify-content: center; */
     align-items: center;
+    font-size: 0.85rem;
+    transition: background-color var(--transition-fast);
 }
 
 .menu__option:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .menu__option__accelerator {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
     margin-left: auto;
-    padding-left: 8px;
+    padding-left: 12px;
     text-align: right;
     display: inline-block;
 }

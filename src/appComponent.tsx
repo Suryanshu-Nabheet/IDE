@@ -161,7 +161,7 @@ export function App() {
     const paneSplits = useAppSelector(getPaneStateBySplits)
 
     const zoomFactor = useAppSelector(getZoomFactor)
-    const titleHeight = Math.round((1.0 / zoomFactor) * 35) + 'px'
+    const titleHeight = Math.round((1.0 / zoomFactor) * 28) + 'px'
 
     // set window height to 100 vh - titlebar height
     const windowHeight = 'calc(100vh - ' + titleHeight + ')'
