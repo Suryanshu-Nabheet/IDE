@@ -28,7 +28,7 @@ class MainWindow {
             height: MAIN_WINDOW_HEIGHT,
             minWidth: MAIN_WINDOW_WIDTH / 2,
             minHeight: MAIN_WINDOW_HEIGHT / 2,
-            title: 'Cursor',
+            title: 'CodeX',
             webPreferences: {
                 // @ts-ignore
                 preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -98,7 +98,7 @@ class MainWindow {
         globalShortcut.register(META_KEY + '+M', () => {
             this.win?.minimize()
         })
-    
+
         globalShortcut.register(META_KEY + '+Shift+M', () => {
             if (this.win?.isMaximized()) {
                 this.win.restore()
@@ -106,7 +106,6 @@ class MainWindow {
                 this.win?.maximize()
             }
         })
-    
     }
 }
 

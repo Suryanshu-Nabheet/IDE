@@ -1,12 +1,11 @@
 import jwtDecode from 'jwt-decode'
-import { shell } from 'electron'
 import * as url from 'url'
-// import envVariables from '../env-variables';
 import {
     BrowserWindow,
     IpcMainInvokeEvent,
     ipcMain,
     webContents,
+    shell,
 } from 'electron'
 import { API_ROOT, HOMEPAGE_ROOT } from '../utils'
 import crypto from 'crypto'
@@ -15,7 +14,7 @@ import fetch from 'node-fetch'
 import Store from 'electron-store'
 const store = new Store()
 
-const win: BrowserWindow | null = null
+const _win: BrowserWindow | null = null
 
 const auth0Domain = 'cursor.us.auth0.com'
 const clientId = 'KbZUR41cY7W6zRSdpSUJ7I7mLYBKOCmB'
@@ -26,29 +25,29 @@ const clientId = 'KbZUR41cY7W6zRSdpSUJ7I7mLYBKOCmB'
 
 let accessToken: string | null = null
 let profile: any | null = null
-const openAISecretKey: string | null = null
+const _openAISecretKey: string | null = null
 let refreshToken: string | null = null
 let stripeProfile: string | null = null
-const verifier: string | null = null
+const _verifier: string | null = null
 
-const STRIPE_SUCCESS_URL = 'electron-fiddle://success/'
-const STRIPE_FAILURE_URL = 'electron-fiddle://failure/'
+const _STRIPE_SUCCESS_URL = 'electron-fiddle://success/'
+const _STRIPE_FAILURE_URL = 'electron-fiddle://failure/'
 
 const AUTH0_CALLBACK_URL = `${API_ROOT}/auth/auth0_callback`
-const redirectUri = AUTH0_CALLBACK_URL
-const DUMMY_URL = `${API_ROOT}/dummy/*`
-const API_AUDIENCE = `https://${auth0Domain}/api/v2/`
+const _redirectUri = AUTH0_CALLBACK_URL
+const _DUMMY_URL = `${API_ROOT}/dummy/*`
+const _API_AUDIENCE = `https://${auth0Domain}/api/v2/`
 
 // These are routes that exist on our homepage
 const loginUrl = `${HOMEPAGE_ROOT}/loginDeep`
 const signUpUrl = `${HOMEPAGE_ROOT}/loginDeep`
 const settingsUrl = `${HOMEPAGE_ROOT}/settings`
-const payUrl = `${HOMEPAGE_ROOT}/pricing?fromCursor=true`
+const payUrl = `${HOMEPAGE_ROOT}/pricing?fromCodeX=true`
 
 const supportUrl = `${API_ROOT}/auth/support`
 
 // These are api routes
-const logoutUrl = `${API_ROOT}/api/auth/logout`
+const _logoutUrl = `${API_ROOT}/api/auth/logout`
 
 const storeWrapper = {
     get: async (key: string) => {
@@ -73,14 +72,14 @@ const storeWrapper = {
     },
 }
 
-function base64URLEncode(str: Buffer) {
+function _base64URLEncode(str: Buffer) {
     return str
         .toString('base64')
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '')
 }
-function sha256(buffer: Buffer) {
+function _sha256(buffer: Buffer) {
     return crypto.createHash('sha256').update(buffer).digest()
 }
 
@@ -249,11 +248,11 @@ export function createLogoutWindow(event: IpcMainInvokeEvent) {
 
 export function authPackage() {
     // Simple browser opening functions
-    ipcMain.handle('loginCursor', login)
-    ipcMain.handle('signupCursor', signup)
-    ipcMain.handle('payCursor', pay)
-    ipcMain.handle('settingsCursor', settings)
-    ipcMain.handle('logoutCursor', createLogoutWindow)
+    ipcMain.handle('loginCodeX', login)
+    ipcMain.handle('signupCodeX', signup)
+    ipcMain.handle('payCodeX', pay)
+    ipcMain.handle('settingsCodeX', settings)
+    ipcMain.handle('logoutCodeX', createLogoutWindow)
 
     // Functions to handle electron-fiddle
     ipcMain.handle(

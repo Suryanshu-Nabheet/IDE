@@ -1,6 +1,6 @@
-import { Menu, MenuItemConstructorOptions, app } from "electron"
-import { META_KEY } from "./utils"
-import mainWindow from "./window"
+import { Menu, MenuItemConstructorOptions, app } from 'electron'
+import { META_KEY } from './utils'
+import mainWindow from './window'
 
 export default function setupMainMenu() {
     let menuList: any[] = []
@@ -13,7 +13,7 @@ export default function setupMainMenu() {
     }
     if (process.platform === 'darwin') {
         menuList.push({
-            label: process.platform === 'darwin' ? 'Custom Menu' : 'Cursor',
+            label: process.platform === 'darwin' ? 'Custom Menu' : 'CodeX',
             submenu: [quitApp],
         })
     }
@@ -31,7 +31,9 @@ export default function setupMainMenu() {
                 {
                     label: 'Open Folder',
                     click: () => {
-                        mainWindow.win?.webContents.send('open_folder_triggered')
+                        mainWindow.win?.webContents.send(
+                            'open_folder_triggered'
+                        )
                     },
                     accelerator: META_KEY + '+O',
                 },

@@ -387,17 +387,17 @@ const electronConnector = {
     }) => {
         await ipcRenderer.invoke('setCookies', cookieObject)
     },
-    loginCursor: async () => {
-        await ipcRenderer.invoke('loginCursor')
+    loginCodeX: async () => {
+        await ipcRenderer.invoke('loginCodeX')
     },
-    logoutCursor: async () => {
-        await ipcRenderer.invoke('logoutCursor')
+    logoutCodeX: async () => {
+        await ipcRenderer.invoke('logoutCodeX')
     },
     getUserCreds: async () => {
         return await ipcRenderer.invoke('getUserCreds')
     },
-    payCursor: async () => {
-        return await ipcRenderer.invoke('payCursor')
+    payCodeX: async () => {
+        return await ipcRenderer.invoke('payCodeX')
     },
     registerUpdateAuthStatus(
         callback: (payload: {

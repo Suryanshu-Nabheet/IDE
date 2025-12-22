@@ -8,15 +8,12 @@ import {
     getConnections,
 } from '../features/lsp/languageServerSlice'
 import { RadioGroup } from '@headlessui/react'
-import {
-    openTutorFolder,
-    setIsNotFirstTimeWithSideEffect,
-} from '../features/globalSlice'
+import { setIsNotFirstTimeWithSideEffect } from '../features/globalSlice'
 import posthog from 'posthog-js'
 
 function CopilotPanel() {
     const dispatch = useAppDispatch()
-    const { signedIn, enabled } = useAppSelector(copilotStatus)
+    const { signedIn, enabled: _enabled } = useAppSelector(copilotStatus)
     const [localState, setLocalState] = useState<
         'signedIn' | 'signingIn' | 'signInFailed' | 'signedOut'
     >(signedIn ? 'signedIn' : 'signedOut')
@@ -55,17 +52,17 @@ function CopilotPanel() {
         }
     }, [localData, setLocalState, dispatch])
 
-    const signOut = useCallback(async () => {
+    const _signOut = useCallback(async () => {
         const copilotClient = getConnections().copilot.client
         await copilotClient.signOut()
         dispatch(copilotChangeSignin(false))
     }, [])
 
-    const enableCopilot = useCallback(() => {
+    const _enableCopilot = useCallback(() => {
         dispatch(copilotChangeEnable(true))
     }, [dispatch])
 
-    const disableCopilot = useCallback(() => {
+    const _disableCopilot = useCallback(() => {
         dispatch(copilotChangeEnable(false))
     }, [dispatch])
 
@@ -141,7 +138,7 @@ export default function ButtonGroup({
     onClick: any
 }) {
     const [selected, setSelected] = useState(plans[0])
-    const dispatch = useAppDispatch()
+    const _dispatch = useAppDispatch()
 
     useEffect(() => {
         onClick(selected)
@@ -165,13 +162,13 @@ export default function ButtonGroup({
                                 <RadioGroup.Option
                                     key={plan.name}
                                     value={plan}
-                                    className={({ active, checked }) =>
+                                    className={({ active: _active, checked }) =>
                                         `
                                   ${checked ? 'checked-welcome-radio' : ''}
                                     relative flex welcome-radio cursor-pointer rounded-md px-3 py-3 welcome-radio-butotn mr-2 shadow-md outline-none`
                                     }
                                 >
-                                    {({ active, checked }) => (
+                                    {({ active: _active, checked }) => (
                                         <>
                                             <div className="flex items-center justify-between w-32">
                                                 <div className="flex items-center mr-2">
@@ -236,8 +233,8 @@ const keyOptions = [
 
 export function WelcomeScreen() {
     const dispatch = useAppDispatch()
-    const [selectedKeyBinding, setSelectedKeyBinding] = useState('default')
-    const keyBindings = [
+    const [_selectedKeyBinding, _setSelectedKeyBinding] = useState('default')
+    const _keyBindings = [
         { label: 'Default', value: 'default' },
         { label: 'Emacs', value: 'emacs' },
         { label: 'Vim', value: 'vim' },
@@ -280,7 +277,6 @@ export function WelcomeScreen() {
                         onClick={() => {
                             posthog.capture('Welcome Screen Continue')
                             dispatch(setIsNotFirstTimeWithSideEffect(null))
-                            dispatch(openTutorFolder(null))
                         }}
                     >
                         Continue

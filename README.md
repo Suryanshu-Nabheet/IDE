@@ -97,6 +97,85 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 -   **TypeScript** - Type-safe development
 -   **Tailwind CSS** - Styling
 
+## Keyboard Shortcuts
+
+### File Operations
+
+-   `Cmd/Ctrl + N` - New File
+-   `Cmd/Ctrl + O` - Open Folder
+-   `Cmd/Ctrl + S` - Save File
+-   `Cmd/Ctrl + W` - Close Tab
+
+### Editor
+
+-   `Cmd/Ctrl + Z` - Undo
+-   `Cmd/Ctrl + Shift + Z` - Redo
+-   `Cmd/Ctrl + X` - Cut
+-   `Cmd/Ctrl + C` - Copy
+-   `Cmd/Ctrl + V` - Paste
+-   `Cmd/Ctrl + A` - Select All
+
+### View
+
+-   `Cmd/Ctrl + =` - Zoom In
+-   `Cmd/Ctrl + -` - Zoom Out
+-   `Cmd/Ctrl + 0` - Reset Zoom
+-   `Cmd/Ctrl + Shift + F` - Search
+-   `Cmd/Ctrl + P` - File Search
+-   `Cmd/Ctrl + Shift + P` - Command Palette
+
+### Application
+
+-   `Cmd/Ctrl + Q` - Quit App
+-   `Cmd/Ctrl + M` - Minimize Window
+-   `Cmd/Ctrl + Shift + M` - Maximize/Restore Window
+
+## Troubleshooting
+
+### LSP Connection Errors
+
+If you see "Connection is closed" errors in the console:
+
+-   These are normal during file switching and shutdown
+-   They don't affect functionality
+-   To suppress: The IDE gracefully handles these internally
+
+### Copilot Not Working
+
+If GitHub Copilot isn't functioning:
+
+1. Check if the Copilot path exists: `/Users/YOUR_USERNAME/Downloads/CoderX/lsp/copilot/dist/agent.js`
+2. Copilot is optional - the IDE works perfectly without it
+3. To disable Copilot errors: Set `COPILOT_ENABLED=false` in `.env`
+
+### Python LSP Errors
+
+If you see "python: command not found":
+
+-   Python LSP is optional
+-   Install Python 3 and `python-lsp-server` if needed:
+    ```bash
+    pip install python-lsp-server
+    ```
+-   Or ignore - doesn't affect other language support
+
+### Build Issues
+
+If `npm start` fails:
+
+1. Clear node_modules: `rm -rf node_modules && npm install`
+2. Clear webpack cache: `rm -rf .webpack`
+3. Run setup script again: `./setup.sh` (Mac/Linux) or `./setup.ps1` (Windows)
+
+### Performance Issues
+
+If the IDE feels slow:
+
+-   Check file size (very large files >100k lines may be slow)
+-   Disable unused language servers
+-   Reduce zoom level
+-   Close unused tabs
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.

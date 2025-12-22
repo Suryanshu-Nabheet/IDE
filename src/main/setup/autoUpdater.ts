@@ -26,7 +26,7 @@ function check() {
         message: `Accept update?`,
         icon: iconPath,
         normalizeAccessKeys: true,
-        detail: `New update available for Cursor! New features and bug fixes (only takes 10-20 seconds)`,
+        detail: `New update available for CodeX! New features and bug fixes (only takes 10-20 seconds)`,
     }
 
     const win = BrowserWindow.getFocusedWindow()!

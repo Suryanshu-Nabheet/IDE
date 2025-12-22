@@ -43,7 +43,7 @@ export const signInCursor = createAsyncThunk(
             return
         } else {
             log.info('Proceeding to login', undefined, 'toolSlice')
-            await connector.loginCursor()
+            await connector.loginCodeX()
         }
     }
 )
@@ -57,7 +57,7 @@ export const signOutCursor = createAsyncThunk(
         log.info('Initiating sign out', undefined, 'toolSlice')
         if (state.cursorLogin.accessToken && state.cursorLogin.profile) {
             log.info('Proceeding to logout', undefined, 'toolSlice')
-            await connector.logoutCursor()
+            await connector.logoutCodeX()
         } else {
             log.debug(
                 'User not logged in, skipping logout',
@@ -95,10 +95,10 @@ export const upgradeCursor = createAsyncThunk(
                 undefined,
                 'toolSlice'
             )
-            await connector.loginCursor()
+            await connector.loginCodeX()
         } else {
             log.info('Proceeding to payment', undefined, 'toolSlice')
-            await connector.payCursor()
+            await connector.payCodeX()
         }
     }
 )

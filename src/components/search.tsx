@@ -46,10 +46,10 @@ export function FeedbackArea() {
             textareaRef.current!.scrollHeight + 'px'
     }
     const placeholders = [
-        'Least favorite thing about Cursor...',
-        'Favorite thing about Cursor is...',
-        'What would you like to see in Cursor?',
-        'What should we fix about Cursor?',
+        'Least favorite thing about CodeX...',
+        'Favorite thing about CodeX is...',
+        'What would you like to see in CodeX?',
+        'What should we fix about CodeX?',
     ]
     const randomPlaceholder =
         placeholders[Math.floor(Math.random() * placeholders.length)]
