@@ -1,17 +1,24 @@
 import {
-    app, BrowserWindow, clipboard, dialog, ipcMain, IpcMainInvokeEvent, Menu,
-    MenuItemConstructorOptions, shell
-} from 'electron';
-import log from 'electron-log';
-import * as fs from 'fs';
-import { machineIdSync } from 'node-machine-id';
-import path from 'path';
+    app,
+    BrowserWindow,
+    clipboard,
+    dialog,
+    ipcMain,
+    IpcMainInvokeEvent,
+    Menu,
+    MenuItemConstructorOptions,
+    shell,
+} from 'electron'
+import log from 'electron-log'
+import * as fs from 'fs'
+import { machineIdSync } from 'node-machine-id'
+import path from 'path'
 
-import { File, Folder, Settings } from '../../features/window/state';
-import { FileSystem, fileSystem, setFileSystem } from '../fileSystem';
-import mainWindow from '../window';
-import { store } from '../storeHandler';
-import { resourcesDir } from '../utils';
+import { File, Folder, Settings } from '../../features/window/state'
+import { FileSystem, fileSystem, setFileSystem } from '../fileSystem'
+import mainWindow from '../window'
+import { store } from '../storeHandler'
+import { resourcesDir } from '../utils'
 
 // TODO: These IPCs should be separated into different modules.
 export default function setupIpcs() {
@@ -113,8 +120,17 @@ export default function setupIpcs() {
                 return { newFolder, newFolderId }
             }
 
-            await addToFilesFolders(folderName, 0)
-            return { files, folders }
+            try {
+                // check if the folder exists
+                if (!(await fileSystem.existsSync(folderName))) {
+                    return { files, folders }
+                }
+                await addToFilesFolders(folderName, 0)
+                return { files, folders }
+            } catch (e) {
+                console.error('Error in get_folder', e)
+                return { files, folders }
+            }
         }
     )
 

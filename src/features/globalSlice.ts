@@ -68,7 +68,7 @@ import {
 
 import { CustomTransaction } from '../components/codemirrorHooks/dispatch'
 import { updateCommentsForFile } from './comment/commentSlice'
-import { openFileTree } from './tools/toolSlice'
+import { expandLeftSide, openFileTree } from './tools/toolSlice'
 import { updateTestsForFile } from './tests/testSlice'
 
 import posthog from 'posthog-js'
@@ -598,6 +598,7 @@ export const openFolder = createAsyncThunk(
 
         // Show the new folder in the FileTree view
         dispatch(openFileTree())
+        dispatch(expandLeftSide())
 
         // Now we are going to setup the lsp server
         await dispatch(startConnections(folderPath))

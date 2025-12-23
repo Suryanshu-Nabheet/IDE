@@ -40,3 +40,8 @@ export const loginStatus = createSelector(
         proVersion: !!tool.cursorLogin.stripeId,
     })
 )
+
+export const getWelcomeDismissed = createSelector(
+    (state: FullState) => state.toolState,
+    (tool: ToolState) => tool.welcomeDismissed
+)

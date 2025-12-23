@@ -8,7 +8,7 @@ import {
     getConnections,
 } from '../features/lsp/languageServerSlice'
 import { RadioGroup } from '@headlessui/react'
-import { setIsNotFirstTimeWithSideEffect } from '../features/globalSlice'
+import { dismissWelcome } from '../features/tools/toolSlice'
 import posthog from 'posthog-js'
 
 function CopilotPanel() {
@@ -276,7 +276,7 @@ export function WelcomeScreen() {
                         className="done-button welcome-button"
                         onClick={() => {
                             posthog.capture('Welcome Screen Continue')
-                            dispatch(setIsNotFirstTimeWithSideEffect(null))
+                            dispatch(dismissWelcome())
                         }}
                     >
                         Continue

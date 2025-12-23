@@ -5,7 +5,6 @@ import {
     Extension,
     StateField,
     Transaction,
-    TransactionSpec,
 } from '@codemirror/state'
 import { FullState, State } from '../window/state'
 import { EditorView } from '@codemirror/view'

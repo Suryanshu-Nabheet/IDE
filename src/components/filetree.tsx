@@ -358,6 +358,10 @@ export function FileTree() {
     const isOpen = useAppSelector(getFolderOpen(rootFolderId))
     const fileChildren = useAppSelector(getNotDeletedFiles(rootFolderId))
 
+    if (!rootFolder) {
+        return <div className="p-4 text-gray-400">No folder opened</div>
+    }
+
     const toggleOpen = () => {
         dispatch(gs.loadFolder({ folderId: rootFolderId, goDeep: false }))
         dispatch(gs.setFolderOpen({ folderId: rootFolderId, isOpen: !isOpen }))

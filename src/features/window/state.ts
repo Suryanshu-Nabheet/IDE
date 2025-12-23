@@ -351,6 +351,7 @@ export interface ToolState {
         profile?: string
         stripeId?: string
     }
+    welcomeDismissed: boolean
 }
 
 export interface LoggingState {

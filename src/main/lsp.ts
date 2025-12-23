@@ -46,6 +46,7 @@ export const lspStore = (store: Store) => ({
     get: (key: string) => store.get('LSCmd-' + key),
     set: (key: string, value: any) => store.set('LSCmd-' + key, value),
     has: (key: string) => store.has('LSCmd-' + key),
+    delete: (key: string) => store.delete('LSCmd-' + key),
     clear: () => {
         for (const key in store) {
             if (key.startsWith('LSCmd-')) {
@@ -75,6 +76,18 @@ async function npmDownload(...packages: string[]) {
             await new Promise((resolve, reject) => {
                 const childProcess = cp.spawn('npm', ['install', '-g', p], {
                     shell: true,
+                })
+                childProcess.on('close', (code) => {
+                    if (code === 0) {
+                        resolve(null)
+                    } else {
+                        reject(
+                            new Error(`npm install failed with code ${code}`)
+                        )
+                    }
+                })
+                childProcess.on('error', (err) => {
+                    reject(err)
                 })
             })
         } else {
@@ -118,8 +131,8 @@ async function findViableVersion(lang: DownloadedLanguage) {
         let result: Promise<string>
         try {
             childProcess = cp.spawn(command, args, { shell: true })
-            result = new Promise((resolve, reject) => {
-                childProcess.on('error', (err) => {
+            result = new Promise((resolve) => {
+                childProcess.on('error', () => {
                     log.info('FAILURE for', command, args)
                     resolve('EXITED')
                 })
@@ -139,7 +152,7 @@ async function findViableVersion(lang: DownloadedLanguage) {
             continue
         }
 
-        const timeout = new Promise((resolve, reject) => {
+        const timeout = new Promise((resolve) => {
             setTimeout(() => {
                 log.info('SUCESS for', command, args)
                 resolve('DONE')
@@ -187,6 +200,7 @@ class LSPManager {
         get: (key: string) => any
         set: (key: string, value: any) => void
         has: (key: string) => boolean
+        delete: (key: string) => void
         clear: () => void
     }
 
@@ -222,7 +236,20 @@ class LSPManager {
             const languageInfo = this.store.get(language) as LanguageInfo
             log.info('Store has language', language, languageInfo)
             if (languageInfo.downloadedInfo != null) {
-                return languageInfo.downloadedInfo
+                const cmd = languageInfo.downloadedInfo.command
+                // If it is an absolute path, check if it exists
+                if (path.isAbsolute(cmd)) {
+                    if (fs.existsSync(cmd)) {
+                        return languageInfo.downloadedInfo
+                    }
+                    log.warn(
+                        'Stored language path does not exist, reinstalling...',
+                        cmd
+                    )
+                    this.store.delete(language)
+                } else {
+                    return languageInfo.downloadedInfo
+                }
             }
         }
         log.info('Store does not have language downloaded', language)
@@ -241,7 +268,7 @@ class LSPManager {
     }
     async installLanguage(
         language: Language,
-        rootDir: string
+        _rootDir: string
     ): Promise<DownloadedLanguage | null> {
         log.info('INSTALLING')
         let remoteUrl
@@ -249,25 +276,8 @@ class LSPManager {
         let zip
         let extractFn
         switch (language) {
-            case 'python':
+            case 'python': {
                 log.info('installing python')
-                // try {
-                //     await promisify(cp.exec)('pip install -U "pyright"')
-                //     log.info('Success in first try')
-                // } catch (e) {
-                //     try {
-                //         await promisify(cp.exec)('pip3 install -U "pyright"')
-                //         log.info('Success with pip3')
-                //     } catch (e) {
-                //         log.error('error installing python', e)
-                //     }
-                // }
-
-                // let candidateLang =  {
-                //     command: 'pyright-langserver',
-                //     args: ['--stdio'],
-                // }
-                // Old when using pylsp
                 try {
                     await promisify(cp.exec)(
                         'pip install --user -U "python-lsp-server[all]"',
@@ -305,7 +315,8 @@ class LSPManager {
                     ],
                 }
                 return await findViableVersion(candidateLang)
-            case 'typescript':
+            }
+            case 'typescript': {
                 try {
                     await npmDownload(
                         'typescript',
@@ -321,22 +332,29 @@ class LSPManager {
                     console.error(e)
                     return null
                 }
-            case 'css':
-                return {
-                    isNode: true,
-                    command: path.join(lspDir, 'css.js'),
-                    args: ['--stdio'],
-                }
-            case 'html':
-                try {
+            }
+            case 'css': {
+                const cssPath = path.join(lspDir, 'css.js')
+                if (fs.existsSync(cssPath)) {
                     return {
                         isNode: true,
-                        command: path.join(lspDir, 'html.js'),
+                        command: cssPath,
                         args: ['--stdio'],
                     }
-                } catch (e) {
-                    return null
                 }
+                return null
+            }
+            case 'html': {
+                const htmlPath = path.join(lspDir, 'html.js')
+                if (fs.existsSync(htmlPath)) {
+                    return {
+                        isNode: true,
+                        command: htmlPath,
+                        args: ['--stdio'],
+                    }
+                }
+                return null
+            }
             case 'php':
                 try {
                     await npmDownload('intelephense')
@@ -348,13 +366,23 @@ class LSPManager {
                 } catch (e) {
                     return null
                 }
-            case 'copilot':
-                return {
-                    isNode: true,
-                    command: path.join(lspDir, 'copilot', 'dist', 'agent.js'),
-                    args: [],
+            case 'copilot': {
+                const copilotPath = path.join(
+                    lspDir,
+                    'copilot',
+                    'dist',
+                    'agent.js'
+                )
+                if (fs.existsSync(copilotPath)) {
+                    return {
+                        isNode: true,
+                        command: copilotPath,
+                        args: [],
+                    }
                 }
-            case 'go':
+                return null
+            }
+            case 'go': {
                 const goDir = path.join(lspDir, 'go')
                 try {
                     // Check $GOPATH, and remove $GOPATH/go.mod file
@@ -387,7 +415,8 @@ class LSPManager {
                     command: goBinary,
                     args: [],
                 }
-            case 'java':
+            }
+            case 'java': {
                 remoteUrl =
                     'https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz'
                 // Make dir if not exists path.join(lspPlugin, 'java')
@@ -425,8 +454,9 @@ class LSPManager {
                         'java.base/java.lang=ALL-UNNAMED',
                     ],
                 }
+            }
 
-            case 'c':
+            case 'c': {
                 const cVersion = await getLatestVersion(
                     'https://api.github.com/repos/clangd/clangd/releases/latest'
                 )
@@ -470,7 +500,8 @@ class LSPManager {
                     command: cLSPath,
                     args: [],
                 }
-            case 'rust':
+            }
+            case 'rust': {
                 const rustVersion = await getLatestVersion(
                     'https://api.github.com/repos/rust-analyzer/rust-analyzer/releases/latest'
                 )
@@ -554,7 +585,8 @@ class LSPManager {
                     command: rustLSPath,
                     args: [],
                 }
-            case 'csharp':
+            }
+            case 'csharp': {
                 const csharpVersion = await getLatestVersion(
                     'https://api.github.com/repos/OmniSharp/omnisharp-roslyn/releases/latest'
                 )
@@ -645,6 +677,7 @@ class LSPManager {
                     command: csharpLSPath,
                     args: ['--languageserver'],
                 }
+            }
 
             default:
                 return null
@@ -686,7 +719,7 @@ class LSPManager {
             if (fallbacks != null) {
                 const fallBackIndex = 0
                 // Bind exit event listener
-                childProcess.on('exit', (code, signal) => {
+                childProcess.on('exit', (_code, _signal) => {
                     if (fallbacks != null && fallBackIndex < fallbacks.length) {
                         const { command, args } = fallbacks[fallBackIndex]
                         childProcess = cp.fork(command, args, {
@@ -732,7 +765,9 @@ class LSPManager {
         )
 
         log.info('created connection', language)
-        if (this.runningClients.hasOwnProperty(language)) {
+        if (
+            Object.prototype.hasOwnProperty.call(this.runningClients, language)
+        ) {
             log.warn('SHUTTING DOWN OLD CLIENT')
             this.killServer(event, language)
         }
@@ -765,7 +800,7 @@ class LSPManager {
                     identifier: tmpIdentifier,
                 })
                 //
-                const future = new Promise((resolve, reject) => {
+                const future = new Promise((resolve, _reject) => {
                     // TODO - get rid of the response callback later bc it may hurt performance
                     ipcMain.handle(
                         'responseCallbackLS' + tmpIdentifier,
@@ -805,12 +840,14 @@ class LSPManager {
         return language
     }
     killServer(event: IpcMainInvokeEvent, language: Language) {
-        if (this.runningClients.hasOwnProperty(language)) {
+        if (
+            Object.prototype.hasOwnProperty.call(this.runningClients, language)
+        ) {
             const { connection, childProcess } = this.runningClients[language]
             connection.dispose()
             childProcess.kill()
             delete this.runningClients[language]
-            const oldLang = this.store.get(language)
+            const _oldLang = this.store.get(language)
         }
     }
     killAll(event: IpcMainInvokeEvent) {
@@ -831,7 +868,9 @@ class LSPManager {
             params: LSPRequestMap[K][0]
         }
     ): Promise<LSPRequestMap[K][1]> {
-        if (!this.runningClients.hasOwnProperty(language)) {
+        if (
+            !Object.prototype.hasOwnProperty.call(this.runningClients, language)
+        ) {
             return
         }
         const { connection } = this.runningClients[language]
@@ -855,14 +894,13 @@ class LSPManager {
             const { wordBefore, ...otherParams } =
                 params as LSPCustomCompletionParams
             const wordBeforeLower = wordBefore.toLowerCase()
-            let start = performance.now()
+
             const out = await connection.sendRequest<LSPRequestMap[K][1]>(
                 method,
                 otherParams
             )
             // Filter down items
             if (out != null) {
-                start = performance.now()
                 // Later we can specify the typing
                 let remainingItems: any[] = []
                 if (Array.isArray(out)) {
@@ -1003,7 +1041,9 @@ class LSPManager {
             params: LSPNotifyMap[K]
         }
     ): Promise<void> {
-        if (!this.runningClients.hasOwnProperty(language)) {
+        if (
+            !Object.prototype.hasOwnProperty.call(this.runningClients, language)
+        ) {
             return
         }
         const { connection } = this.runningClients[language]

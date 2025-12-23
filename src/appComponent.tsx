@@ -1,13 +1,4 @@
-import {
-    useCallback,
-    useEffect,
-    useLayoutEffect,
-    useRef,
-    useState,
-} from 'react'
-import { faClose } from '@fortawesome/pro-regular-svg-icons'
-import Modal from 'react-modal'
-
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from './app/hooks'
 import { PaneHolder } from './components/pane'
 import * as gs from './features/globalSlice'
@@ -16,7 +7,6 @@ import * as ct from './features/chat/chatThunks'
 import * as ts from './features/tools/toolSlice'
 import * as csel from './features/chat/chatSelectors'
 import * as tsel from './features/tools/toolSelectors'
-import * as gsel from './features/selectors'
 
 import {
     getFocusedTab,
@@ -29,134 +19,19 @@ import {
 import { ChatPopup, CommandBar } from './components/markdown'
 import { SettingsPopup } from './components/settingsPane'
 import { FeedbackArea, LeftSide } from './components/search'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { WelcomeScreen } from './components/welcomeScreen'
 import { TitleBar } from './components/titlebar'
 import { BottomTerminal } from './components/terminal'
 import { throttleCallback } from './components/componentUtils'
 import { ErrorPopup } from './components/errors'
-
-const customStyles = {
-    overlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        display: 'flex',
-        alignItems: 'center',
-        zIndex: 10000,
-    },
-    content: {
-        padding: 'none',
-        top: '150px',
-        bottom: 'none',
-        background: 'none',
-        border: 'none',
-        width: 'auto',
-        height: 'auto',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        maxWidth: '700px',
-    },
-}
-
-function SSHPopup() {
-    const showRemotePopup = useAppSelector(gsel.getShowRemotePopup)
-    const remoteCommand = useAppSelector(gsel.getRemoteCommand)
-    const remotePath = useAppSelector(gsel.getRemotePath)
-    const remoteBad = useAppSelector(gsel.getRemoteBad)
-    const dispatch = useAppDispatch()
-    const textInputRef = useRef<HTMLInputElement>(null)
-    const textInputRef2 = useRef<HTMLInputElement>(null)
-
-    function submit() {
-        // if the inputs have more than 2 chars each
-        if (
-            textInputRef.current!.value.length > 2 &&
-            textInputRef2.current!.value.length > 2
-        ) {
-            dispatch(gs.openRemoteFolder(null))
-        }
-    }
-
-    return (
-        <Modal
-            isOpen={showRemotePopup}
-            onRequestClose={() => {
-                dispatch(gs.closeRemotePopup())
-            }}
-            style={customStyles}
-        >
-            <div className="errorPopup">
-                <div className="errorPopup__title">
-                    <div className="errorPopup__title_text">
-                        Connect to SSH directory
-                    </div>
-                    <div
-                        className="remotePopup__title_close"
-                        onClick={() => dispatch(gs.closeRemotePopup())}
-                    >
-                        <FontAwesomeIcon icon={faClose} />
-                    </div>
-                </div>
-                {remoteBad && (
-                    <div className="errorPopup__body">
-                        The SSH command or path you entered is invalid. Please
-                        try again.
-                    </div>
-                )}
-                <div className="remotePopup__body">
-                    <div className="settings__item_title">SSH Command</div>
-                    <div className="settings__item_description">
-                        Same command you would put in the terminal
-                    </div>
-                    <input
-                        type="text"
-                        placeholder="ssh -i ~/keys/mypemfile.pem ubuntu@ec2dns.aws.com"
-                        ref={textInputRef}
-                        value={remoteCommand}
-                        onChange={(e) =>
-                            dispatch(gs.setRemoteCommand(e.target.value))
-                        }
-                    />
-                </div>
-                <div className="remotePopup__body">
-                    <div className="settings__item_title">Target Folder</div>
-                    <div className="settings__item_description">
-                        Must be an absolute path
-                    </div>
-                    <input
-                        type="text"
-                        placeholder="/home/ubuntu/portal/"
-                        value={remotePath}
-                        ref={textInputRef2}
-                        onChange={(e) =>
-                            dispatch(gs.setRemotePath(e.target.value))
-                        }
-                        onKeyDown={(event: any) => {
-                            if (event.key === 'Enter') {
-                                submit()
-                            }
-                        }}
-                    />
-                </div>
-                <div className="submit-button-parent">
-                    <button
-                        className="submit-button-ssh"
-                        onClick={() => {
-                            submit()
-                        }}
-                    >
-                        Submit
-                    </button>
-                </div>
-            </div>
-        </Modal>
-    )
-}
+import { SSHPopup } from './components/sshPopup'
 
 export function App() {
     const dispatch = useAppDispatch()
     const rootPath = useAppSelector(getRootPath)
     const folders = useAppSelector(getFolders)
     const leftSideExpanded = useAppSelector(tsel.getLeftSideExpanded)
+    const welcomeDismissed = useAppSelector(tsel.getWelcomeDismissed)
 
     const paneSplits = useAppSelector(getPaneStateBySplits)
 
@@ -233,7 +108,10 @@ export function App() {
         }
     }, [rootPath])
 
-    const screenState = Object.keys(folders).length <= 1 ? 'welcome' : 'normal'
+    const screenState =
+        Object.keys(folders).length <= 1 && !welcomeDismissed
+            ? 'welcome'
+            : 'normal'
 
     const [dragging, setDragging] = useState(false)
     const [leftSideWidth, setLeftSideWidth] = useState(250)

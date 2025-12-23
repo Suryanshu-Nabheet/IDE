@@ -7,9 +7,8 @@ import Modal from 'react-modal'
 import {
     NoAuthGlobalOldRateLimitError,
     NotLoggedInError,
-    OpenAIError,
 } from '../utils'
-import { CursorLogin, OpenAILoginPanel } from './settingsPane'
+import { OpenAILoginPanel } from './settingsPane'
 import { signInCursor, upgradeCursor } from '../features/tools/toolSlice'
 
 const customStyles = {

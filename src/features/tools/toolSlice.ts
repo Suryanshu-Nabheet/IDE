@@ -10,6 +10,7 @@ const initialState: ToolState = {
     aiCommandPaletteTriggered: false,
     leftSideExpanded: true,
     cursorLogin: {},
+    welcomeDismissed: false,
 }
 const untriggerAll = (state: ToolState) => {
     state.fileSearchTriggered = false
@@ -181,6 +182,9 @@ export const toolSlice = createSlice({
                 state.cursorLogin.stripeId = undefined
             }
         },
+        dismissWelcome: (state: ToolState) => {
+            state.welcomeDismissed = true
+        },
     },
 })
 
@@ -198,4 +202,5 @@ export const {
     expandLeftSide,
     toggleLeftSide,
     login,
+    dismissWelcome,
 } = toolSlice.actions

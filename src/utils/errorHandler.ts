@@ -12,7 +12,7 @@ export class CodeXError extends Error {
 
     constructor(
         message: string,
-        code: string = 'UNKNOWN_ERROR',
+        code = 'UNKNOWN_ERROR',
         userMessage?: string,
         originalError?: Error
     ) {
@@ -130,7 +130,7 @@ export class ErrorHandler {
     public async wrapAsync<T>(
         promise: Promise<T>,
         context?: string,
-        showNotification: boolean = false
+        showNotification = false
     ): Promise<T | null> {
         try {
             return await promise
@@ -150,7 +150,7 @@ export class ErrorHandler {
     public wrap<T>(
         fn: () => T,
         context?: string,
-        showNotification: boolean = false
+        showNotification = false
     ): T | null {
         try {
             return fn()
@@ -172,7 +172,7 @@ export const errorHandler = ErrorHandler.getInstance()
 export const handleError = (
     error: Error | CodeXError,
     context?: string,
-    showNotification: boolean = false
+    showNotification = false
 ): void => {
     if (showNotification) {
         errorHandler.handleWithNotification(error, context)

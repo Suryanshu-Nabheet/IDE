@@ -344,6 +344,7 @@ export const getNotDeletedFiles = (parendFolderId: number) =>
         (state: object) => (<FullState>state).global.files,
         (folders: State['folders'], files: State['files']) => {
             const folder = folders[parendFolderId]
+            if (!folder) return []
             return folder.fileIds.filter((fid) => !files[fid].deleted)
         }
     )
@@ -542,6 +543,7 @@ export const getFolderOpen = (fid: number) =>
     createSelector(
         (state: object) => (<FullState>state).global.folders[fid],
         (folder: Folder) => {
+            if (!folder) return false
             return folder.isOpen
         }
     )
