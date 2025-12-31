@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, memo } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebLinksAddon } from 'xterm-addon-web-links'
@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { FullState } from '../features/window/state'
 import * as gs from '../features/globalSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faPlus, faTerminal } from '@fortawesome/free-solid-svg-icons'
+import { faTimes, faTerminal } from '@fortawesome/free-solid-svg-icons'
 import { throttleCallback } from './componentUtils'
 
 // --- Configuration ---
@@ -60,83 +60,6 @@ interface Session {
 /**
  * Renders the top tab bar for the terminal
  */
-const TerminalTabs = memo(
-    ({
-        sessions,
-        activeId,
-        onSwitch,
-        onClose,
-        onCreate,
-        onHide,
-    }: {
-        sessions: Session[]
-        activeId: string | null
-        onSwitch: (id: string) => void
-        onClose: (id: string) => void
-        onCreate: () => void
-        onHide: () => void
-    }) => {
-        return (
-            <div className="flex bg-[#111] h-9 border-b border-[#252525] items-center px-0 select-none">
-                <div className="flex flex-1 overflow-x-auto no-scrollbar items-end pl-2">
-                    {sessions.map((s) => (
-                        <div
-                            key={s.id}
-                            onClick={() => onSwitch(s.id)}
-                            className={`
-                            flex items-center px-3 py-1.5 mr-1 text-xs cursor-pointer rounded-t-sm border-t-2 min-w-[120px] max-w-[200px] border-x border-x-transparent
-                            transition-colors duration-75
-                            ${
-                                activeId === s.id
-                                    ? 'bg-black text-white border-t-blue-500 border-x-[#252525]'
-                                    : 'bg-[#1e1e1e] text-[#888] border-t-transparent hover:bg-[#252525] hover:text-[#ccc]'
-                            }
-                        `}
-                        >
-                            <FontAwesomeIcon
-                                icon={faTerminal}
-                                className={`mr-2 text-[10px] ${
-                                    activeId === s.id
-                                        ? 'text-blue-400'
-                                        : 'opacity-50'
-                                }`}
-                            />
-                            <span className="truncate flex-1 font-mono">
-                                {s.title}
-                            </span>
-                            <div
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onClose(s.id)
-                                }}
-                                className="ml-2 w-5 h-5 flex items-center justify-center rounded hover:bg-[#333] text-transparent hover:text-white group-hover:text-gray-500 transition-all opacity-0 hover:opacity-100 group-hover:opacity-100"
-                            >
-                                <FontAwesomeIcon icon={faTimes} />
-                            </div>
-                        </div>
-                    ))}
-                    <button
-                        onClick={onCreate}
-                        className="flex items-center justify-center w-8 h-8 mb-0.5 text-[#888] hover:text-white transition-colors"
-                        title="New Terminal"
-                    >
-                        <FontAwesomeIcon icon={faPlus} size="sm" />
-                    </button>
-                </div>
-
-                <div className="flex items-center px-3 border-l border-[#333] h-full">
-                    <button
-                        onClick={onHide}
-                        className="text-[#888] hover:text-white p-1 transition-colors"
-                        title="Close Panel"
-                    >
-                        <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                </div>
-            </div>
-        )
-    }
-)
 
 /**
  * Single Terminal Instance Wrapper
@@ -152,45 +75,58 @@ const TerminalInstance = ({
     const containerRef = useRef<HTMLDivElement>(null)
     const attachedRef = useRef(false)
 
+    // Retry fitting mainly for when tab switches from hidden->visible
+    const fitTerminal = useCallback(() => {
+        if (!session.fitAddon) return
+
+        let attempts = 0
+        const tryFit = () => {
+            try {
+                session.fitAddon.fit()
+                const dims = session.fitAddon.proposeDimensions()
+
+                // If dimensions are valid, sync with backend
+                if (dims && dims.cols > 0 && dims.rows > 0) {
+                    connector.terminalResize(session.id, dims.cols, dims.rows)
+                } else if (isActive && attempts < 10) {
+                    // If 0x0, DOM might not be painted yet. Retry.
+                    attempts++
+                    setTimeout(tryFit, 50)
+                }
+            } catch (e) {
+                console.warn('Fit error', e)
+            }
+        }
+
+        // Initial try
+        requestAnimationFrame(tryFit)
+    }, [session, isActive])
+
     // Attach xterm to DOM once
     useEffect(() => {
         if (containerRef.current && !attachedRef.current) {
             session.instance.open(containerRef.current)
-            session.fitAddon.fit()
             attachedRef.current = true
+            fitTerminal()
         }
-    }, [session])
+    }, [session, fitTerminal])
 
     // Handle ResizeObserver for this specific instance
     useEffect(() => {
         if (!containerRef.current || !isActive) return
 
         const observer = new ResizeObserver(() => {
-            // Debounce slightly to prevent thrashing
-            requestAnimationFrame(() => {
-                try {
-                    session.fitAddon.fit()
-                    const dims = session.fitAddon.proposeDimensions()
-                    if (dims) {
-                        connector.terminalResize(
-                            session.id,
-                            dims.cols,
-                            dims.rows
-                        )
-                    }
-                } catch (e) {
-                    console.warn('Resize error', e)
-                }
-            })
+            fitTerminal()
         })
 
         observer.observe(containerRef.current)
-        // Also fit immediately
-        session.fitAddon.fit()
+
+        // Force fit when becoming active
+        fitTerminal()
         session.instance.focus()
 
         return () => observer.disconnect()
-    }, [isActive, session])
+    }, [isActive, session, fitTerminal])
 
     return (
         <div
@@ -198,7 +134,9 @@ const TerminalInstance = ({
             className="absolute inset-0 bg-black"
             style={{
                 display: isActive ? 'block' : 'none',
-                visibility: isActive ? 'visible' : 'hidden',
+                // Keep dimensions even when hidden (though display:none overrides, this helps transition)
+                minWidth: '100px',
+                minHeight: '100px',
                 zIndex: isActive ? 10 : 0,
                 paddingLeft: '12px',
                 paddingTop: '8px',
@@ -216,8 +154,7 @@ export const BottomTerminal: React.FC = () => {
     ) // Redux State
 
     // Local State
-    const [sessions, setSessions] = useState<Session[]>([])
-    const [activeId, setActiveId] = useState<string | null>(null)
+    const [session, setSession] = useState<Session | null>(null)
     const [height, setHeight] = useState(300)
 
     // Refs
@@ -225,8 +162,8 @@ export const BottomTerminal: React.FC = () => {
 
     // --- Actions ---
 
-    const createNewSession = useCallback(async () => {
-        if (creatingRef.current) return
+    const ensureDefaultSession = useCallback(async () => {
+        if (session || creatingRef.current) return
         creatingRef.current = true
 
         try {
@@ -243,7 +180,7 @@ export const BottomTerminal: React.FC = () => {
             term.loadAddon(linkAddon)
             term.loadAddon(searchAddon)
 
-            // 2. Request Backend Session
+            // 2. Request Backend Session (Default Shell)
             const { id, shell } = await connector.terminalCreate(80, 24)
 
             // 3. Setup Input Handling
@@ -253,69 +190,48 @@ export const BottomTerminal: React.FC = () => {
 
             const newSession: Session = {
                 id,
-                title: shell || 'Terminal',
+                title: 'Terminal',
                 instance: term,
                 fitAddon,
             }
 
-            setSessions((prev) => [...prev, newSession])
-            setActiveId(id)
+            setSession(newSession)
         } catch (err) {
-            console.error('Failed to create terminal:', err)
+            console.error('Failed to load Terminal:', err)
+            // Retry after delay if failed (backend might not be ready)
+            setTimeout(() => {
+                creatingRef.current = false
+                ensureDefaultSession()
+            }, 1000)
         } finally {
             creatingRef.current = false
         }
-    }, [])
-
-    const killSession = useCallback(
-        async (id: string) => {
-            await connector.terminalKill(id)
-            setSessions((prev) => {
-                const session = prev.find((s) => s.id === id)
-                session?.instance.dispose()
-                const next = prev.filter((s) => s.id !== id)
-                return next
-            })
-            if (activeId === id) {
-                setSessions((current) => {
-                    const last = current[current.length - 1]
-                    setActiveId(last ? last.id : null)
-                    return current
-                })
-            }
-        },
-        [activeId]
-    )
+    }, [session])
 
     // --- Effects ---
 
-    // 1. Initial Creation
+    // 1. Initial Creation & Auto-Recovery
     useEffect(() => {
-        if (isOpen && sessions.length === 0 && !creatingRef.current) {
-            createNewSession()
+        if (isOpen && !session) {
+            ensureDefaultSession()
         }
-    }, [isOpen])
+    }, [isOpen, session, ensureDefaultSession])
 
     // 2. Global Event Listener (Singleton)
     useEffect(() => {
         const onData = (_: any, { id, data }: { id: string; data: string }) => {
-            setSessions((current) => {
-                const session = current.find((s) => s.id === id)
-                session?.instance.write(data)
-                return current
-            })
+            if (session && session.id === id) {
+                session.instance.write(data)
+            }
         }
 
         const onExit = (_: any, { id }: { id: string }) => {
-            setSessions((current) => {
-                const session = current.find((s) => s.id === id)
-                session?.instance.dispose()
-                const next = current.filter((s) => s.id !== id)
-                // If we killed the active one, logic to switch handled in state update usually,
-                // but here we might need to explicit switch if killSession wasn't called.
-                return next
-            })
-            setActiveId((curr) => (curr === id ? null : curr))
+            if (session && session.id === id) {
+                console.log('Default terminal exited. Restarting...')
+                session.instance.dispose()
+                setSession(null)
+                // Effect 1 will trigger re-creation because session is now null
+            }
         }
 
         connector.registerIncData(onData)
@@ -325,7 +241,7 @@ export const BottomTerminal: React.FC = () => {
             connector.deregisterIncData(onData)
             connector.deregisterTerminalExited(onExit)
         }
-    }, [])
+    }, [session])
 
     // 3. ShortCuts
     useEffect(() => {
@@ -373,33 +289,30 @@ export const BottomTerminal: React.FC = () => {
                 onMouseDown={() => setIsDragging(true)}
             />
 
-            <TerminalTabs
-                sessions={sessions}
-                activeId={activeId}
-                onCreate={createNewSession}
-                onClose={killSession}
-                onSwitch={setActiveId}
-                onHide={() => dispatch(gs.closeTerminal())}
-            />
+            {/* Header / Tabs Area */}
+            <div className="flex bg-[#111] h-9 border-b border-[#252525] items-center px-4 select-none justify-between">
+                <div className="flex items-center text-xs font-mono text-gray-400">
+                    <FontAwesomeIcon
+                        icon={faTerminal}
+                        className="mr-2 text-blue-400"
+                    />
+                    <span>Terminal</span>
+                </div>
+                <button
+                    onClick={() => dispatch(gs.closeTerminal())}
+                    className="text-[#888] hover:text-white p-1 transition-colors"
+                    title="Close Panel"
+                >
+                    <FontAwesomeIcon icon={faTimes} />
+                </button>
+            </div>
 
             <div className="flex-1 relative bg-black overflow-hidden">
-                {sessions.map((s) => (
-                    <TerminalInstance
-                        key={s.id}
-                        session={s}
-                        isActive={activeId === s.id}
-                    />
-                ))}
-
-                {sessions.length === 0 && (
+                {session ? (
+                    <TerminalInstance session={session} isActive={true} />
+                ) : (
                     <div className="flex flex-col items-center justify-center h-full text-[#666]">
-                        <p className="mb-2">No active terminals</p>
-                        <button
-                            onClick={createNewSession}
-                            className="text-blue-500 hover:text-blue-400 text-sm hover:underline"
-                        >
-                            Create Terminal
-                        </button>
+                        <p className="mb-2">Initializing Local Terminal...</p>
                     </div>
                 )}
             </div>

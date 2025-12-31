@@ -12,6 +12,19 @@ const sessions = new Map<string, pty.IPty>()
  * @param rootPath - Optional root path for terminal working directory
  */
 export function setupTerminal(mainWindow: any, rootPath?: string) {
+    if (mainWindow) {
+        mainWindow.on('closed', () => {
+            log.info('Window closed, killing all terminal sessions')
+            sessions.forEach((proc, id) => {
+                try {
+                    proc.kill()
+                } catch (e) {
+                    /* ignore */
+                }
+            })
+            sessions.clear()
+        })
+    }
     log.info('Binding Terminal IPC handlers...')
 
     // Determine available shells based on platform

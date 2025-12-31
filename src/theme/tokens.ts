@@ -7,53 +7,63 @@ export const BASE_TOKENS = {
 
     // Grays (Semantic Hierarchy)
     gray900: '#1e1e1e', // Active line, selections
-    gray800: '#262626', // Borders, dividers
+    gray800: '#2b2b2b', // Borders, dividers
     gray700: '#3a3a3a', // Disabled states
-    gray600: '#525252', // Muted text, line numbers
-    gray500: '#6e6e6e', // Secondary text
-    gray400: '#8a8a8a', // Tertiary text
-    gray300: '#a6a6a6', // Placeholder text
-    gray200: '#c2c2c2', // Primary text (muted)
-    gray100: '#dedede', // Primary text (standard)
+    gray600: '#858585', // Muted text, line numbers
+    gray500: '#a6a6a6', // Secondary text
+    gray400: '#c5c5c5', // Tertiary text
+    gray300: '#d4d4d4', // Placeholder text
+    gray200: '#e5e5e5', // Primary text (muted)
+    gray100: '#ffffff', // Primary text (standard)
 
-    // Whites (Hierarchy)
-    white: '#ffffff', // Maximum contrast — keywords, focus
-    whiteSoft: '#f5f5f5', // Bright text
+    // Cursor / Anysphere Palette (VS Code Dark+ / Modern Dark)
+    anysphere: {
+        bg: '#000000', // User mandated Pure Black
+        fg: '#cccccc', // Standard Light Grey
 
-    // Syntax Colors (Anysphere-Inspired, Scientifically Tuned)
-    purple: '#c586c0', // Keywords (if, const, return)
-    purpleBright: '#d19ad8', // Bright variant
+        selection: '#264f78', // Classic VS Code Blue Selection
+        lineHighlight: '#2b2b2b', // Subtle grey
 
-    blue: '#569cd6', // Types, tags, primitives
-    blueBright: '#75beff', // Info, links, bright variant
-    blueLight: '#9cdcfe', // Properties, variables, attributes
+        // Syntax
+        keyword: '#c586c0', // Purple
+        control: '#c586c0', // Purple
+        type: '#4ec9b0', // Teal/Greenish
+        function: '#dcdcaa', // Pale Yellow
+        variable: '#9cdcfe', // Light Blue
+        number: '#b5cea8', // Lime Green
+        string: '#ce9178', // Orange / Clay
+        comment: '#6a9955', // Green
+        operator: '#d4d4d4', // White/Grey
+        tag: '#569cd6', // Blue (HTML keys)
 
-    yellow: '#dcdcaa', // Functions, methods
-    yellowBright: '#f0e6b8', // Bright variant
+        // Accents
+        blue: '#3794ff', // Cursor Blue
+        focusBorder: '#007fd4',
 
-    green: '#6a9955', // Comments (italic)
-    greenBright: '#89d185', // Success, strings (alternate)
-    greenNumber: '#b5cea8', // Numbers, constants
+        // Diagnostics
+        error: '#f48771',
+        warning: '#cca700',
+        info: '#75beff',
 
-    orange: '#ce9178', // Strings, template literals
-    orangeBright: '#d7a583', // Bright variant
+        // Terminal
+        ansiBlack: '#000000',
+        ansiRed: '#cd3131',
+        ansiGreen: '#0dbc79',
+        ansiYellow: '#e5b95c',
+        ansiBlue: '#2472c8',
+        ansiMagenta: '#bc3fbc',
+        ansiCyan: '#11a8cd',
+        ansiWhite: '#e5e5e5',
 
-    cyan: '#4ec9b0', // Classes, interfaces, namespaces
-    cyanBright: '#5dd4bb', // Bright variant
-
-    gold: '#d7ba7d', // CSS selectors, special identifiers
-
-    // Semantic Colors (Diagnostics, States)
-    red: '#f48771', // Errors, delete
-    redBright: '#ff6b6b', // Critical errors
-
-    amber: '#cca700', // Warnings
-    amberBright: '#e6b800', // Critical warnings
-
-    // Accent (Single Primary)
-    accent: '#569cd6', // Primary accent — links, focus rings
-    accentHover: '#75beff', // Hover state
-    accentActive: '#4a8bc2', // Active/pressed state
+        ansiBrightBlack: '#666666',
+        ansiBrightRed: '#f14c4c',
+        ansiBrightGreen: '#23d18b',
+        ansiBrightYellow: '#f5f543',
+        ansiBrightBlue: '#3b8eea',
+        ansiBrightMagenta: '#d670d6',
+        ansiBrightCyan: '#29b8db',
+        ansiBrightWhite: '#ffffff',
+    },
 } as const
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -63,59 +73,59 @@ export const BASE_TOKENS = {
 export const SEMANTIC_TOKENS = {
     // Editor Core
     editor: {
-        background: BASE_TOKENS.blackSoft,
-        foreground: BASE_TOKENS.gray100,
-        lineHighlight: BASE_TOKENS.gray900,
-        selection: '#264f78', // Anysphere selection
-        selectionMatch: 'rgba(156, 220, 254, 0.25)',
+        background: BASE_TOKENS.anysphere.bg,
+        foreground: BASE_TOKENS.anysphere.fg,
+        lineHighlight: BASE_TOKENS.anysphere.lineHighlight,
+        selection: BASE_TOKENS.anysphere.selection,
+        selectionMatch: '#29435c', // Subtle match
         cursor: '#aeafad',
-        cursorAccent: BASE_TOKENS.blackSoft,
+        cursorAccent: '#000000',
     },
 
     // Gutter (Line Numbers)
     gutter: {
-        background: BASE_TOKENS.blackSoft,
-        foreground: BASE_TOKENS.gray600,
-        foregroundActive: BASE_TOKENS.gray100,
+        background: BASE_TOKENS.anysphere.bg,
+        foreground: '#858585',
+        foregroundActive: '#c6c6c6',
         border: 'transparent',
     },
 
     // Syntax Highlighting
     syntax: {
-        keyword: BASE_TOKENS.purple,
-        type: BASE_TOKENS.cyan,
-        class: BASE_TOKENS.cyan,
-        interface: BASE_TOKENS.cyan,
-        function: BASE_TOKENS.yellow,
-        method: BASE_TOKENS.yellow,
-        variable: BASE_TOKENS.blueLight,
-        property: BASE_TOKENS.blueLight,
-        parameter: BASE_TOKENS.blueLight,
-        constant: BASE_TOKENS.blueLight,
-        string: BASE_TOKENS.orange,
-        number: BASE_TOKENS.greenNumber,
-        boolean: BASE_TOKENS.blue,
-        null: BASE_TOKENS.blue,
-        comment: BASE_TOKENS.green,
-        operator: BASE_TOKENS.gray100,
-        punctuation: BASE_TOKENS.gray100,
-        tag: BASE_TOKENS.blue,
-        attribute: BASE_TOKENS.blueLight,
-        selector: BASE_TOKENS.gold,
-        regex: BASE_TOKENS.orange,
-        escape: BASE_TOKENS.yellowBright,
+        keyword: BASE_TOKENS.anysphere.keyword,
+        type: BASE_TOKENS.anysphere.type,
+        class: BASE_TOKENS.anysphere.type,
+        interface: BASE_TOKENS.anysphere.type,
+        function: BASE_TOKENS.anysphere.function,
+        method: BASE_TOKENS.anysphere.function,
+        variable: BASE_TOKENS.anysphere.variable,
+        property: BASE_TOKENS.anysphere.variable,
+        parameter: BASE_TOKENS.anysphere.variable,
+        constant: '#4fc1ff', // Blue-ish
+        string: BASE_TOKENS.anysphere.string,
+        number: BASE_TOKENS.anysphere.number,
+        boolean: '#569cd6', // Blue
+        null: '#569cd6',
+        comment: BASE_TOKENS.anysphere.comment,
+        operator: BASE_TOKENS.anysphere.operator,
+        punctuation: BASE_TOKENS.anysphere.operator,
+        tag: BASE_TOKENS.anysphere.tag,
+        attribute: BASE_TOKENS.anysphere.variable,
+        selector: '#d7ba7d', // Gold
+        regex: '#d16969', // Red-ish
+        escape: '#d7ba7d',
     },
 
     // Diagnostics
     diagnostic: {
-        error: BASE_TOKENS.red,
-        errorBackground: 'rgba(244, 135, 113, 0.1)',
-        warning: BASE_TOKENS.amber,
-        warningBackground: 'rgba(204, 167, 0, 0.1)',
-        info: BASE_TOKENS.blueBright,
-        infoBackground: 'rgba(117, 190, 255, 0.1)',
-        hint: BASE_TOKENS.gray400,
-        hintBackground: 'rgba(138, 138, 138, 0.05)',
+        error: BASE_TOKENS.anysphere.error,
+        errorBackground: 'rgba(244, 135, 113, 0.2)',
+        warning: BASE_TOKENS.anysphere.warning,
+        warningBackground: 'rgba(204, 167, 0, 0.2)',
+        info: BASE_TOKENS.anysphere.info,
+        infoBackground: 'rgba(117, 190, 255, 0.2)',
+        hint: '#6c6c6c',
+        hintBackground: 'transparent',
     },
 
     // UI Elements
@@ -123,38 +133,37 @@ export const SEMANTIC_TOKENS = {
         background: BASE_TOKENS.black,
         backgroundElevated: BASE_TOKENS.blackElevated,
         backgroundSubtle: BASE_TOKENS.blackSubtle,
-        foreground: BASE_TOKENS.gray100,
-        foregroundMuted: BASE_TOKENS.gray400,
-        border: BASE_TOKENS.gray800,
-        borderSubtle: BASE_TOKENS.gray900,
+        foreground: BASE_TOKENS.anysphere.fg,
+        foregroundMuted: '#969696',
+        border: '#2b2b2b',
+        borderSubtle: '#1e1e1e',
     },
 
     // Terminal
     terminal: {
-        background: BASE_TOKENS.black, // True black for terminal
-        foreground: BASE_TOKENS.gray100,
-        cursor: BASE_TOKENS.accent,
+        background: BASE_TOKENS.black,
+        foreground: '#cccccc',
+        cursor: '#ffffff',
         selection: '#264f78',
 
-        // ANSI Colors (Semantically Justified)
-        black: BASE_TOKENS.black,
-        red: BASE_TOKENS.red, // Errors, failures
-        green: BASE_TOKENS.greenBright, // Success, pass
-        yellow: BASE_TOKENS.yellow, // Warnings, modified
-        blue: BASE_TOKENS.blue, // Info, directories
-        magenta: BASE_TOKENS.purple, // Special, archives
-        cyan: BASE_TOKENS.blueLight, // Links, executables
-        white: BASE_TOKENS.gray100,
+        // ANSI
+        black: BASE_TOKENS.anysphere.ansiBlack,
+        red: BASE_TOKENS.anysphere.ansiRed,
+        green: BASE_TOKENS.anysphere.ansiGreen,
+        yellow: BASE_TOKENS.anysphere.ansiYellow,
+        blue: BASE_TOKENS.anysphere.ansiBlue,
+        magenta: BASE_TOKENS.anysphere.ansiMagenta,
+        cyan: BASE_TOKENS.anysphere.ansiCyan,
+        white: BASE_TOKENS.anysphere.ansiWhite,
 
-        // Bright Variants
-        brightBlack: BASE_TOKENS.gray600,
-        brightRed: BASE_TOKENS.redBright,
-        brightGreen: BASE_TOKENS.greenBright,
-        brightYellow: BASE_TOKENS.yellowBright,
-        brightBlue: BASE_TOKENS.blueBright,
-        brightMagenta: BASE_TOKENS.purpleBright,
-        brightCyan: BASE_TOKENS.blueLight,
-        brightWhite: BASE_TOKENS.white,
+        brightBlack: BASE_TOKENS.anysphere.ansiBrightBlack,
+        brightRed: BASE_TOKENS.anysphere.ansiBrightRed,
+        brightGreen: BASE_TOKENS.anysphere.ansiBrightGreen,
+        brightYellow: BASE_TOKENS.anysphere.ansiBrightYellow,
+        brightBlue: BASE_TOKENS.anysphere.ansiBrightBlue,
+        brightMagenta: BASE_TOKENS.anysphere.ansiBrightMagenta,
+        brightCyan: BASE_TOKENS.anysphere.ansiBrightCyan,
+        brightWhite: BASE_TOKENS.anysphere.ansiBrightWhite,
     },
 } as const
 
@@ -166,88 +175,88 @@ export const COMPONENT_TOKENS = {
     // Title Bar
     titleBar: {
         background: BASE_TOKENS.black,
-        foreground: BASE_TOKENS.gray400,
-        border: BASE_TOKENS.gray800,
-        buttonHover: BASE_TOKENS.blackSubtle,
-        aiButton: BASE_TOKENS.purple,
-        aiButtonHover: BASE_TOKENS.purpleBright,
+        foreground: '#cccccc',
+        border: '#2b2b2b',
+        buttonHover: '#333333',
+        aiButton: BASE_TOKENS.anysphere.blue,
+        aiButtonHover: '#66b2ff',
     },
 
     // Sidebar / File Tree
     sidebar: {
-        background: BASE_TOKENS.black,
-        foreground: BASE_TOKENS.gray100,
-        foregroundMuted: BASE_TOKENS.gray400,
-        hover: BASE_TOKENS.blackSubtle,
-        selected: BASE_TOKENS.gray900,
-        selectedAccent: BASE_TOKENS.accent,
-        border: BASE_TOKENS.gray800,
+        background: BASE_TOKENS.black, // Pure Black
+        foreground: '#cccccc',
+        foregroundMuted: '#969696',
+        hover: '#2a2d2e',
+        selected: '#094771', // Standard Box selection
+        selectedAccent: BASE_TOKENS.anysphere.focusBorder,
+        border: '#252526',
     },
 
     // Tabs
     tabs: {
         background: BASE_TOKENS.black,
-        backgroundActive: BASE_TOKENS.blackSoft,
-        foreground: BASE_TOKENS.gray400,
-        foregroundActive: BASE_TOKENS.gray100,
-        border: BASE_TOKENS.gray800,
-        hover: BASE_TOKENS.blackSubtle,
-        dirty: BASE_TOKENS.accent,
+        backgroundActive: BASE_TOKENS.black,
+        foreground: '#969696',
+        foregroundActive: '#ffffff',
+        border: '#252526',
+        hover: '#2d2d2d',
+        dirty: '#ffffff',
     },
 
     // Panels
     panel: {
-        background: BASE_TOKENS.blackSoft,
-        backgroundElevated: BASE_TOKENS.blackElevated,
-        foreground: BASE_TOKENS.gray100,
-        border: BASE_TOKENS.gray800,
+        background: BASE_TOKENS.black,
+        backgroundElevated: '#1e1e1e',
+        foreground: '#cccccc',
+        border: '#2b2b2b',
     },
 
     // Inputs
     input: {
-        background: BASE_TOKENS.gray900,
-        foreground: BASE_TOKENS.gray100,
-        border: BASE_TOKENS.gray800,
-        borderFocus: BASE_TOKENS.accent,
-        placeholder: BASE_TOKENS.gray400,
+        background: '#3c3c3c',
+        foreground: '#cccccc',
+        border: '#3c3c3c',
+        borderFocus: BASE_TOKENS.anysphere.focusBorder,
+        placeholder: '#a6a6a6',
     },
 
     // Buttons
     button: {
-        primary: BASE_TOKENS.accent,
-        primaryHover: BASE_TOKENS.accentHover,
-        primaryActive: BASE_TOKENS.accentActive,
+        primary: BASE_TOKENS.anysphere.blue,
+        primaryHover: '#006ab1',
+        primaryActive: '#004f85',
 
-        success: BASE_TOKENS.greenBright,
-        successHover: '#9ae09a',
+        success: '#89d185',
+        successHover: '#6a9955',
 
-        danger: BASE_TOKENS.red,
-        dangerHover: BASE_TOKENS.redBright,
+        danger: '#f14c4c',
+        dangerHover: '#c13939',
 
-        secondary: BASE_TOKENS.blackSubtle,
-        secondaryHover: BASE_TOKENS.gray900,
+        secondary: '#3c3c3c',
+        secondaryHover: '#4d4d4d',
     },
 
     // Scrollbar
     scrollbar: {
         background: 'transparent',
-        thumb: BASE_TOKENS.gray600,
-        thumbHover: BASE_TOKENS.gray500,
+        thumb: '#79797966',
+        thumbHover: '#646464bb',
     },
 
     // Tooltips
     tooltip: {
-        background: BASE_TOKENS.blackElevated,
-        foreground: BASE_TOKENS.gray100,
-        border: BASE_TOKENS.gray800,
+        background: '#252526',
+        foreground: '#cccccc',
+        border: '#454545',
     },
 
     // Modals
     modal: {
-        background: BASE_TOKENS.blackElevated,
-        foreground: BASE_TOKENS.gray100,
-        border: BASE_TOKENS.gray800,
-        overlay: 'rgba(0, 0, 0, 0.8)',
+        background: '#252526',
+        foreground: '#cccccc',
+        border: '#454545',
+        overlay: 'rgba(0, 0, 0, 0.65)',
     },
 } as const
 
@@ -258,7 +267,7 @@ export const COMPONENT_TOKENS = {
 export const TYPOGRAPHY = {
     // Monospace (Editor, Terminal)
     fontFamilyMono:
-        "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace",
+        "'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
 
     // Sans-serif (UI)
     fontFamilySans:
@@ -268,7 +277,7 @@ export const TYPOGRAPHY = {
     fontSize: {
         xs: '11px',
         sm: '12px',
-        base: '14px',
+        base: '13px',
         md: '14px',
         lg: '16px',
         xl: '18px',
@@ -330,8 +339,8 @@ export const SPACING = {
 export const RADIUS = {
     none: '0',
     sm: '2px',
-    md: '4px',
-    lg: '6px',
+    md: '3px',
+    lg: '5px',
     xl: '8px',
     full: '9999px',
 } as const
