@@ -23,8 +23,6 @@ export const initialLanguageServerState = {
             },
         ])
     ),
-    copilotSignedIn: false,
-    copilotEnabled: true,
 }
 
 export const installLanguageServer = createAsyncThunk(
@@ -67,6 +65,7 @@ export const runLanguageServer = createAsyncThunk(
         }
     }
 )
+
 export const stopLanguageServer = createAsyncThunk(
     'settings/stopLanguageServer',
     async (languageServerName: string, { rejectWithValue, dispatch }) => {
@@ -84,22 +83,6 @@ export const startConnections = createAsyncThunk(
     'lsp/startConnections',
     async (rootUri: string, { getState, dispatch }) => {
         await dispatch(killAllConnections(null))
-        // For now we just start copilot
-        const copilotClient = new LanguageServerClient({
-            language: 'copilot',
-            rootUri: URI.file(rootUri).toString(),
-            // TODO - make this work
-            workspaceFolders: null,
-        })
-
-        clientConnections['copilot'] = {
-            lspName: 'copilot',
-            client: copilotClient,
-        }
-
-        await copilotClient.initializePromise
-        const signedIn = await copilotClient.signedIn()
-        dispatch(copilotChangeSignin(signedIn))
 
         const maybeRun = async (languageServerName: string) => {
             // @ts-ignore
@@ -112,28 +95,6 @@ export const startConnections = createAsyncThunk(
         }
 
         await Promise.all(LSLanguages.map(maybeRun))
-    }
-)
-
-export const startCopilotWithoutFolder = createAsyncThunk(
-    'lsp/startCopilotWithoutFolder',
-    async (args: null, { getState, dispatch }) => {
-        await dispatch(killAllConnections(null))
-        // Start copilot without a folder
-        const copilotClient = new LanguageServerClient({
-            language: 'copilot',
-            rootUri: '/Users/mntruell/portal/electron/src',
-            workspaceFolders: null,
-        })
-
-        clientConnections['copilot'] = {
-            lspName: 'copilot',
-            client: copilotClient,
-        }
-
-        await copilotClient.initializePromise
-        const signedIn = await copilotClient.signedIn()
-        dispatch(copilotChangeSignin(signedIn))
     }
 )
 
@@ -201,13 +162,6 @@ export const getDefinition = createAsyncThunk(
 
         newPath = newPath.replace(/\//g, connector.PLATFORM_DELIMITER)
 
-        // // TODO - tmp addition to fix goto definition errors
-        // // Check if new path is inside the rootDir
-        // if (!newPath.startsWith((<FullState>getState()).global.rootPath!)) {
-        //     return null;
-        // }
-        //
-
         const response = await dispatch(loadFileIfNeeded(newPath))
         if (!loadFileIfNeeded.fulfilled.match(response)) {
             return null
@@ -216,8 +170,6 @@ export const getDefinition = createAsyncThunk(
         }
         const { fileId, contents } = response.payload
 
-        // TODO - figure out why we don't accurately get the start and end offsets
-        // originally
         return { fileId, newStartPos: range.start, newEndPos: range.end }
     }
 )
@@ -225,6 +177,7 @@ export const getDefinition = createAsyncThunk(
 export const getConnections = () => {
     return clientConnections
 }
+
 export const getIdentifier = (languageId: string) => {
     switch (languageId) {
         // Typescript/javascript
@@ -264,6 +217,7 @@ export const getIdentifier = (languageId: string) => {
             return null
     }
 }
+
 export function subConnection(
     name: string,
     newConnection: LanguageServerClient
@@ -325,21 +279,7 @@ export const languageServerSlice = createSlice({
             }
         )
     },
-    reducers: {
-        copilotChangeSignin(
-            state: LanguageServerState,
-            action: PayloadAction<boolean>
-        ) {
-            state.copilotSignedIn = action.payload
-        },
-        copilotChangeEnable(
-            state: LanguageServerState,
-            action: PayloadAction<boolean>
-        ) {
-            state.copilotEnabled = action.payload
-        },
-    },
+    reducers: {},
 })
 
-export const { copilotChangeSignin, copilotChangeEnable } =
-    languageServerSlice.actions
+export const {} = languageServerSlice.actions

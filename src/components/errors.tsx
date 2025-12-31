@@ -4,12 +4,9 @@ import { getError, getShowErrors } from '../features/selectors'
 import { faClose } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from 'react-modal'
-import {
-    NoAuthGlobalOldRateLimitError,
-    NotLoggedInError,
-} from '../utils'
+import { NoAuthGlobalOldRateLimitError, NotLoggedInError } from '../utils'
 import { OpenAILoginPanel } from './settingsPane'
-import { signInCursor, upgradeCursor } from '../features/tools/toolSlice'
+import { signIn, upgrade } from '../features/tools/toolSlice'
 
 const customStyles = {
     overlay: {
@@ -108,7 +105,7 @@ export function ErrorPopup() {
                         </div>
                     </div>
                     <div className="signup__body">
-                        <div className="signup__title">Cursor</div>
+                        <div className="signup__title">CodeX</div>
                         <div className="signup__module">
                             <div className="signup__subtitle">
                                 To avoid abuse on our backend, we ask that you
@@ -116,14 +113,14 @@ export function ErrorPopup() {
                             </div>
                             <div
                                 className="signup__signup_button"
-                                onClick={() => dispatch(signInCursor(null))}
+                                onClick={() => dispatch(signIn(null))}
                             >
                                 Log in
                             </div>
 
                             <div
                                 className="signup__signup_button"
-                                onClick={() => dispatch(signInCursor(null))}
+                                onClick={() => dispatch(signIn(null))}
                             >
                                 Sign up
                             </div>
@@ -167,12 +164,12 @@ export function ErrorPopup() {
                         </div>
                         <div className="signup__module">
                             <div className="signup__subtitle">
-                                If you've enjoyed using Cursor, please consider
+                                If you've enjoyed using CodeX, please consider
                                 subscribing to one of our paid plans
                             </div>
                             <div
                                 className="signup__signup_button"
-                                onClick={() => dispatch(upgradeCursor(null))}
+                                onClick={() => dispatch(upgrade(null))}
                             >
                                 Upgrade
                             </div>

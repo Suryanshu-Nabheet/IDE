@@ -366,22 +366,7 @@ class LSPManager {
                 } catch (e) {
                     return null
                 }
-            case 'copilot': {
-                const copilotPath = path.join(
-                    lspDir,
-                    'copilot',
-                    'dist',
-                    'agent.js'
-                )
-                if (fs.existsSync(copilotPath)) {
-                    return {
-                        isNode: true,
-                        command: copilotPath,
-                        args: [],
-                    }
-                }
-                return null
-            }
+
             case 'go': {
                 const goDir = path.join(lspDir, 'go')
                 try {
@@ -871,7 +856,7 @@ class LSPManager {
         if (
             !Object.prototype.hasOwnProperty.call(this.runningClients, language)
         ) {
-            return
+            return undefined as any
         }
         const { connection } = this.runningClients[language]
 
@@ -908,7 +893,7 @@ class LSPManager {
                     // so far we only need to handle in c# - omnisharp
                     remainingItems = out
                 } else {
-                    remainingItems = out.items
+                    remainingItems = (out as any).items
                 }
 
                 let filtered = false
@@ -946,7 +931,10 @@ class LSPManager {
                     }
                 )
                 let isIncomplete = false
-                if (remainingItems.length > 500 || out?.isIncomplete == true) {
+                if (
+                    remainingItems.length > 500 ||
+                    (out as any)?.isIncomplete == true
+                ) {
                     isIncomplete = true
                 }
 

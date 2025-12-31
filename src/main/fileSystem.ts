@@ -49,10 +49,10 @@ class SSHClient {
             if (!seen) {
                 seen = true
             } else if (this.callback != null) {
-                // remove 'cursordone' from the end of the string
+                // remove 'codexdone' from the end of the string
                 const ret = data.toString()
-                if (ret.trim().endsWith('cursordone')) {
-                    out += ret.slice(0, -' cursordone'.length)
+                if (ret.trim().endsWith('codexdone')) {
+                    out += ret.slice(0, -' codexdone'.length)
                     this.callback(null, out)
                     this.callback = null
                     out = ''
@@ -98,7 +98,7 @@ class SSHClient {
                 this.sshProcess.stdin.cork()
 
                 this.sshProcess.stdin.write(`${command}\n`)
-                this.sshProcess.stdin.write(`echo 'cursordone'\n`)
+                this.sshProcess.stdin.write(`echo 'codexdone'\n`)
 
                 this.sshProcess.stdin.uncork()
             })

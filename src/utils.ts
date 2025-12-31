@@ -1,5 +1,6 @@
-export const API_ROOT = 'https://aiCodeX.com'
-export const HOMEPAGE_ROOT = 'https://aiCodeX.so'
+// CodeX is a fully independent IDE
+export const API_ROOT = 'http://localhost:8000'
+export const HOMEPAGE_ROOT = 'http://localhost:8000'
 
 export class ExpectedBackendError extends Error {
     public title: string | null = null
@@ -7,51 +8,45 @@ export class ExpectedBackendError extends Error {
 
 export class NoAuthRateLimitError extends ExpectedBackendError {
     constructor(
-        message = "You've reached the rate limit for unauthenticated requests. Please log in to continue."
+        message = 'Rate limit reached. Please wait a moment before trying again.'
     ) {
         super(message)
         this.name = 'NoAuthRateLimitError'
-        this.title = 'Please log in to continue...'
+        this.title = 'Rate Limit Reached'
     }
 }
 
 export class AuthRateLimitError extends ExpectedBackendError {
-    constructor(
-        message = "It seems like you're making an unusual number of AI requests. Please try again later. If you think this is a mistake, please contact admin@aiCodeX.so"
-    ) {
+    constructor(message = 'Too many requests. Please try again in a moment.') {
         super(message)
         this.name = 'AuthRateLimitError'
-        this.title = "You're going a bit fast..."
+        this.title = 'Rate Limit'
     }
 }
 
 export class NoAuthLocalRateLimitError extends ExpectedBackendError {
-    constructor(
-        message = 'To protect our backend, we ask that free users limit their usage to 30 prompts per hour. To raise this limit, feel free to upgrade to pro.'
-    ) {
+    constructor(message = 'Please wait a moment before making more requests.') {
         super(message)
         this.name = 'NoAuthLocalRateLimitError'
-        this.title = "You're going a bit fast..."
+        this.title = 'Rate Limit'
     }
 }
 
 export class NoAuthGlobalOldRateLimitError extends ExpectedBackendError {
-    constructor(
-        message = "If you've enjoyed using CodeX, please consider subscribing to one of our paid plans. Otherwise, you can enter your Open AI key (gear icon) to continue using the AI features at-cost."
-    ) {
+    constructor(message = 'Rate limit exceeded. Please try again later.') {
         super(message)
         this.name = 'NoAuthGlobalOldRateLimitError'
-        this.title = 'Free tier limit exceeded'
+        this.title = 'Rate Limit Exceeded'
     }
 }
 
 export class NoAuthGlobalNewRateLimitError extends ExpectedBackendError {
     constructor(
-        message = "We're currently experiencing a high volume of requests. Please try again in a few minutes. For support, please contact admin@aiCodeX.so."
+        message = 'High volume of requests detected. Please try again in a few minutes.'
     ) {
         super(message)
         this.name = 'NoAuthGlobalNewRateLimitError'
-        this.title = 'Our servers are overloaded...'
+        this.title = 'Rate Limit Reached'
     }
 }
 
@@ -75,7 +70,7 @@ export class BadModelError extends ExpectedBackendError {
 }
 
 export class NotLoggedInError extends ExpectedBackendError {
-    constructor(message = 'You are not logged in. Please log in to continue.') {
+    constructor(message = 'This feature requires authentication.') {
         super(message)
         this.name = 'NotLoggedInError'
     }

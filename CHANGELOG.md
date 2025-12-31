@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   **Complete Rebranding**: Transformed from Cursor to CodeX with comprehensive branding updates
+-   **Complete Rebranding**: Transformed from CodeX to CodeX with comprehensive branding updates
     -   Updated window title, menu labels, and all user-facing text
     -   Renamed IPC handlers (loginCodeX, payCodeX, etc.)
     -   Updated error messages and feedback placeholders
@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 -   Tutor folder and tutorial files
--   Cursor branding references throughout codebase
+-   CodeX branding references throughout codebase
 -   Empty CSS rulesets
 -   Unused variables and imports
 
@@ -62,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 
 -   LSP error suppression for cleaner console output
--   Copilot graceful error handling
+-   LSP error handling
 -   Enhanced command palette with fuzzy search
 -   Settings search functionality
 -   Loading spinner improvements

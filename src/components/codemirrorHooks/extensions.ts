@@ -35,16 +35,8 @@ import { vim } from '../codemirror-vim'
 import { moveToPane, saveFile } from '../../features/globalSlice'
 import { closeTab } from '../../features/globalThunks'
 import { languageBundle } from '../../features/extensions/lsp'
-import {
-    completionDecoration,
-    copilotBundle,
-    getClient,
-    rejectSuggestionCommand,
-} from '../../features/extensions/ghostText'
-import {
-    copilotStatus,
-    languageServerStatus,
-} from '../../features/lsp/languageServerSelector'
+
+import { languageServerStatus } from '../../features/lsp/languageServerSelector'
 import { getLanguageFromFilename } from '../../features/extensions/utils'
 import { scrollbarPlugin } from '../../features/extensions/minimap'
 import { cursorTooltip } from '../../features/extensions/selectionTooltip'
@@ -84,7 +76,6 @@ const syntaxCompartment = new Compartment(),
     commandBarCompartment = new Compartment(),
     diffCompartment = new Compartment(),
     indentCompartment = new Compartment(),
-    copilotCompartment = new Compartment(),
     lsCompartment = new Compartment(),
     commentCompartment = new Compartment(),
     readOnlyCompartment = new Compartment()
@@ -237,7 +228,6 @@ const globalExtensions = [
     commandBarCompartment.of([]),
     diffCompartment.of([]),
     indentCompartment.of([]),
-    copilotCompartment.of([]),
     commentCompartment.of([]),
     readOnlyCompartment.of([]),
 ]
@@ -308,29 +298,9 @@ export function useExtensions({
     )
     const lsStatus = useAppSelector(languageServerStatus(languageName))
     const isGenerating = useAppSelector(csel.getGenerating)
-    const { signedIn, enabled } = useAppSelector(copilotStatus)
     const commentsInFile = useAppSelector(
         (state) => state.commentState.fileThenNames[filePath]
     )
-
-    useEffect(() => {
-        let copilot
-        if (signedIn && enabled && !isGenerating) {
-            copilot = copilotBundle({ filePath, relativeFilePath })
-        } else {
-            copilot = []
-        }
-        if (editorRef.current?.view != null) {
-            if (
-                editorRef.current.view.state.field(completionDecoration, false)
-            ) {
-                rejectSuggestionCommand(getClient(), editorRef.current.view)
-            }
-            editorRef.current.view.dispatch({
-                effects: copilotCompartment.reconfigure(copilot),
-            })
-        }
-    }, [justCreated, isGenerating, editorRef.current, signedIn, enabled])
 
     useEffect(() => {
         if (editorRef.current?.view != null) {

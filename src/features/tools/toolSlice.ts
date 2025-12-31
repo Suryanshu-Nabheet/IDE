@@ -9,7 +9,7 @@ const initialState: ToolState = {
     commandPaletteTriggered: false,
     aiCommandPaletteTriggered: false,
     leftSideExpanded: true,
-    cursorLogin: {},
+    authLogin: {},
     welcomeDismissed: false,
 }
 const untriggerAll = (state: ToolState) => {
@@ -32,14 +32,14 @@ export const refreshLoginDetails = createAsyncThunk(
     }
 )
 
-export const signInCursor = createAsyncThunk(
+export const signIn = createAsyncThunk(
     'tool/signIn',
     async (payload: null, { dispatch, getState }) => {
         await dispatch(refreshLoginDetails(null))
         const state = (getState() as FullState).toolState
 
         log.info('Initiating sign in', undefined, 'toolSlice')
-        if (state.cursorLogin.accessToken && state.cursorLogin.profile) {
+        if (state.authLogin.accessToken && state.authLogin.profile) {
             log.debug('User already logged in', undefined, 'toolSlice')
             return
         } else {
@@ -49,14 +49,14 @@ export const signInCursor = createAsyncThunk(
     }
 )
 
-export const signOutCursor = createAsyncThunk(
+export const signOut = createAsyncThunk(
     'tool/signOut',
     async (payload: null, { dispatch, getState }) => {
         await dispatch(refreshLoginDetails(null))
         const state = (getState() as FullState).toolState
 
         log.info('Initiating sign out', undefined, 'toolSlice')
-        if (state.cursorLogin.accessToken && state.cursorLogin.profile) {
+        if (state.authLogin.accessToken && state.authLogin.profile) {
             log.info('Proceeding to logout', undefined, 'toolSlice')
             await connector.logoutCodeX()
         } else {
@@ -70,7 +70,7 @@ export const signOutCursor = createAsyncThunk(
     }
 )
 
-export const upgradeCursor = createAsyncThunk(
+export const upgrade = createAsyncThunk(
     'tool/upgrade',
     async (payload: null, { dispatch, getState }) => {
         await dispatch(refreshLoginDetails(null))
@@ -82,14 +82,14 @@ export const upgradeCursor = createAsyncThunk(
         )
         log.info('Initiating upgrade', undefined, 'toolSlice')
         if (
-            state.cursorLogin.accessToken &&
-            state.cursorLogin.profile &&
-            state.cursorLogin.stripeId
+            state.authLogin.accessToken &&
+            state.authLogin.profile &&
+            state.authLogin.stripeId
         ) {
             log.debug('User already has subscription', undefined, 'toolSlice')
             return
         } else if (
-            !(state.cursorLogin.accessToken && state.cursorLogin.profile)
+            !(state.authLogin.accessToken && state.authLogin.profile)
         ) {
             log.info(
                 'User not logged in, proceeding to login',
@@ -164,22 +164,22 @@ export const toolSlice = createSlice({
         ) {
             log.debug('Login action triggered', action.payload, 'toolSlice')
             if (action.payload.accessToken) {
-                state.cursorLogin.accessToken = action.payload.accessToken
+                state.authLogin.accessToken = action.payload.accessToken
             } else if (action.payload.accessToken === null) {
-                state.cursorLogin.accessToken = undefined
+                state.authLogin.accessToken = undefined
             }
 
             if (action.payload.profile) {
-                state.cursorLogin.profile = action.payload.profile
+                state.authLogin.profile = action.payload.profile
             } else if (action.payload.profile === null) {
-                state.cursorLogin.profile = undefined
+                state.authLogin.profile = undefined
             }
 
             // Should name these the same thing
             if (action.payload.stripeProfile) {
-                state.cursorLogin.stripeId = action.payload.stripeProfile
+                state.authLogin.stripeId = action.payload.stripeProfile
             } else if (action.payload.stripeProfile === null) {
-                state.cursorLogin.stripeId = undefined
+                state.authLogin.stripeId = undefined
             }
         },
         dismissWelcome: (state: ToolState) => {

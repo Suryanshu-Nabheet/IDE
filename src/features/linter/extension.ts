@@ -31,21 +31,21 @@ export const regexpLinter = linter((view) => {
                     col,
                     // Finished temp changes
                     severity: 'aiwarning',
-                    message: 'Cursor says Regular expressions are FORBIDDEN',
+                    message:
+                        'CodeX AI: Regular expressions should be used carefully',
                     actions: [
                         {
                             name: 'Remove',
                             payload: [replace('')],
                         },
                     ],
-                    source: 'Cursor AI',
+                    source: 'CodeX AI',
                 })
             }
         })
-    let notAIDiagnostics: Diagnostic[]
     const lintField = view.state.field(lintState, false)
     if (!lintField) return diagnostics
-    notAIDiagnostics = getDiagnostics(lintField, view.state).filter(
+    const notAIDiagnostics = getDiagnostics(lintField, view.state).filter(
         (d) => d.severity != 'aiwarning'
     )
     return [...diagnostics, ...notAIDiagnostics]

@@ -346,7 +346,7 @@ export interface ToolState {
     commandPaletteTriggered: boolean
     aiCommandPaletteTriggered: boolean
     leftSideExpanded: boolean
-    cursorLogin: {
+    authLogin: {
         accessToken?: string
         profile?: string
         stripeId?: string
@@ -367,8 +367,6 @@ interface LanguageServer {
 
 export interface LanguageServerState {
     languageServers: { [key: string]: LanguageServer }
-    copilotSignedIn: boolean
-    copilotEnabled: boolean
 }
 
 export interface FullState {

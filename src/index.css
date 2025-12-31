@@ -1814,8 +1814,7 @@ cm-diff-cancel > div {
     cursor: pointer;
 }
 
-.settings__button,
-.copilot__signin button {
+.settings__button {
     background-color: var(--vscode-blue);
     padding: 4px 12px;
     border-radius: 5px;
@@ -2221,10 +2220,7 @@ cm-diff-cancel > div {
     cursor: pointer;
 }
 
-.copilot-steps-title {
-    text-transform: uppercase;
-    color: #fff;
-}
+
 
 .welcome-button {
     display: flex;
@@ -2236,32 +2232,14 @@ cm-diff-cancel > div {
     justify-content: center;
 }
 
-.copilot-steps-panel {
-    background-color: #222;
-    padding: 8px 8px;
-    border-radius: 5px;
-    user-select: text;
-}
 
-.copilot-step {
-    margin: 8px;
-}
-
-.copilot-welcome-line {
-    margin-bottom: 2px;
-}
-
-.copilot-welcome-done {
-}
 
 .welcome-radio-button,
 .welcome-button {
     height: 2.5rem;
 }
 
-.welcome-copilot-sign-in {
-    background-color: var(--vscode-blue);
-}
+
 
 .done-button-section {
     display: flex;

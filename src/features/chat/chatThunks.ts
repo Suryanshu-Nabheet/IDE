@@ -60,7 +60,6 @@ import {
 import { getLastBotMessageById } from './chatSelectors'
 import { editBoundaryEffect, insertCursorEffect } from '../extensions/hackDiff'
 import posthog from 'posthog-js'
-import { getCopilotSnippets } from './promptUtils'
 import { CustomTransaction } from '../../components/codemirrorHooks/dispatch'
 import { getFixLSPBlobForServerWithSideEffects } from '../linter/fixLSPExtension'
 import {
@@ -71,7 +70,7 @@ import {
 } from '../linter/lint'
 
 const getBearerTokenHeader = (getState: () => unknown) => {
-    const accessToken = (getState() as FullState).toolState.cursorLogin
+    const accessToken = (getState() as FullState).toolState.authLogin
         .accessToken
     if (accessToken) {
         return {
@@ -198,9 +197,6 @@ export async function getPayload({
         : null
     const currentFileContents = fileId ? fileCache[fileId!]?.contents : null
 
-    const copilotCodeBlocks =
-        fileId == null ? [] : await getCopilotSnippets(state, fileId)
-
     const customCodeBlocks = [
         ...lastUserMessage.otherCodeBlocks.map((block) => {
             return {
@@ -289,8 +285,6 @@ export async function getPayload({
         precedingCode: precedingCodeBlocks,
         currentSelection: lastUserMessage.currentSelection,
         suffixCode: procedingCodeBlocks,
-        // Get Copilot values
-        copilotCodeBlocks,
         // Get user defined values
         customCodeBlocks,
         codeBlockIdentifiers,

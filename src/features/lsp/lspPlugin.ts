@@ -11,7 +11,6 @@ import { gotoDefinition } from '../globalSlice'
 import {
     Action,
     ActionTransaction,
-    Diagnostic,
     getDiagnostics,
     lintState,
     setDiagnostics,
@@ -40,7 +39,6 @@ import {
     getCachedFileName,
     getCachedTests,
     getCommentSingle,
-    getLanguageFromFilename,
 } from '../extensions/utils'
 import type {
     Completion,
@@ -93,7 +91,7 @@ export const semanticTokenField = StateField.define<DecorationSet>({
         const hasAddToken = tr.effects.some((e) => e.is(addToken))
         if (hasAddToken) {
             underlines = underlines.update({
-                filter: (from, to) => false,
+                filter: (_from, _to) => false,
             })
         }
 
@@ -122,31 +120,11 @@ export const semanticTokenField = StateField.define<DecorationSet>({
 // TODO - remove this when done testing autocomplete
 import _ from 'lodash'
 import { computeAndRenderTest, renderNewTest } from '../tests/testSlice'
-const dontComplete = [
-    'TemplateString',
-    'String',
-    'RegExp',
-    'LineComment',
-    'BlockComment',
-    'VariableDefinition',
-    'Type',
-    'Label',
-    'PropertyDefinition',
-    'PropertyName',
-    'PrivatePropertyDefinition',
-    'PrivatePropertyName',
-]
-const keywords =
-    /*@__PURE__*/ 'break case const continue default delete export extends false finally in instanceof let new return static super switch this throw true typeof var yield'
-        .split(' ')
-        .map((kw) => ({ label: kw, type: 'keyword' }))
-// TODO - End of temporarily added stuff
 
 const darkTransparentVscode = vscodeDarkInit({
     settings: { background: 'transparent' },
 })
 
-const timeout = 10000
 const changesDelay = 100
 
 const CompletionItemKindMap = Object.fromEntries(
@@ -219,8 +197,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                 documentPath: this.getDocPath(),
                 documentText: this.getDocText(),
             })
-
-            if (!this.client.isCopilot) this.debouncedSemanticTokens(view)
         }, changesDelay)
     }
 
@@ -241,7 +217,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
         })
 
         this.requestDiagnostics(this.view)
-        if (!this.client.isCopilot) this.debouncedSemanticTokens(this.view)
     }
     // Request hover tooltip from the server
     async requestHoverTooltip(
@@ -327,7 +302,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                 const magicSpan = document.createElement('span')
                 magicSpan.classList.add('cm-AI-magic')
                 commentButton.appendChild(magicSpan)
-                const docstringButton = document.createElement('button')
+
                 const docstringSpan = document.createElement('span')
                 docstringSpan.innerText = 'Add Docstring'
                 commentButton.appendChild(docstringSpan)
@@ -517,7 +492,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
             return null
         }
         const path = this.getDocPath()
-        const text = this.getDocText()
+        // const text = this.getDocText()
         const result = await this.client.textDocumentSemanticTokensFull({
             textDocument: { uri: URI.file(path).toString() },
         })
@@ -694,7 +669,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
         if (items.length == 0) return null
 
         // Map the items to the completion interface
-        let textEdited = 0
+        // let textEdited = 0
 
         // let options = items.filter((item => !item.insertTextFormat || item.insertTextFormat == 1))
         let options = items.map((item) => {
@@ -730,7 +705,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                     }[] = []
                     try {
                         if (textEdit) {
-                            textEdited += 1
+                            // textEdited += 1
                             // const ughTs = textEdit as any;
                             // const range = ughTs.range || ughTs.insert;
                             // const { newText } = textEdit;
@@ -783,7 +758,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
 
         // Find the matching span and token
         let { pos } = context
-        const [span, match] = prefixMatch(options)
+        const [_span, match] = prefixMatch(options)
         const token = context.matchBefore(match)
         if (token) {
             pos = token.from
@@ -1021,7 +996,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                 }
             })
             .filter(
-                ({ from, to, severity }) =>
+                ({ from, to, severity: _severity }) =>
                     from !== null &&
                     to !== null &&
                     from !== undefined &&
@@ -1059,14 +1034,13 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
 
         // Update the view with the diagnostics
         // Get existing diagnostics
-        let aiDiagnostics: Diagnostic[]
         const lintField = this.view.state.field(lintState, false)
         if (!lintField) {
             this.view.dispatch(setDiagnostics(this.view.state, diagnostics))
             return
         }
 
-        aiDiagnostics = getDiagnostics(lintField, this.view.state).filter(
+        const aiDiagnostics = getDiagnostics(lintField, this.view.state).filter(
             (diag) => diag.severity == 'aiwarning'
         )
 
@@ -1081,46 +1055,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
             documentText: this.getDocText(view),
             documentPath: this.getDocPath(view),
         })
-    }
-
-    async copilotSignIn() {
-        if (this.client.isCopilot) {
-            const first = await this.client.signInInitiate({})
-            const { userCode } = first
-            return await this.client.signInConfirm({ userCode })
-        }
-    }
-    async copilotComplete(relativePath: string) {
-        if (this.client.isCopilot) {
-            const source = this.view.state.doc.toString()
-            const position = offsetToPos(
-                this.view.state.doc,
-                this.view.state.selection.main.head
-            )
-
-            const tabSize = this.view.state.tabSize
-            const indentSize = 1
-            const insertSpaces = true
-            const path = this.getDocPath()
-            const uri = `file://${path}`
-
-            const { completions } = await this.client.getCompletion({
-                doc: {
-                    source,
-                    tabSize,
-                    indentSize,
-                    insertSpaces,
-                    path,
-                    uri,
-                    relativePath,
-                    languageId: getLanguageFromFilename(path),
-                    position,
-                },
-            })
-            if (completions.length > 0) {
-                return completions[0]
-            }
-        }
     }
 }
 
@@ -1261,18 +1195,6 @@ function prefixMatch(options: any[]) {
 interface LanguageServerPluginOptions {
     client: LanguageServerClient
     allowHTMLContent?: boolean
-}
-
-export function copilotServer(options: LanguageServerPluginOptions) {
-    let plugin: LanguageServerPlugin
-    return ViewPlugin.define(
-        (view) =>
-            (plugin = new LanguageServerPlugin(
-                options.client,
-                view,
-                options?.allowHTMLContent ?? false
-            ))
-    )
 }
 
 const commandClickEffect = StateEffect.define<Range<Decoration> | null>()

@@ -1,6 +1,5 @@
-import { getIdentifier } from './languageServerSlice'
-import { LanguageServerState } from '../window/state'
-import { createSelector } from '@reduxjs/toolkit'
+import { createSelector } from 'reselect'
+import type { LanguageServerState } from '../window/state'
 
 export const getLanguages = createSelector(
     (state: { languageServerState: LanguageServerState }) =>
@@ -8,24 +7,10 @@ export const getLanguages = createSelector(
     (languageServerState) => Object.keys(languageServerState.languageServers)
 )
 
-export const copilotStatus = createSelector(
-    (state: { languageServerState: LanguageServerState }) =>
-        state.languageServerState,
-    (languageServerState) => ({
-        signedIn: languageServerState.copilotSignedIn,
-        enabled: languageServerState.copilotEnabled,
-    })
-)
-
-export const languageServerStatus = (languageServer: string) =>
+export const languageServerStatus = (languageName: string) =>
     createSelector(
         (state: { languageServerState: LanguageServerState }) =>
             state.languageServerState,
-        (languageServerState) => {
-            const languageServerName = getIdentifier(languageServer)
-            if (languageServerName === null) {
-                return null
-            }
-            return languageServerState.languageServers[languageServerName]
-        }
+        (languageServerState) =>
+            languageServerState.languageServers[languageName]
     )

@@ -1,6 +1,5 @@
 import { app } from 'electron'
 import mainWindow from '../window'
-import { setupTokens } from '../auth'
 
 export default function setupSingleInstance() {
     const gotTheLock = app.requestSingleInstanceLock()
@@ -17,7 +16,7 @@ export default function setupSingleInstance() {
             }
             const url = commandLine.pop()
             if (url) {
-                setupTokens(url)
+                console.log('Second instance URL: ' + url)
             }
         })
     }

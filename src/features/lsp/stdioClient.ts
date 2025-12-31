@@ -44,8 +44,7 @@ import { Action } from '../linter/lint'
 import { v4 as uuidv4 } from 'uuid'
 
 export const LSLanguages = [
-    /*'copilot', */
-    'typescript', // Also javascript
+    'typescript',
     'html',
     'css',
     'python',
@@ -54,110 +53,12 @@ export const LSLanguages = [
     'go',
     'csharp',
     'java',
-    // God knows why we support php
     'php',
 ] //'go', 'java', 'c', 'rust', 'csharp']
 export type Language = (typeof LSLanguages)[number]
 
-interface CopilotSignInInitiateParams {}
-interface CopilotSignInInitiateResult {
-    verificationUri: string
-    status: string
-    userCode: string
-    expiresIn: number
-    interval: number
-}
-
-interface CopilotSignInConfirmParams {
-    userCode: string
-}
-type CopilotStatus =
-    | 'SignedIn'
-    | 'AlreadySignedIn'
-    | 'MaybeOk'
-    | 'NotAuthorized'
-    | 'NotSignedIn'
-    | 'OK'
-interface CopilotSignInConfirmResult {
-    status: CopilotStatus
-    user: string
-}
-
-interface CopilotSignOutParams {}
-interface CopilotSignOutResult {
-    status: CopilotStatus
-}
-
 export interface LSPCustomCompletionParams extends LSP.CompletionParams {
     wordBefore: string
-}
-
-export interface CopilotGetCompletionsParams {
-    doc: {
-        source: string
-        tabSize: number
-        indentSize: number
-        insertSpaces: boolean
-        path: string
-        uri: string
-        relativePath: string
-        languageId: string
-        position: {
-            line: number
-            character: number
-        }
-    }
-}
-
-interface CopilotGetCompletionsResult {
-    completions: {
-        text: string
-        position: {
-            line: number
-            character: number
-        }
-        uuid: string
-        range: {
-            start: {
-                line: number
-                character: number
-            }
-            end: {
-                line: number
-                character: number
-            }
-        }
-        displayText: string
-        point: {
-            line: number
-            character: number
-        }
-        region: {
-            start: {
-                line: number
-                character: number
-            }
-            end: {
-                line: number
-                character: number
-            }
-        }
-    }[]
-}
-
-interface CopilotAcceptCompletionParams {
-    uuid: string
-}
-
-interface CopilotRejectCompletionParams {
-    uuids: string[]
-}
-
-interface LSPNewDefinition {
-    originSelectionRange: LSP.Range
-    targetRange: LSP.Range
-    targetSelectionRange: LSP.Range
-    targetUri: string
 }
 
 export interface DiagnosticWithAction extends LSP.Diagnostic {
@@ -177,8 +78,6 @@ export type LSPRequestMap = {
         LSP.DocumentSymbol[]
     ]
 
-    notifyAccepted: [CopilotAcceptCompletionParams, any]
-    notifyRejected: [CopilotRejectCompletionParams, any]
     // Back to text document types
     'textDocument/definition': [
         LSP.DefinitionParams,
@@ -201,11 +100,6 @@ export type LSPRequestMap = {
     'workspaceSymbol/resolve': [LSP.SymbolInformation, LSP.SymbolInformation]
 
     // Copilot Commands
-    checkStatus: [{}, { status: CopilotStatus }]
-    signInInitiate: [CopilotSignInInitiateParams, CopilotSignInInitiateResult]
-    signInConfirm: [CopilotSignInConfirmParams, CopilotSignInConfirmResult]
-    signOut: [CopilotSignOutParams, CopilotSignOutResult]
-    getCompletions: [CopilotGetCompletionsParams, CopilotGetCompletionsResult]
     'textDocument/semanticTokens/full': [
         LSP.SemanticTokensParams,
         LSP.SemanticTokens
@@ -273,7 +167,6 @@ export interface LanguageServerClientOptions {
     rootUri: string | null
     workspaceFolders: LSP.WorkspaceFolder[] | null
     autoClose?: boolean
-    isCopilot?: boolean
 }
 
 // A type for the plugins that can attach to the client
@@ -299,9 +192,6 @@ export class LanguageServerClient {
     // Tracks the document version for each document
     private documentVersionMap: { [documentPath: string]: number } = {}
 
-    public isCopilot: boolean
-    private copilotSignedIn = false
-    private queuedUids: string[] = []
     public uuid = ''
 
     constructor(options: LanguageServerClientOptions) {
@@ -318,8 +208,6 @@ export class LanguageServerClient {
         this.plugins = []
         this.initializePromise = this.initialize(options)
 
-        this.isCopilot = options.language == 'copilot'
-        this.queuedUids = []
         this.uuid = uuidv4()
     }
     getName() {
@@ -436,11 +324,10 @@ export class LanguageServerClient {
             //options.workspaceFolders,
         }
 
-        if (!this.isCopilot && this.getName() != 'html') {
+        if (this.getName() != 'html') {
             // Copilot and html cant do initialization options
             // In the future, we will need a more principled way of
             // doing this
-
             initializationParameters.initializationOptions = {
                 semanticTokens: true,
             }
@@ -693,24 +580,6 @@ export class LanguageServerClient {
         return await this.request('workspaceSymbol/resolve', params)
     }
 
-    async signOut() {
-        return await this.request('signOut', {})
-    }
-
-    async signInInitiate(params: CopilotSignInInitiateParams) {
-        return await this.request('signInInitiate', params)
-    }
-
-    async signInConfirm(params: CopilotSignInConfirmParams) {
-        return await this.request('signInConfirm', params)
-    }
-    async acceptCompletion(params: CopilotAcceptCompletionParams) {
-        return await this.request('notifyAccepted', params)
-    }
-    async rejectCompletions(params: CopilotRejectCompletionParams) {
-        return await this.request('notifyRejected', params)
-    }
-
     // Close the connection with the server
     close() {
         // @ts-ignore
@@ -854,44 +723,4 @@ export class LanguageServerClient {
         this.plugins.splice(i, 1)
         if (this.autoClose) this.close()
     }
-
-    async copilotSignOut() {
-        if (this.copilotSignedIn) {
-            await this.signOut()
-        }
-    }
-    async signedIn() {
-        const { status } = await this.request('checkStatus', {})
-        if (
-            status == 'SignedIn' ||
-            status == 'AlreadySignedIn' ||
-            status == 'OK'
-        ) {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    async getCompletion(params: CopilotGetCompletionsParams) {
-        const response = await this.request('getCompletions', params)
-        //
-        this.queuedUids = [...response.completions.map((c) => c.uuid)]
-        return response
-    }
-
-    async accept(uuid: string) {
-        const badUids = this.queuedUids.filter((u) => u != uuid)
-        this.queuedUids = []
-        await this.acceptCompletion({ uuid })
-        await this.rejectCompletions({ uuids: badUids })
-    }
-
-    async reject() {
-        const badUids = this.queuedUids
-        this.queuedUids = []
-        return await this.rejectCompletions({ uuids: badUids })
-    }
 }
-
-export class CopilotServerClient extends LanguageServerClient {}

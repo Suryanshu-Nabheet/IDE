@@ -4,7 +4,6 @@ import {
     getIdentifier,
     runLanguageServer,
     startConnections,
-    startCopilotWithoutFolder,
 } from './lsp/languageServerSlice'
 import type * as LSP from 'vscode-languageserver-protocol'
 import { changeSettingsNoSideffect } from './settings/settingsSlice'
@@ -722,7 +721,6 @@ export const initState = createAsyncThunk(
             (await connector.getStore('isNotFirstTime')) || false
 
         dispatch(setIsNotFirstTime(isNotFirstTime))
-        dispatch(startCopilotWithoutFolder(null))
 
         dispatch(initializeChatState(null))
 

@@ -36,8 +36,8 @@ export const getLeftSideExpanded = createSelector(
 export const loginStatus = createSelector(
     (state: FullState) => state.toolState,
     (tool: ToolState) => ({
-        signedIn: !!(tool.cursorLogin.accessToken && tool.cursorLogin.profile),
-        proVersion: !!tool.cursorLogin.stripeId,
+        signedIn: !!(tool.authLogin.accessToken && tool.authLogin.profile),
+        proVersion: !!tool.authLogin.stripeId,
     })
 )
 

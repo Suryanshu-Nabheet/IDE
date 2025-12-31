@@ -1,134 +1,9 @@
 import * as ss from '../features/settings/settingsSlice'
-import { useAppDispatch, useAppSelector } from '../app/hooks'
-import React, { useCallback, useEffect, useState } from 'react'
-import { copilotStatus } from '../features/lsp/languageServerSelector'
-import {
-    copilotChangeEnable,
-    copilotChangeSignin,
-    getConnections,
-} from '../features/lsp/languageServerSlice'
+import { useAppDispatch } from '../app/hooks'
+import React, { useEffect, useState } from 'react'
 import { RadioGroup } from '@headlessui/react'
 import { dismissWelcome } from '../features/tools/toolSlice'
 import posthog from 'posthog-js'
-
-function CopilotPanel() {
-    const dispatch = useAppDispatch()
-    const { signedIn, enabled: _enabled } = useAppSelector(copilotStatus)
-    const [localState, setLocalState] = useState<
-        'signedIn' | 'signingIn' | 'signInFailed' | 'signedOut'
-    >(signedIn ? 'signedIn' : 'signedOut')
-    const [localData, setLocalData] = useState<{ url: string; code: string }>()
-    const [loading, setLoading] = useState(false)
-
-    useEffect(() => {
-        setLocalState(signedIn ? 'signedIn' : 'signedOut')
-    }, [signedIn])
-
-    const trySignIn = useCallback(async () => {
-        const copilotClient = getConnections().copilot.client
-        setLoading(true)
-        const { verificationUri, status, userCode } =
-            await copilotClient.signInInitiate({})
-
-        if (status == 'OK' || status == 'AlreadySignedIn') {
-            dispatch(copilotChangeSignin(true))
-        } else {
-            setLocalState('signingIn')
-            setLocalData({ url: verificationUri, code: userCode })
-        }
-        setLoading(false)
-    }, [setLocalState, setLocalData, dispatch])
-
-    const tryFinishSignIn = useCallback(async () => {
-        const copilotClient = getConnections().copilot.client
-        const { status } = await copilotClient.signInConfirm({
-            userCode: localData!.code,
-        })
-
-        if (status == 'OK' || status == 'AlreadySignedIn') {
-            dispatch(copilotChangeSignin(true))
-        } else {
-            setLocalState
-        }
-    }, [localData, setLocalState, dispatch])
-
-    const _signOut = useCallback(async () => {
-        const copilotClient = getConnections().copilot.client
-        await copilotClient.signOut()
-        dispatch(copilotChangeSignin(false))
-    }, [])
-
-    const _enableCopilot = useCallback(() => {
-        dispatch(copilotChangeEnable(true))
-    }, [dispatch])
-
-    const _disableCopilot = useCallback(() => {
-        dispatch(copilotChangeEnable(false))
-    }, [dispatch])
-
-    let currentPanel
-    if (localState == 'signedOut') {
-        currentPanel = (
-            <>
-                <div className="copilot__signin welcome-button welcome-copilot-sign-in">
-                    <button
-                        onClick={() => {
-                            trySignIn()
-                            posthog.capture(
-                                'Welcome Screen Copilot Connect Click'
-                            )
-                        }}
-                    >
-                        Connect
-                    </button>
-                </div>
-            </>
-        )
-    } else if (localState == 'signingIn') {
-        currentPanel = (
-            <div className="copilot__signin copilot-steps-panel">
-                <div className="copilot-steps-title">Instructions</div>
-                <div className="copilot-step">
-                    1. Please click this link:&nbsp;
-                    <a href={localData?.url} target="_blank">
-                        {localData?.url}
-                    </a>
-                </div>
-                <div className="copilot-step">
-                    2. Enter this code: {localData?.code}
-                </div>
-                <div className="copilot-step">
-                    3. Click here when done: &nbsp;
-                    <button onClick={tryFinishSignIn}>Done</button>
-                </div>
-            </div>
-        )
-    } else if (localState == 'signInFailed') {
-        currentPanel = (
-            <div className="copilot__signin">
-                <div className="copilot-welcome-line">
-                    Sign in failed. Please try again.
-                </div>
-                {loading ? (
-                    <p>Loading...</p>
-                ) : (
-                    <div className="welcome-button welcome-copilot-sign-in">
-                        <button onClick={trySignIn}>Sign in</button>
-                    </div>
-                )}
-            </div>
-        )
-    } else {
-        posthog.capture('Welcome Screen Copilot Done')
-        currentPanel = (
-            <div className="copilot__signin copilot-welcome-done">
-                Connected!
-            </div>
-        )
-    }
-
-    return <>{currentPanel}</>
-}
 
 export default function ButtonGroup({
     plans,
@@ -138,11 +13,10 @@ export default function ButtonGroup({
     onClick: any
 }) {
     const [selected, setSelected] = useState(plans[0])
-    const _dispatch = useAppDispatch()
 
     useEffect(() => {
         onClick(selected)
-    }, [selected])
+    }, [selected, onClick])
 
     return (
         <div className="w-full">
@@ -233,19 +107,15 @@ const keyOptions = [
 
 export function WelcomeScreen() {
     const dispatch = useAppDispatch()
-    const [_selectedKeyBinding, _setSelectedKeyBinding] = useState('default')
-    const _keyBindings = [
-        { label: 'Default', value: 'default' },
-        { label: 'Emacs', value: 'emacs' },
-        { label: 'Vim', value: 'vim' },
-    ]
+
     useEffect(() => {
         posthog.capture('Welcome Screen')
     }, [])
+
     return (
         <div className="welcome-screen-container">
             <div className="welcome-screen-inner">
-                <h1 className="welcome-screen-title">Welcome</h1>
+                <h1 className="welcome-screen-title">Welcome to CodeX</h1>
                 <div className="key-bindings-section section">
                     <h2 className="key-bindings-title title">Key Bindings</h2>
                     <p className="key-bindings-subheading subheading">
@@ -261,15 +131,6 @@ export function WelcomeScreen() {
                             )
                         }}
                     />
-                </div>
-                <div className="copilot-setup-section section">
-                    <h2 className="copilot-setup-title title">
-                        Optional: Copilot
-                    </h2>
-                    <p className="key-bindings-subheading subheading">
-                        CodeX comes with a built-in Github Copilot integration.
-                    </p>
-                    <CopilotPanel />
                 </div>
                 <div className="done-button-section">
                     <button

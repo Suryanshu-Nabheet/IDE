@@ -154,7 +154,7 @@ export default function setupIpcs() {
 
     ipcMain.handle('createTutorDir', function (_event: any) {
         const toCopyFrom = path.join(resourcesDir, 'tutor')
-        const toCopyTo = path.join(app.getPath('home'), 'cursor-tutor')
+        const toCopyTo = path.join(app.getPath('home'), 'codex-tutor')
 
         if (fs.existsSync(toCopyTo)) {
             // delete the directory

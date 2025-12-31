@@ -1,7 +1,6 @@
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 
 import { Switch } from '@headlessui/react'
-import { HOMEPAGE_ROOT } from '../utils'
 
 import * as ssel from '../features/settings/settingsSelectors'
 import {
@@ -9,9 +8,6 @@ import {
     toggleSettings,
 } from '../features/settings/settingsSlice'
 import {
-    copilotChangeEnable,
-    copilotChangeSignin,
-    getConnections,
     installLanguageServer,
     runLanguageServer,
     stopLanguageServer,
@@ -23,17 +19,9 @@ import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-    copilotStatus,
     getLanguages,
     languageServerStatus,
 } from '../features/lsp/languageServerSelector'
-
-import {
-    signInCursor,
-    signOutCursor,
-    upgradeCursor,
-} from '../features/tools/toolSlice'
-import { loginStatus } from '../features/tools/toolSelectors'
 
 import Modal from 'react-modal'
 
@@ -47,9 +35,9 @@ export function SettingsPopup() {
     )
     const embeddingOptions = useMemo(() => {
         if (synced) {
-            return ['embeddings', 'copilot', 'none']
+            return ['embeddings', 'none']
         } else {
-            return ['copilot', 'none']
+            return ['none']
         }
     }, [synced])
     const [uploadPreference, setUploadPreference] = useState(false)
@@ -162,9 +150,7 @@ export function SettingsPopup() {
                                 />
                             </div>
 
-                            <CursorLogin />
                             <OpenAIPanel />
-                            <CopilotPanel />
                             {/* REMOVED CODEBASE-WIDE FEATURES!
                             <RemoteCodebaseSettingsPanel />*/}
                             {languageServerNames.map((name) => (
@@ -437,214 +423,6 @@ export function OpenAIPanel() {
     )
 }
 
-export function CursorLogin({
-    showSettings = true,
-}: {
-    showSettings?: boolean
-}) {
-    const dispatch = useAppDispatch()
-
-    const { signedIn, proVersion } = useAppSelector(loginStatus)
-
-    const signIn = useCallback(() => {
-        dispatch(signInCursor(null))
-    }, [])
-    const signOut = useCallback(() => {
-        dispatch(signOutCursor(null))
-    }, [])
-
-    const upgrade = useCallback(() => {
-        dispatch(upgradeCursor(null))
-    }, [])
-    const openAccountSettings = useCallback(() => {
-        window.open(`${HOMEPAGE_ROOT}/settings`, '_blank')
-    }, [])
-
-    let currentPanel
-    if (!signedIn) {
-        currentPanel = (
-            <div className="settings__item">
-                <div className="settings__item_title">Cursor Account</div>
-                <div className="settings__item_description">
-                    Login to use the AI without an API key
-                </div>
-                <div className="copilot__signin">
-                    <button onClick={signIn}>Sign in</button>
-                    <br />
-                    <button onClick={signIn}>Sign up</button>
-                </div>
-            </div>
-        )
-    } else {
-        if (proVersion) {
-            currentPanel = (
-                <div className="settings__item">
-                    <div className="settings__item_title">Cursor Account</div>
-                    <div className="settings__item_description">
-                        Login to use the AI without an API key
-                    </div>
-                    <div className="copilot__signin">
-                        <button onClick={signOut}>Log out</button>
-                        {showSettings && (
-                            <>
-                                <br />
-                                <button onClick={openAccountSettings}>
-                                    Manage settings
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )
-        } else {
-            currentPanel = (
-                <>
-                    <div className="settings__item">
-                        <div className="settings__item_title">
-                            Cursor Account
-                        </div>
-                        <div className="settings__item_description">
-                            Login to use the AI without an API key
-                        </div>
-                        <div className="copilot__signin">
-                            <button onClick={signOut}>Log out</button>
-                            {showSettings && (
-                                <>
-                                    <br />
-                                    <button onClick={openAccountSettings}>
-                                        Manage settings
-                                    </button>
-                                </>
-                            )}
-                            <br />
-                        </div>
-                    </div>
-                    <div className="settings__item">
-                        <div className="settings__item_title">Cursor Pro</div>
-                        <div className="settings__item_description">
-                            Upgrade for unlimited generations
-                        </div>
-                        <div className="copilot__signin">
-                            <button onClick={upgrade}>Upgrade to Pro</button>
-                        </div>
-                    </div>
-                </>
-            )
-        }
-    }
-
-    return currentPanel
-}
-
-function CopilotPanel() {
-    const dispatch = useAppDispatch()
-    const { signedIn, enabled } = useAppSelector(copilotStatus)
-    const [localState, setLocalState] = useState<
-        'signedIn' | 'signingIn' | 'signInFailed' | 'signedOut'
-    >(signedIn ? 'signedIn' : 'signedOut')
-    const [localData, setLocalData] = useState<{ url: string; code: string }>()
-    const [loading, setLoading] = useState(false)
-
-    useEffect(() => {
-        setLocalState(signedIn ? 'signedIn' : 'signedOut')
-    }, [signedIn])
-
-    const trySignIn = useCallback(async () => {
-        const copilotClient = getConnections().copilot.client
-        setLoading(true)
-        const { verificationUri, status, userCode } =
-            await copilotClient.signInInitiate({})
-
-        if (status == 'OK' || status == 'AlreadySignedIn') {
-            dispatch(copilotChangeSignin(true))
-        } else {
-            setLocalState('signingIn')
-            setLocalData({ url: verificationUri, code: userCode })
-        }
-        setLoading(false)
-    }, [setLocalState, setLocalData, dispatch])
-
-    const tryFinishSignIn = useCallback(async () => {
-        const copilotClient = getConnections().copilot.client
-        const { status } = await copilotClient.signInConfirm({
-            userCode: localData!.code,
-        })
-
-        if (status == 'OK' || status == 'AlreadySignedIn') {
-            dispatch(copilotChangeSignin(true))
-        } else {
-            setLocalState
-        }
-    }, [localData, setLocalState, dispatch])
-
-    const signOut = useCallback(async () => {
-        const copilotClient = getConnections().copilot.client
-        await copilotClient.signOut()
-        dispatch(copilotChangeSignin(false))
-    }, [])
-
-    const enableCopilot = useCallback(() => {
-        dispatch(copilotChangeEnable(true))
-    }, [dispatch])
-
-    const disableCopilot = useCallback(() => {
-        dispatch(copilotChangeEnable(false))
-    }, [dispatch])
-
-    let currentPanel
-    if (localState == 'signedOut') {
-        currentPanel = (
-            <div className="copilot__signin">
-                <button onClick={trySignIn}>Sign in</button>
-            </div>
-        )
-    } else if (localState == 'signingIn') {
-        currentPanel = (
-            <div className="copilot__signin">
-                Please click this link:&nbsp;&nbsp;
-                <a href={localData?.url} target="_blank">
-                    {localData?.url}
-                </a>
-                <br />
-                Enter this code: {localData?.code}
-                <br />
-                Click here when done:
-                <button onClick={tryFinishSignIn}>Done</button>
-            </div>
-        )
-    } else if (localState == 'signInFailed') {
-        currentPanel = (
-            <div className="copilot__signin">
-                Sign in failed. Please try again.
-                {loading ? (
-                    <p>Loading...</p>
-                ) : (
-                    <button onClick={trySignIn}>Sign in</button>
-                )}
-            </div>
-        )
-    } else {
-        currentPanel = (
-            <div className="copilot__signin">
-                Currently signed in <br />
-                {enabled ? (
-                    <button onClick={disableCopilot}>Disable</button>
-                ) : (
-                    <button onClick={enableCopilot}>Enable</button>
-                )}
-                <br />
-                <button onClick={signOut}>Sign out</button>
-            </div>
-        )
-    }
-
-    return (
-        <div className="settings__item">
-            <div className="settings__item_title">Copilot</div>
-            {currentPanel}
-        </div>
-    )
-}
 // REMOVED CODEBASE-WIDE FEATURES!
 // function RemoteCodebaseSettingsPanel() {
 //     const dispatch = useAppDispatch()
@@ -745,7 +523,7 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
                 <div className="language_server__status">
                     {languageRunning ? 'Running' : 'Stopped'}
                 </div>
-                <div className="copilot__signin">
+                <div className="auth__signin">
                     {languageRunning ? (
                         <button onClick={stopServer}>Stop</button>
                     ) : (
@@ -756,7 +534,7 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
         )
     } else {
         container = (
-            <div className="copilot__signin">
+            <div className="auth__signin">
                 <button onClick={installServer}>Install</button>
             </div>
         )
