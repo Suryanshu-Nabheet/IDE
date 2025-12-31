@@ -367,7 +367,10 @@ export function abortFileRename(state: State) {
     const file = state.isRightClickAFile
         ? state.files[state.rightClickId]
         : state.folders[state.rightClickId]
-    file.renameName = null
+
+    if (file) {
+        file.renameName = null
+    }
 }
 
 export async function getContentsIfNeeded(state: State, fileid: number) {
