@@ -715,9 +715,8 @@ li.rta__item--selected mark {
 }
 
 /* ============================================
-   TABS - Styles 
+   TAB BAR - Pixel Perfect
    ============================================ */
-
 .window__tabbarcontainer {
     height: 35px;
     background-color: var(--sidebar-bg);
@@ -731,15 +730,31 @@ li.rta__item--selected mark {
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--any-bg-lighter) transparent;
     height: 100%;
     flex: 1;
+    scroll-behavior: smooth;
 }
 
 .tabbar::-webkit-scrollbar {
-    display: none;
+    height: 3px;
 }
 
+.tabbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tabbar::-webkit-scrollbar-thumb {
+    background: var(--any-bg-lighter);
+    border-radius: 2px;
+}
+
+.tabbar::-webkit-scrollbar-thumb:hover {
+    background: var(--pane-border);
+}
+
+/* TAB */
 .tab {
     display: flex;
     align-items: center;
@@ -752,63 +767,78 @@ li.rta__item--selected mark {
     cursor: pointer;
     font-size: 13px;
     color: var(--ui-fg);
-    opacity: 0.6;
-    transition: all 0.1s ease;
+    transition: background-color 0.1s ease;
     user-select: none;
     position: relative;
+    flex-shrink: 0;
 }
 
 .tab__is_active {
     background-color: var(--background);
-    opacity: 1;
-    border-bottom: 1px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
 }
 
 .tab:hover:not(.tab__is_active) {
     background-color: var(--any-bg-lighter);
-    opacity: 0.8;
 }
 
 .tab__is_deleted {
-    opacity: 0.4;
+    opacity: 0.5;
     font-style: italic;
 }
 
+/* TAB ICON */
 .tab__icon {
-    margin-right: 8px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    margin-right: 8px;
     font-size: 14px;
     flex-shrink: 0;
+    width: 16px;
+    height: 16px;
 }
 
+/* TAB NAME */
 .tab__name {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.tab__modified {
+    min-width: 0;
+    font-size: 13px;
     color: var(--ui-fg);
-    font-size: 16px;
     line-height: 1;
-    opacity: 0.8;
 }
 
-.tab__close {
-    margin-left: 8px;
-    font-size: 12px;
-    opacity: 0;
-    transition: all 0.1s ease;
-    width: 20px;
-    height: 20px;
-    display: flex;
+.tab__is_active .tab__name {
+    color: #ffffff;
+}
+
+/* MODIFIED INDICATOR */
+.tab__modified {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    margin-left: 6px;
+    margin-right: 4px;
+    color: var(--ui-fg);
+    font-size: 10px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* CLOSE BUTTON */
+.tab__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.1s ease, background-color 0.1s ease;
+    width: 18px;
+    height: 18px;
     border-radius: 3px;
     flex-shrink: 0;
     color: var(--ui-fg);
@@ -816,7 +846,7 @@ li.rta__item--selected mark {
 
 .tab:hover .tab__close,
 .tab__is_active .tab__close {
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
 .tab__close:hover {
@@ -824,6 +854,7 @@ li.rta__item--selected mark {
     background-color: var(--any-bg-lighter);
 }
 
+/* TAB REMAINDER */
 .tab-remainder {
     display: flex;
     align-items: center;
@@ -833,6 +864,7 @@ li.rta__item--selected mark {
     flex-shrink: 0;
 }
 
+/* ACTION BUTTONS */
 .tabbar__actions {
     display: flex;
     align-items: center;
@@ -851,7 +883,7 @@ li.rta__item--selected mark {
     opacity: 0.6;
     cursor: pointer;
     border-radius: 3px;
-    font-size: 12px;
+    font-size: 11px;
     transition: all 0.1s ease;
 }
 

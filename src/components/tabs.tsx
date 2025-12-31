@@ -1,5 +1,4 @@
-import * as React from 'react'
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faXmark,
@@ -15,22 +14,82 @@ import * as gt from '../features/globalThunks'
 import * as gsel from '../features/selectors'
 import { HoverState } from '../features/window/state'
 
-function Tab({ tid }: { tid: number }) {
+// ============================================
+// TAB COMPONENT
+// ============================================
+interface TabProps {
+    tid: number
+}
+
+function Tab({ tid }: TabProps) {
     const dispatch = useAppDispatch()
     const tab = useAppSelector(getTab(tid))
     const file = useAppSelector(getFile(tab.fileId))
-    const tabDiv = React.useRef<HTMLDivElement>(null)
+    const tabRef = useRef<HTMLDivElement>(null)
 
     if (!tab || !file) return null
 
-    const name = tab.isMulti ? 'multifile' : file.name
+    const fileName = tab.isMulti ? 'multifile' : file.name
     const isModified = !tab.isMulti && !file.saved
+    const isActive = tab.isActive
+    const isDeleted = file.deleted
 
-    function revertTabsChildrenEvents() {
-        if (tabDiv.current) {
-            tabDiv.current.style.background = ''
+    // ============================================
+    // EVENT HANDLERS
+    // ============================================
+    const handleClick = () => {
+        dispatch(gs.selectTab(tid))
+    }
+
+    const handleClose = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        dispatch(gt.closeTab(tid))
+    }
+
+    const handleMiddleClick = (e: React.MouseEvent) => {
+        if (e.button === 1) {
+            e.stopPropagation()
+            dispatch(gt.closeTab(tid))
+        }
+    }
+
+    const handleContextMenu = () => {
+        dispatch(gs.rightClickTab(tid))
+    }
+
+    const handleDragStart = () => {
+        dispatch(setDraggingTab(tid))
+    }
+
+    const handleDragEnd = () => {
+        revertTabStyles()
+        dispatch(stopDraggingTab())
+    }
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault()
+        if (tabRef.current) {
+            tabRef.current.style.background = 'var(--any-bg-lighter)'
+        }
+    }
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault()
+        if (tabRef.current) {
+            tabRef.current.style.background = ''
+        }
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+        revertTabStyles()
+    }
+
+    const revertTabStyles = () => {
+        if (tabRef.current) {
+            tabRef.current.style.background = ''
             const tabs =
-                tabDiv.current.parentElement?.getElementsByClassName('tab')
+                tabRef.current.parentElement?.getElementsByClassName('tab')
             for (const t of tabs || []) {
                 const tabElement = t as HTMLElement
                 tabElement.childNodes.forEach((child) => {
@@ -41,140 +100,157 @@ function Tab({ tid }: { tid: number }) {
         }
     }
 
+    // ============================================
+    // RENDER
+    // ============================================
     return (
         <div
-            draggable="true"
-            onDragStart={(_e) => {
-                dispatch(setDraggingTab(tid))
-            }}
-            onDragEnd={(_e) => {
-                revertTabsChildrenEvents()
-                dispatch(stopDraggingTab())
-            }}
-            className={`tab ${tab.isActive ? 'tab__is_active' : ''} ${
-                file.deleted ? 'tab__is_deleted' : ''
+            ref={tabRef}
+            draggable
+            className={`tab ${isActive ? 'tab__is_active' : ''} ${
+                isDeleted ? 'tab__is_deleted' : ''
             }`}
-            onClick={() => {
-                dispatch(gs.selectTab(tid))
-            }}
-            onDragOver={(event) => {
-                event.preventDefault()
-                if (tabDiv.current) {
-                    tabDiv.current.style.background = 'var(--any-bg-lighter)'
-                }
-            }}
-            onDragLeave={(event) => {
-                event.preventDefault()
-                if (tabDiv.current) {
-                    tabDiv.current.style.background = ''
-                }
-            }}
-            onDrop={(event) => {
-                event.preventDefault()
-                revertTabsChildrenEvents()
-            }}
-            ref={tabDiv}
-            onContextMenu={() => dispatch(gs.rightClickTab(tid))}
-            onMouseDown={(e) => {
-                if (e.button === 1) {
-                    e.stopPropagation()
-                    dispatch(gt.closeTab(tid))
-                }
-            }}
+            onClick={handleClick}
+            onMouseDown={handleMiddleClick}
+            onContextMenu={handleContextMenu}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
         >
-            <div className="tab__icon">{getIconElement(file.name)}</div>
-            <div className="tab__name">
-                {name}
-                {isModified && <span className="tab__modified">●</span>}
-            </div>
-            <div
-                className="tab__close"
-                onClick={(e) => {
-                    e.stopPropagation()
-                    dispatch(gt.closeTab(tid))
-                }}
-            >
+            {/* File Icon */}
+            <div className="tab__icon">{getIconElement(fileName)}</div>
+
+            {/* File Name */}
+            <div className="tab__name">{fileName}</div>
+
+            {/* Modified Indicator */}
+            {isModified && <div className="tab__modified">●</div>}
+
+            {/* Close Button */}
+            <div className="tab__close" onClick={handleClose}>
                 <FontAwesomeIcon icon={faXmark} />
             </div>
         </div>
     )
 }
 
-function TabRemainder({ children }: { children: React.ReactNode }) {
-    const containerDiv = useRef<HTMLDivElement>(null)
+// ============================================
+// TAB REMAINDER (Action Buttons Area)
+// ============================================
+interface TabRemainderProps {
+    children: React.ReactNode
+}
+
+function TabRemainder({ children }: TabRemainderProps) {
+    const containerRef = useRef<HTMLDivElement>(null)
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault()
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+    }
 
     return (
         <div
+            ref={containerRef}
             className="tab-remainder"
-            ref={containerDiv}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={(event) => {
-                event.preventDefault()
-            }}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
         >
             {children}
         </div>
     )
 }
 
-export function TabBar({ tabIds }: { tabIds: number[] }) {
+// ============================================
+// TAB BAR COMPONENT
+// ============================================
+interface TabBarProps {
+    tabIds: number[]
+}
+
+export function TabBar({ tabIds }: TabBarProps) {
     const dispatch = useAppDispatch()
     const tabBarRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
-        const tabBar = tabBarRef.current
-        if (tabBar) {
-            const handleWheel = (e: WheelEvent) => {
-                if (e.deltaY !== 0) {
-                    e.preventDefault()
-                    tabBar.scrollLeft += e.deltaY
-                }
-            }
-            tabBar.addEventListener('wheel', handleWheel, { passive: false })
-            return () => tabBar.removeEventListener('wheel', handleWheel)
-        }
-    }, [])
-
     const currentPane = useAppSelector(gsel.getCurrentPane)
     const currentTab = useAppSelector(gsel.getCurrentTab(currentPane!))
 
+    // ============================================
+    // HORIZONTAL SCROLL WITH MOUSE WHEEL
+    // ============================================
+    useEffect(() => {
+        const tabBar = tabBarRef.current
+        if (!tabBar) return
+
+        const handleWheel = (e: WheelEvent) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault()
+                tabBar.scrollLeft += e.deltaY
+            }
+        }
+
+        tabBar.addEventListener('wheel', handleWheel, { passive: false })
+        return () => tabBar.removeEventListener('wheel', handleWheel)
+    }, [])
+
+    // ============================================
+    // ACTION HANDLERS
+    // ============================================
+    const handleSplitRight = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (currentPane != null) {
+            dispatch(
+                gs.splitPaneAndOpenFile({
+                    paneId: currentPane,
+                    hoverState: HoverState.Right,
+                })
+            )
+        }
+    }
+
+    const handleSplitDown = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (currentPane != null) {
+            dispatch(
+                gs.splitPaneAndOpenFile({
+                    paneId: currentPane,
+                    hoverState: HoverState.Bottom,
+                })
+            )
+        }
+    }
+
+    // ============================================
+    // RENDER
+    // ============================================
     return (
         <div className="window__tabbarcontainer">
-            <div className="tabbar" ref={tabBarRef}>
+            {/* Scrollable Tab List */}
+            <div ref={tabBarRef} className="tabbar">
                 {tabIds.map((tabId) => (
                     <Tab key={tabId} tid={tabId} />
                 ))}
             </div>
+
+            {/* Action Buttons */}
             <TabRemainder>
                 {currentPane != null && currentTab != null && (
                     <div className="tabbar__actions">
                         <button
                             className="tabbar__action-btn"
                             title="Split Right"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                dispatch(
-                                    gs.splitPaneAndOpenFile({
-                                        paneId: currentPane,
-                                        hoverState: HoverState.Right,
-                                    })
-                                )
-                            }}
+                            onClick={handleSplitRight}
                         >
                             <FontAwesomeIcon icon={faTableColumns} />
                         </button>
                         <button
                             className="tabbar__action-btn"
                             title="Split Down"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                dispatch(
-                                    gs.splitPaneAndOpenFile({
-                                        paneId: currentPane,
-                                        hoverState: HoverState.Bottom,
-                                    })
-                                )
-                            }}
+                            onClick={handleSplitDown}
                         >
                             <FontAwesomeIcon icon={faTableRows} />
                         </button>
