@@ -1,6 +1,20 @@
 const rules = require('./webpack.rules')
 
-rules.push({
+const rendererRules = rules.filter((rule) => {
+    // Filter out rules that use @vercel/webpack-asset-relocator-loader or node-loader
+    if (rule.use && typeof rule.use === 'object' && rule.use.loader) {
+        return (
+            !rule.use.loader.includes('@vercel/webpack-asset-relocator-loader') &&
+            !rule.use.loader.includes('node-loader')
+        )
+    }
+    if (rule.use === 'node-loader') {
+        return false
+    }
+    return true
+})
+
+rendererRules.push({
     test: /\.css$/,
     use: [
         { loader: 'style-loader' },
@@ -16,18 +30,20 @@ rules.push({
     ],
 })
 
-rules.push({})
-
 module.exports = {
     // Put your normal webpack config below here
     module: {
-        rules,
+        rules: rendererRules,
     },
     cache: {
         type: 'filesystem',
     },
     externals: 'node-pty',
+    node: {
+        __dirname: true,
+    },
     resolve: {
         extensions: ['.js', '.ts', '.jsx', '.tsx'],
     },
 }
+
