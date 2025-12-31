@@ -45,6 +45,10 @@ export function setupTerminal(mainWindow: any, rootPath?: string) {
     })
 
     ipcMain.handle('terminal-resize', (event, size) => {
-        ptyProcess.resize(size.cols, size.rows)
+        try {
+            ptyProcess.resize(size.cols, size.rows)
+        } catch (e) {
+            console.warn('Failed to resize terminal:', e)
+        }
     })
 }

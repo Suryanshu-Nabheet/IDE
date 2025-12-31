@@ -1,10 +1,6 @@
 import { ipcMain } from 'electron'
 
-// CodeX IDE - No Authentication Required
-// All auth-related IPC handlers are no-ops for offline operation
-
 export function authPackage() {
-    // Register no-op handlers for compatibility
     ipcMain.handle('loginCodeX', async () => {
         console.log('Auth not available in offline mode')
     })

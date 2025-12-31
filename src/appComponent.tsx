@@ -115,6 +115,7 @@ export function App() {
 
     const [dragging, setDragging] = useState(false)
     const [leftSideWidth, setLeftSideWidth] = useState(250)
+
     useEffect(() => {
         const throttledMouseMove = throttleCallback((event: any) => {
             if (dragging) {
@@ -122,7 +123,6 @@ export function App() {
                 event.stopPropagation()
 
                 const diff = event.clientX
-
                 setLeftSideWidth(diff)
             }
         }, 10)
@@ -131,6 +131,7 @@ export function App() {
             document.removeEventListener('mousemove', throttledMouseMove)
         }
     }, [dragging])
+
     useEffect(() => {
         function handleMouseUp() {
             setDragging(false)

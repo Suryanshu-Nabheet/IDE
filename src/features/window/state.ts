@@ -346,6 +346,7 @@ export interface ToolState {
     commandPaletteTriggered: boolean
     aiCommandPaletteTriggered: boolean
     leftSideExpanded: boolean
+
     authLogin: {
         accessToken?: string
         profile?: string
@@ -396,7 +397,22 @@ export const initialChatState: ChatState = {
     conversations: [],
     userMessages: [],
     botMessages: [],
-    draftMessages: {},
+    draftMessages: {
+        [startUuid]: {
+            sender: 'user',
+            sentAt: Date.now(),
+            message: '',
+            conversationId: startUuid,
+            currentFile: null,
+            currentSelection: null,
+            precedingCode: null,
+            procedingCode: null,
+            otherCodeBlocks: [],
+            codeSymbols: [],
+            selection: null,
+            msgType: 'freeform',
+        },
+    },
     fireCommandK: false,
     chatIsOpen: false,
     chatHistoryIsOpen: false,

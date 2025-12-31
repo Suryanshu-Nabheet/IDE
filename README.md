@@ -4,6 +4,8 @@
 
 **CodeX is a powerful, offline-first AI-powered code editor with the beautiful Oxocarbon theme.**
 
+![Alt text for the image](./assets/CodeX.png)
+
 ## Features
 
 -   **AI-Powered Coding** - Intelligent code generation and assistance

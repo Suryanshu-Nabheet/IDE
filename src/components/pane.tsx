@@ -84,7 +84,7 @@ export function Pane({ paneId }: { paneId: number }) {
         return HoverState.Full
     }
 
-    function xyToTabPosition(x: number, y: number) {
+    function xyToTabPosition(x: number, _y: number) {
         const paneRect = paneDiv.current!.getBoundingClientRect()
         const tabs = paneDiv.current?.getElementsByClassName('tab') || []
         let totalWidth = 0
@@ -179,10 +179,7 @@ export function Pane({ paneId }: { paneId: number }) {
                     dispatch(selectPane(paneId))
                 }}
             >
-                <TabBar
-                    tabIds={pane.tabIds}
-                    activeTabId={activeTabId ?? null}
-                />
+                <TabBar tabIds={pane.tabIds} />
                 {activeTabId && <Page tid={activeTabId} />}
             </div>
         </div>

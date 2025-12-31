@@ -4,16 +4,14 @@ import { useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose } from '@fortawesome/free-solid-svg-icons'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import { getFile, getRelativeFilePath, getTab } from '../features/selectors'
+import { getFile, getTab } from '../features/selectors'
 import { setDraggingTab, stopDraggingTab } from '../features/globalSlice'
 
 import { getIconElement } from './filetree'
 
 import * as gs from '../features/globalSlice'
 import * as gt from '../features/globalThunks'
-import * as ts from '../features/tools/toolSlice'
 import * as gsel from '../features/selectors'
-import * as tsel from '../features/tools/toolSelectors'
 import { faTableColumns, faTableRows } from '@fortawesome/pro-regular-svg-icons'
 import { HoverState } from '../features/window/state'
 
@@ -53,10 +51,10 @@ function Tab({ tid }: { tid: number }) {
     return (
         <div
             draggable="true"
-            onDragStart={(e) => {
+            onDragStart={(_e) => {
                 dispatch(setDraggingTab(tid))
             }}
-            onDragEnd={(e) => {
+            onDragEnd={(_e) => {
                 revertTabsChildrenEvents() // revert for current pane
                 dispatch(stopDraggingTab())
             }}
@@ -114,36 +112,6 @@ function Tab({ tid }: { tid: number }) {
     )
 }
 
-function TabPath({ tid }: { tid: number }) {
-    const tab = useAppSelector(getTab(tid))
-    const filePath = useAppSelector(getRelativeFilePath(tab.fileId))
-    const splitPaths = filePath.split(connector.PLATFORM_DELIMITER)
-    const delimeter = '〉'
-
-    return (
-        <>
-            {!tab.isMulti && (
-                <div className="tab__path">
-                    {splitPaths.map((path, i) => (
-                        <div key={i} className="whitespace-nowrap">
-                            <span>{path}</span>
-
-                            {i < splitPaths.length - 1 ? (
-                                <span
-                                    className="ml-4 mr-4"
-                                    style={{ width: '5px' }}
-                                >
-                                    {delimeter}
-                                </span>
-                            ) : null}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </>
-    )
-}
-
 function TabRemainder({ children }: { children: React.ReactNode }) {
     const containerDiv = useRef<HTMLDivElement>(null)
     function revertTabsChildrenEvents() {
@@ -192,13 +160,7 @@ function TabRemainder({ children }: { children: React.ReactNode }) {
     )
 }
 
-export function TabBar({
-    tabIds,
-    activeTabId = null,
-}: {
-    tabIds: number[]
-    activeTabId?: number | null
-}) {
+export function TabBar({ tabIds }: { tabIds: number[] }) {
     // Add event listener to translate vertical scroll to horizontal scroll
     const dispatch = useAppDispatch()
     const tabBarRef = useRef<HTMLDivElement>(null)
@@ -217,29 +179,10 @@ export function TabBar({
     const currentPane = useAppSelector(gsel.getCurrentPane)
     const currentTab = useAppSelector(gsel.getCurrentTab(currentPane!))
 
-    const leftSideExpanded = useAppSelector(tsel.getLeftSideExpanded)
-
-    const handleExpandLeftSideClick = () => {
-        dispatch(ts.expandLeftSide())
-    }
-
     return (
         <div className="window__tabbarcontainer">
             <div className="tabbar" ref={tabBarRef}>
                 <div className="w-full flex" ref={tabBarRef}>
-                    {!leftSideExpanded && (
-                        <div className=" h-full flex items-center justify-center">
-                            <button
-                                className={`leftside__tab opacity-75`}
-                                onClick={() => handleExpandLeftSideClick()}
-                            >
-                                <div>
-                                    <i className="fas fa-chevrons-right"></i>
-                                </div>
-                            </button>
-                        </div>
-                    )}
-
                     {tabIds.map((tabId) => (
                         <Tab key={tabId} tid={tabId} />
                     ))}
@@ -279,8 +222,6 @@ export function TabBar({
                     </TabRemainder>
                 </div>
             </div>
-
-            {activeTabId != null ? <TabPath tid={activeTabId} /> : null}
         </div>
     )
 }

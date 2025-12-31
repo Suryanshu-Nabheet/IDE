@@ -8,14 +8,9 @@ import React, {
 } from 'react'
 import cx from 'classnames'
 import { ActionTips, Tip } from '../app/constants'
-import {
-    CodeBlock as CodeBlockType,
-    CodeSymbolType,
-    Message,
-} from '../features/window/state'
-import { faArrowUp, faClose } from '@fortawesome/pro-regular-svg-icons'
+import { CodeSymbolType, Message } from '../features/window/state'
+import { faArrowUp } from '@fortawesome/pro-regular-svg-icons'
 import { getIconElement } from '../components/filetree'
-import * as gs from '../features/globalSlice'
 
 import {
     EditorView,
@@ -27,12 +22,6 @@ import { EditorState } from '@codemirror/state'
 import { languages } from '@codemirror/language-data'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { syntaxBundle } from '../features/extensions/syntax'
-import {
-    getCurrentFilePath,
-    getFile,
-    getFilePath,
-    getFolderPath,
-} from '../features/selectors'
 import { ContextBuilder } from '../features/chat/context'
 
 import * as csel from '../features/chat/chatSelectors'
@@ -96,7 +85,7 @@ export function CodeBlock({
     // Get child that is code
 
     // Extract the language name from the className
-    const dispatch = useAppDispatch()
+    // const dispatch = useAppDispatch()
     const [codeButton, setCodeButton] = useState(false)
     let language: string
 
@@ -142,7 +131,7 @@ export function CodeBlock({
                             : lineNumbers({
                                   formatNumber: (
                                       n: number,
-                                      state: EditorState
+                                      _state: EditorState
                                   ) => String(n + startLine),
                               }),
                         EditorView.editable.of(isEditable),
@@ -276,7 +265,7 @@ export function ChatPopup() {
     const isChatHistoryOpen = useAppSelector<boolean>(csel.isChatHistoryOpen)
 
     const messages = useAppSelector(csel.getCurrentConversationMessages())
-    const filePath = useAppSelector(getCurrentFilePath)
+    // const filePath = useAppSelector(getCurrentFilePath)
 
     const commandBoxRef = useRef<HTMLDivElement>(null)
 
@@ -288,41 +277,18 @@ export function ChatPopup() {
         }
     }, [isGenerating])
 
-    const onApply = () => {
-        dispatch(ct.pressAICommand('k'))
-        dispatch(cs.setCurrentDraftMessage('Make the change'))
-        dispatch(ct.submitCommandBar(null))
-    }
-    // get index for last bot message
-    let lastBotMessageIndex = -1
-    for (let i = messages.length - 1; i >= 0; i--) {
-        if (messages[i].sender === 'bot') {
-            lastBotMessageIndex = i
-        }
-    }
     const markdownPopups = Object.entries(messages).map(([index, message]) => (
-        <MarkdownPopup
-            key={index}
-            message={message}
-            dismissed={!isChatOpen}
-            last={parseInt(index) == lastBotMessageIndex}
-            onApply={onApply}
-        />
+        <MarkdownPopup key={index} message={message} dismissed={!isChatOpen} />
     ))
-
-    function close() {
-        dispatch(cs.interruptGeneration(null))
-        dispatch(cs.setChatOpen(false))
-    }
 
     const handleSelectHistory = (id: string) => {
         dispatch(cs.setCurrentConversation(id))
         dispatch(cs.setChatOpen(true))
     }
 
-    const handleCloseHistory = () => {
-        dispatch(cs.toggleChatHistory())
-    }
+    // const handleCloseHistory = () => {
+    //     dispatch(cs.toggleChatHistory())
+    // }
 
     const commandBarActionTips = isChatHistoryOpen
         ? [ActionTips.CLOSE]
@@ -330,7 +296,8 @@ export function ChatPopup() {
 
     function handleMouseDown() {
         if (document.activeElement) {
-            (document.activeElement as HTMLElement).blur()
+            const el = document.activeElement as HTMLElement
+            el.blur()
         }
     }
     return (
@@ -350,9 +317,9 @@ export function ChatPopup() {
                     {/* Subtle padding to separate content from scroll bar*/}
                     <div>
                         <div className="markdownpopup__dismiss h-8 flex flex-col mt-3  items-center">
-                                <CommandBarActionTips tips={commandBarActionTips} />
+                            <CommandBarActionTips tips={commandBarActionTips} />
                         </div>
-                      <div className="chatpopup__content  px-4 overflow-auto ">
+                        <div className="chatpopup__content  px-4 overflow-auto ">
                             <div className="flex flex-col space-y-2">
                                 {markdownPopups}
                             </div>
@@ -367,7 +334,7 @@ export function ChatPopup() {
                                     <CommandBar parentCaller={'chat'} />
                                 )}
                             </div>
-                      </div>
+                        </div>
                     </div>
                     {isChatHistoryOpen && (
                         <ChatHistory onSelect={handleSelectHistory} />
@@ -381,13 +348,9 @@ export function ChatPopup() {
 export function MarkdownPopup({
     message,
     dismissed,
-    last,
-    onApply,
 }: {
     message: Message
     dismissed: boolean
-    last: boolean
-    onApply: () => void
 }) {
     // const lastBotMessage = useAppSelector(csel.getLastMarkdownMessage);
     const reactMarkdownRef = useRef<HTMLDivElement>(null)
@@ -484,7 +447,7 @@ export function MarkdownPopup({
         </>
     )
 }
-const CustomLink = ({ children, href, ...props }: any) => {
+const CustomLink = ({ children, href }: any) => {
     return (
         <a href={href} target="_blank">
             {children}
@@ -492,61 +455,8 @@ const CustomLink = ({ children, href, ...props }: any) => {
     )
 }
 
-function CodeBlockLink({
-    index,
-    codeBlock,
-}: {
-    index: number
-    codeBlock: CodeBlockType
-}) {
-    const dispatch = useAppDispatch()
-    const currentFile = useAppSelector(getFile(codeBlock.fileId))
-    const filePath = useAppSelector(getFilePath(codeBlock.fileId))
-    const folderPath = useAppSelector(getFolderPath(currentFile.parentFolderId))
-    const iconElement = getIconElement(currentFile.name)
-    return (
-        <div
-            className="commandBar__codelink"
-            onClick={() => {
-                dispatch(
-                    gs.openFile({
-                        filePath: filePath,
-                        selectionRegions: [
-                            {
-                                start: {
-                                    line: codeBlock.startLine,
-                                    character: 0,
-                                },
-                                end: { line: codeBlock.endLine, character: 0 },
-                            },
-                        ],
-                    })
-                )
-            }}
-        >
-            <div className="file__line file__no_highlight">
-                <div className="file__icon">{iconElement}</div>
-                <div className="file__name">{currentFile.name}</div>
-                <div className="file__path">{folderPath}</div>
-                <div className="file__path">
-                    Lines {codeBlock.startLine} - {codeBlock.endLine}
-                </div>
-                <div
-                    className="file__close_button"
-                    onClick={(e: any) => {
-                        e.stopPropagation()
-                        dispatch(cs.removeCodeBlock(index))
-                    }}
-                >
-                    <FontAwesomeIcon icon={faClose} />
-                </div>
-            </div>
-        </div>
-    )
-}
-
 const Item = ({
-    entity: { name, type, summary, path, startIndex, endIndex },
+    entity: { name, summary, path, startIndex, endIndex },
 }: {
     entity: {
         name: string
@@ -581,7 +491,7 @@ const Item = ({
     )
 }
 
-const Loading = ({ data }: { data: any }) => <div>Loading</div>
+const Loading = () => <div>Loading</div>
 
 export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
     const dispatch = useAppDispatch()
@@ -668,7 +578,7 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
                         //   .map(({ name, char }) => ({ name, char }));
                     },
                     component: Item,
-                    output: (item, trigger) => {
+                    output: (item) => {
                         return (
                             '<|START_SPECIAL|>' +
                             JSON.stringify(item) +
@@ -683,7 +593,7 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
                 maxHeight: '30vh',
                 overflowY: 'auto',
             }}
-            value={currentDraft.message}
+            value={currentDraft?.message || ''}
             autoFocus={autofocus}
             onChange={(e) => {
                 if (e.target.value.includes('<|START_SPECIAL|>')) {
@@ -767,13 +677,13 @@ function formatPromptTime(sentAt: number): string {
     const hours = date.getHours()
     const minutes = date.getMinutes()
     const ampm = hours >= 12 ? 'pm' : 'am'
-    const formattedHours = hours % 12  ? 12 : hours % 12
+    const formattedHours = hours % 12 ? 12 : hours % 12
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes
     return `${formattedHours}:${formattedMinutes}${ampm}`
 }
 
 function formatPromptPreview(prompt: string): string {
-    const maxLength = 38
+    // const maxLength = 38
     const noNewlines = prompt.replace(/(\r\n|\n|\r)/gm, '')
     // const truncated =
     //     noNewlines.length > maxLength
@@ -860,9 +770,6 @@ export function CommandBar({
     }
 
     const commandBarOpen = useAppSelector(csel.getIsCommandBarOpen)
-    const isChatHistoryAvailable = useAppSelector(
-        csel.getIsChatHistoryAvailable
-    )
 
     return (
         <>

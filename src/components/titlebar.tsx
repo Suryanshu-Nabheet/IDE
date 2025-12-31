@@ -16,6 +16,7 @@ import {
     faHandWave,
     faMinus,
     faRobot,
+    faSidebar,
     faSquare,
     faSquareTerminal,
     faTimes,
@@ -220,8 +221,6 @@ function MenuBar() {
 }
 
 function WindowsFrameButtons() {
-    const dispatch = useAppDispatch()
-
     return (
         <div className="windows__framebuttons">
             <div
@@ -311,6 +310,14 @@ export function TitleBar({
                             </span>
                         </div>
                     )}
+                    <div
+                        className="titlebar__right_button"
+                        onClick={() => {
+                            dispatch(ts.toggleLeftSide())
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faSidebar} />
+                    </div>
                     <div
                         className="titlebar__ai_button"
                         onClick={() => {

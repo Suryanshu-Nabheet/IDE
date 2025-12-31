@@ -5,7 +5,7 @@ import { faClose } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from 'react-modal'
 import { NoAuthGlobalOldRateLimitError, NotLoggedInError } from '../utils'
-import { OpenAILoginPanel } from './settingsPane'
+import { OpenAIPanel } from './settingsPane'
 import { signIn, upgrade } from '../features/tools/toolSlice'
 
 const customStyles = {
@@ -130,8 +130,8 @@ export function ErrorPopup() {
                         <div className="signup__subtitle">
                             Or enter your OpenAI API key
                         </div>
-                        <OpenAILoginPanel
-                            onSubmit={() => {
+                        <OpenAIPanel
+                            onSave={() => {
                                 dispatch(closeError())
                             }}
                         />
@@ -180,8 +180,8 @@ export function ErrorPopup() {
                             Or enter your OpenAI API key to continue using the
                             AI features at-cost
                         </div>
-                        <OpenAILoginPanel
-                            onSubmit={() => {
+                        <OpenAIPanel
+                            onSave={() => {
                                 dispatch(closeError())
                             }}
                         />

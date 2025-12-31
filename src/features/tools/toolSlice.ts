@@ -88,9 +88,7 @@ export const upgrade = createAsyncThunk(
         ) {
             log.debug('User already has subscription', undefined, 'toolSlice')
             return
-        } else if (
-            !(state.authLogin.accessToken && state.authLogin.profile)
-        ) {
+        } else if (!(state.authLogin.accessToken && state.authLogin.profile)) {
             log.info(
                 'User not logged in, proceeding to login',
                 undefined,
@@ -154,6 +152,7 @@ export const toolSlice = createSlice({
         toggleLeftSide: (state: ToolState) => {
             state.leftSideExpanded = !state.leftSideExpanded
         },
+
         login(
             state: ToolState,
             action: PayloadAction<{

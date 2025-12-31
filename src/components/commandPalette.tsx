@@ -408,7 +408,6 @@ export function InnerCommandPalette({
                         setQuery('')
                     }, 100)
                     // setShowing(false)
-                } else {
                 }
             }
             // click the hidden combo button
@@ -480,79 +479,86 @@ export function InnerCommandPalette({
         <>
             {openingTrigger && (
                 <div
-                    className="absolute top-2.5 left-1/2 
-                transform -translate-x-1/2 z-50"
+                    className="quick-open-wrapper"
                     style={{ display: showing ? 'block' : 'none' }}
                     id="fileSearchId"
                 >
-                    <Combobox value={selected} onChange={setSelected}>
-                        <div ref={fullComboRef}>
-                            <Combobox.Input
-                                className="w-[36rem] bg-neutral-700 rounded-md 
-                        text-white py-0.5 px-1 !outline-none"
-                                placeholder="Enter command..."
-                                displayValue={(command: Command) =>
-                                    command.name
-                                }
-                                onChange={(event: any) => {
-                                    setQuery(event.target.value)
-                                    setSelectedIndex(0)
-                                }}
-                                onKeyDown={keyDownHandler}
-                                ref={comboRef}
-                            />
-                            <Combobox.Button
-                                className="hidden"
-                                ref={comboBtn}
-                            ></Combobox.Button>
-                            <Combobox.Options
-                                className="absolute mt-1 w-full 
-                        overflow-auto rounded-md bg-neutral-800 z-[50] command_result_area"
-                                ref={comboOptionsRef}
-                            >
-                                {filteredResults.map(
-                                    (
-                                        obj: {
-                                            id: CommandIds
-                                            clickable: boolean | null
-                                        },
-                                        index: number
-                                    ) => {
-                                        const command = allCommands[obj.id]
-                                        const toret = null
-                                        if (obj.clickable === null) {
-                                            return (
-                                                <CommandResult
-                                                    key={command.id}
-                                                    dataTestId={`command-item-${index}`}
-                                                    command={command}
-                                                    query={query}
-                                                    closeTrigger={closeTrigger}
-                                                    isSelected={
-                                                        index == selectedIndex
-                                                    }
-                                                />
-                                            )
-                                        } else {
-                                            return (
-                                                <AICommandResult
-                                                    key={command.id}
-                                                    dataTestId={`command-item-${index}`}
-                                                    command={command}
-                                                    query={query}
-                                                    isClickable={obj.clickable}
-                                                    closeTrigger={closeTrigger}
-                                                    isSelected={
-                                                        index == selectedIndex
-                                                    }
-                                                />
-                                            )
-                                        }
+                    <div className="quick-open-container">
+                        <Combobox value={selected} onChange={setSelected}>
+                            <div ref={fullComboRef}>
+                                <Combobox.Input
+                                    className="quick-open-input"
+                                    placeholder="Enter command..."
+                                    displayValue={(command: Command) =>
+                                        command.name
                                     }
-                                )}
-                            </Combobox.Options>
-                        </div>
-                    </Combobox>
+                                    onChange={(event: any) => {
+                                        setQuery(event.target.value)
+                                        setSelectedIndex(0)
+                                    }}
+                                    onKeyDown={keyDownHandler}
+                                    ref={comboRef}
+                                />
+                                <Combobox.Button
+                                    className="hidden"
+                                    ref={comboBtn}
+                                ></Combobox.Button>
+                                <Combobox.Options
+                                    static
+                                    className="quick-open-list"
+                                    ref={comboOptionsRef}
+                                >
+                                    {filteredResults.map(
+                                        (
+                                            obj: {
+                                                id: CommandIds
+                                                clickable: boolean | null
+                                            },
+                                            index: number
+                                        ) => {
+                                            const command = allCommands[obj.id]
+                                            if (obj.clickable === null) {
+                                                return (
+                                                    <CommandResult
+                                                        key={command.id}
+                                                        dataTestId={`command-item-${index}`}
+                                                        command={command}
+                                                        query={query}
+                                                        closeTrigger={
+                                                            closeTrigger
+                                                        }
+                                                        isSelected={
+                                                            index ==
+                                                            selectedIndex
+                                                        }
+                                                    />
+                                                )
+                                            } else {
+                                                return (
+                                                    <AICommandResult
+                                                        key={command.id}
+                                                        dataTestId={`command-item-${index}`}
+                                                        command={command}
+                                                        query={query}
+                                                        isClickable={
+                                                            obj.clickable
+                                                        }
+                                                        closeTrigger={
+                                                            closeTrigger
+                                                        }
+                                                        isSelected={
+                                                            index ==
+                                                            selectedIndex
+                                                        }
+                                                    />
+                                                )
+                                            }
+                                        }
+                                    )}
+                                </Combobox.Options>
+                            </div>
+                        </Combobox>
+                    </div>
                 </div>
             )}
         </>
@@ -585,7 +591,7 @@ export function CommandResult({
 
     return (
         <div
-            className={cx('command_line', { selected_command: isSelected })}
+            className={cx('quick-open-item', { selected: isSelected })}
             onClick={executeCommand}
             data-test-id={dataTestId}
         >
@@ -601,16 +607,12 @@ export function CommandResult({
                     )}
             </div>
 
-            {command.hint && (
-                <div className="text-xs text-white truncate flex items-end mb-0.5">
-                    {command.hint}
-                </div>
-            )}
-            <div className="file__shortcuts ml-auto whitespace-nowrap">
+            {command.hint && <div className="file__path">{command.hint}</div>}
+            <div className="ml-auto whitespace-nowrap">
                 {command.shortcut?.map((key, index) => (
                     <div
                         key={index}
-                        className="shortcut__block rounded-md p-0.5 text-center text-sm text-gray-400 mr-1 inline-block min-w-[25px]"
+                        className="shortcut__block bg-[var(--oxo-base02)] rounded p-0.5 text-center text-xs text-[var(--text)] mr-1 inline-block min-w-[20px]"
                     >
                         {key}
                     </div>
@@ -653,10 +655,10 @@ export function AICommandResult({
     return (
         <div
             className={cx(
-                'command_line',
+                'quick-open-item',
                 'ai_command_result',
-                { selected_command: isSelected },
-                { disabled_command: !clickable }
+                { selected: isSelected },
+                { 'opacity-50 cursor-not-allowed': !clickable }
             )}
             data-test-id={dataTestId}
             onMouseDown={clickable ? executeCommand : dummyCommand}
@@ -681,11 +683,11 @@ export function AICommandResult({
                 : command.error && (
                       <div className="file__path">{command.error}</div>
                   )}
-            <div className="file__shortcuts ml-auto whitespace-nowrap">
+            <div className="ml-auto whitespace-nowrap">
                 {command.shortcut?.map((key, index) => (
                     <div
                         key={index}
-                        className="shortcut__block bg-gray-800 rounded-md p-0.5 text-center text-sm text-gray-400 mr-1 inline-block min-w-[25px]"
+                        className="shortcut__block bg-[var(--oxo-base02)] rounded p-0.5 text-center text-xs text-[var(--text)] mr-1 inline-block min-w-[20px]"
                     >
                         {key}
                     </div>

@@ -18,7 +18,6 @@ export default function SearchFiles() {
     const [selectedIndex, setSelectedIndex] = useState(0)
     const [results, setResults] = useState<string[]>([])
     const [childQuery, setChildQuery] = useState('')
-    // const results = useAppSelector(searchFile(query))
     const comboRef = useRef<HTMLInputElement>(null)
 
     if (selectedIndex != 0 && selectedIndex >= results.length) {
@@ -49,9 +48,7 @@ export default function SearchFiles() {
                 if (!event.currentTarget.contains(event.relatedTarget)) {
                     setTimeout(() => {
                         dispatch(untriggerFileSearch())
-                        // setShowing(false)
                     }, 200)
-                    //setShowing(false);
                 }
             }
             comboRef.current.addEventListener('blur', handleBlur)
@@ -62,86 +59,91 @@ export default function SearchFiles() {
     }, [showFileSearch, comboRef.current])
 
     useEffect(() => {
-        const selectedElement = document.querySelector('.file__line_selected')
-        selectedElement?.scrollIntoView({ block: 'center' })
-    }, [selectedIndex]) // Only run when selectedIndex changes
+        const selectedElement = document.querySelector(
+            '.quick-open-item.selected'
+        )
+        selectedElement?.scrollIntoView({ block: 'nearest' })
+    }, [selectedIndex])
 
     return (
         <>
             {showFileSearch && (
                 <div
-                    className="absolute top-2.5 left-1/2 
-                transform -translate-x-1/2 z-50"
+                    className="quick-open-wrapper"
                     style={{ display: showFileSearch ? 'block' : 'none' }}
                     id="fileSearchId"
                 >
-                    <Combobox value={selected} onChange={setSelected}>
-                        <Combobox.Input
-                            className="w-[36rem] bg-neutral-700 rounded-md 
-                        text-white py-0.5 px-1 !outline-none"
-                            placeholder={'Search files...'}
-                            displayValue={(file: FileResult) => file.filename}
-                            onChange={(event: any) => {
-                                setQuery(event.target.value)
-                                setSelectedIndex(0)
-                            }}
-                            onKeyDown={(e: any) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault()
-                                    // click on the selected item
-                                    if (results[selectedIndex]) {
-                                        dispatch(
-                                            openFile({
-                                                filePath:
-                                                    results[selectedIndex],
-                                            })
-                                        )
+                    <div className="quick-open-container">
+                        <Combobox value={selected} onChange={setSelected}>
+                            <Combobox.Input
+                                className="quick-open-input"
+                                placeholder={'Search files...'}
+                                displayValue={(file: FileResult) =>
+                                    file.filename
+                                }
+                                onChange={(event: any) => {
+                                    setQuery(event.target.value)
+                                    setSelectedIndex(0)
+                                }}
+                                onKeyDown={(e: any) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault()
+                                        if (results[selectedIndex]) {
+                                            dispatch(
+                                                openFile({
+                                                    filePath:
+                                                        results[selectedIndex],
+                                                })
+                                            )
+                                            dispatch(untriggerFileSearch())
+                                        }
+                                    }
+                                    if (e.key === 'ArrowDown') {
+                                        e.preventDefault()
+                                        if (
+                                            selectedIndex >=
+                                            results.length - 1
+                                        ) {
+                                            setSelectedIndex(0)
+                                        } else {
+                                            setSelectedIndex(
+                                                Math.min(
+                                                    selectedIndex + 1,
+                                                    results.length - 1
+                                                )
+                                            )
+                                        }
+                                    } else if (e.key === 'ArrowUp') {
+                                        e.preventDefault()
+                                        if (selectedIndex <= 0) {
+                                            setSelectedIndex(results.length - 1)
+                                        } else {
+                                            setSelectedIndex(
+                                                Math.max(0, selectedIndex - 1)
+                                            )
+                                        }
+                                    } else if (e.key === 'Escape') {
+                                        e.preventDefault()
                                         dispatch(untriggerFileSearch())
                                     }
-                                }
-                                if (e.key === 'ArrowDown') {
-                                    e.preventDefault()
-                                    if (selectedIndex >= results.length - 1) {
-                                        setSelectedIndex(0)
-                                    } else {
-                                        setSelectedIndex(
-                                            Math.min(
-                                                selectedIndex + 1,
-                                                results.length - 1
-                                            )
-                                        )
-                                    }
-                                } else if (e.key === 'ArrowUp') {
-                                    e.preventDefault()
-                                    if (selectedIndex <= 0) {
-                                        setSelectedIndex(results.length - 1)
-                                    } else {
-                                        setSelectedIndex(
-                                            Math.max(0, selectedIndex - 1)
-                                        )
-                                    }
-                                } else if (e.key === 'Escape') {
-                                    e.preventDefault()
-                                    dispatch(untriggerFileSearch())
-                                }
-                            }}
-                            ref={comboRef}
-                        />
-                        <Combobox.Options
-                            className="absolute mt-1 max-h-60 w-full 
-                        overflow-auto rounded-md bg-neutral-800 border-white 
-                        border-opacity-20 border"
-                        >
-                            {results.map((path: string, index: number) => (
-                                <SearchResult
-                                    key={path}
-                                    query={childQuery}
-                                    path={path}
-                                    isSelected={index == selectedIndex}
-                                />
-                            ))}
-                        </Combobox.Options>
-                    </Combobox>
+                                }}
+                                ref={comboRef}
+                            />
+                            <Combobox.Options
+                                static
+                                className="quick-open-list"
+                            >
+                                {results.map((path: string, index: number) => (
+                                    <SearchResult
+                                        key={path}
+                                        query={childQuery}
+                                        path={path}
+                                        isSelected={index == selectedIndex}
+                                    />
+                                ))}
+                            </Combobox.Options>
+                        </Combobox>
+                    </div>
                 </div>
             )}
         </>
@@ -161,8 +163,6 @@ export function SearchResult({
     const rootPath = useAppSelector(getRootPath)
     const iconElement = getIconElement(path)
 
-    // Now paths are relative to the root path
-
     const splitFilePath = path.split(connector.PLATFORM_DELIMITER)
     const fileName = splitFilePath.pop()!
     const precedingPath = splitFilePath
@@ -172,10 +172,12 @@ export function SearchResult({
     const changeFile = (path: string) => {
         dispatch(openFile({ filePath: path }))
     }
-    let className = 'file__line'
+
+    let className = 'quick-open-item'
     if (isSelected) {
-        className += ' file__line_selected'
+        className += ' selected'
     }
+
     return (
         <div className={className} onClick={() => changeFile(path)}>
             <div className="file__icon">{iconElement}</div>
