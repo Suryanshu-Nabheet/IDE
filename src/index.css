@@ -1,99 +1,10 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-
-:root {
-    /* Oxocarbon Color Palette - Premium Dark Edition */
-    /* Enhanced with deeper blacks and richer tones for a luxurious feel */
-
-    /* Base colors - Darker and more premium */
-    --oxo-base00: #0a0a0a; /* Deeper background - almost pure black */
-    --oxo-base01: #141414; /* Even darker lighter background */
-    --oxo-base02: #1e1e1e; /* Darker selection background */
-    --oxo-base03: #3a3a3a; /* Darker gray for subtle elements */
-    --oxo-base04: #a0a8b0; /* Darker muted foreground */
-    --oxo-base05: #d8dce0; /* Softer bright foreground */
-    --oxo-base06: #ffffff; /* Pure white for maximum contrast */
-
-    /* Accent colors - More vibrant and saturated for premium feel */
-    --oxo-blue: #6fa0ff; /* Slightly brighter blue */
-    --oxo-cyan: #2dd4d1; /* More vibrant cyan */
-    --oxo-teal: #06b8b5; /* Richer teal */
-    --oxo-light-blue: #75c7ff; /* Brighter light blue */
-    --oxo-sky-blue: #2fb8ff; /* More vibrant sky blue */
-    --oxo-pink: #ff4d9e; /* More saturated pink */
-    --oxo-light-pink: #ff6eb8; /* Brighter light pink */
-    --oxo-green: #3bc95f; /* More vibrant green */
-    --oxo-purple: #b88dff; /* Richer purple */
-
-    /* Application theme variables */
-    --background: var(--oxo-base00);
-    --text: var(--oxo-base04);
-    --active-text: var(--oxo-base05);
-
-    --title-bar-background: var(--oxo-base01);
-
-    --left-pane-background: var(--oxo-base01);
-    --left-pane-hover: var(--oxo-base02);
-    --left-pane-selected: var(--oxo-base02);
-
-    --selected-text: var(--oxo-blue);
-    --selection-match: rgba(111, 160, 255, 0.25);
-    --tab-active: var(--oxo-base00);
-    --tab-not-active: var(--oxo-base01);
-    --tab-bar-background: var(--oxo-base01);
-    --tab-inactive-font: var(--oxo-base03);
-
-    --button: var(--oxo-base03);
-
-    --marked-text: var(--oxo-sky-blue);
-
-    --old-scrollbar-background: var(--oxo-base00);
-    --scrollbar-background: rgba(10, 10, 10, 0.4);
-    --scrollbar: var(--oxo-base03);
-    --white-scrollbar-background: #ccc;
-    --white-scrollbar: #888;
-
-    --pane-border: var(--oxo-base02);
-
-    --diff-add: #e5feeb;
-    --other-diff-add: rgba(59, 201, 95, 0.2);
-    --diff-bright-add: var(--oxo-green);
-
-    --diff-delete: #ffe5e5;
-    --diff-bright-delete: var(--oxo-light-pink);
-
-    --chatbar-border: var(--oxo-base02);
-    --chatbar-background: var(--oxo-base01);
-    --user-chat-bubble: var(--oxo-blue);
-    --assistant-chat-bubble: var(--oxo-base03);
-
-    --input-background: var(--oxo-base02);
-    --input-text: var(--oxo-base05);
-
-    --chat-text: var(--oxo-base05);
-
-    --vscode-theme-editor-background: var(--oxo-base00);
-    --vscode-blue: var(--oxo-blue);
-    --link-vscode-blue: var(--oxo-light-blue);
-
-    --submit-button: var(--oxo-green);
-    --reject-button: var(--oxo-pink);
-    --submit-transparent-button: rgba(59, 201, 95, 0.5);
-    --reject-transparent-button: rgba(255, 77, 158, 0.5);
-    --cancel-button: var(--oxo-base03);
-    --continue-button: var(--oxo-blue);
-    --full-continue-button: var(--oxo-green);
-
-    --ai-color: var(--oxo-purple);
-
-    /* Transition variables for consistent animations */
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.2s ease;
-    --transition-slow: 0.3s ease;
-}
+/* Import the new pure black theme system */
+@import './theme/index.css';
 
 @font-face {
     font-family: 'Menlo';
@@ -221,7 +132,6 @@ body {
     background-color: var(--left-pane-background);
 }
 
-
 .app__righttopwrapper {
     flex-grow: 1;
     display: flex;
@@ -334,7 +244,7 @@ body {
 }
 
 .titlebar__ai_button:hover > svg {
-    color: var(--oxo-light-blue) !important;
+    color: var(--any-variable) !important;
 }
 
 .titlebar__special_button {
@@ -401,7 +311,7 @@ body {
     top: 0;
     z-index: 10;
     background-color: var(--left-pane-background);
-    border-bottom: 1px solid var(--oxo-base02);
+    border-bottom: 1px solid var(--any-bg-lighter);
     cursor: pointer;
     padding: 0.6rem 0.5rem;
     display: flex;
@@ -418,7 +328,7 @@ body {
 }
 
 .filetree__project-header .folder__name {
-    color: var(--oxo-base05);
+    color: var(--any-fg);
     font-weight: 600;
 }
 
@@ -585,7 +495,7 @@ li.rta__item--selected mark {
 
 .file__line_selected {
     background-color: var(--left-pane-selected);
-    box-shadow: inset 2px 0 0 var(--oxo-blue);
+    box-shadow: inset 2px 0 0 var(--any-tag);
 }
 
 .pane {
@@ -755,7 +665,7 @@ li.rta__item--selected mark {
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background: var(--oxo-base04);
+    background: var(--any-fg-muted);
 }
 
 .cover-bar {
@@ -805,20 +715,21 @@ li.rta__item--selected mark {
     z-index: 9999;
     width: 600px;
     max-width: 90vw;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Helvetica, Arial, sans-serif;
 }
 
 .quick-open-container {
-    background-color: var(--oxo-base01);
+    background-color: var(--any-bg-darker);
     border: 1px solid var(--pane-border);
     border-radius: 8px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     overflow: hidden;
 }
 
 .quick-open-input {
     width: 100%;
-    background-color: var(--oxo-base01);
+    background-color: var(--any-bg-darker);
     border: none;
     border-bottom: 1px solid var(--pane-border);
     color: var(--text);
@@ -828,13 +739,13 @@ li.rta__item--selected mark {
 }
 
 .quick-open-input::placeholder {
-    color: var(--oxo-base03);
+    color: var(--any-fg-muted);
 }
 
 .quick-open-list {
     max-height: 400px;
     overflow-y: auto;
-    background-color: var(--oxo-base00);
+    background-color: var(--any-bg);
     padding: 4px 0;
 }
 
@@ -849,8 +760,8 @@ li.rta__item--selected mark {
 }
 
 .quick-open-item.selected {
-    background-color: var(--oxo-base02);
-    border-left-color: var(--oxo-blue);
+    background-color: var(--any-bg-lighter);
+    border-left-color: var(--any-tag);
     color: var(--active-text);
 }
 
@@ -867,7 +778,7 @@ li.rta__item--selected mark {
 }
 
 .quick-open-item .file__path {
-    color: var(--oxo-base03);
+    color: var(--any-fg-muted);
     font-size: 0.85em;
     margin-left: 10px;
     max-width: 40%;
@@ -895,7 +806,7 @@ li.rta__item--selected mark {
 }
 
 .search-textarea:focus {
-    border-color: var(--oxo-blue);
+    border-color: var(--any-tag);
 }
 
 /* Scrollbar refinement for quick open */
@@ -903,7 +814,7 @@ li.rta__item--selected mark {
     width: 8px;
 }
 .quick-open-list::-webkit-scrollbar-thumb {
-    background-color: var(--oxo-base03);
+    background-color: var(--any-fg-muted);
     border-radius: 4px;
 }
 
@@ -924,7 +835,7 @@ li.rta__item--selected mark {
 }
 
 .tab:hover {
-    background-color: var(--oxo-base02);
+    background-color: var(--any-bg-lighter);
 }
 
 .tab > div {
@@ -938,7 +849,7 @@ li.rta__item--selected mark {
 
 .tab__is_active {
     background-color: var(--tab-active);
-    box-shadow: inset 0 -2px 0 var(--oxo-blue);
+    box-shadow: inset 0 -2px 0 var(--any-tag);
 }
 
 .tab__is_active:hover {
@@ -1984,7 +1895,7 @@ cm-diff-cancel > div {
 .highlight-search {
     color: var(--text);
     background-color: var(--selection-match);
-    border-bottom: 2px solid var(--oxo-blue);
+    border-bottom: 2px solid var(--any-tag);
 }
 
 .errorPopup {
@@ -2291,10 +2202,6 @@ cm-diff-cancel > div {
     min-height: 3rem;
 }
 
-
-
-
-
 .done-button-section {
     display: flex;
     justify-content: flex-end;
@@ -2396,8 +2303,8 @@ cm-diff-cancel > div {
     display: block;
     position: absolute;
     z-index: 1;
-    background-color: var(--oxo-base02);
-    border: 1px solid var(--oxo-base03);
+    background-color: var(--any-bg-lighter);
+    border: 1px solid var(--any-fg-muted);
     border-radius: 4px;
     padding: 4px 0;
     margin-top: 4px;
@@ -2410,7 +2317,7 @@ cm-diff-cancel > div {
 }
 
 .menu__option {
-    color: var(--oxo-base05);
+    color: var(--any-fg);
     padding: 6px 12px;
     cursor: pointer;
     display: flex;
@@ -2489,7 +2396,6 @@ cm-diff-cancel > div {
     justify-content: center;
 }
 
-
 .ai_command_result .file__name {
     color: var(--text);
     font-weight: 600;
@@ -2504,7 +2410,7 @@ cm-diff-cancel > div {
 }
 
 .quick-open-item.selected .shortcut__block {
-    background-color: rgba(255,255,255,0.2);
+    background-color: rgba(255, 255, 255, 0.2);
     color: #fff;
 }
 
@@ -2556,56 +2462,115 @@ free servers .disabled_command .shortcut__block {
 }
 
 .terminalOuterContainer {
-    background-color: var(--oxo-base00);
+    background-color: var(--black);
+    border-top: 1px solid var(--gray-800);
 }
 
 .terminalContainer {
     width: 100%;
-    padding: 8px 18px;
-    background-color: var(--oxo-base00);
+    background-color: var(--black);
+    display: flex;
+    flex-direction: column;
 }
 
 .terminalInnerContainer {
     overflow: clip;
-    background-color: var(--oxo-base00);
+    background-color: var(--black);
+    padding: 12px 16px;
 }
 
 .terminalContainer .header {
     display: flex;
     align-items: center;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--oxo-base02);
+    padding: 10px 16px;
+    background-color: var(--black);
+    border-bottom: 1px solid var(--gray-800);
 }
 
 .terminalInnerContainer .icon {
-    color: var(--oxo-base04);
-    font-size: 18px;
+    color: var(--gray-400);
+    font-size: 16px;
     margin: auto;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
 .terminalTitle {
-    color: var(--oxo-base05);
+    color: var(--gray-100);
     flex-grow: 1;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .closeButton {
-    color: var(--oxo-base04);
-    font-size: 18px;
-    transition: color 0.15s ease;
+    color: var(--gray-400);
+    font-size: 16px;
+    transition: color var(--transition-fast);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 .closeButton:hover {
-    color: var(--oxo-pink);
+    color: var(--red);
+    background-color: var(--black-subtle);
+}
+
+/* XTerm Terminal Styling */
+.xterm {
+    padding: 0;
+    height: 100%;
+}
+
+.xterm .xterm-viewport {
+    background-color: transparent !important;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-600) transparent;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar {
+    width: 10px;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-thumb {
+    background-color: var(--gray-600);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gray-500);
+}
+
+.xterm .xterm-screen {
+    padding: 0;
+}
+
+.xterm .xterm-cursor-layer {
+    z-index: 1;
+}
+
+.xterm .xterm-cursor {
+    background-color: var(--accent) !important;
+}
+
+.xterm .xterm-selection {
+    background-color: var(--editor-selection) !important;
 }
 
 .tipArea {
     display: flex;
-    color: var(--oxo-base03);
+    color: var(--any-fg-muted);
     font-size: 12px;
     align-items: center;
     margin-bottom: 4px;
@@ -2765,7 +2730,7 @@ free servers .disabled_command .shortcut__block {
 }
 
 .welcome-container::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at center, transparent 0%, #000000 90%);
@@ -2946,7 +2911,7 @@ free servers .disabled_command .shortcut__block {
     font-family: 'Outfit', sans-serif;
 }
 
-.welcome-footer input[type="checkbox"] {
+.welcome-footer input[type='checkbox'] {
     accent-color: var(--accent-blue);
 }
 
@@ -2962,7 +2927,7 @@ free servers .disabled_command .shortcut__block {
 
 .settings-sidebar {
     width: 200px;
-    background-color: var(--oxo-base00);
+    background-color: var(--any-bg);
     border-right: 1px solid var(--pane-border);
     padding: 1rem 0;
     display: flex;
@@ -2979,14 +2944,14 @@ free servers .disabled_command .shortcut__block {
 }
 
 .settings-sidebar-item:hover {
-    background-color: var(--oxo-base01);
+    background-color: var(--any-bg-darker);
     color: var(--text);
 }
 
 .settings-sidebar-item.active {
-    background-color: var(--oxo-base01);
+    background-color: var(--any-bg-darker);
     color: var(--text);
-    border-left-color: var(--oxo-blue);
+    border-left-color: var(--any-tag);
     font-weight: 500;
 }
 
@@ -3022,7 +2987,8 @@ free servers .disabled_command .shortcut__block {
     opacity: 0.8;
 }
 
-.settings-input, .settings-select {
+.settings-input,
+.settings-select {
     width: 100%;
     padding: 0.6rem;
     background-color: var(--input-background);
@@ -3034,7 +3000,8 @@ free servers .disabled_command .shortcut__block {
     transition: border-color 0.2s;
 }
 
-.settings-input:focus, .settings-select:focus {
-    border-color: var(--oxo-blue);
+.settings-input:focus,
+.settings-select:focus {
+    border-color: var(--any-tag);
 }
-
+.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

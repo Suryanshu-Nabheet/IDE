@@ -33,7 +33,7 @@ import { diffExtension } from '../features/extensions/diff'
 import * as cs from '../features/chat/chatSlice'
 import * as ct from '../features/chat/chatThunks'
 
-import { vscodeDark } from '../vscodeTheme'
+import { codexTheme } from '../theme/codexTheme'
 import { vim } from './codemirror-vim'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopy } from '@fortawesome/sharp-solid-svg-icons'
@@ -144,7 +144,7 @@ export function CodeBlock({
                             : [],
                         await syntaxBundle(`text.${language}`),
                         extension,
-                        vscodeDark,
+                        codexTheme,
                         EditorView.lineWrapping,
                     ],
                 })

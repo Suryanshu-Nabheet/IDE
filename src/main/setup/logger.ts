@@ -14,7 +14,7 @@ if (isAppInApplicationsFolder) {
 Object.assign(console, log.functions)
 
 let lastTime: null | number = null
-function logError(error: any) {
+async function logError(error: any) {
     log.info('uncaughtException', error)
 
     // send log file to server
@@ -23,22 +23,29 @@ function logError(error: any) {
         (lastTime == null || Date.now() - lastTime > 1000 * 2)
     ) {
         lastTime = Date.now()
-        const logFile = fs.readFileSync(
-            log.transports.file.getFile().path,
-            'utf8'
-        )
-        const body = {
-            name: app.getPath('userData').replace(/ /g, '\\ '),
-            log: encodeURIComponent(logFile),
-            error: error.toString(),
+        try {
+            const logFile = fs.readFileSync(
+                log.transports.file.getFile().path,
+                'utf8'
+            )
+            const body = {
+                name: app.getPath('userData').replace(/ /g, '\\ '),
+                log: encodeURIComponent(logFile),
+                error: error.toString(),
+            }
+
+            // Use dynamic import for node-fetch (ESM module)
+            const fetch = (await import('node-fetch')).default
+            await fetch(API_ROOT + '/save_log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
+            })
+        } catch (fetchError) {
+            log.error('Failed to send log to server:', fetchError)
         }
-        fetch(API_ROOT + '/save_log', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-        })
     }
 }
 

@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+:root {
+    /* Pure Black Backgrounds */
+    --black: #000000;
+    --black-soft: #0a0a0a;
+    --black-elevated: #121212;
+    --black-subtle: #1a1a1a;
+    
+    /* Grays */
+    --gray-900: #1e1e1e;
+    --gray-800: #262626;
+    --gray-700: #3a3a3a;
+    --gray-600: #525252;
+    --gray-500: #6e6e6e;
+    --gray-400: #8a8a8a;
+    --gray-300: #a6a6a6;
+    --gray-200: #c2c2c2;
+    --gray-100: #dedede;
+    
+    /* Whites */
+    --white: #ffffff;
+    --white-soft: #f5f5f5;
+    
+    /* Syntax Colors */
+    --purple: #c586c0;
+    --purple-bright: #d19ad8;
+    --blue: #569cd6;
+    --blue-bright: #75beff;
+    --blue-light: #9cdcfe;
+    --yellow: #dcdcaa;
+    --yellow-bright: #f0e6b8;
+    --green: #6a9955;
+    --green-bright: #89d185;
+    --green-number: #b5cea8;
+    --orange: #ce9178;
+    --orange-bright: #d7a583;
+    --cyan: #4ec9b0;
+    --cyan-bright: #5dd4bb;
+    --gold: #d7ba7d;
+    
+    /* Semantic Colors */
+    --red: #f48771;
+    --red-bright: #ff6b6b;
+    --amber: #cca700;
+    --amber-bright: #e6b800;
+    
+    /* Accent */
+    --accent: #569cd6;
+    --accent-hover: #75beff;
+    --accent-active: #4a8bc2;
+    
+    /* ═══════════════════════════════════════════════════════════════════════
+       SEMANTIC TOKENS
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    /* Editor */
+    --editor-bg: var(--black-soft);
+    --editor-fg: var(--gray-100);
+    --editor-line-highlight: var(--gray-900);
+    --editor-selection: #264f78;
+    --editor-selection-match: rgba(156, 220, 254, 0.25);
+    --editor-cursor: #aeafad;
+    
+    /* Gutter */
+    --gutter-bg: var(--black-soft);
+    --gutter-fg: var(--gray-600);
+    --gutter-fg-active: var(--gray-100);
+    
+    /* Terminal */
+    --terminal-bg: var(--black);
+    --terminal-fg: var(--gray-100);
+    --terminal-cursor: var(--accent);
+    --terminal-selection: #264f78;
+    
+    /* UI */
+    --ui-bg: var(--black);
+    --ui-bg-elevated: var(--black-elevated);
+    --ui-bg-subtle: var(--black-subtle);
+    --ui-fg: var(--gray-100);
+    --ui-fg-muted: var(--gray-400);
+    --ui-border: var(--gray-800);
+    --ui-border-subtle: var(--gray-900);
+    
+    /* ═══════════════════════════════════════════════════════════════════════
+       COMPONENT TOKENS
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    /* Title Bar */
+    --titlebar-bg: var(--black);
+    --titlebar-fg: var(--gray-400);
+    --titlebar-border: var(--gray-800);
+    --titlebar-button-hover: var(--black-subtle);
+    
+    /* Sidebar */
+    --sidebar-bg: var(--black);
+    --sidebar-fg: var(--gray-100);
+    --sidebar-fg-muted: var(--gray-400);
+    --sidebar-hover: var(--black-subtle);
+    --sidebar-selected: var(--gray-900);
+    --sidebar-selected-accent: var(--accent);
+    --sidebar-border: var(--gray-800);
+    
+    /* Tabs */
+    --tab-bg: var(--black);
+    --tab-bg-active: var(--black-soft);
+    --tab-fg: var(--gray-400);
+    --tab-fg-active: var(--gray-100);
+    --tab-border: var(--gray-800);
+    --tab-hover: var(--black-subtle);
+    
+    /* Panels */
+    --panel-bg: var(--black-soft);
+    --panel-bg-elevated: var(--black-elevated);
+    --panel-fg: var(--gray-100);
+    --panel-border: var(--gray-800);
+    
+    /* Inputs */
+    --input-bg: var(--gray-900);
+    --input-fg: var(--gray-100);
+    --input-border: var(--gray-800);
+    --input-border-focus: var(--accent);
+    --input-placeholder: var(--gray-400);
+    
+    /* Buttons */
+    --button-primary: var(--accent);
+    --button-primary-hover: var(--accent-hover);
+    --button-success: var(--green-bright);
+    --button-success-hover: #9ae09a;
+    --button-danger: var(--red);
+    --button-danger-hover: var(--red-bright);
+    --button-secondary: var(--black-subtle);
+    --button-secondary-hover: var(--gray-900);
+    
+    /* Scrollbar */
+    --scrollbar-bg: transparent;
+    --scrollbar-thumb: var(--gray-600);
+    --scrollbar-thumb-hover: var(--gray-500);
+    
+    /* ═══════════════════════════════════════════════════════════════════════
+       TYPOGRAPHY
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+    
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    --line-height-tight: 1.4;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.6;
+    
+    /* ═══════════════════════════════════════════════════════════════════════
+       TRANSITIONS
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    --transition-fast: 0.1s ease;
+    --transition-normal: 0.15s ease;
+    --transition-slow: 0.2s ease;
+    
+    /* ═══════════════════════════════════════════════════════════════════════
+       SPACING
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    --spacing-xxl: 32px;
+    
+    /* ═══════════════════════════════════════════════════════════════════════
+       BORDER RADIUS
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    --radius-none: 0;
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+    --radius-full: 9999px;
+    
+    /* ═══════════════════════════════════════════════════════════════════════
+       LEGACY COMPATIBILITY (Temporary - will be removed)
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    --background: var(--editor-bg);
+    --text: var(--ui-fg-muted);
+    --active-text: var(--ui-fg);
+    --title-bar-background: var(--titlebar-bg);
+    --left-pane-background: var(--sidebar-bg);
+    --left-pane-hover: var(--sidebar-hover);
+    --left-pane-selected: var(--sidebar-selected);
+    --selected-text: var(--blue-light);
+    --selection-match: var(--editor-selection-match);
+    --tab-active: var(--tab-bg-active);
+    --tab-not-active: var(--tab-bg);
+    --tab-bar-background: var(--tab-bg);
+    --tab-inactive-font: var(--tab-fg);
+    --button: var(--button-secondary);
+    --marked-text: var(--blue-bright);
+    --scrollbar-background: var(--scrollbar-bg);
+    --scrollbar: var(--scrollbar-thumb);
+    --pane-border: var(--panel-border);
+    --chatbar-border: var(--panel-border);
+    --chatbar-background: var(--black);
+    --user-chat-bubble: var(--blue);
+    --assistant-chat-bubble: var(--black-subtle);
+    --input-background: var(--input-bg);
+    --input-text: var(--input-fg);
+    --chat-text: var(--ui-fg);
+    --vscode-theme-editor-background: var(--editor-bg);
+    --vscode-blue: var(--blue);
+    --link-vscode-blue: var(--blue-light);
+    --submit-button: var(--button-success);
+    --reject-button: var(--button-danger);
+    --submit-transparent-button: rgba(137, 209, 133, 0.5);
+    --reject-transparent-button: rgba(244, 135, 113, 0.5);
+    --cancel-button: var(--button-secondary);
+    --continue-button: var(--accent);
+    --full-continue-button: var(--button-success);
+    --ai-color: var(--purple);
+    --diff-add: #e5feeb;
+    --other-diff-add: rgba(137, 209, 133, 0.2);
+    --diff-bright-add: var(--green-bright);
+    --diff-delete: #ffe5e5;
+    --diff-bright-delete: var(--red);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL RESETS & BASE STYLES
+   ═══════════════════════════════════════════════════════════════════════ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*:focus {
+    outline: none;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    color: var(--ui-fg);
+    background-color: var(--ui-bg);
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+}
+
+#root {
+    height: 100%;
+    width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLLBAR STYLING
+   ═══════════════════════════════════════════════════════════════════════ */
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 5px;
+    background-color: var(--scrollbar-bg);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 15px;
+    transition: background var(--transition-fast);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+    background-color: var(--scrollbar-bg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════════ */
+
+code,
+pre,
+.mono {
+    font-family: var(--font-mono);
+    font-variant-ligatures: normal;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SELECTION
+   ═══════════════════════════════════════════════════════════════════════ */
+
+::selection {
+    background-color: var(--editor-selection);
+    color: var(--white);
+}
+
+::-moz-selection {
+    background-color: var(--editor-selection);
+    color: var(--white);
+}

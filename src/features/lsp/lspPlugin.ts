@@ -57,7 +57,7 @@ import * as LSP from 'vscode-languageserver-protocol'
 import { LanguageSupport, syntaxTree } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
 
-import { vscodeDarkInit } from '../../vscodeTheme'
+import { codexTheme } from '../../theme/codexTheme'
 
 import { store } from '../../app/store'
 
@@ -121,9 +121,7 @@ export const semanticTokenField = StateField.define<DecorationSet>({
 import _ from 'lodash'
 import { computeAndRenderTest, renderNewTest } from '../tests/testSlice'
 
-const darkTransparentVscode = vscodeDarkInit({
-    settings: { background: 'transparent' },
-})
+const darkTransparentVscode = codexTheme
 
 const changesDelay = 100
 

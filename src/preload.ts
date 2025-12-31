@@ -181,16 +181,39 @@ const electronConnector = {
     registerOpenRemotePopup: (callback: Callback) =>
         ipcRenderer.on('openRemotePopup', callback),
 
-    registerIncData(callback: (event: any, data: any) => void) {
+    registerIncData(
+        callback: (event: any, data: { id: string; data: string }) => void
+    ) {
         ipcRenderer.on('terminal-incData', callback)
     },
-    deregisterIncData(callback: (event: any, data: any) => void) {
+    deregisterIncData(
+        callback: (event: any, data: { id: string; data: string }) => void
+    ) {
         ipcRenderer.removeListener('terminal-incData', callback)
     },
-    terminalInto: (data: any) => ipcRenderer.invoke('terminal-into', data),
-    terminalClickLink: (data: any) =>
-        ipcRenderer.invoke('terminal-click-link', data),
-    terminalResize: (data: any) => ipcRenderer.invoke('terminal-resize', data),
+    registerTerminalExited(
+        callback: (event: any, data: { id: string; exitCode: number }) => void
+    ) {
+        ipcRenderer.on('terminal-exited', callback)
+    },
+    deregisterTerminalExited(
+        callback: (event: any, data: { id: string; exitCode: number }) => void
+    ) {
+        ipcRenderer.removeListener('terminal-exited', callback)
+    },
+    terminalCreate: (
+        cols: number,
+        rows: number,
+        rootPath?: string,
+        shell?: string
+    ) => ipcRenderer.invoke('terminal-create', { cols, rows, rootPath, shell }),
+    terminalKill: (id: string) => ipcRenderer.invoke('terminal-kill', id),
+    terminalInto: (id: string, data: string) =>
+        ipcRenderer.invoke('terminal-into', { id, data }),
+    terminalClickLink: (url: string) =>
+        ipcRenderer.invoke('terminal-click-link', url),
+    terminalResize: (id: string, cols: number, rows: number) =>
+        ipcRenderer.invoke('terminal-resize', { id, cols, rows }),
 
     registerFileWasAdded: (callback: Callback) =>
         ipcRenderer.on('fileWasAdded', callback),

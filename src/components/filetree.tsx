@@ -246,20 +246,21 @@ function File({ fid }: { fid: number }) {
 function Folder({ fid }: { fid: number }) {
     const isOpen = useAppSelector(getFolderOpen(fid))
     const dispatch = useAppDispatch()
+    const folder = useAppSelector(getFolder(fid))
+    const fileChildren = useAppSelector(getNotDeletedFiles(fid))
+    const folderDepth = useAppSelector(getDepth(fid))
+
     const toggleOpen = () => {
         dispatch(gs.loadFolder({ folderId: fid, goDeep: false }))
         dispatch(gs.setFolderOpen({ folderId: fid, isOpen: !isOpen }))
     }
-    const folder = useAppSelector(getFolder(fid))
-    const fileChildren = useAppSelector(getNotDeletedFiles(fid))
 
-    const folderDepth = useAppSelector(getDepth(fid))
-
+    // Always call useEffect unconditionally
     useEffect(() => {
-        if (folderDepth == 0) {
+        if (folderDepth === 0) {
             dispatch(gs.setFolderOpen({ folderId: fid, isOpen: true }))
         }
-    }, [])
+    }, [folderDepth, dispatch, fid])
 
     const isTopLevel = true //fid == 1;
     const hoverButtonsField = !isTopLevel ? (

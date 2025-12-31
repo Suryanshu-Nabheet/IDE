@@ -383,11 +383,20 @@ export class LanguageServerClient {
                     formats: ['relative'],
                 }
         }
-        const { capabilities } = await this.request(
+        const initResult = await this.request(
             'initialize',
             initializationParameters
         )
 
+        if (!initResult || !initResult.capabilities) {
+            console.warn(
+                'LSP initialization failed or returned no capabilities'
+            )
+            this.ready = false
+            return
+        }
+
+        const { capabilities } = initResult
         this.capabilities = capabilities
 
         this.notify('initialized', {})
