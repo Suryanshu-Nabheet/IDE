@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -124,12 +123,87 @@ body {
 .window {
     height: 100%;
     display: flex;
+    overflow: hidden;
 }
+
+.activity-bar {
+    width: 48px;
+    height: 100%;
+    background-color: var(--activity-bar-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    flex-shrink: 0;
+    z-index: 50;
+    border-right: 1px solid var(--activity-bar-border);
+}
+
+.activity-bar__item {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--activity-bar-fg-muted);
+    transition: all var(--transition-fast);
+    position: relative;
+    font-size: 20px;
+}
+
+.activity-bar__item:hover {
+    color: var(--activity-bar-fg);
+}
+
+.activity-bar__item.active {
+    color: #ffffff !important;
+    background-color: transparent !important;
+}
+
+.activity-bar__item.active svg {
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+}
+
+/* ============================================
+   FILE ICONS - Professional Colors
+   ============================================ */
+.file-icon--js { color: #f7df1e; }
+.file-icon--ts { color: #3178c6; }
+.file-icon--readme { color: #42a5f5; }
+.file-icon--license { color: #ffca28; }
+.file-icon--react { color: #61dafb; }
+.file-icon--python { color: #3776ab; }
+.file-icon--html { color: #e34f26; }
+.file-icon--css { color: #1572b6; }
+.file-icon--rust { color: #dea584; }
+.file-icon--go { color: #00add8; }
+.file-icon--swift { color: #f05138; }
+.file-icon--java { color: #007396; }
+.file-icon--php { color: #777bb4; }
+.file-icon--markdown { color: #ffffff; }
+.file-icon--config { color: #8a8a8a; }
+.file-icon--image { color: #a074c4; }
+.file-icon--terminal { color: #4d4d4d; }
+.file-icon--archive { color: #dcb239; }
+.file-icon--pdf { color: #f40f02; }
+.file-icon--csv { color: #217346; }
+.file-icon--binary { color: #6d6d6d; }
+.file-icon--npm { color: #cb3837; }
+.file-icon--git { color: #f05032; }
+.file-icon--docker { color: #2496ed; }
+.file-icon--tailwind { color: #38bdf8; }
 
 .app__lefttopwrapper {
     flex-direction: column;
     width: 250px;
-    background-color: var(--left-pane-background);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    flex-shrink: 0;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .app__righttopwrapper {
@@ -158,18 +232,77 @@ body {
 }
 
 /* ============================================
-   TITLEBAR - Compact and Professional
+   STATUS BAR - Professional Footer
+   ============================================ */
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 22px;
+    background-color: #161616;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 12px;
+    flex-shrink: 0;
+    z-index: 100;
+    border-top: 1px solid var(--pane-border);
+}
+
+.status-bar__left,
+.status-bar__right {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    flex: 1;
+}
+
+.status-bar__right {
+    justify-content: flex-end;
+}
+
+.status-bar__center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    flex: 1;
+}
+
+.status-bar__item {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    height: 100%;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.status-bar__item:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.status-bar__item--main {
+    padding-left: 4px;
+}
+
+/* ============================================
+   TITLEBAR - Premium Production Ready
    ============================================ */
 .titlebar {
+    position: relative;
     width: 100%;
+    height: 38px;
     background-color: var(--title-bar-background);
     color: var(--text);
-    text-align: center;
     border-bottom: 1px solid var(--pane-border);
-    text-align: right;
     display: flex;
     align-items: center;
     -webkit-app-region: drag;
+    z-index: 1000;
 }
 
 .titlebar__left,
@@ -179,8 +312,10 @@ body {
 }
 
 .titlebar__left {
-    flex-grow: 1;
+    flex: 1;
     display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .titlebar__right_filler {
@@ -188,109 +323,166 @@ body {
 }
 
 .titlebar__right {
-    margin-left: auto;
+    flex: 1;
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: flex-end;
+    gap: 2px;
     -webkit-app-region: no-drag !important;
 }
 
 .titlebar__right > div {
-    display: inline-block;
+    display: inline-flex;
+}
+
+.titlebar__buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .titlebar__right_spinner {
-    margin-left: 16px;
-}
-
-.titlebar__ai_button,
-.titlebar__right_button {
-    padding: 0px 6px;
-    -webkit-app-region: no-drag !important;
-    transition: all var(--transition-normal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.titlebar__ai_button:hover,
-.titlebar__right_button:hover {
-    cursor: pointer;
-}
-
-.titlebar__right_button_with_text {
-    margin-left: 8px;
     margin-right: 8px;
 }
 
 .titlebar__ai_button,
 .titlebar__right_button {
-    font-size: 1.2rem;
-    color: #888;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    -webkit-app-region: no-drag !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
 }
 
 .titlebar__right_button > svg {
-    color: #888 !important;
-    transition: color var(--transition-fast);
+    font-size: 14px;
+    color: var(--titlebar-fg) !important;
+    opacity: 0.65;
+    transition: all 0.2s ease;
+}
+
+.titlebar__right_button:hover {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .titlebar__right_button:hover > svg {
-    color: #aaa !important;
+    opacity: 1;
+}
+
+.titlebar__right_button:active {
+    background-color: rgba(255, 255, 255, 0.12);
+    transform: scale(0.95);
+}
+
+.titlebar__ai_button {
+    background: linear-gradient(135deg, rgba(67, 138, 214, 0.15), rgba(67, 138, 214, 0.08));
+    border: 1px solid rgba(67, 138, 214, 0.2);
 }
 
 .titlebar__ai_button > svg {
+    font-size: 15px;
     color: var(--ai-color) !important;
-    transition: color var(--transition-fast);
+    transition: all 0.2s ease;
+}
+
+.titlebar__ai_button:hover {
+    background: linear-gradient(135deg, rgba(67, 138, 214, 0.25), rgba(67, 138, 214, 0.15));
+    border-color: rgba(67, 138, 214, 0.4);
+    box-shadow: 0 0 12px rgba(67, 138, 214, 0.3);
 }
 
 .titlebar__ai_button:hover > svg {
     color: var(--any-variable) !important;
-}
-
-.titlebar__special_button {
-    background-color: rgba(67, 138, 214, 0.2);
-    border-radius: 4px;
-    padding: 3px 6px;
-    transition: background-color var(--transition-normal);
-}
-
-.titlebar__special_button:hover {
-    background-color: rgba(67, 138, 214, 0.3);
-}
-
-.titlebar__special_button > div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.titlebar__special_button .titlebar-shortcut-span {
-    color: hsl(211deg 64% 75% / 60%);
-}
-
-.titlebar__special_button > div > div {
-    display: inline-block;
-}
-
-.titlebar__special_button,
-.titlebar__special_button > svg {
-    color: #438ad6 !important;
+    filter: drop-shadow(0 0 4px rgba(67, 138, 214, 0.6));
 }
 
 .titlebar__right_button_with_text {
-    font-size: 0.95rem;
+    height: 28px;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 600;
     background-color: var(--cancel-button);
-    color: #fff;
+    color: #ffffff;
     border-radius: 4px;
-    padding: 3px 8px;
-    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-right: 6px;
+    letter-spacing: 0.3px;
 }
 
-.titlebar__ai_button:hover,
-.titlebar__right_button:hover,
 .titlebar__right_button_with_text:hover {
-    opacity: 0.85;
+    background-color: #c74545;
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.titlebar__right_button_with_text:active {
+    transform: translateY(0);
+}
+
+.titlebar__right_button_spinner {
+    margin-right: 8px;
+}
+
+/* ============================================
+   AI CHAT SIDEBAR - Styles
+   ============================================ */
+.ai-chat-messages::-webkit-scrollbar {
+    width: 10px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 5px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #4f4f4f;
+}
+
+.typing-indicator-vscode {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0;
+}
+
+.typing-indicator-vscode span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #858585;
+    animation: typing-vscode 1.4s infinite ease-in-out;
+}
+
+.typing-indicator-vscode span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator-vscode span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-vscode {
+    0%, 60%, 100% {
+        opacity: 0.3;
+    }
+    30% {
+        opacity: 1;
+    }
 }
 
 .window__leftpane {
@@ -336,8 +528,31 @@ body {
 .filetree__content {
     flex-grow: 1;
     overflow-y: auto;
-    overflow-x: clip;
-    padding-bottom: 1rem;
+    overflow-x: hidden;
+    padding-bottom: 2rem;
+    min-height: 0;
+}
+
+.highlight-search {
+    background-color: rgba(156, 220, 254, 0.3);
+    color: var(--blue-bright);
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+.smallPath {
+    font-size: 11px;
+    opacity: 0.5;
+    margin-left: 8px;
+}
+
+.line-number {
+    color: var(--ui-fg-muted);
+    font-size: 11px;
+    min-width: 30px;
+    text-align: right;
+    margin-right: 12px;
+    opacity: 0.6;
 }
 
 .folder {
@@ -358,52 +573,6 @@ body {
     margin-left: auto;
 }
 
-.file__icon_text {
-    font-size: 0.9rem;
-    /* font-family: Menlo !important; */
-    font-weight: bold;
-    text-align: right;
-    width: 100%;
-}
-
-.file__icon_js {
-    color: #b38f4d;
-}
-
-.file__icon_ts {
-    color: #6299b7;
-}
-
-.file__icon_py {
-    color: #ac94d1;
-}
-
-.file__icon_tsx {
-    /* green */
-    color: #64b475;
-}
-
-.file__icon_css {
-    color: #b3774d;
-}
-
-.file__icon_sh {
-    color: #98be5b;
-}
-
-.file__icon_json {
-    /* yellow */
-    color: #ccc95a;
-}
-
-.file__icon_html {
-    /* deep orange red */
-    color: #c2743f;
-}
-
-.fa-gear {
-    color: #e5c07b;
-}
 
 .folder__name,
 .file__name {
@@ -461,104 +630,267 @@ li.rta__item--selected mark {
     padding-right: 0.75rem;
 }
 
-.folder__line,
-.file__line {
-    cursor: pointer;
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
-    padding-right: 0.5rem;
-    padding-left: 0.5rem;
-    width: 100%;
-    box-sizing: border-box;
-    user-select: none;
+/* ============================================
+   FILE TREE & PANE STYLING
+   ============================================ */
+.file-icon-square {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
     display: flex;
-    text-align: left;
-    height: 1.75rem;
-    transition: background-color var(--transition-fast), transform 0.1s ease;
+    align-items: center;
+    justify-content: center;
+    font-size: 7.5px;
+    font-weight: 900;
+    color: white;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.js-bg { background-color: #f7df1e; color: #1e1e1e !important; }
+.ts-bg { background-color: #3178c6; }
+.react-bg { background-color: #61dafb; color: #1e1e1e !important; }
+.css-bg { background-color: #264de4; }
+
+.folder__line, .file__line {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--ui-fg-muted);
+    transition: all 0.2s;
+    position: relative;
     border-radius: 4px;
-    margin: 1px 4px;
+    margin: 1px 6px;
+    height: 28px;
 }
 
-.file__no_highlight:hover {
-    background-color: rgba(0, 0, 0, 0);
-}
-
-.folder__line:hover,
-.file__line:hover {
-    background-color: var(--left-pane-hover);
-    transform: translateX(2px);
-}
-
-.rta__entity--selected .file__line:hover {
-    background-color: var(--tab-inactive-font);
+.folder__line:hover, .file__line:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .file__line_selected {
-    background-color: var(--left-pane-selected);
-    box-shadow: inset 2px 0 0 var(--any-tag);
+    background-color: var(--sidebar-hover) !important;
+    color: #ffffff !important;
+}
+
+.folder__icon, .file__icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.file__status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+}
+
+.folder__hoverbuttons {
+    margin-left: auto;
+    display: none;
+    gap: 8px;
+    padding-right: 8px;
+    z-index: 10;
+}
+
+.folder__line:hover .folder__hoverbuttons {
+    display: flex;
+}
+
+.folder__hoverbutton {
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    font-size: 12px;
+}
+
+.folder__hoverbutton:hover {
+    opacity: 1;
+}
+
+/* ============================================
+   TABS - Styles 
+   ============================================ */
+
+.window__tabbarcontainer {
+    height: 35px;
+    background-color: var(--sidebar-bg);
+    border-bottom: 1px solid var(--pane-border);
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.tabbar {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    height: 100%;
+    flex: 1;
+}
+
+.tabbar::-webkit-scrollbar {
+    display: none;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    height: 35px;
+    min-width: 120px;
+    max-width: 200px;
+    background-color: transparent;
+    border-right: 1px solid var(--pane-border);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--ui-fg);
+    opacity: 0.6;
+    transition: all 0.1s ease;
+    user-select: none;
+    position: relative;
+}
+
+.tab__is_active {
+    background-color: var(--background);
+    opacity: 1;
+    border-bottom: 1px solid var(--accent);
+}
+
+.tab:hover:not(.tab__is_active) {
+    background-color: var(--any-bg-lighter);
+    opacity: 0.8;
+}
+
+.tab__is_deleted {
+    opacity: 0.4;
+    font-style: italic;
+}
+
+.tab__icon {
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.tab__name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab__modified {
+    color: var(--ui-fg);
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.8;
+}
+
+.tab__close {
+    margin-left: 8px;
+    font-size: 12px;
+    opacity: 0;
+    transition: all 0.1s ease;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    flex-shrink: 0;
+    color: var(--ui-fg);
+}
+
+.tab:hover .tab__close,
+.tab__is_active .tab__close {
+    opacity: 0.6;
+}
+
+.tab__close:hover {
+    opacity: 1 !important;
+    background-color: var(--any-bg-lighter);
+}
+
+.tab-remainder {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 8px;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.tabbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tabbar__action-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--ui-fg);
+    opacity: 0.6;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 12px;
+    transition: all 0.1s ease;
+}
+
+.tabbar__action-btn:hover {
+    opacity: 1;
+    background-color: var(--any-bg-lighter);
 }
 
 .pane {
     position: relative;
     height: 100%;
     flex-grow: 1;
-    background-color: var(--background);
-}
-
-.pane__inactive .tab {
-    color: var(--tab-inactive-font);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .pane__content {
-    height: 100%;
+    flex-grow: 1;
     display: flex;
-    flex-flow: column;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 .pane__hover {
-    z-index: 1;
+    z-index: 100;
     position: absolute;
-    top: 3rem;
-    left: 0;
     display: none;
-    background-color: rgba(0, 0, 0, 0.15);
+    background-color: rgba(156, 220, 254, 0.15);
+    border: 1px solid var(--accent);
+    pointer-events: none;
 }
 
-.pane__hover_left {
-    width: 50%;
-    height: calc(100% - 3rem);
-    display: block;
-    left: 0;
-}
-
-.pane__hover_right {
-    width: 50%;
-    height: calc(100% - 3rem);
-    display: block;
-    left: 50%;
-}
-
-.pane__hover_top {
-    width: 100%;
-    height: 50%;
-    display: block;
-    top: 3rem;
-}
-
-.pane__hover_bottom {
-    width: 100%;
-    height: 50%;
-    display: block;
-    top: 50%;
-}
-
-.pane__hover_full {
-    width: 100%;
-    height: calc(100% - 3rem);
-    display: block;
-    top: 3rem;
-    left: 0;
-}
+.pane__hover_left { width: 50%; height: 100%; display: block; left: 0; top: 0; }
+.pane__hover_right { width: 50%; height: 100%; display: block; left: 50%; top: 0; }
+.pane__hover_top { width: 100%; height: 50%; display: block; top: 0; left: 0; }
+.pane__hover_bottom { width: 100%; height: 50%; display: block; top: 50%; left: 0; }
+.pane__hover_full { width: 100%; height: 100%; display: block; top: 0; left: 0; }
 
 .window__editorcontainer {
     height: 100%;
@@ -649,7 +981,15 @@ li.rta__item--selected mark {
    SCROLLBAR STYLING - Premium Feel
    ============================================ */
 *:focus {
-    outline: none;
+    outline: none !important;
+}
+
+button:focus,
+div:focus,
+span:focus,
+input:focus,
+textarea:focus {
+    outline: none !important;
 }
 
 *::-webkit-scrollbar {
@@ -823,37 +1163,47 @@ li.rta__item--selected mark {
 }
 
 .tab {
-    display: inline-block;
+    display: flex;
+    align-items: center;
     height: 100%;
+    min-width: 120px;
+    max-width: 200px;
     box-sizing: border-box;
     background-color: var(--tab-not-active);
     color: var(--text);
     user-select: none;
     cursor: pointer;
-    transition: background-color var(--transition-fast);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all var(--transition-fast);
+    border-right: 1px solid var(--pane-border);
+    position: relative;
 }
 
 .tab:hover {
-    background-color: var(--any-bg-lighter);
+    background-color: var(--tab-hover);
 }
 
 .tab > div {
     display: flex;
     align-items: center;
-    justify-content: center;
     height: 100%;
     width: 100%;
-    padding: 0px 8px 0px 12px;
+    padding: 0 12px;
+    gap: 8px;
 }
 
 .tab__is_active {
     background-color: var(--tab-active);
-    box-shadow: inset 0 -2px 0 var(--any-tag);
+    color: var(--tab-fg-active);
 }
 
-.tab__is_active:hover {
-    background-color: var(--tab-active);
+.tab__is_active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--accent);
 }
 
 .tab__path {
@@ -889,15 +1239,20 @@ li.rta__item--selected mark {
 
 .tab__close {
     cursor: pointer;
-    padding: 0.3rem;
-    box-sizing: border-box;
-    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
     transition: all var(--transition-fast);
-    opacity: 0.6;
+    opacity: 0.4;
+    font-size: 10px;
+    margin-left: auto;
 }
 
 .tab__close:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--ui-bg-subtle);
     opacity: 1;
 }
 
@@ -3004,4 +3359,10 @@ free servers .disabled_command .shortcut__block {
 .settings-select:focus {
     border-color: var(--any-tag);
 }
-.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

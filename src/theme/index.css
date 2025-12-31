@@ -101,6 +101,12 @@
     --sidebar-selected-accent: var(--accent);
     --sidebar-border: var(--gray-800);
     
+    /* Activity Bar */
+    --activity-bar-bg: var(--black);
+    --activity-bar-fg: var(--gray-100);
+    --activity-bar-fg-muted: var(--gray-600);
+    --activity-bar-border: var(--gray-800);
+    
     /* Tabs */
     --tab-bg: var(--black);
     --tab-bg-active: var(--black-soft);

@@ -3,16 +3,36 @@ import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
+    faFileCode,
+    faFileLines,
+    faFileCirclePlus,
+    faFolderPlus,
+    faPuzzlePiece,
+    faStar,
+    faComment,
+    faPalette,
+    faVial,
+    faTools,
+    faCogs,
+    faImages,
+    faCube,
+} from '@fortawesome/pro-regular-svg-icons'
+import {
     faChevronDown,
     faChevronRight,
-    faCode,
-    faCodeMerge,
-    faEyeSlash,
+    faFolder,
+    faFolderOpen,
     faFile,
+    faCode,
     faGear,
     faImage,
-    faInfoCircle,
-} from '@fortawesome/sharp-solid-svg-icons'
+    faFilePdf,
+    faFileCsv,
+    faFileArchive,
+    faTerminal as faTerminalIcon,
+    faDatabase,
+    faCircle as faCircleSolid,
+} from '@fortawesome/free-solid-svg-icons'
 import * as gs from '../features/globalSlice'
 
 import {
@@ -22,179 +42,101 @@ import {
     getFolderOpen,
     getNotDeletedFiles,
 } from '../features/selectors'
-import {
-    faFileCirclePlus,
-    faFolderPlus,
-} from '@fortawesome/pro-regular-svg-icons'
 import posthog from 'posthog-js'
 
-function offset(depth: number) {
-    return `${depth * 1 + 1}rem`
-}
-
-// Thank you GPT-3
-const CODE_EXTENSIONS = [
-    'py',
-    'js',
-    'css',
-    'rb',
-    'java',
-    'php',
-    'c',
-    'cpp',
-    'go',
-    'swift',
-    'sql',
-    'scss',
-    'ts',
-    'sh',
-    'bat',
-    'pl',
-    'vb',
-    'clj',
-    'kt',
-    'rs',
-    'fs',
-    'coffee',
-    'lua',
-    'typescript',
-    'jsx',
-    'tsx',
-]
-
-const MARKUP_EXTENSIONS = ['html', 'htm', 'xml', 'xhtml']
-
-const INFO_EXTENSIONS = ['md', 'markdown', 'rst']
-
-const CONFIG_EXTENSIONS = [
-    'json',
-    'yml',
-    'conf',
-    'cfg',
-    'ini',
-    'xml',
-    'properties',
-    'hocon',
-    'env',
-    'toml',
-    'inf',
-    'plist',
-    'yaml',
-    'ini',
-    'reg',
-    'vbs',
-    'config.js',
-    'config.ts',
-    'rules.js',
-    'rules.ts',
-]
-
-const IMAGE_EXTENSIONS = [
-    'png',
-    'jpg',
-    'jpeg',
-    'gif',
-    'bmp',
-    'svg',
-    'webp',
-    'tiff',
-    'psd',
-    'eps',
-    'ai',
-    'raw',
-    'cr2',
-    'nef',
-    'orf',
-]
-
-const BINARY_EXTENSIONS = [
-    'zip',
-    'exe',
-    'bin',
-    'img',
-    'iso',
-    'dmg',
-    'deb',
-    'rar',
-    '7z',
-    'tar',
-    'gz',
-    'bz2',
-    'xz',
-    'lz',
-    'lzma',
-    'arj',
-    'cab',
-    'z',
-    'lzh',
-    'ace',
-]
+const offset = (depth: number) => `${depth * 14 + 16}px`
 
 export function getIconElement(fname: string) {
-    const isMatch = (exts: string[]) => {
-        return exts.some((ext) => fname.endsWith('.' + ext))
-    }
-    let iconTextValue = null
+    const ext = fname.split('.').pop()?.toLowerCase() || ''
 
-    let iconClassValue = null
-    let iconElement = null
-    if (isMatch(['js'])) {
-        iconTextValue = 'js'
-        iconClassValue = 'js'
-    } else if (isMatch(['py'])) {
-        iconTextValue = 'py'
-        iconClassValue = 'py'
-    } else if (isMatch(['ts'])) {
-        iconTextValue = 'ts'
-        iconClassValue = 'ts'
-    } else if (isMatch(['tsx'])) {
-        iconTextValue = 'tx'
-        iconClassValue = 'tsx'
-    } else if (isMatch(['jsx'])) {
-        iconTextValue = 'jx'
-        iconClassValue = 'jsx'
-    } else if (isMatch(['css'])) {
-        iconTextValue = ' #'
-        iconClassValue = 'css'
-    } else if (isMatch(['html'])) {
-        iconTextValue = '<>'
-        iconClassValue = 'html'
-    } else if (isMatch(['json'])) {
-        iconTextValue = '{}'
-        iconClassValue = 'json'
-    } else if (isMatch(['sh'])) {
-        iconTextValue = ' $'
-        iconClassValue = 'sh'
-    }
-
-    if (iconTextValue != null) {
-        iconElement = (
-            <div className={`file__icon_text file__icon_${iconClassValue}`}>
-                {iconTextValue.toUpperCase()}
-            </div>
+    // exact names
+    if (fname.toLowerCase() === 'package.json')
+        return <FontAwesomeIcon icon={faGear} className="file-icon--config" />
+    if (fname.toLowerCase().includes('config'))
+        return (
+            <FontAwesomeIcon
+                icon={faGear}
+                className="file-icon--config opacity-80"
+            />
         )
-    }
+    if (fname.toLowerCase().startsWith('readme'))
+        return (
+            <FontAwesomeIcon icon={faFileLines} className="file-icon--readme" />
+        )
+    if (fname.toLowerCase().includes('license'))
+        return (
+            <FontAwesomeIcon icon={faFileCode} className="file-icon--license" />
+        )
 
-    if (iconElement == null) {
-        let icon = faFile
+    // language mappings
+    if (['js', 'cjs', 'mjs'].includes(ext))
+        return <div className="file-icon-square js-bg">JS</div>
+    if (ext === 'ts') return <div className="file-icon-square ts-bg">TS</div>
+    if (ext === 'tsx' || ext === 'jsx')
+        return <div className="file-icon-square react-bg">TSX</div>
+    if (ext === 'py')
+        return <FontAwesomeIcon icon={faCode} className="file-icon--python" />
+    if (ext === 'html' || ext === 'htm')
+        return <FontAwesomeIcon icon={faCode} className="file-icon--html" />
+    if (['css', 'scss', 'sass', 'less'].includes(ext))
+        return <div className="file-icon-square css-bg">CSS</div>
+    if (ext === 'md' || ext === 'markdown')
+        return (
+            <FontAwesomeIcon
+                icon={faFileLines}
+                className="file-icon--markdown"
+            />
+        )
+    if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico'].includes(ext))
+        return <FontAwesomeIcon icon={faImage} className="file-icon--image" />
+    if (['sh', 'bash', 'zsh', 'bat', 'cmd', 'ps1'].includes(ext))
+        return (
+            <FontAwesomeIcon
+                icon={faTerminalIcon}
+                className="file-icon--terminal"
+            />
+        )
+    if (ext === 'pdf')
+        return <FontAwesomeIcon icon={faFilePdf} className="file-icon--pdf" />
+    if (ext === 'csv')
+        return <FontAwesomeIcon icon={faFileCsv} className="file-icon--csv" />
+    if (['zip', 'tar', 'gz', 'rar', '7z'].includes(ext))
+        return (
+            <FontAwesomeIcon
+                icon={faFileArchive}
+                className="file-icon--archive"
+            />
+        )
+    if (ext === 'sql' || ext === 'db')
+        return (
+            <FontAwesomeIcon
+                icon={faDatabase}
+                className="file-icon--database"
+            />
+        )
 
-        if (isMatch(CONFIG_EXTENSIONS)) {
-            icon = faGear
-        } else if (isMatch(CODE_EXTENSIONS)) {
-            icon = faCodeMerge
-        } else if (isMatch(IMAGE_EXTENSIONS)) {
-            icon = faImage
-        } else if (isMatch(BINARY_EXTENSIONS)) {
-            icon = faEyeSlash
-        } else if (isMatch(MARKUP_EXTENSIONS)) {
-            icon = faCode
-        } else if (isMatch(INFO_EXTENSIONS)) {
-            icon = faInfoCircle
-        }
-        iconElement = <FontAwesomeIcon icon={icon} />
-    }
+    return <FontAwesomeIcon icon={faFile} className="opacity-50" />
+}
 
-    return iconElement
+function getFolderIcon(name: string, isOpen: boolean) {
+    const lname = name.toLowerCase()
+
+    if (lname === '.github') return { icon: faFolderOpen, color: '#ffffff' }
+    if (lname === '.webpack') return { icon: faCube, color: '#8dd6f9' }
+    if (lname === 'assets') return { icon: faImages, color: '#eaba3a' }
+    if (lname === 'node_modules') return { icon: faCube, color: '#8bc34a' }
+    if (lname === 'src') return { icon: faFolderOpen, color: '#4caf50' }
+    if (lname === 'components') return { icon: faPuzzlePiece, color: '#cddc39' }
+    if (lname === 'features') return { icon: faStar, color: '#8bc34a' }
+    if (lname === 'chat') return { icon: faComment, color: '#ff9800' }
+    if (lname === 'extensions') return { icon: faPuzzlePiece, color: '#2196f3' }
+    if (lname === 'settings') return { icon: faGear, color: '#00bcd4' }
+    if (lname === 'tests') return { icon: faVial, color: '#009688' }
+    if (lname === 'tools') return { icon: faTools, color: '#2196f3' }
+    if (lname === 'theme') return { icon: faPalette, color: '#2196f3' }
+    if (lname === 'utils') return { icon: faCogs, color: '#8bc34a' }
+
+    return { icon: isOpen ? faFolderOpen : faFolder, color: 'var(--amber)' }
 }
 
 function File({ fid }: { fid: number }) {
@@ -204,10 +146,9 @@ function File({ fid }: { fid: number }) {
 
     const iconElement = getIconElement(file.name)
 
-    //const ext = file.name.split('.').pop()!;
     return (
         <div
-            className={`file__line ${
+            className={`file__line group ${
                 file.isSelected ? 'file__line_selected' : ''
             }`}
             style={{ paddingLeft: offset(depth) }}
@@ -237,7 +178,17 @@ function File({ fid }: { fid: number }) {
                     onClick={(e) => e.stopPropagation()}
                 />
             ) : (
-                <div className="file__name truncate">{file.name}</div>
+                <div className="file__name truncate" style={{ flexGrow: 1 }}>
+                    {file.name}
+                </div>
+            )}
+            {!file.saved && (
+                <div className="file__status">
+                    <FontAwesomeIcon
+                        icon={faCircleSolid}
+                        style={{ fontSize: '6px', color: 'var(--amber)' }}
+                    />
+                </div>
             )}
         </div>
     )
@@ -255,43 +206,16 @@ function Folder({ fid }: { fid: number }) {
         dispatch(gs.setFolderOpen({ folderId: fid, isOpen: !isOpen }))
     }
 
-    // Always call useEffect unconditionally
     useEffect(() => {
         if (folderDepth === 0) {
             dispatch(gs.setFolderOpen({ folderId: fid, isOpen: true }))
         }
     }, [folderDepth, dispatch, fid])
 
-    const isTopLevel = true //fid == 1;
-    const hoverButtonsField = !isTopLevel ? (
-        <></>
-    ) : (
-        <div className="folder__hoverbuttons">
-            <div
-                className="folder__hoverbutton"
-                onClick={(e) => {
-                    e.stopPropagation()
-                    dispatch(gs.newFile({ parentFolderId: fid }))
-                }}
-            >
-                <FontAwesomeIcon icon={faFileCirclePlus} />
-            </div>
-            <div
-                className="folder__hoverbutton"
-                onClick={(e) => {
-                    e.stopPropagation()
-                    dispatch(gs.newFolder({ parentFolderId: fid }))
-                }}
-            >
-                <FontAwesomeIcon icon={faFolderPlus} />
-            </div>
-        </div>
-    )
-
     return (
-        <div className="folder">
+        <div className="folder" style={{ flexShrink: 0 }}>
             <div
-                className="folder__line"
+                className="folder__line group"
                 style={{ paddingLeft: offset(folderDepth) }}
                 onClick={toggleOpen}
                 onContextMenu={() => {
@@ -300,12 +224,25 @@ function Folder({ fid }: { fid: number }) {
                 }}
             >
                 <div className="folder__icon">
-                    {isOpen ? (
-                        <FontAwesomeIcon icon={faChevronDown} />
-                    ) : (
-                        <FontAwesomeIcon icon={faChevronRight} />
-                    )}
+                    <FontAwesomeIcon
+                        icon={isOpen ? faChevronDown : faChevronRight}
+                        style={{ fontSize: '10px', opacity: 0.5 }}
+                    />
                 </div>
+                {(() => {
+                    const { icon, color } = getFolderIcon(folder.name, isOpen)
+                    return (
+                        <FontAwesomeIcon
+                            icon={icon}
+                            style={{
+                                marginRight: '8px',
+                                color,
+                                opacity: 0.9,
+                                fontSize: '14px',
+                            }}
+                        />
+                    )
+                })()}
 
                 {folder.renameName != null ? (
                     <input
@@ -330,13 +267,34 @@ function Folder({ fid }: { fid: number }) {
                         onClick={(e) => e.stopPropagation()}
                     />
                 ) : (
-                    <>
-                        <div className="folder__name truncate">
-                            {folder.name}
-                        </div>
-                        {hoverButtonsField}
-                    </>
+                    <div
+                        className="folder__name truncate"
+                        style={{ flexGrow: 1 }}
+                    >
+                        {folder.name}
+                    </div>
                 )}
+
+                <div className="folder__hoverbuttons">
+                    <div
+                        className="folder__hoverbutton"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            dispatch(gs.newFile({ parentFolderId: fid }))
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faFileCirclePlus} />
+                    </div>
+                    <div
+                        className="folder__hoverbutton"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            dispatch(gs.newFolder({ parentFolderId: fid }))
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faFolderPlus} />
+                    </div>
+                </div>
             </div>
             {isOpen && (
                 <div className="folder__below">
@@ -373,10 +331,35 @@ export function FileTree() {
     }, [])
 
     return (
-        <div className="window__leftpane colortheme">
+        <div
+            className="w-full h-full"
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: 'var(--sidebar-bg)',
+                minHeight: 0,
+            }}
+        >
             {/* Sticky project header */}
             <div
                 className="filetree__project-header"
+                style={{
+                    height: '35px',
+                    minHeight: '35px',
+                    padding: '0 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    backgroundColor: 'var(--sidebar-bg)',
+                    borderBottom: '1px solid var(--pane-border)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.8px',
+                    color: 'var(--ui-fg)',
+                    flexShrink: 0,
+                    zIndex: 5,
+                }}
                 onClick={toggleOpen}
                 onContextMenu={() => {
                     dispatch(
@@ -388,14 +371,17 @@ export function FileTree() {
                     dispatch(gs.rightClickFolder(rootFolderId))
                 }}
             >
-                <div className="folder__icon">
-                    {isOpen ? (
-                        <FontAwesomeIcon icon={faChevronDown} />
-                    ) : (
-                        <FontAwesomeIcon icon={faChevronRight} />
-                    )}
+                <FontAwesomeIcon
+                    icon={isOpen ? faChevronDown : faChevronRight}
+                    style={{
+                        fontSize: '9px',
+                        opacity: 0.7,
+                        marginRight: '8px',
+                    }}
+                />
+                <div className="folder__name truncate" style={{ flexGrow: 1 }}>
+                    {rootFolder.name}
                 </div>
-                <div className="folder__name truncate">{rootFolder.name}</div>
                 <div className="folder__hoverbuttons">
                     <div
                         className="folder__hoverbutton"
@@ -423,7 +409,10 @@ export function FileTree() {
             </div>
 
             {/* Scrollable content */}
-            <div className="filetree__content">
+            <div
+                className="filetree__content"
+                style={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}
+            >
                 {isOpen && (
                     <>
                         {rootFolder.folderIds?.map((fid: number) => {

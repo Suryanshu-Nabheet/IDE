@@ -260,25 +260,12 @@ export default function CommandPalettes() {
         [dispatch]
     )
 
-    const aiCommandPaletteTriggeredFocus = useAppSelector(
-        aiCommandPaletteTriggeredSelector
-    )
-    const aiCommandPaletteCloseTrigger = useCallback(
-        () => dispatch(untriggerAICommandPalette()),
-        [dispatch]
-    )
-
     return (
         <>
             <InnerCommandPalette
                 openingTrigger={commandPaletteTriggeredFocus}
                 aiOnly={false}
                 closeTrigger={commandPaletteCloseTrigger}
-            />
-            <InnerCommandPalette
-                openingTrigger={aiCommandPaletteTriggeredFocus}
-                aiOnly={true}
-                closeTrigger={aiCommandPaletteCloseTrigger}
             />
         </>
     )

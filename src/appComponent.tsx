@@ -26,6 +26,10 @@ import { throttleCallback } from './components/componentUtils'
 import { ErrorPopup } from './components/errors'
 import { SSHPopup } from './components/sshPopup'
 
+import { ActivityBar } from './components/activityBar'
+import { StatusBar } from './components/statusBar'
+import { AIChatSidebar } from './components/aiChatSidebar'
+
 export function App() {
     const dispatch = useAppDispatch()
     const rootPath = useAppSelector(getRootPath)
@@ -36,10 +40,14 @@ export function App() {
     const paneSplits = useAppSelector(getPaneStateBySplits)
 
     const zoomFactor = useAppSelector(getZoomFactor)
-    const titleHeight = Math.round((1.0 / zoomFactor) * 28) + 'px'
 
-    // set window height to 100 vh - titlebar height
-    const windowHeight = 'calc(100vh - ' + titleHeight + ')'
+    const TITLEBAR_HEIGHT = 38
+    const STATUS_BAR_HEIGHT = 22
+    const ACTIVITY_BAR_WIDTH = 48
+
+    const titleHeight = TITLEBAR_HEIGHT + 'px'
+    const statusBarHeight = STATUS_BAR_HEIGHT + 'px'
+    const windowHeight = `calc(100vh - ${TITLEBAR_HEIGHT}px - ${STATUS_BAR_HEIGHT}px)`
 
     const commandBarOpen = useAppSelector(csel.getIsCommandBarOpen)
     const currentActiveTab = useAppSelector(getFocusedTab)
@@ -153,6 +161,7 @@ export function App() {
                 {screenState === 'welcome' && <WelcomeScreen />}
                 {screenState === 'normal' && (
                     <>
+                        <ActivityBar />
                         <div
                             className={`app__lefttopwrapper ${
                                 leftSideExpanded ? 'flex' : 'hidden'
@@ -161,6 +170,7 @@ export function App() {
                         >
                             <LeftSide />
                         </div>
+
                         <div
                             className="leftDrag"
                             onMouseDown={() => {
@@ -180,9 +190,11 @@ export function App() {
                         <SettingsPopup />
                         <FeedbackArea />
                         <SSHPopup />
+                        <AIChatSidebar />
                     </>
                 )}
             </div>
+            <StatusBar />
         </>
     )
 }

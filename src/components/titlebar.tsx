@@ -273,90 +273,135 @@ export function TitleBar({
     return (
         <div
             className="titlebar"
-            style={{ height: titleHeight }}
+            style={{
+                height: titleHeight,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 10px',
+            }}
             onDoubleClick={() => connector.maximize()}
         >
-            <SearchFiles />
-            <CommandPalette />
-            <div className="titleOnTitleBar">CodeX - v{appVersion}</div>
-            <div className="titlebar__left">
+            <div
+                className="titlebar__left"
+                style={{ display: 'flex', alignItems: 'center', flex: '1 1 0' }}
+            >
                 {isWindows && <MenuBar />}
                 <div className="titlebar__left_rest"></div>
+                <SearchFiles />
             </div>
-            {useButtons && (
-                <div
-                    className="titlebar__right"
-                    onDoubleClick={(e) => {
-                        // Prevent double click from triggering maximize
-                        e.stopPropagation()
-                    }}
-                >
-                    {generating && (
-                        <div className="titlebar__right_button_spinner">
-                            <div className="loader"></div>
-                        </div>
-                    )}
 
-                    {generating && (
+            <div
+                className="titleOnTitleBar"
+                style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: 'var(--titlebar-fg)',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                }}
+            >
+                CodeX - v{appVersion}
+            </div>
+
+            <div
+                className="titlebar__right"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flex: '1 1 0',
+                    justifyContent: 'flex-end',
+                    gap: '4px',
+                }}
+            >
+                <CommandPalette />
+                {useButtons && (
+                    <div
+                        className="titlebar__buttons"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '2px',
+                        }}
+                        onDoubleClick={(e) => {
+                            e.stopPropagation()
+                        }}
+                    >
+                        {generating && (
+                            <>
+                                <div className="titlebar__right_button_spinner">
+                                    <div className="loader"></div>
+                                </div>
+                                <div
+                                    className="titlebar__right_button_with_text"
+                                    onClick={() => {
+                                        dispatch(cs.interruptGeneration(null))
+                                    }}
+                                >
+                                    Cancel
+                                    <span className="titlebar-shortcut-span">
+                                        {connector.PLATFORM_META_KEY}⌫
+                                    </span>
+                                </div>
+                            </>
+                        )}
+
                         <div
-                            className="titlebar__right_button_with_text"
+                            className="titlebar__right_button"
                             onClick={() => {
-                                dispatch(cs.interruptGeneration(null))
+                                dispatch(ts.toggleLeftSide())
                             }}
+                            title="Toggle Sidebar (⌘B)"
                         >
-                            Cancel
-                            <span className="titlebar-shortcut-span">
-                                {connector.PLATFORM_META_KEY}⌫
-                            </span>
+                            <FontAwesomeIcon icon={faSidebar} />
                         </div>
-                    )}
-                    <div
-                        className="titlebar__right_button"
-                        onClick={() => {
-                            dispatch(ts.toggleLeftSide())
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faSidebar} />
-                    </div>
-                    <div
-                        className="titlebar__ai_button"
-                        onClick={() => {
-                            dispatch(ts.triggerAICommandPalette())
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faRobot} />
-                    </div>
 
-                    <div
-                        className="titlebar__right_button"
-                        onClick={() => {
-                            dispatch(gs.toggleTerminal())
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faSquareTerminal} />
-                    </div>
+                        <div
+                            className="titlebar__ai_button"
+                            onClick={() => {
+                                dispatch(ts.triggerAICommandPalette())
+                            }}
+                            title="AI Assistant (⌘K)"
+                        >
+                            <FontAwesomeIcon icon={faRobot} />
+                        </div>
 
-                    <div
-                        className="titlebar__right_button"
-                        onClick={() => {
-                            dispatch(ls.toggleFeedback(null))
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faHandWave} />
-                    </div>
+                        <div
+                            className="titlebar__right_button"
+                            onClick={() => {
+                                dispatch(gs.toggleTerminal())
+                            }}
+                            title="Toggle Terminal (⌃`)"
+                        >
+                            <FontAwesomeIcon icon={faSquareTerminal} />
+                        </div>
 
-                    <div
-                        className="titlebar__right_button"
-                        onClick={() => {
-                            dispatch(ss.toggleSettings())
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faCog} />
+                        <div
+                            className="titlebar__right_button"
+                            onClick={() => {
+                                dispatch(ls.toggleFeedback(null))
+                            }}
+                            title="Send Feedback"
+                        >
+                            <FontAwesomeIcon icon={faHandWave} />
+                        </div>
+
+                        <div
+                            className="titlebar__right_button"
+                            onClick={() => {
+                                dispatch(ss.toggleSettings())
+                            }}
+                            title="Settings (⌘,)"
+                        >
+                            <FontAwesomeIcon icon={faCog} />
+                        </div>
                     </div>
-                </div>
-            )}
-            <div className="titlebar__right_filler"></div>
-            {isWindows && <WindowsFrameButtons />}
+                )}
+                {isWindows && <WindowsFrameButtons />}
+            </div>
         </div>
     )
 }

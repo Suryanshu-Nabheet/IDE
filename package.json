@@ -3,11 +3,11 @@
     "name": "codex",
     "author": {
         "name": "Suryanshu Nabheet",
-        "email": "suryanshu@codex.dev"
+        "email": "suryanshu@gmail.com"
     },
     "productName": "CodeX",
     "version": "1.0.0",
-    "description": "CodeX is an enterprise-level AI-powered code editor with the Oxocarbon theme.",
+    "description": "CodeX is an AI-powered code editor Build by Suryanshu Nabheet",
     "main": ".webpack/main",
     "scripts": {
         "fix": "eslint --ext .ts,.tsx --fix .",

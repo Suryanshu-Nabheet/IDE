@@ -8,12 +8,7 @@ import {
 } from '@fortawesome/sharp-solid-svg-icons'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { getLeftTab, getLeftTabActive } from '../features/tools/toolSelectors'
-import {
-    collapseLeftSide,
-    leftTabInactive,
-    openFileTree,
-    openSearch,
-} from '../features/tools/toolSlice'
+import { leftTabInactive } from '../features/tools/toolSlice'
 import {
     sendFeedbackMessage,
     toggleFeedback,
@@ -26,8 +21,6 @@ import {
 import { openFile } from '../features/globalSlice'
 import { getRootPath } from '../features/selectors'
 import _ from 'lodash'
-type LeftTab = 'search' | 'filetree'
-
 import Modal from 'react-modal'
 
 export function FeedbackArea() {
@@ -119,21 +112,6 @@ export function FeedbackArea() {
 export const LeftSide = () => {
     // A state variable to keep track of the active tab
     const activeTab = useAppSelector(getLeftTab)
-    const dispatch = useAppDispatch()
-
-    // A function to handle tab switching
-    const handleTabClick = (tabName: LeftTab) => {
-        if (tabName == 'search') {
-            dispatch(openSearch())
-        } else if (tabName == 'filetree') {
-            dispatch(openFileTree())
-        }
-    }
-
-    const handleCollapseClick = () => {
-        dispatch(leftTabInactive())
-        dispatch(collapseLeftSide())
-    }
 
     // A function to render the content of the active tab
     const renderTabContent = () => {
@@ -147,45 +125,43 @@ export const LeftSide = () => {
         }
     }
     return (
-        <div className="w-full h-full leftside">
-            {/* A div to display the tabs */}
-            <div className="flex h-12 relative justify-center items-center leftside-icon-bar mb-2">
-                <div className="tabs leftside__tabs">
-                    {/* A button for each tab, with a class name indicating if it is active or not */}
-                    <button
-                        className={`leftside__tab ${
-                            activeTab === 'filetree' ? 'active' : ''
-                        }`}
-                        onClick={() => handleTabClick('filetree')}
-                    >
-                        <div>
-                            <i className="fas fa-folder"></i>
-                        </div>
-                    </button>
-                    <button
-                        className={`leftside__tab ${
-                            activeTab === 'search' ? 'active' : ''
-                        }`}
-                        onClick={() => handleTabClick('search')}
-                    >
-                        <div>
-                            <i className="fas fa-search"></i>
-                        </div>
-                    </button>
-                </div>
-                <div className="tabs leftside__tabs absolute right-0 opacity-60">
-                    <button
-                        className="leftside__tab leftside__tab_collapse"
-                        onClick={() => handleCollapseClick()}
-                    >
-                        <div>
-                            <i className="fas fa-chevrons-left"></i>
-                        </div>
-                    </button>
-                </div>
+        <div
+            className="w-full h-full leftside"
+            style={{ display: 'flex', flexDirection: 'column' }}
+        >
+            <div
+                className="leftside__header"
+                style={{
+                    height: '35px',
+                    minHeight: '35px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 12px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: 'var(--ui-fg)',
+                    letterSpacing: '0.4px',
+                    textTransform: 'uppercase',
+                    borderBottom: '1px solid var(--pane-border)',
+                    userSelect: 'none',
+                    backgroundColor: 'var(--sidebar-bg)',
+                    flexShrink: 0,
+                    zIndex: 10,
+                }}
+            >
+                {activeTab === 'filetree' ? 'Explorer' : activeTab}
             </div>
             {/* A div to display the content of the active tab */}
-            <div className="leftside__filetree_container">
+            <div
+                className="leftside__filetree_container"
+                style={{
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 0,
+                    overflow: 'hidden',
+                }}
+            >
                 {renderTabContent()}
                 <div className="cover-bar"></div>
             </div>
@@ -234,11 +210,6 @@ const handleSearch = async (query: string, setResults: any, rootPath: any) => {
             }
             const newestResults = [...fileLevelResultsMap.values()]
             setResults(newestResults)
-            if (newestResults.length != 0) {
-                const firstResult = newestResults[0].results[0]
-                const start = firstResult.data.submatches[0].start
-                const end = firstResult.data.submatches[0].end
-            }
         })
 }
 
@@ -294,12 +265,30 @@ function SearchComponent() {
     }
 
     return (
-        <div className="window__leftpane colortheme p-5">
-            {/* A div to display the search bar */}
-            <div className="search-bar">
-                {/* A textarea for the search query, with a fixed width and a variable height */}
+        <div
+            className="search-container"
+            style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: 'var(--left-pane-background)',
+            }}
+        >
+            <div className="search-bar" style={{ padding: '12px 16px' }}>
                 <textarea
                     className="search-textarea w-full"
+                    placeholder="Search"
+                    style={{
+                        backgroundColor: 'var(--input-bg)',
+                        color: 'var(--input-fg)',
+                        border: '1px solid var(--input-border)',
+                        borderRadius: '2px',
+                        padding: '4px 8px',
+                        fontSize: '13px',
+                        outline: 'none',
+                        resize: 'none',
+                        minHeight: '28px',
+                    }}
                     value={query}
                     onChange={handleTextareaChange}
                     onKeyDown={(e) => {
@@ -317,19 +306,30 @@ function SearchComponent() {
         </button> */}
             </div>
             {/* A div to display the search results */}
-            <div className="search-results">
+            <div
+                className="search-results"
+                style={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}
+            >
                 {/* A conditional rendering to show a message if there are no results */}
-                {results.length === 0 && <div>No results found</div>}
+                {results.length === 0 && query !== '' && (
+                    <div
+                        style={{
+                            padding: '20px',
+                            color: 'var(--ui-fg-muted)',
+                            fontSize: '13px',
+                            textAlign: 'center',
+                        }}
+                    >
+                        No results found for "{query}"
+                    </div>
+                )}
                 {/* A map function to render a list of the search result components */}
-                {(() => {
-                    //
-                    return results.map((result) => (
-                        <FileResultComponent
-                            key={result.filePath}
-                            result={result}
-                        />
-                    ))
-                })()}
+                {results.map((result) => (
+                    <FileResultComponent
+                        key={result.filePath}
+                        result={result}
+                    />
+                ))}
             </div>
         </div>
     )
@@ -410,14 +410,22 @@ function FileResultComponent({ result }: { result: FileLevelResult }) {
 
 function LineResultComponent({ result }: { result: RawResult }) {
     const line = result.data.lines.text
-    const start = result.data.submatches[0].start
-    const end = result.data.submatches[0].end
+    const firstMatch = result.data.submatches[0]
+    const start = firstMatch.start
+    const end = firstMatch.end
 
     const dispatch = useAppDispatch()
 
     return (
         <div
-            className="folder__line pl-10"
+            className="folder__line"
+            style={{
+                paddingLeft: '40px',
+                height: 'auto',
+                minHeight: '22px',
+                alignItems: 'flex-start',
+                paddingRight: '12px',
+            }}
             onClick={() =>
                 dispatch(
                     openFile({
@@ -425,12 +433,10 @@ function LineResultComponent({ result }: { result: RawResult }) {
                         selectionRegions: [
                             {
                                 start: {
-                                    // we use 0-indexing for line numbers here
                                     line: result.data.line_number - 1,
                                     character: start,
                                 },
                                 end: {
-                                    // we use 0-indexing for line numbers here
                                     line: result.data.line_number - 1,
                                     character: end,
                                 },
@@ -440,8 +446,15 @@ function LineResultComponent({ result }: { result: RawResult }) {
                 )
             }
         >
-            {/* Display the line with a span tagging the word from start to end*/}
-            <div className="filename truncate">
+            <div className="line-number">{result.data.line_number}</div>
+            <div
+                className="filename"
+                style={{
+                    whiteSpace: 'pre',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                }}
+            >
                 {line.slice(0, start)}
                 <span className="highlight-search">
                     {line.slice(start, end)}
@@ -450,8 +463,4 @@ function LineResultComponent({ result }: { result: RawResult }) {
             </div>
         </div>
     )
-}
-
-function useCache(arg0: (...args: any[]) => void) {
-    throw new Error('Function not implemented.')
 }
