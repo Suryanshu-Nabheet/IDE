@@ -1,4 +1,9 @@
-# <img src="./assets/icon/icon.png" width="32" height="32" /> CodeX IDE
+# CodeX IDE
+
+![Welcome_Screen](./assets/Demo/Welcome_Screen.png)
+![Coding_Screen](<./assets/Demo/Coding_Screen(1).png>)
+![Coding_Screen](<./assets/Demo/Coding_Screen(2).png>)
+![Coding_Screen](<./assets/Demo/Coding_Screen(3).png>)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-emerald.svg?style=flat-square)](https://github.com/Suryanshu-Nabheet/CodeX)
