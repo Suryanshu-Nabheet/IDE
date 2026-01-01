@@ -4,14 +4,49 @@ import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags as t } from '@lezer/highlight'
 import { CODEX_THEME } from './tokens'
 
-const { semantic, typography, radius } = CODEX_THEME
+const { typography } = CODEX_THEME
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ANYSPHERE DARK THEME - TEXT & SYNTAX COLORS ONLY
+// ═══════════════════════════════════════════════════════════════════════════
+
+const ANYSPHERE_TEXT_COLORS = {
+    // Base text colors
+    default: '#E6EAF2',
+    secondary: '#9AA4BF',
+    muted: '#5F6B85',
+    disabled: '#3F475A',
+
+    // Syntax colors
+    keyword: '#C792EA',
+    string: '#ECC48D',
+    number: '#F78C6C',
+    boolean: '#F78C6C',
+    function: '#82AAFF',
+    property: '#C3E88D',
+    type: '#FFCB6B',
+    tag: '#F07178',
+    comment: '#5F6B85',
+    docComment: '#6B77A5',
+    punctuation: '#89A4C7',
+
+    // Special states
+    error: '#FF5370',
+    warning: '#FFCB6B',
+    info: '#82AAFF',
+
+    // Emphasis
+    selected: '#FFFFFF',
+    highlighted: '#FFFFFF',
+    matchingBracket: '#82AAFF',
+}
 
 const codexEditorTheme = EditorView.theme(
     {
         // Root editor
         '&': {
-            color: semantic.editor.foreground,
-            backgroundColor: semantic.editor.background,
+            color: ANYSPHERE_TEXT_COLORS.default,
+            backgroundColor: '#000000',
             fontSize: typography.fontSize.base,
             fontFamily: typography.fontFamilyMono,
             height: '100%',
@@ -19,54 +54,54 @@ const codexEditorTheme = EditorView.theme(
 
         // Content area
         '.cm-content': {
-            caretColor: semantic.editor.cursor,
-            padding: '4px 0',
+            caretColor: ANYSPHERE_TEXT_COLORS.default,
+            padding: '8px 0',
             fontFamily: typography.fontFamilyMono,
-            lineHeight: typography.lineHeight.tight.toString(),
+            lineHeight: '1.5',
             fontVariantLigatures: typography.ligatures ? 'normal' : 'none',
         },
 
         // Cursor
         '.cm-cursor, .cm-dropCursor': {
-            borderLeftColor: semantic.editor.cursor,
+            borderLeftColor: ANYSPHERE_TEXT_COLORS.default,
             borderLeftWidth: '2px',
             borderLeftStyle: 'solid',
         },
 
         // Selection
         '.cm-selectionBackground, ::selection': {
-            backgroundColor: semantic.editor.selection + ' !important',
+            backgroundColor: '#264f78 !important',
         },
         '&.cm-focused .cm-selectionBackground': {
-            backgroundColor: semantic.editor.selection + ' !important',
+            backgroundColor: '#264f78 !important',
         },
 
         // Active line
         '.cm-activeLine': {
-            backgroundColor: semantic.editor.lineHighlight,
+            backgroundColor: '#0a0a0a',
         },
 
-        // Selection match (find occurrences)
+        // Selection match
         '.cm-selectionMatch': {
-            backgroundColor: semantic.editor.selectionMatch,
-            outline: '1px solid #333',
+            backgroundColor: '#1a1a1a',
         },
 
         // Matching brackets
         '&.cm-focused .cm-matchingBracket': {
             backgroundColor: 'transparent',
-            outline: `1px solid ${semantic.ui.foregroundMuted}`,
+            color: ANYSPHERE_TEXT_COLORS.matchingBracket,
+            outline: '1px solid ' + ANYSPHERE_TEXT_COLORS.matchingBracket,
         },
 
         '&.cm-focused .cm-nonmatchingBracket': {
-            backgroundColor: 'rgba(241, 76, 76, 0.2)',
-            outline: `1px solid ${semantic.diagnostic.error}`,
+            backgroundColor: 'rgba(255, 83, 112, 0.1)',
+            color: ANYSPHERE_TEXT_COLORS.error,
         },
 
-        // Gutters (line numbers)
+        // Gutters
         '.cm-gutters': {
-            backgroundColor: semantic.gutter.background,
-            color: semantic.gutter.foreground,
+            backgroundColor: '#000000',
+            color: ANYSPHERE_TEXT_COLORS.muted,
             border: 'none',
             paddingRight: '12px',
             fontFamily: typography.fontFamilyMono,
@@ -75,7 +110,7 @@ const codexEditorTheme = EditorView.theme(
         // Active line gutter
         '.cm-activeLineGutter': {
             backgroundColor: 'transparent',
-            color: semantic.gutter.foregroundActive,
+            color: ANYSPHERE_TEXT_COLORS.secondary,
         },
 
         // Line numbers
@@ -91,111 +126,140 @@ const codexEditorTheme = EditorView.theme(
             outline: 'none',
         },
 
-        // Panels (Standardize)
+        // Panels
         '.cm-panels': {
-            backgroundColor: semantic.ui.backgroundElevated,
-            color: semantic.ui.foreground,
+            backgroundColor: '#0a0a0a',
+            color: ANYSPHERE_TEXT_COLORS.default,
         },
+
         '.cm-tooltip': {
-            backgroundColor: semantic.ui.backgroundElevated,
-            border: `1px solid ${semantic.ui.border}`,
-            color: semantic.ui.foreground,
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #2a2a2a',
+            color: ANYSPHERE_TEXT_COLORS.default,
         },
+
         '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
-            backgroundColor: '#04395e',
-            color: '#fff',
+            backgroundColor: '#264f78',
+            color: ANYSPHERE_TEXT_COLORS.selected,
+        },
+
+        '.cm-panel': {
+            backgroundColor: '#0a0a0a',
+        },
+
+        '.cm-scroller': {
+            fontFamily: typography.fontFamilyMono,
         },
     },
     { dark: true }
 )
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SYNTAX HIGHLIGHTING (Anysphere Style)
+// SYNTAX HIGHLIGHTING - ANYSPHERE DARK TEXT COLORS
 // ═══════════════════════════════════════════════════════════════════════════
 
 const codexHighlightStyle = HighlightStyle.define([
-    // KEYWORDS & CONTROL FLOW -> Purple
+    // KEYWORDS & CONTROL FLOW
     {
         tag: [
             t.keyword,
             t.modifier,
             t.controlKeyword,
             t.moduleKeyword,
+            t.operatorKeyword,
             t.definitionKeyword,
-            t.standard(t.tagName),
         ],
-        color: '#C678DD', // Purple
+        color: ANYSPHERE_TEXT_COLORS.keyword,
     },
 
-    // FUNCTIONS & METHODS -> Blue
+    // STRINGS & TEMPLATE LITERALS
+    {
+        tag: [t.string, t.special(t.string), t.docString, t.regexp],
+        color: ANYSPHERE_TEXT_COLORS.string,
+    },
+
+    // NUMBERS & BOOLEANS
+    {
+        tag: [t.number, t.integer, t.float],
+        color: ANYSPHERE_TEXT_COLORS.number,
+    },
+    {
+        tag: [
+            t.bool,
+            t.null,
+            t.atom,
+            t.constant(t.name),
+            t.constant(t.variableName),
+        ],
+        color: ANYSPHERE_TEXT_COLORS.boolean,
+    },
+
+    // FUNCTIONS & METHODS
     {
         tag: [
             t.function(t.variableName),
             t.function(t.propertyName),
             t.macroName,
-            t.special(t.variableName),
         ],
-        color: '#61AFEF', // Blue
+        color: ANYSPHERE_TEXT_COLORS.function,
     },
 
-    // STRINGS -> Light Green
-    {
-        tag: [t.string, t.special(t.string), t.regexp, t.escape],
-        color: '#98C379', // Light Green
-    },
-
-    // NUMBERS & CONSTANTS -> Yellow (or Orange/Yellow hybrid)
-    {
-        tag: [
-            t.number,
-            t.integer,
-            t.float,
-            t.bool,
-            t.null,
-            t.atom,
-            t.constant(t.name),
-        ],
-        color: '#E5C07B', // Yellow
-    },
-
-    // TYPES, CLASSES, & INTERFACES -> Yellow
-    {
-        tag: [
-            t.typeName,
-            t.className,
-            t.standard(t.typeName),
-            t.changed,
-            t.annotation,
-            t.namespace,
-        ],
-        color: '#E5C07B', // Yellow
-    },
-
-    // VARIABLES & PROPERTIES -> White
+    // VARIABLES & PARAMETERS
     {
         tag: [
             t.variableName,
-            t.propertyName,
-            t.attributeName,
-            t.labelName,
+            t.local(t.variableName),
             t.definition(t.variableName),
+            t.self,
         ],
-        color: '#FFFFFF', // White
+        color: ANYSPHERE_TEXT_COLORS.default,
     },
 
-    // TAGS (HTML/JSX) -> Pink
+    // PROPERTIES & OBJECT KEYS
     {
-        tag: [t.tagName, t.standard(t.tagName), t.angleBracket],
-        color: '#E06C75', // Pink
+        tag: [t.propertyName, t.attributeName],
+        color: ANYSPHERE_TEXT_COLORS.property,
     },
 
-    // ATTRIBUTES -> Yellow (or soft Orange)
+    // CLASSES, TYPES, INTERFACES, ENUMS
     {
-        tag: [t.attributeValue],
-        color: '#E5C07B', // Yellow
+        tag: [t.typeName, t.className, t.namespace, t.standard(t.typeName)],
+        color: ANYSPHERE_TEXT_COLORS.type,
     },
 
-    // OPERATORS & PUNCTUATION -> White / Muted White
+    // JSX/HTML TAGS
+    {
+        tag: [t.tagName],
+        color: ANYSPHERE_TEXT_COLORS.tag,
+    },
+
+    // JSX/HTML ATTRIBUTES
+    {
+        tag: [t.attributeName],
+        color: ANYSPHERE_TEXT_COLORS.property,
+    },
+
+    // CSS PROPERTY NAMES
+    {
+        tag: [t.propertyName],
+        color: ANYSPHERE_TEXT_COLORS.function,
+    },
+
+    // COMMENTS
+    {
+        tag: [t.comment, t.lineComment, t.blockComment],
+        color: ANYSPHERE_TEXT_COLORS.comment,
+        fontStyle: 'italic',
+    },
+
+    // DOC COMMENTS
+    {
+        tag: [t.docComment],
+        color: ANYSPHERE_TEXT_COLORS.docComment,
+        fontStyle: 'italic',
+    },
+
+    // PUNCTUATION & OPERATORS
     {
         tag: [
             t.operator,
@@ -208,49 +272,82 @@ const codexHighlightStyle = HighlightStyle.define([
             t.arithmeticOperator,
             t.logicOperator,
             t.bitwiseOperator,
+            t.compareOperator,
+            t.angleBracket,
         ],
-        color: '#FFFFFF', // White
+        color: ANYSPHERE_TEXT_COLORS.punctuation,
     },
 
-    // COMMENTS -> Muted Gray
+    // DECORATORS & ANNOTATIONS
     {
-        tag: [t.comment, t.lineComment, t.blockComment, t.meta],
-        color: '#7F848E', // Muted Gray
-        fontStyle: 'italic',
+        tag: [t.annotation, t.meta],
+        color: ANYSPHERE_TEXT_COLORS.keyword,
     },
 
-    // URL/LINKS -> Blue
+    // ESCAPE SEQUENCES
+    {
+        tag: [t.escape],
+        color: ANYSPHERE_TEXT_COLORS.number,
+    },
+
+    // LINKS
     {
         tag: [t.link, t.url],
-        color: '#61AFEF', // Blue
+        color: ANYSPHERE_TEXT_COLORS.function,
         textDecoration: 'underline',
     },
 
-    // MARKDOWN HEADERS -> Purple (Distinct)
+    // CSS UNITS & LABELS
     {
-        tag: [t.heading, t.heading1, t.heading2, t.heading3, t.heading4],
-        color: '#C678DD', // Purple
+        tag: [t.unit, t.labelName],
+        color: ANYSPHERE_TEXT_COLORS.type,
+    },
+
+    // MARKDOWN HEADINGS
+    {
+        tag: [t.heading, t.heading1, t.heading2, t.heading3],
+        color: ANYSPHERE_TEXT_COLORS.type,
         fontWeight: 'bold',
     },
 
-    // LISTS & QUOTES -> Yellow
+    // MARKDOWN LISTS & QUOTES
     {
         tag: [t.list, t.quote],
-        color: '#E5C07B',
+        color: ANYSPHERE_TEXT_COLORS.comment,
     },
 
-    // EMPHASIS -> White Italic
+    // MARKDOWN EMPHASIS
     {
         tag: [t.emphasis],
-        color: '#FFFFFF',
         fontStyle: 'italic',
+        color: ANYSPHERE_TEXT_COLORS.default,
     },
 
-    // STRONG -> White Bold
+    // MARKDOWN STRONG
     {
         tag: [t.strong],
-        color: '#FFFFFF',
         fontWeight: 'bold',
+        color: ANYSPHERE_TEXT_COLORS.default,
+    },
+
+    // MARKDOWN STRIKETHROUGH
+    {
+        tag: [t.strikethrough],
+        textDecoration: 'line-through',
+        color: ANYSPHERE_TEXT_COLORS.muted,
+    },
+
+    // INVALID / ERRORS
+    {
+        tag: [t.invalid],
+        color: ANYSPHERE_TEXT_COLORS.error,
+    },
+
+    // DEPRECATED
+    {
+        tag: [t.deleted],
+        color: ANYSPHERE_TEXT_COLORS.muted,
+        opacity: '0.7',
     },
 ])
 
