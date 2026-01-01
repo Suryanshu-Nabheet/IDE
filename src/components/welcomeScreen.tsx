@@ -14,6 +14,7 @@ import {
     faKeyboard,
     faGraduationCap,
     faClock,
+    faTerminal,
 } from '@fortawesome/pro-regular-svg-icons'
 import { getNameFromPath } from '../features/window/fileUtils'
 
@@ -32,9 +33,14 @@ export function WelcomeScreen() {
             dispatch(gs.newFile({ parentFolderId: null }))
             dispatch(dismissWelcome())
         } else if (action === 'open_folder') {
+            dispatch(dismissWelcome())
             dispatch(gs.openFolder(null))
         } else if (action === 'clone_repo') {
+            dispatch(dismissWelcome())
             dispatch(gs.openClonePopup())
+        } else if (action === 'connect_ssh') {
+            dispatch(dismissWelcome())
+            dispatch(gs.openRemotePopup())
         } else if (action === 'interactive_tutorial') {
             dispatch(gs.openTutorFolder(null))
             dispatch(dismissWelcome())
@@ -91,6 +97,17 @@ export function WelcomeScreen() {
                                 </span>
                                 <span className="welcome-action-text">
                                     Clone Repository
+                                </span>
+                            </button>
+                            <button
+                                className="welcome-action-button"
+                                onClick={() => handleAction('connect_ssh')}
+                            >
+                                <span className="welcome-action-icon">
+                                    <FontAwesomeIcon icon={faTerminal} />
+                                </span>
+                                <span className="welcome-action-text">
+                                    Connect via SSH
                                 </span>
                             </button>
                             <button
