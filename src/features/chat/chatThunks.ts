@@ -361,7 +361,7 @@ export const continueGeneration = createAsyncThunk(
             const currentTab = getActiveTabId(state.global)!
 
             const numUserMessages = chatState.userMessages.length
-            function checkSend() {
+            const checkSend = () => {
                 if (
                     numUserMessages !=
                     (<FullState>getState()).chatState.userMessages.length
@@ -584,7 +584,7 @@ export const streamResponse = createAsyncThunk(
             const currentTab = getActiveTabId(state.global)!
 
             const numUserMessages = chatState.userMessages.length
-            function checkSend() {
+            const checkSend = () => {
                 if (
                     numUserMessages !=
                     (<FullState>getState()).chatState.userMessages.length
@@ -1001,7 +1001,7 @@ export const diffResponse = createAsyncThunk(
             const currentTab = getActiveTabId(state.global)!
 
             const numUserMessages = chatState.userMessages.length
-            function checkSend() {
+            const checkSend = () => {
                 if (
                     numUserMessages !=
                     (<FullState>getState()).chatState.userMessages.length

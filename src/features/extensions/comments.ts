@@ -131,9 +131,9 @@ class TreeHighlighter {
         if (tab != null) {
             const filePath = getFilePath(tab.fileId)(state)
             const hasTests = selectHasTests(filePath)(state)
-            if (!hasTests) {
-            } else {
-            }
+            // if (!hasTests) {
+            // } else {
+            // }
             comments = state.commentState.fileThenNames[filePath] || {}
         }
 
@@ -150,7 +150,7 @@ class TreeHighlighter {
             const lineIndentation = line.text.match(/^\s*/)![0]
 
             const comment = comments[name]
-            function trimFn(ins: string | null) {
+            const trimFn = (ins: string | null) => {
                 if (ins == null) return null
                 let trimmed = ins.trim().split('\n').splice(1).join('\n').trim()
                 //remove ending semi-colon

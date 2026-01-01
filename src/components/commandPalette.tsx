@@ -12,12 +12,10 @@ import {
     openFileTree,
     openSearch,
     triggerFileSearch,
-    untriggerAICommandPalette,
     untriggerCommandPalette,
 } from '../features/tools/toolSlice'
 import { toggleSettings } from '../features/settings/settingsSlice'
 import {
-    aiCommandPaletteTriggeredSelector,
     commandPaletteTriggeredSelector,
 } from '../features/tools/toolSelectors'
 import { Combobox } from '@headlessui/react'

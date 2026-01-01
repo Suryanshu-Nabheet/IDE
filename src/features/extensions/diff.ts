@@ -88,7 +88,9 @@ function getDiffTooltip(
     }
 
     // Get the topmost field. If none, just show at the top of the screen
-    let { from, to, value } = diffValue.visibleDeco.iter()
+    const iter = diffValue.visibleDeco.iter()
+    let { from, to } = iter
+    const { value } = iter
     if (value == null) {
         from = 0
         to = 0
@@ -421,17 +423,9 @@ export const diffField = StateField.define<DiffState>({
     update(allDecos: DiffState, tr: Transaction) {
         // If the transaction has any addDiff effects, map them to decorations and update the decoration set
         // First modify the decoration set to stay on the same lines if the transaction is a line change
-        let {
-            parts,
-            visibleDeco,
-            diffId,
-            origLine,
-            currentLine,
-            tooltip,
-            subDiffTooltips,
-            loading,
-            chunks,
-        } = allDecos
+        let { parts, visibleDeco, diffId, origLine, currentLine, loading } =
+            allDecos
+        const { tooltip, subDiffTooltips, chunks } = allDecos
 
         let isChanged = false
         // First we check for if we have modified the diff
@@ -650,6 +644,7 @@ export const diffField = StateField.define<DiffState>({
                     diffId = undefined
                     loading = false
                 } else if (effect.is(acceptRejectSubDiffEffect)) {
+                    // ignore
                 } else if (effect.is(updateCurrentLineEffect)) {
                     currentLine = effect.value
                     isChanged = true
@@ -995,6 +990,7 @@ export const setDiff =
         }
 
         if (isFinished) {
+            // ignore
         }
         // Get only the relevant chunk
         const origTextString = origText.sliceString(
