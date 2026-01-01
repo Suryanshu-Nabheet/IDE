@@ -323,6 +323,12 @@ export function FileTree() {
     const isOpen = useAppSelector(getFolderOpen(rootFolderId))
     const fileChildren = useAppSelector(getNotDeletedFiles(rootFolderId))
 
+    useEffect(() => {
+        if (rootFolderId) {
+            dispatch(gs.setFolderOpen({ folderId: rootFolderId, isOpen: true }))
+        }
+    }, [dispatch])
+
     if (!rootFolder) {
         return <div className="p-4 text-gray-400">No folder opened</div>
     }
@@ -331,10 +337,6 @@ export function FileTree() {
         dispatch(gs.loadFolder({ folderId: rootFolderId, goDeep: false }))
         dispatch(gs.setFolderOpen({ folderId: rootFolderId, isOpen: !isOpen }))
     }
-
-    useEffect(() => {
-        dispatch(gs.setFolderOpen({ folderId: rootFolderId, isOpen: true }))
-    }, [])
 
     return (
         <div

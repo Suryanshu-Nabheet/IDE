@@ -48,6 +48,11 @@ export function WelcomeScreen() {
             <div className="welcome-content">
                 <header className="welcome-header">
                     <h1 className="welcome-title">CodeX</h1>
+                    <div className="welcome-title-line"></div>
+                    <p className="welcome-motto">
+                        Press <kbd>⌘</kbd> <kbd>K</kbd> to unlock the power of
+                        CodeX AI
+                    </p>
                 </header>
 
                 <main className="welcome-grid">

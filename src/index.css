@@ -3155,7 +3155,7 @@ cm-diff-cancel > div {
     background-color: rgb(51 61 75 / var(--tw-bg-opacity));
     width: 32px;
 }
-free servers .disabled_command .shortcut__block {
+.disabled_command .shortcut__block {
     color: #555;
     background-color: rgb(51 61 75 / 0.2);
 }
@@ -3398,12 +3398,14 @@ free servers .disabled_command .shortcut__block {
 }
 
 .welcome-content {
-    max-width: 900px;
     width: 100%;
-    padding: 2rem;
     z-index: 10;
     opacity: 0;
     animation: welcomeFadeIn 0.8s cubic-bezier(0.2, 0, 0, 1) forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 6rem;
 }
 
 @keyframes welcomeFadeIn {
@@ -3420,18 +3422,55 @@ free servers .disabled_command .shortcut__block {
 }
 
 .welcome-title {
-    font-size: 7rem;
+    font-size: 7.5rem;
     font-weight: 800;
-    letter-spacing: -0.06em;
+    letter-spacing: -0.07em;
     margin-bottom: 0;
     font-family: 'Outfit', sans-serif;
-    background: linear-gradient(180deg, #ffffff 30%, #444444 100%);
+    background: linear-gradient(180deg, #ffffff 40%, #555555 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 10px 40px rgba(0,0,0,0.5));
-    line-height: 0.9;
-    padding-bottom: 2rem;
+    filter: drop-shadow(0 20px 50px rgba(0,0,0,0.7));
+    line-height: 0.85;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+}
+
+.welcome-title:hover {
+    filter: drop-shadow(0 15px 50px rgba(44, 123, 229, 0.4));
+}
+
+.welcome-title-line {
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    opacity: 0.8;
+}
+
+.welcome-motto {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    margin-bottom: 6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.8;
+}
+
+.welcome-motto kbd {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
 }
 
 
@@ -3469,19 +3508,22 @@ free servers .disabled_command .shortcut__block {
 .welcome-action-button {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.8rem 1rem;
-    border-radius: 6px;
-    background: transparent !important;
-    border: none !important;
+    gap: 1.25rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid transparent;
     cursor: pointer;
     text-align: left;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--text-primary) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-primary);
+    width: 100%;
 }
 
 .welcome-action-button:hover {
-    background: var(--hover-bg) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
 }
 
 .welcome-action-button:hover .welcome-action-icon {

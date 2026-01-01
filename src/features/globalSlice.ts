@@ -711,7 +711,7 @@ export const setIsNotFirstTimeWithSideEffect = createAsyncThunk(
 export const initState = createAsyncThunk(
     'global/initState',
     async (args: null, { dispatch }) => {
-        const config = await connector.getProject()
+        const _config = await connector.getProject()
 
         // if (config == null) {
         //     return
@@ -719,10 +719,6 @@ export const initState = createAsyncThunk(
 
         const settings = await connector.initSettings()
         dispatch(changeSettingsNoSideffect(settings))
-
-        // if (config != null && config.defaultFolder) {
-        //     await dispatch(trulyOpenFolder(config.defaultFolder))
-        // }
 
         const isNotFirstTime =
             (await connector.getStore('isNotFirstTime')) || false
@@ -1172,8 +1168,6 @@ const globalSlice = createSlice({
 
             const file = state.files[tab.fileId]
             const newCode = state.fileCache[tab.fileId].contents
-            // newCode = newCode.replace(/\r\n/g, '\n');
-            // const repCode = code.replace(/\r\n/g, '\n');
             const repCode = code
 
             if (file.saved && newCode !== repCode) {
@@ -1554,7 +1548,9 @@ const globalSlice = createSlice({
         ) {
             const { folderId, isOpen } = action.payload
             const folder = state.folders[folderId]
-            folder.isOpen = isOpen
+            if (folder) {
+                folder.isOpen = isOpen
+            }
         },
         closeRemotePopup(state: State) {
             state.showRemotePopup = false
