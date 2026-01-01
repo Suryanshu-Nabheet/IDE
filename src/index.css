@@ -1,4 +1,6 @@
-/* CodeX Production-Grade Styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 /* Import the new pure black theme system */
 @import './theme/index.css';
 
