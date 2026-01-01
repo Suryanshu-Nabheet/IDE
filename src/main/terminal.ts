@@ -1,9 +1,9 @@
 import os from 'os'
-import fs from 'fs'
 import * as pty from 'node-pty'
 import { ipcMain } from 'electron'
 import log from 'electron-log'
 import { randomUUID } from 'crypto'
+import fs from 'fs'
 
 const sessions = new Map<string, pty.IPty>()
 
@@ -54,6 +54,7 @@ export function setupTerminal(mainWindow: any, rootPath?: string) {
         let cwd =
             requestRootPath || rootPath || process.env.HOME || os.homedir()
 
+        // Validation for CWD existence
         if (!fs.existsSync(cwd)) {
             log.warn(
                 `Terminal CWD ${cwd} does not exist, falling back to home directory`
