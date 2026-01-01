@@ -3932,6 +3932,8 @@ cm-diff-cancel > div {
     color: var(--white);
     background-color: transparent;
     font-weight: 600;
+    border-left: 2px solid var(--white);
+    padding-left: calc(var(--spacing-xl) - 2px);
 }
 
 .settings-sidebar-item.active svg {
@@ -4002,9 +4004,9 @@ cm-diff-cancel > div {
 }
 
 .settings-input:focus {
-    border-color: var(--accent) !important;
+    border-color: var(--white) !important;
     background-color: var(--black) !important;
-    box-shadow: 0 0 0 1px var(--accent);
+    box-shadow: 0 0 0 1px var(--white);
 }
 
 .settings-dropdown .Dropdown-control {
@@ -4041,8 +4043,9 @@ cm-diff-cancel > div {
 }
 
 .settings-dropdown .Dropdown-option.is-selected {
-    background-color: var(--accent);
-    color: white;
+    background-color: var(--black-subtle);
+    color: var(--white);
+    font-weight: 600;
 }
 
 .no-scrollbar::-webkit-scrollbar {

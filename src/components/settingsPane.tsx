@@ -308,8 +308,8 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
             </div>
             <div className="flex gap-2">
                 <input
-                    className={`settings-input ${
-                        keyError ? 'border-red-500' : ''
+                    className={`settings-input !bg-[#1a1a1a] !border-[#333] focus:!border-white focus:!bg-black focus:!shadow-none ${
+                        keyError ? '!border-red-500' : ''
                     }`}
                     placeholder="sk-..."
                     onChange={(e) => setLocalAPIKey(e.target.value)}
@@ -345,14 +345,14 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                             className={cx(
                                 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75',
                                 settings.useOpenAIKey
-                                    ? 'bg-[#569cd6]'
+                                    ? 'bg-white'
                                     : 'bg-gray-800'
                             )}
                         >
                             <span
                                 aria-hidden="true"
                                 className={cx(
-                                    'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out',
+                                    'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-black shadow-lg ring-0 transition duration-200 ease-in-out',
                                     settings.useOpenAIKey
                                         ? 'translate-x-5'
                                         : 'translate-x-0'
@@ -421,21 +421,21 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
             <div>
                 {!languageInstalled ? (
                     <button
-                        className="secondary-button text-[11px] py-1 px-3"
+                        className="px-3 py-1.5 text-[11px] font-medium bg-[#1e1e1e] hover:bg-[#2d2d2d] border border-[#333] rounded text-white transition-colors"
                         onClick={installServer}
                     >
                         Install
                     </button>
                 ) : languageRunning ? (
                     <button
-                        className="secondary-button text-[11px] py-1 px-3 border-red-500/30 text-red-500/80 hover:bg-red-500/10"
+                        className="px-3 py-1.5 text-[11px] font-medium bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded transition-colors"
                         onClick={stopServer}
                     >
                         Stop
                     </button>
                 ) : (
                     <button
-                        className="primary-button text-[11px] py-1 px-3 bg-gray-700 hover:bg-gray-600"
+                        className="px-3 py-1.5 text-[11px] font-medium bg-[#2d2d2d] hover:bg-[#3d3d3d] border border-[#444] rounded text-white transition-colors"
                         onClick={runServer}
                     >
                         Start
