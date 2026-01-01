@@ -1,4 +1,5 @@
 import { useAppDispatch, useAppSelector } from '../app/hooks'
+import cx from 'classnames'
 import * as ssel from '../features/settings/settingsSelectors'
 import {
     changeSettings,
@@ -19,6 +20,13 @@ import {
 } from '../features/lsp/languageServerSelector'
 import Modal from 'react-modal'
 import { closeError } from '../features/globalSlice'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+    faTimes,
+    faGear,
+    faRobot,
+    faCode,
+} from '@fortawesome/pro-regular-svg-icons'
 
 export function SettingsPopup() {
     const dispatch = useAppDispatch()
@@ -29,28 +37,28 @@ export function SettingsPopup() {
 
     const customStyles = {
         overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 10000,
-            backdropFilter: 'blur(2px)',
         },
         content: {
             padding: '0',
-            border: 'none',
-            background: 'none',
+            border: '1px solid var(--ui-border)',
+            background: 'var(--black-elevated)',
             top: 'auto',
             left: 'auto',
             right: 'auto',
             bottom: 'auto',
-            width: '800px',
-            height: '600px',
-            maxWidth: '90vw',
-            maxHeight: '90vh',
-            inset: 'auto', // Managed by overlay flex
-            borderRadius: '8px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            width: '850px',
+            height: '650px',
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            inset: 'auto',
+            borderRadius: 'var(--radius-xl)',
+            boxShadow: '0 25px 70px rgba(0, 0, 0, 0.8)',
+            overflow: 'hidden',
         },
     }
 
@@ -61,40 +69,34 @@ export function SettingsPopup() {
             style={customStyles}
             contentLabel="Settings"
         >
-            <div className="settings-layout">
+            <div className="settings-layout font-sans">
                 <div className="settings-sidebar">
+                    <div className="settings-sidebar-header">User Settings</div>
                     <div
-                        style={{
-                            padding: '1.5rem',
-                            fontWeight: 'bold',
-                            fontSize: '1.1rem',
-                            opacity: 0.8,
-                        }}
-                    >
-                        Settings
-                    </div>
-                    <div
-                        className={`settings-sidebar-item ${
-                            activeTab === 'General' ? 'active' : ''
-                        }`}
+                        className={cx('settings-sidebar-item', {
+                            active: activeTab === 'General',
+                        })}
                         onClick={() => setActiveTab('General')}
                     >
+                        <FontAwesomeIcon icon={faGear} />
                         General
                     </div>
                     <div
-                        className={`settings-sidebar-item ${
-                            activeTab === 'AI' ? 'active' : ''
-                        }`}
+                        className={cx('settings-sidebar-item', {
+                            active: activeTab === 'AI',
+                        })}
                         onClick={() => setActiveTab('AI')}
                     >
+                        <FontAwesomeIcon icon={faRobot} />
                         AI & Models
                     </div>
                     <div
-                        className={`settings-sidebar-item ${
-                            activeTab === 'Languages' ? 'active' : ''
-                        }`}
+                        className={cx('settings-sidebar-item', {
+                            active: activeTab === 'Languages',
+                        })}
                         onClick={() => setActiveTab('Languages')}
                     >
+                        <FontAwesomeIcon icon={faCode} />
                         Language Servers
                     </div>
                 </div>
@@ -205,17 +207,10 @@ export function SettingsPopup() {
                     )}
                 </div>
                 <div
-                    style={{
-                        position: 'absolute',
-                        top: '10px',
-                        right: '10px',
-                        cursor: 'pointer',
-                        padding: '10px',
-                        opacity: 0.5,
-                    }}
+                    className="icon-button absolute top-4 right-4"
                     onClick={() => dispatch(toggleSettings())}
                 >
-                    <i className="fas fa-times"></i>
+                    <FontAwesomeIcon icon={faTimes} />
                 </div>
             </div>
         </Modal>
@@ -280,23 +275,21 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                     type="password"
                 />
                 <button
-                    className="welcome-action-button"
-                    style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}
+                    className="secondary-button !bg-gray-800 !text-white !border-transparent hover:!bg-gray-700"
                     onClick={handleNewAPIKey}
                 >
-                    Save
+                    Save Key
                 </button>
             </div>
             {keyError && (
-                <div className="text-red-500 text-sm mt-2">
-                    Invalid API Key. Please try again.
+                <div className="text-red-500 text-[11px] mt-2 font-medium">
+                    Invalid API Key. Please verify and try again.
                 </div>
             )}
-
             {settings.openAIKey && (
-                <div className="mt-4 p-4 bg-black/10 rounded-md">
+                <div className="mt-8 p-6 bg-black border border-gray-900 rounded-sm">
                     <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm font-medium">
+                        <span className="text-xs font-semibold uppercase tracking-wider opacity-60">
                             Enable AI Features
                         </span>
                         <Switch
@@ -306,18 +299,21 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                                     changeSettings({ useOpenAIKey: value })
                                 )
                             }
-                            className={`${
+                            className={cx(
+                                'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75',
                                 settings.useOpenAIKey
-                                    ? 'bg-blue-600'
-                                    : 'bg-gray-600'
-                            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
+                                    ? 'bg-gray-200'
+                                    : 'bg-gray-800'
+                            )}
                         >
                             <span
-                                className={`${
+                                aria-hidden="true"
+                                className={cx(
+                                    'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out',
                                     settings.useOpenAIKey
-                                        ? 'translate-x-6'
-                                        : 'translate-x-1'
-                                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                                        ? 'translate-x-5'
+                                        : 'translate-x-0'
+                                )}
                             />
                         </Switch>
                     </div>
@@ -368,10 +364,10 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
     }, [languageName])
 
     return (
-        <div className="flex items-center justify-between p-3 bg-white/5 rounded-md mb-2">
+        <div className="flex items-center justify-between p-4 bg-black border border-gray-900 rounded-sm mb-3 hover:border-gray-700 transition-colors">
             <div>
-                <div className="font-medium">{languageName}</div>
-                <div className="text-xs text-white/50">
+                <div className="text-sm font-medium">{languageName}</div>
+                <div className="text-[11px] opacity-40 uppercase tracking-tight">
                     {languageInstalled
                         ? languageRunning
                             ? 'Running'
@@ -382,24 +378,24 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
             <div>
                 {!languageInstalled ? (
                     <button
-                        className="welcome-action-button text-xs py-1 px-3"
+                        className="secondary-button text-[11px] py-1 px-3"
                         onClick={installServer}
                     >
                         Install
                     </button>
                 ) : languageRunning ? (
                     <button
-                        className="welcome-action-button text-xs py-1 px-3 bg-red-500/20 text-red-300 hover:bg-red-500/40"
+                        className="secondary-button text-[11px] py-1 px-3 border-red-500/30 text-red-500/80 hover:bg-red-500/10"
                         onClick={stopServer}
                     >
                         Stop
                     </button>
                 ) : (
                     <button
-                        className="welcome-action-button text-xs py-1 px-3 bg-green-500/20 text-green-300 hover:bg-green-500/40"
+                        className="primary-button text-[11px] py-1 px-3 bg-gray-700 hover:bg-gray-600"
                         onClick={runServer}
                     >
-                        Run
+                        Start
                     </button>
                 )}
             </div>

@@ -49,21 +49,25 @@ export function FeedbackArea() {
 
     const customStyles = {
         overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-end',
             zIndex: 10000,
         },
         content: {
-            padding: 'none',
-            bottom: 'none',
-            background: 'none',
-            border: 'none',
-            marginLeft: 'auto',
-            marginRight: 'auto',
+            padding: '0',
+            top: '40px',
             right: '40px',
-            left: 'none',
-            width: '300px',
+            left: 'auto',
+            bottom: 'auto',
+            background: 'var(--black-elevated)',
+            border: '1px solid var(--ui-border)',
+            width: '400px',
+            height: 'auto',
+            maxHeight: '80vh',
+            borderRadius: 'var(--radius-xl)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
         },
     }
 
@@ -129,41 +133,8 @@ export const LeftSide = () => {
             className="w-full h-full leftside"
             style={{ display: 'flex', flexDirection: 'column' }}
         >
-            <div
-                className="leftside__header"
-                style={{
-                    height: '35px',
-                    minHeight: '35px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '0 12px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: 'var(--ui-fg)',
-                    letterSpacing: '0.4px',
-                    textTransform: 'uppercase',
-                    borderBottom: '1px solid var(--pane-border)',
-                    userSelect: 'none',
-                    backgroundColor: 'var(--sidebar-bg)',
-                    flexShrink: 0,
-                    zIndex: 10,
-                }}
-            >
-                {activeTab === 'filetree' ? 'Explorer' : activeTab}
-            </div>
-            {/* A div to display the content of the active tab */}
-            <div
-                className="leftside__filetree_container"
-                style={{
-                    flexGrow: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    minHeight: 0,
-                    overflow: 'hidden',
-                }}
-            >
+            <div className="flex-1 min-h-0 overflow-hidden relative">
                 {renderTabContent()}
-                <div className="cover-bar"></div>
             </div>
         </div>
     )
@@ -265,30 +236,12 @@ function SearchComponent() {
     }
 
     return (
-        <div
-            className="search-container"
-            style={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                backgroundColor: 'var(--left-pane-background)',
-            }}
-        >
-            <div className="search-bar" style={{ padding: '12px 16px' }}>
+        <div className="search-container flex flex-col h-full bg-transparent">
+            <div className="left-pane-header">Search</div>
+            <div className="search-input-wrapper border-b border-ui-border-subtle/50">
                 <textarea
-                    className="search-textarea w-full"
-                    placeholder="Search"
-                    style={{
-                        backgroundColor: 'var(--input-bg)',
-                        color: 'var(--input-fg)',
-                        border: '1px solid var(--input-border)',
-                        borderRadius: '2px',
-                        padding: '4px 8px',
-                        fontSize: '13px',
-                        outline: 'none',
-                        resize: 'none',
-                        minHeight: '28px',
-                    }}
+                    className="search-input !bg-white/5 !border-white/10 focus:!border-accent/50"
+                    placeholder="Search in files..."
                     value={query}
                     onChange={handleTextareaChange}
                     onKeyDown={(e) => {
@@ -300,16 +253,10 @@ function SearchComponent() {
                     }}
                     ref={textareaRef}
                 />
-                {/* A button for the search icon, that triggers the search */}
-                {/* <button className="search-button" onClick={() => throttledSearch(query)}>
-          <i className="fa fa-search"></i>
-        </button> */}
             </div>
             {/* A div to display the search results */}
-            <div
-                className="search-results"
-                style={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}
-            >
+
+            <div className="search-results-container no-scrollbar">
                 {/* A conditional rendering to show a message if there are no results */}
                 {results.length === 0 && query !== '' && (
                     <div
@@ -334,10 +281,6 @@ function SearchComponent() {
         </div>
     )
 }
-
-// Now write the transformResults function.
-// This is an example of the input
-// {"type":"match","data":{"path":{"text":"/Users/amansanger/portal/src/features/globalSlice.ts"},"lines":{"text":"import { EditorView, ViewUpdate } from '@codemirror/view';\\n"},"line_number":1,"absolute_offset":0,"submatches":[{"match":{"text":"codemirror"},"start":41,"end":51}]}}
 
 // Now write an interface for the input
 interface RawResult {
@@ -380,9 +323,12 @@ function FileResultComponent({ result }: { result: FileLevelResult }) {
     }
 
     return (
-        <div className="search-result text-white">
+        <div className="search-result-item text-white border-b border-ui-border-subtle/10 last:border-0">
             {/* Tailwind arrange children to be horizontally adjacent*/}
-            <div className="folder__line" onClick={toggleLineResults}>
+            <div
+                className="folder__line hover:bg-white/5 transition-all cursor-pointer py-2 px-3"
+                onClick={toggleLineResults}
+            >
                 <div className="folder__icon">
                     {showLineResults ? (
                         <FontAwesomeIcon icon={faChevronDown} />
@@ -418,14 +364,7 @@ function LineResultComponent({ result }: { result: RawResult }) {
 
     return (
         <div
-            className="folder__line"
-            style={{
-                paddingLeft: '40px',
-                height: 'auto',
-                minHeight: '22px',
-                alignItems: 'flex-start',
-                paddingRight: '12px',
-            }}
+            className="search-line-result"
             onClick={() =>
                 dispatch(
                     openFile({
@@ -446,15 +385,8 @@ function LineResultComponent({ result }: { result: RawResult }) {
                 )
             }
         >
-            <div className="line-number">{result.data.line_number}</div>
-            <div
-                className="filename"
-                style={{
-                    whiteSpace: 'pre',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                }}
-            >
+            <div className="search-line-number">{result.data.line_number}</div>
+            <div className="search-line-text">
                 {line.slice(0, start)}
                 <span className="highlight-search">
                     {line.slice(start, end)}

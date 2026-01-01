@@ -279,27 +279,27 @@ export const BottomTerminal: React.FC = () => {
 
     return (
         <div
-            className="flex flex-col w-full bg-black border-t border-[#333]"
+            className="flex flex-col w-full bg-black border-t border-gray-900"
             style={{ height: height }}
         >
             {/* Dragger */}
             <div
-                className="w-full h-1 bg-[#252525] hover:bg-blue-500 cursor-row-resize transition-colors opacity-50 hover:opacity-100"
+                className="w-full h-1 bg-transparent hover:bg-accent cursor-row-resize transition-all opacity-0 hover:opacity-100"
                 onMouseDown={() => setIsDragging(true)}
             />
 
             {/* Header / Tabs Area */}
-            <div className="flex bg-[#111] h-9 border-b border-[#252525] items-center px-4 select-none justify-between">
-                <div className="flex items-center text-xs font-mono text-gray-400">
+            <div className="flex bg-black-soft h-9 border-b border-gray-900 items-center px-4 select-none justify-between">
+                <div className="flex items-center text-[11px] font-bold uppercase tracking-wider text-ui-fg-muted">
                     <FontAwesomeIcon
                         icon={faTerminal}
-                        className="mr-2 text-blue-400"
+                        className="mr-2 text-accent"
                     />
                     <span>Terminal</span>
                 </div>
                 <button
                     onClick={() => dispatch(gs.closeTerminal())}
-                    className="text-[#888] hover:text-white p-1 transition-colors"
+                    className="icon-button text-xs"
                     title="Close Panel"
                 >
                     <FontAwesomeIcon icon={faTimes} />
