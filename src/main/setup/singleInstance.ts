@@ -7,16 +7,12 @@ export default function setupSingleInstance() {
     if (!gotTheLock) {
         app.quit()
     } else {
-        app.on('second-instance', (_event, commandLine) => {
+        app.on('second-instance', (_event, _commandLine) => {
             // Someone tried to run a second instance, we should focus our window.
             if (mainWindow.hasCrated()) {
                 const { win } = mainWindow
                 if (win!.isMinimized()) win!.restore()
                 win!.focus()
-            }
-            const url = commandLine.pop()
-            if (url) {
-                // console.log('Second instance URL: ' + url)
             }
         })
     }

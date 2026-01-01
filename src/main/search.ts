@@ -105,8 +105,6 @@ const searchWithGrep = async (arg: any) => {
     // Use -- to separate flags from query/path
     cmdArgs.push('--', arg.query, arg.rootPath)
 
-    console.log('Spawning grep with args:', cmdArgs)
-
     // Using spawn to stream results
     // Try adding --line-buffered if available, but be careful with BSD/GNU diffs
     // macOS (BSD) supports --line-buffered
@@ -177,7 +175,6 @@ const searchWithGrep = async (arg: any) => {
 
     await new Promise((resolve) => {
         childProcess.on('close', (code) => {
-            console.log('Grep process closed with code:', code)
             resolve(code)
         })
         childProcess.on('error', (_err) => {

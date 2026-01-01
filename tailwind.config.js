@@ -4,7 +4,6 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                // Oxocarbon color palette - Premium Dark Edition
                 oxo: {
                     base00: '#0a0a0a',
                     base01: '#141414',

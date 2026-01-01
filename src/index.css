@@ -191,8 +191,8 @@ body {
 
 .search-input {
     width: 100%;
-    background-color: var(--black-subtle) !important;
-    border: 1px solid var(--gray-800) !important;
+    background-color: var(--black-subtle);
+    border: 1px solid var(--gray-800);
     border-radius: var(--radius-sm);
     padding: 8px 12px;
     color: var(--ui-fg);
@@ -204,8 +204,30 @@ body {
 }
 
 .search-input:focus {
-    border-color: var(--accent) !important;
-    background-color: var(--black) !important;
+    border-color: var(--accent);
+    background-color: var(--black);
+}
+
+.settings-input {
+    width: 100%;
+    background-color: var(--black-subtle);
+    border: 1px solid var(--gray-800);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    color: var(--ui-fg);
+    font-size: 13px;
+    outline: none;
+    font-family: var(--font-mono);
+    transition: all 0.2s ease;
+}
+
+.settings-input:focus {
+    border-color: var(--accent);
+    background-color: var(--black);
+}
+
+.settings-input.error {
+    border-color: var(--red);
 }
 
 .search-input::placeholder {
@@ -2039,7 +2061,7 @@ button:hover {
 
 input[type='file']::before {
     background-color: black;
-    background-color: blue;
+
 }
 
 .__react_component_tooltip.show {
@@ -4165,3 +4187,22 @@ cm-diff-cancel > div {
     color: var(--ui-fg);
 }
 
+
+/* Global override for browser autofill styles to remove blue background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--black-subtle) inset !important;
+    -webkit-text-fill-color: var(--ui-fg) !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: var(--ui-fg);
+}

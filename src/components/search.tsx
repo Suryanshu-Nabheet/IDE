@@ -247,7 +247,7 @@ function SearchComponent() {
             <div className="left-pane-header">Search</div>
             <div className="search-input-wrapper border-b border-ui-border-subtle/50">
                 <textarea
-                    className="search-input !bg-white/5 !border-white/10 focus:!border-accent/50"
+                    className="search-input"
                     placeholder="Search in files..."
                     value={query}
                     onChange={handleTextareaChange}

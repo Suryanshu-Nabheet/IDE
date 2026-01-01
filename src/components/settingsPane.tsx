@@ -308,9 +308,9 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
             </div>
             <div className="flex gap-2">
                 <input
-                    className={`settings-input !bg-[#1a1a1a] !border-[#333] focus:!border-white focus:!bg-black focus:!shadow-none ${
-                        keyError ? '!border-red-500' : ''
-                    }`}
+                    className={cx('settings-input', {
+                        error: keyError,
+                    })}
                     placeholder="sk-..."
                     onChange={(e) => setLocalAPIKey(e.target.value)}
                     value={localAPIKey || ''}
