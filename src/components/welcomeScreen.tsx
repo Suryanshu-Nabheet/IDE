@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks'
 import * as gs from '../features/globalSlice'
 import { dismissWelcome } from '../features/tools/toolSlice'
 import { toggleSettings } from '../features/settings/settingsSlice'
-import { getRecentProjects } from '../features/selectors'
+import { getRecentProjects, getVersion } from '../features/selectors'
 import posthog from 'posthog-js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -20,6 +20,7 @@ import { getNameFromPath } from '../features/window/fileUtils'
 export function WelcomeScreen() {
     const dispatch = useAppDispatch()
     const recentProjects = useAppSelector(getRecentProjects)
+    const version = useAppSelector(getVersion) as string
 
     useEffect(() => {
         posthog.capture('Welcome Screen Viewed')
@@ -185,7 +186,8 @@ export function WelcomeScreen() {
 
                 <footer className="welcome-footer">
                     <div className="welcome-author">
-                        V1.0.0 &mdash; BUILT BY <span>SURYANSHU NABHEET</span>
+                        V{version?.toUpperCase() || '0.0.11'} &mdash; BUILT BY{' '}
+                        <span>SURYANSHU NABHEET</span>
                     </div>
                 </footer>
             </div>

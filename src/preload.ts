@@ -240,13 +240,11 @@ const electronConnector = {
     saveUploadPreference: (data: any) =>
         ipcRenderer.invoke('saveUploadPreference', data),
 
-    setStore: (key: string, blob: any) => {
-        ipcRenderer.invoke('setStore', { key, blob })
-    },
+    setStore: (key: string, blob: any) =>
+        ipcRenderer.invoke('setStore', { key, blob }),
     getStore: (key: string) => ipcRenderer.invoke('getStore', key),
-    appendToArray: (arrayKey: string, value: any) => {
-        ipcRenderer.invoke('appendToArray', { arrayKey, value })
-    },
+    appendToArray: (arrayKey: string, value: any) =>
+        ipcRenderer.invoke('appendToArray', { arrayKey, value }),
     getAllArrayValues: (key: string) =>
         ipcRenderer.invoke('getAllArrayValues', key),
 

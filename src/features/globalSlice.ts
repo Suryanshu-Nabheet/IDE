@@ -65,7 +65,7 @@ import {
 
 import { CustomTransaction } from '../components/codemirrorHooks/dispatch'
 import { updateCommentsForFile } from './comment/commentSlice'
-import { expandLeftSide, openFileTree } from './tools/toolSlice'
+import { dismissWelcome, expandLeftSide, openFileTree } from './tools/toolSlice'
 import { updateTestsForFile } from './tests/testSlice'
 
 import posthog from 'posthog-js'
@@ -535,8 +535,9 @@ export const openRemoteFolder = createAsyncThunk(
             dispatch(initializeIndex(null))
         }
 
-        // dispatch(monitorUploadProgress(null))
-        // dispatch(loadRecur(4))
+        // Add to recent projects
+        await connector.appendToArray('recentProjects', folderPath)
+        dispatch(loadRecentProjects())
 
         const remote = await connector.getRemote()
 
@@ -598,6 +599,7 @@ export const openFolder = createAsyncThunk(
 
         // Now we are going to setup the lsp server
         await dispatch(startConnections(folderPath))
+        dispatch(dismissWelcome())
 
         const version = await connector.getVersion()
         dispatch(setVersion(version))
@@ -610,8 +612,9 @@ export const openFolder = createAsyncThunk(
             dispatch(initializeIndex(null))
         }
 
-        // dispatch(monitorUploadProgress(null))
-        // dispatch(loadRecur(4))
+        // Add to recent projects
+        await connector.appendToArray('recentProjects', folderPath)
+        dispatch(loadRecentProjects())
 
         const remote = await connector.getRemote()
 
@@ -669,6 +672,7 @@ export const trulyOpenFolder = createAsyncThunk(
 
         // Now we are going to setup the lsp server
         dispatch(startConnections(args))
+        dispatch(dismissWelcome())
 
         // Setup the project by uploading all files to a remote server
 
@@ -1588,9 +1592,12 @@ const globalSlice = createSlice({
             state.terminalOpen = !state.terminalOpen
         },
         setRecentProjects(state: State, action: PayloadAction<string[]>) {
-            // Filter out duplicates and reverse to show most recent first
-            const unique = Array.from(new Set(action.payload)).filter(Boolean)
-            state.recentProjects = unique.reverse().slice(0, 10)
+            // Keep the last occurrence of each path and show most recent first
+            const reversed = [...action.payload].reverse()
+            const unique = reversed.filter(
+                (item, index, self) => self.indexOf(item) === index
+            )
+            state.recentProjects = unique.slice(0, 10).filter(Boolean)
         },
     },
 })
