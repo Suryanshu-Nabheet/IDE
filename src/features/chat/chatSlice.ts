@@ -67,14 +67,14 @@ export function getLastBotMessage(
 export const beforeAppendResponse = createAsyncThunk(
     'chat/appendResponse',
     async (
-        payload: { text: string; token: string },
-        { getState, dispatch }
+        _payload: { text: string; token: string },
+        { getState: _getState, dispatch: _dispatch }
     ) => {}
 )
 export const chatSlice = createSlice({
     name: 'chat',
     initialState: initialChatState as ChatState,
-    extraReducers: (builder) => {},
+    extraReducers: (_builder) => {},
     reducers: {
         addOtherBlockToMessage(
             chatState: ChatState,
@@ -184,22 +184,6 @@ export const chatSlice = createSlice({
             //     // if not ends with a newline
             //     //if (!lastMessage.message.endsWith('\n')) lastMessage.message += '\n';
             // }
-        },
-        testMessage(chatState: ChatState) {
-            const lastUserMessage = chatState.userMessages.at(-1)!
-            // to do
-            chatState.botMessages.push({
-                sender: 'bot',
-                sentAt: Date.now(),
-                type: 'markdown',
-                conversationId: lastUserMessage.conversationId,
-                lastToken: '',
-                message:
-                    '# Hello World\n## This is a title\n###Lorem Ipsum\n this is a test',
-                finished: false,
-                currentFile: lastUserMessage.currentFile,
-                interrupted: false,
-            })
         },
         activateDiffFromEditor(
             chatState: ChatState,
@@ -547,7 +531,6 @@ export const {
     activateDiffFromEditor,
     abortCommandBar,
     endFinishResponse,
-    testMessage,
     addOtherBlockToMessage,
     removeCodeBlock,
     openCommandBar,

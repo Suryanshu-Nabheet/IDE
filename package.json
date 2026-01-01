@@ -20,8 +20,7 @@
         "precommit": "pretty-quick --staged",
         "prepare": "cd .. && husky install .husky",
         "start": "electron-forge start",
-        "test": "jest",
-        "todesktop:beforeInstall": "./scripts/beforeInstall.js"
+        "test": "jest"
     },
     "keywords": [],
     "license": "MIT",
@@ -107,7 +106,7 @@
         "@reduxjs/toolkit": "^1.9.1",
         "@replit/codemirror-css-color-picker": "^6.0.0",
         "@replit/codemirror-emacs": "^6.0.0",
-        "@todesktop/runtime": "^1.2.1",
+
         "@types/node": "^18.11.17",
         "@types/node-fetch": "^2.6.2",
         "@types/react": "^18.0.26",

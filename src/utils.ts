@@ -65,46 +65,6 @@ export async function* streamSource(response: Response): AsyncGenerator<any> {
         throw new Error('Response is not an event-stream')
     }
 }
-// Another streaming function similar to streamSource, but slightly different
-export async function* anotherStreamSource(
-    response: Response
-): AsyncGenerator<any> {
-    // Check if the response is an event-stream
-    if (
-        response.headers.get('content-type') ==
-        'text/event-stream; charset=utf-8'
-    ) {
-        // Create a reader to read the response body as a stream
-        const reader = response.body!.getReader()
-        // Create a decoder to decode the stream as UTF-8 text
-        const decoder = new TextDecoder('utf-8')
-
-        // Loop until the stream is done
-        while (true) {
-            const { value, done } = await reader.read()
-            if (done) {
-                break
-            }
-
-            const rawValue = decoder.decode(value)
-            const lines = rawValue.split('\n')
-
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const jsonString = line.slice(6)
-                    if (jsonString == '[DONE]') {
-                        return
-                    }
-                    // Slightly different: wrap the parsed JSON object in an additional object
-                    yield { data: JSON.parse(jsonString) }
-                }
-            }
-        }
-    } else {
-        // Raise exception
-        throw new Error('Response is not an event-stream')
-    }
-}
 
 export function getPlatformInfo(): {
     PLATFORM_DELIMITER: string

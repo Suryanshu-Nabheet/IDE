@@ -92,13 +92,28 @@ const searchWithGrep = async (arg: any) => {
     )
 
     // Explicitly add user provided bad paths
+    // Explicitly add user provided bad paths
     for (const badPath of arg.badPaths) {
         cmdArgs.push(`--exclude-dir=${path.basename(badPath)}`)
     }
 
-    cmdArgs.push(arg.query, arg.rootPath)
+    if (!arg.rootPath) {
+        console.error('Root path is missing for grep search')
+        return []
+    }
+
+    // Use -- to separate flags from query/path
+    cmdArgs.push('--', arg.query, arg.rootPath)
+
+    console.log('Spawning grep with args:', cmdArgs)
 
     // Using spawn to stream results
+    // Try adding --line-buffered if available, but be careful with BSD/GNU diffs
+    // macOS (BSD) supports --line-buffered
+    if (process.platform === 'darwin' || process.platform === 'linux') {
+        cmdArgs.unshift('--line-buffered')
+    }
+
     const childProcess = cp.spawn('grep', cmdArgs)
     const rawData: string[] = []
 
@@ -162,12 +177,18 @@ const searchWithGrep = async (arg: any) => {
 
     await new Promise((resolve) => {
         childProcess.on('close', (code) => {
+            console.log('Grep process closed with code:', code)
             resolve(code)
         })
         childProcess.on('error', (_err) => {
-            // grep might fail if no matches or other issues
+            console.error('Grep process error:', _err)
             resolve(1)
         })
+        if (childProcess.stderr) {
+            childProcess.stderr.on('data', (data) => {
+                console.error('Grep stderr:', data.toString())
+            })
+        }
     })
 
     return rawData

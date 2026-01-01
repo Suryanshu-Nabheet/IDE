@@ -45,19 +45,12 @@ import Modal from 'react-modal'
 export function PreBlock({ children }: { children: ReactNode | ReactNode[] }) {
     function getResult(child: ReactNode) {
         if (React.isValidElement(child)) {
-            if (child.props.className) {
-                return (
-                    <CodeBlock className={child.props.className}>
-                        {child.props.children}
-                    </CodeBlock>
-                )
-            } else {
-                return (
-                    <CodeBlock className="language-plaintext">
-                        {child.props.children}
-                    </CodeBlock>
-                )
-            }
+            const className = child.props.className || 'language-plaintext'
+            return (
+                <CodeBlock className={className}>
+                    {child.props.children}
+                </CodeBlock>
+            )
         }
     }
     if (Array.isArray(children)) {
@@ -200,33 +193,32 @@ export function CodeBlock({
         }
     }, [children])
     // Return a div element with the ref
-    if (!codeButton || !copyable) {
-        if (className == '') return <div className="codeblock" ref={ref}></div>
-        else return <div className="codeblock result-codeblock" ref={ref}></div>
-    } else {
-        return (
-            <>
-                <div className="codeblockwrapper">
-                    <button
-                        className="copyButton"
-                        onClick={() => {
-                            if (viewRef.current) {
-                                navigator.clipboard.writeText(
-                                    viewRef.current.state.doc.toString()
-                                )
-                            }
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faCopy} />
-                    </button>
-                    <div
-                        className="codeblock display_text_wrapping"
-                        ref={ref}
-                    ></div>
-                </div>
-            </>
-        )
-    }
+    return (
+        <div className="codeblockwrapper my-4">
+            {codeButton && copyable && (
+                <button
+                    className="copyButton"
+                    onClick={() => {
+                        if (viewRef.current) {
+                            navigator.clipboard.writeText(
+                                viewRef.current.state.doc.toString()
+                            )
+                        }
+                    }}
+                    title="Copy Code"
+                >
+                    <FontAwesomeIcon icon={faCopy} />
+                </button>
+            )}
+            <div
+                className={cx('codeblock w-full overflow-hidden', {
+                    'result-codeblock': className !== '',
+                    display_text_wrapping: true,
+                })}
+                ref={ref}
+            />
+        </div>
+    )
 }
 
 export function CommandBarActionTips(props: {
@@ -290,10 +282,6 @@ export function ChatPopup() {
     //     dispatch(cs.toggleChatHistory())
     // }
 
-    const commandBarActionTips = isChatHistoryOpen
-        ? [ActionTips.CLOSE]
-        : [ActionTips.HISTORY, ActionTips.CLOSE]
-
     function handleMouseDown() {
         if (document.activeElement) {
             const el = document.activeElement as HTMLElement
@@ -304,40 +292,24 @@ export function ChatPopup() {
         <>
             {isChatOpen && (
                 <div
-                    className="chatpopup flex"
+                    className="chatpopup w-full h-full flex flex-col"
                     onMouseDown={handleMouseDown}
-                    onKeyDown={(e) => {
-                        if (e.metaKey) {
-                            if (e.key === 'k') {
-                                dispatch(ct.pressAICommand('k'))
-                            }
-                        }
-                    }}
                 >
-                    {/* Subtle padding to separate content from scroll bar*/}
-                    <div>
-                        <div className="markdownpopup__dismiss h-8 flex flex-col mt-3  items-center">
-                            <CommandBarActionTips tips={commandBarActionTips} />
-                        </div>
-                        <div className="chatpopup__content  px-4 overflow-auto ">
-                            <div className="flex flex-col space-y-2">
-                                {markdownPopups}
-                            </div>
-                            <div
-                                className={cx('my-4', {
-                                    'opacity-100': !isGenerating,
-                                    'opacity-0': isGenerating,
-                                })}
-                                ref={commandBoxRef}
-                            >
-                                {!isGenerating && (
-                                    <CommandBar parentCaller={'chat'} />
-                                )}
-                            </div>
+                    <div className="flex-1 overflow-auto px-4 py-2 space-y-4 scroll-smooth">
+                        {markdownPopups}
+                        <div ref={commandBoxRef} className="pb-4">
+                            {!isGenerating && (
+                                <CommandBar parentCaller={'chat'} />
+                            )}
                         </div>
                     </div>
                     {isChatHistoryOpen && (
-                        <ChatHistory onSelect={handleSelectHistory} />
+                        <div className="border-t border-ui-border bg-black-elevated/50 backdrop-blur-md">
+                            <ChatHistory
+                                onSelect={handleSelectHistory}
+                                onClose={() => dispatch(cs.toggleChatHistory())}
+                            />
+                        </div>
                     )}
                 </div>
             )}
@@ -400,28 +372,11 @@ export function MarkdownPopup({
             {((message?.sender == 'bot' && message.type === 'markdown') ||
                 message?.sender == 'user') &&
                 !dismissed && (
-                    <div className={cx(className, 'px-6 py-4 rounded-lg')}>
+                    <div className={cx(className, 'p-4')}>
                         <div
                             className="markdownpopup__content"
                             ref={reactMarkdownRef}
                         >
-                            {/*                             <Markdown
-                                options={{
-                                    overrides: {
-                                        a: {
-                                            component: CustomLink,
-                                        },
-                                        pre: {
-                                            component: PreBlock,
-                                        },
-                                        code: {
-                                            component: CodeBlock,
-                                        } 
-                                    }
-                                }}
-                            >
-                                {formattedMessage}
-                            </Markdown> */}
                             <ReactMarkdown
                                 components={{
                                     pre: PreBlock,
@@ -431,16 +386,6 @@ export function MarkdownPopup({
                             >
                                 {formattedMessage}
                             </ReactMarkdown>
-                        </div>
-                        <div className={'apply-button-holder'}>
-                            {/*                             {last && (
-                                <button
-                                    className="apply-button"
-                                    onClick={onApply}
-                                >
-                                    Attempt Change
-                                </button>
-                            )} */}
                         </div>
                     </div>
                 )}

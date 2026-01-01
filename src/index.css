@@ -1802,64 +1802,82 @@ input[type='file']::before {
     box-sizing: border-box;
 }
 
+/* ============================================
+   COMMAND BAR
+   ============================================ */
 .commandBar__container {
-    /* center of the screen */
-    z-index: 100000;
-}
-
-.commandBar,
-.commandBar__input {
-    z-index: 100000;
-    background-color: var(--input-background);
-    color: var(--input-text);
-    width: 100%;
+    z-index: 10000;
 }
 
 .commandBar {
-    width: 100%;
-    padding: 16px 24px 10px 24px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+    background-color: var(--black-elevated);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: var(--spacing-md);
     display: flex;
-    justify-content: center;
     flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.commandBar:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--accent);
 }
 
 .commandBar__input_container {
     display: flex;
-    align-items: center;
-}
-
-.file__lines {
-    color: #999;
-}
-
-.file__close_button {
-    color: #fff;
-    margin-left: auto;
-}
-
-.commandBar__codelink {
-    background-color: #222;
-    border-radius: 5px;
-    padding: 8px;
-    margin-top: 8px;
-}
-
-.commandBar__linkarea {
-    margin-top: 8px;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
 }
 
 .commandBar__input {
+    background: transparent;
+    border: none;
+    color: var(--ui-fg);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    width: 100%;
     outline: none !important;
     resize: none;
-    width: 100%;
-    font-size: 16px;
+    padding: var(--spacing-xs) 0;
+}
+
+.commandBar__input::placeholder {
+    color: var(--ui-fg-muted);
+    opacity: 0.6;
 }
 
 .commandBar .file__path {
-    color: #999;
+    color: var(--ui-fg-muted);
+    font-size: var(--font-size-xs);
+    opacity: 0.7;
 }
+
+.tipArea {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: var(--ui-fg-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tipKeyCommand {
+    background-color: var(--black-soft);
+    border: 1px solid var(--ui-border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--ui-fg);
+    font-family: var(--font-mono);
+}
+
 
 .cm-accept-reject,
 .cm-diff-loading {
@@ -2001,65 +2019,88 @@ cm-diff-cancel > div {
 .messages-container {
     overflow: auto;
 }
+/* ============================================
+   CHAT & MARKDOWN POPUPS - Premium Black Theme
+   ============================================ */
 .userpopup {
     margin-left: auto;
-    background-color: #497ddf;
-    opacity: 0.95;
-    color: #eee;
-    max-width: 300px;
+    background-color: var(--accent);
+    color: var(--white);
+    max-width: 85%;
     width: fit-content;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: var(--spacing-md);
 }
+
 .markdownpopup {
-    background-color: #4c5360;
-    color: #eee;
-    width: 480px;
-    opacity: 0.95;
+    background-color: var(--black-elevated);
+    color: var(--ui-fg);
+    width: 100%;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--ui-border);
+    padding: var(--spacing-lg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     user-select: text;
-    /* max-height: 80vh; */
     overflow-y: auto;
+    margin-bottom: var(--spacing-md);
 }
 
 .markdownpopup a {
-    color: #497ddf;
-    text-decoration: underline;
+    color: var(--blue-light);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--blue-light);
+    transition: color 0.1s ease;
 }
 
-.markdownpopup__content h1 {
-    font-size: 24px;
-    font-weight: bold;
+.markdownpopup a:hover {
+    color: var(--blue-bright);
+    border-bottom-style: solid;
 }
 
-.markdownpopup__content h2 {
-    font-size: 20px;
-    font-weight: bold;
+.markdownpopup__content h1, 
+.markdownpopup__content h2, 
+.markdownpopup__content h3 {
+    color: var(--ui-fg);
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
 }
+
+.markdownpopup__content h1 { font-size: 1.4rem; border-bottom: 1px solid var(--ui-border); padding-bottom: 0.3em; }
+.markdownpopup__content h2 { font-size: 1.2rem; }
+.markdownpopup__content h3 { font-size: 1.1rem; }
 
 .markdownpopup__content p {
-    font-size: 16px;
-}
-
-.markdownpopup__content {
-    /*margin-bottom: 24px;*/
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    margin-bottom: 1em;
+    color: var(--gray-200);
 }
 
 .markdownpopup__dismiss {
-    /*   position: absolute;
-  top: 16px;
-  right: 16px; */
-    margin-left: auto;
-    width: fit-content;
+    color: var(--ui-fg-muted);
+    transition: color 0.1s ease;
     cursor: pointer;
-    color: #eee;
+    font-size: 12px;
+}
+
+.markdownpopup__dismiss:hover {
+    color: var(--ui-fg);
 }
 
 .chatpopup__content {
-    max-height: 76vh;
+    max-height: 70vh;
 }
 
 .markdownpopup .cm-content {
-    max-width: 50ch;
-    min-width: 50ch;
+    font-family: var(--font-mono);
+    font-size: 13px;
 }
+
 
 .code__span {
     font-family: monospace;
