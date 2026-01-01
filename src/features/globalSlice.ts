@@ -720,9 +720,9 @@ export const initState = createAsyncThunk(
         const settings = await connector.initSettings()
         dispatch(changeSettingsNoSideffect(settings))
 
-        if (config != null && config.defaultFolder) {
-            await dispatch(trulyOpenFolder(config.defaultFolder))
-        }
+        // if (config != null && config.defaultFolder) {
+        //     await dispatch(trulyOpenFolder(config.defaultFolder))
+        // }
 
         const isNotFirstTime =
             (await connector.getStore('isNotFirstTime')) || false
