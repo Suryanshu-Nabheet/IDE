@@ -69,15 +69,21 @@ export function setupTerminal(mainWindow: any, rootPath?: string) {
                 try {
                     // On Unix systems, verify shell exists before spawning
                     if (process.platform !== 'win32') {
-                        require('child_process').execSync(
+                        const result = require('child_process').execSync(
                             `command -v ${shell}`,
                             {
-                                stdio: 'ignore',
+                                encoding: 'utf-8',
                             }
                         )
+                        const foundPath = result.trim()
+                        if (foundPath && fs.existsSync(foundPath)) {
+                            shellToUse = foundPath
+                            break
+                        }
+                    } else {
+                        shellToUse = shell
+                        break
                     }
-                    shellToUse = shell
-                    break
                 } catch (error) {
                     // continue
                 }
