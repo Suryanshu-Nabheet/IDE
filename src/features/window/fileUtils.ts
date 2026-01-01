@@ -192,9 +192,12 @@ export function findFolderIdFromPath(state: State, path: string) {
         path = path.slice(1)
     }
     let folder
-    if (path.toLowerCase().startsWith(state.rootPath!.toLowerCase())) {
+    if (
+        state.rootPath &&
+        path.toLowerCase().startsWith(state.rootPath.toLowerCase())
+    ) {
         // First we remove state.rootPath from path
-        path = path.slice(state.rootPath!.length)
+        path = path.slice(state.rootPath.length)
         folder = getRootFolder(state)
     } else {
         folder = getVeryRootFolder(state)
@@ -302,10 +305,11 @@ export function insertNewFolder(
         isOpen: false,
     }
     state.folders[folderId] = folder
-    state.folders[parentFolderId].folderIds.push(folderId)
-
-    // sort the files
-    sortFolder(state, parentFolderId)
+    if (state.folders[parentFolderId]) {
+        state.folders[parentFolderId].folderIds.push(folderId)
+        // sort the files
+        sortFolder(state, parentFolderId)
+    }
 
     return folderId
 }
@@ -324,14 +328,15 @@ export function insertNewFile(
         saved: true,
     }
     state.files[fileid] = file
-    state.folders[parentFolderId].fileIds.push(fileid)
+    if (state.folders[parentFolderId]) {
+        state.folders[parentFolderId].fileIds.push(fileid)
+        // sort the files
+        sortFolder(state, parentFolderId)
+    }
 
     // set the file cache
     createCachedFileIfNotExists(state, fileid)
     state.fileCache[fileid].contents = ''
-
-    // sort the files
-    sortFolder(state, parentFolderId)
 
     return fileid
 }
@@ -545,7 +550,9 @@ export const fileSlice = createSlice({
         ) => {
             const { fileid, file, parentFolderId } = action.payload
             const state = <State>stobj
-            state.folders[parentFolderId].fileIds.push(fileid)
+            if (state.folders[parentFolderId]) {
+                state.folders[parentFolderId].fileIds.push(fileid)
+            }
             state.files[fileid] = file
         },
     },

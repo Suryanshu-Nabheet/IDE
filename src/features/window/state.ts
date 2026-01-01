@@ -142,8 +142,8 @@ export interface State {
     remoteBad: boolean
 
     isNotFirstTime: boolean
-
     terminalOpen: boolean
+    recentProjects: string[]
 }
 
 export interface DiffSpan {
@@ -474,6 +474,7 @@ export const initialState = {
 
     isNotFirstTime: true,
     terminalOpen: false,
+    recentProjects: [],
 } as State
 
 export function nextValue(keys: string[]) {

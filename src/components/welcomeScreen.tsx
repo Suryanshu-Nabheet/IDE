@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
-import { useAppDispatch } from '../app/hooks'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
 import * as gs from '../features/globalSlice'
 import { dismissWelcome } from '../features/tools/toolSlice'
 import { toggleSettings } from '../features/settings/settingsSlice'
+import { getRecentProjects } from '../features/selectors'
 import posthog from 'posthog-js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -11,143 +12,181 @@ import {
     faCodeBranch,
     faCog,
     faKeyboard,
+    faGraduationCap,
+    faClock,
 } from '@fortawesome/pro-regular-svg-icons'
+import { getNameFromPath } from '../features/window/fileUtils'
 
 export function WelcomeScreen() {
     const dispatch = useAppDispatch()
+    const recentProjects = useAppSelector(getRecentProjects)
 
     useEffect(() => {
         posthog.capture('Welcome Screen Viewed')
     }, [])
 
-    const handleAction = (action: string) => {
+    const handleAction = (action: string, payload?: any) => {
         posthog.capture('Welcome Action', { action })
         if (action === 'new_file') {
             dispatch(gs.newFile({ parentFolderId: null }))
             dispatch(dismissWelcome())
         } else if (action === 'open_folder') {
             dispatch(gs.openFolder(null))
-            // dismissWelcome might not be needed if folder opening triggers state change
         } else if (action === 'clone_repo') {
             dispatch(gs.openRemotePopup())
+        } else if (action === 'interactive_tutorial') {
+            dispatch(gs.openTutorFolder(null))
+            dispatch(dismissWelcome())
+        } else if (action === 'open_recent') {
+            dispatch(gs.trulyOpenFolder(payload))
+            dispatch(dismissWelcome())
         }
     }
 
     return (
         <div className="welcome-container">
             <div className="welcome-content">
-                <div className="welcome-header">
-                    <div className="welcome-overline">The Future of Coding</div>
+                <header className="welcome-header">
                     <h1 className="welcome-title">CodeX</h1>
                     <p className="welcome-tagline">
-                        An elite, AI-powered IDE engineered for excellence.
-                        <br />
-                        Built by Suryanshu Nabheet.
+                        The evolution of intelligent software engineering.
+                        Engineering flow state for the modern developer.
                     </p>
-                </div>
+                </header>
 
-                <div className="welcome-grid">
-                    <div className="welcome-section">
-                        <div className="welcome-section-title">Start</div>
+                <main className="welcome-grid">
+                    <section className="welcome-section">
+                        <h2 className="welcome-section-title">Start</h2>
                         <div className="welcome-card-list">
                             <button
                                 className="welcome-action-button"
                                 onClick={() => handleAction('new_file')}
                             >
-                                <div className="welcome-action-icon">
+                                <span className="welcome-action-icon">
                                     <FontAwesomeIcon icon={faFilePlus} />
-                                </div>
-                                <div className="welcome-action-text">
+                                </span>
+                                <span className="welcome-action-text">
                                     New File
-                                </div>
+                                </span>
                             </button>
                             <button
                                 className="welcome-action-button"
                                 onClick={() => handleAction('open_folder')}
                             >
-                                <div className="welcome-action-icon">
+                                <span className="welcome-action-icon">
                                     <FontAwesomeIcon icon={faFolderOpen} />
-                                </div>
-                                <div className="welcome-action-text">
-                                    Open Folder...
-                                </div>
+                                </span>
+                                <span className="welcome-action-text">
+                                    Open Workspace
+                                </span>
                             </button>
                             <button
                                 className="welcome-action-button"
                                 onClick={() => handleAction('clone_repo')}
                             >
-                                <div className="welcome-action-icon">
+                                <span className="welcome-action-icon">
                                     <FontAwesomeIcon icon={faCodeBranch} />
-                                </div>
-                                <div className="welcome-action-text">
-                                    Open Remote / SSH
-                                </div>
+                                </span>
+                                <span className="welcome-action-text">
+                                    Clone Repository
+                                </span>
+                            </button>
+                            <button
+                                className="welcome-action-button"
+                                onClick={() =>
+                                    handleAction('interactive_tutorial')
+                                }
+                            >
+                                <span className="welcome-action-icon">
+                                    <FontAwesomeIcon icon={faGraduationCap} />
+                                </span>
+                                <span className="welcome-action-text">
+                                    Interactive Tutorial
+                                </span>
                             </button>
                         </div>
-                    </div>
 
-                    <div className="welcome-section">
-                        <div className="welcome-section-title">Recent</div>
-                        <div className="welcome-card-list">
-                            {/* Placeholder for Recent Projects */}
-                            <div className="welcome-recent-item">
-                                No recent projects
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="welcome-section">
-                        <div className="welcome-section-title">Help</div>
+                        <h2
+                            className="welcome-section-title"
+                            style={{ marginTop: '2.5rem' }}
+                        >
+                            Configuration
+                        </h2>
                         <div className="welcome-card-list">
                             <button
                                 className="welcome-action-button"
-                                onClick={() => {
-                                    dispatch(toggleSettings())
-                                }}
+                                onClick={() => dispatch(toggleSettings())}
                             >
-                                <div className="welcome-action-icon">
+                                <span className="welcome-action-icon">
                                     <FontAwesomeIcon icon={faKeyboard} />
-                                </div>
-                                <div className="welcome-action-text">
+                                </span>
+                                <span className="welcome-action-text">
                                     Key Bindings
-                                </div>
+                                </span>
                             </button>
                             <button
                                 className="welcome-action-button"
-                                onClick={() => {
-                                    dispatch(toggleSettings())
-                                }}
+                                onClick={() => dispatch(toggleSettings())}
                             >
-                                <div className="welcome-action-icon">
+                                <span className="welcome-action-icon">
                                     <FontAwesomeIcon icon={faCog} />
-                                </div>
-                                <div className="welcome-action-text">
-                                    Settings
-                                </div>
+                                </span>
+                                <span className="welcome-action-text">
+                                    Global Settings
+                                </span>
                             </button>
                         </div>
-                    </div>
-                </div>
+                    </section>
 
-                <div className="welcome-footer">
-                    {/* Footer info/checkbox */}
-                    <label
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <input
-                            type="checkbox"
-                            onChange={(e) => {
-                                if (e.target.checked) dispatch(dismissWelcome())
-                            }}
-                        />
-                        <span>Don't show this again</span>
-                    </label>
-                </div>
+                    <section className="welcome-section">
+                        <h2 className="welcome-section-title">Recent</h2>
+                        <div className="welcome-card-list">
+                            {recentProjects.length > 0 ? (
+                                recentProjects.map((path) => (
+                                    <button
+                                        key={path}
+                                        className="welcome-action-button"
+                                        onClick={() =>
+                                            handleAction('open_recent', path)
+                                        }
+                                    >
+                                        <span className="welcome-action-icon">
+                                            <FontAwesomeIcon icon={faClock} />
+                                        </span>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                            }}
+                                        >
+                                            <span className="welcome-action-text">
+                                                {getNameFromPath(path)}
+                                            </span>
+                                            <span
+                                                className="welcome-recent-item-path"
+                                                title={path}
+                                            >
+                                                {path.length > 45
+                                                    ? '...' + path.slice(-42)
+                                                    : path}
+                                            </span>
+                                        </div>
+                                    </button>
+                                ))
+                            ) : (
+                                <div className="welcome-empty-state">
+                                    No recent projects found
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                </main>
+
+                <footer className="welcome-footer">
+                    <div className="welcome-author">
+                        V1.0.0 &mdash; BUILT BY <span>SURYANSHU NABHEET</span>
+                    </div>
+                </footer>
             </div>
         </div>
     )

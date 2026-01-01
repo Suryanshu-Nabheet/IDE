@@ -683,17 +683,28 @@ export const trulyOpenFolder = createAsyncThunk(
             //
             dispatch(initializeIndex(null))
         }
-        // dispatch(monitorUploadProgress(null))
 
-        // dispatch(loadRecur(4))
+        // Add to recent projects
+        await connector.appendToArray('recentProjects', args)
+        dispatch(loadRecentProjects())
+    }
+)
+
+export const loadRecentProjects = createAsyncThunk(
+    'global/loadRecentProjects',
+    async (_, { dispatch }) => {
+        const recent = await connector.getAllArrayValues('recentProjects')
+        if (recent) {
+            dispatch(setRecentProjects(recent))
+        }
     }
 )
 
 export const setIsNotFirstTimeWithSideEffect = createAsyncThunk(
     'global/setIsNotFirstTimeWithSideEffect',
-    async (args: null, { dispatch }) => {
-        await connector.setStore('isNotFirstTime', true)
-        dispatch(setIsNotFirstTime(true))
+    async (args: boolean, { dispatch }) => {
+        await connector.setStore('isNotFirstTime', args)
+        dispatch(setIsNotFirstTime(args))
     }
 )
 
@@ -717,6 +728,8 @@ export const initState = createAsyncThunk(
             (await connector.getStore('isNotFirstTime')) || false
 
         dispatch(setIsNotFirstTime(isNotFirstTime))
+
+        dispatch(loadRecentProjects())
 
         dispatch(initializeChatState(null))
 
@@ -754,17 +767,20 @@ export const newFile = createAsyncThunk(
     'global/newFile',
     async (
         { parentFolderId }: { parentFolderId: number | null },
-        { getState }
+        { getState, dispatch }
     ) => {
         const state = (<FullState>getState()).global
-        const actualParent = parentFolderId || state.rightClickId || 1
+        let actualParent = parentFolderId || state.rightClickId
+        if (actualParent == null && state.folders[1]) actualParent = 1
+
         if (actualParent == null) {
-            return
+            await dispatch(openFolder(null))
+            return null
         }
         // Don't create file yet
         const name = ''
 
-        return { name, parentFolderId }
+        return { name, parentFolderId: actualParent }
     }
 )
 
@@ -772,17 +788,20 @@ export const newFolder = createAsyncThunk(
     'global/newFolder',
     async (
         { parentFolderId }: { parentFolderId: number | null },
-        { getState }
+        { getState, dispatch }
     ) => {
         const state = (<FullState>getState()).global
-        const actualParent = parentFolderId || state.rightClickId
+        let actualParent = parentFolderId || state.rightClickId
+        if (actualParent == null && state.folders[1]) actualParent = 1
+
         if (actualParent == null) {
-            return
+            await dispatch(openFolder(null))
+            return null
         }
         // Don't create folder yet
         const name = ''
 
-        return { name, parentFolderId }
+        return { name, parentFolderId: actualParent }
     }
 )
 
@@ -933,8 +952,12 @@ const globalSlice = createSlice({
                 const state = <State>stobj
                 abortFileRename(state)
                 const actualParent =
-                    action.payload?.parentFolderId || state.rightClickId || 1
-                if (actualParent == null || action.payload == null) {
+                    action.payload?.parentFolderId || state.rightClickId
+                if (
+                    actualParent == null ||
+                    !state.folders[actualParent] ||
+                    !action.payload
+                ) {
                     return
                 }
                 const name = action.payload.name as string
@@ -951,7 +974,11 @@ const globalSlice = createSlice({
                 const actualParent =
                     action.payload?.parentFolderId || state.rightClickId
                 abortFileRename(state)
-                if (actualParent == null || action.payload == null) {
+                if (
+                    actualParent == null ||
+                    !state.folders[actualParent] ||
+                    !action.payload
+                ) {
                     return
                 }
                 const name = action.payload.name as string
@@ -1564,6 +1591,11 @@ const globalSlice = createSlice({
         toggleTerminal(state: State) {
             state.terminalOpen = !state.terminalOpen
         },
+        setRecentProjects(state: State, action: PayloadAction<string[]>) {
+            // Filter out duplicates and reverse to show most recent first
+            const unique = Array.from(new Set(action.payload)).filter(Boolean)
+            state.recentProjects = unique.reverse().slice(0, 10)
+        },
     },
 })
 
@@ -1614,6 +1646,7 @@ export const {
     setIsNotFirstTime,
     openTerminal,
     toggleTerminal,
+    setRecentProjects,
     closeRateLimit,
     openRateLimit,
     cancelRename,

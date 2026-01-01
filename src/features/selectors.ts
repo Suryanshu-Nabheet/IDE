@@ -547,3 +547,6 @@ export const getFolderOpen = (fid: number) =>
     )
 export const getIsNotFirstTime = (state: FullState) =>
     state.global.isNotFirstTime
+
+export const getRecentProjects = (state: FullState) =>
+    state.global.recentProjects

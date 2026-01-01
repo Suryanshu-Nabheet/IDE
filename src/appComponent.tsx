@@ -113,7 +113,7 @@ export function App() {
     }, [rootPath])
 
     const screenState =
-        Object.keys(folders).length <= 1 && !welcomeDismissed
+        Object.keys(folders as object).length <= 1 && !welcomeDismissed
             ? 'welcome'
             : 'normal'
 

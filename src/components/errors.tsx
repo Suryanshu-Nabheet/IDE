@@ -59,7 +59,7 @@ export function ErrorPopup() {
                 </div>
                 <div className="errorPopup__body">
                     {error?.message ||
-                        'Something unexpected happened. Please try again later. If this continues, please contact support@codexide.com.'}
+                        'Something unexpected happened. Please try again later. If this continues, please contact suryanshunab@gmail.com.'}
                 </div>
                 <div className="mt-8 flex justify-end">
                     <button

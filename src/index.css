@@ -1,7 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* CodeX Production-Grade Styles */
 /* Import the new pure black theme system */
 @import './theme/index.css';
 
@@ -1258,6 +1255,7 @@ li.rta__item--selected mark {
 .window__editorcontainer:hover .cover-bar {
     opacity: 0;
     -webkit-transition: all 0.5s;
+    transition: all 0.5s;
 }
 
 .window__editor,
@@ -1342,6 +1340,8 @@ textarea:focus {
     right: 0;
     width: 10px;
     -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+    transition: all 0.5s;
     opacity: 1;
 }
 
@@ -2285,6 +2285,7 @@ cm-diff-cancel > div {
 .leftside__filetree_container:hover .cover-bar {
     opacity: 0;
     -webkit-transition: all 0.5s;
+    transition: all 0.5s;
 }
 
 .leftside__filetree_container {
@@ -2385,6 +2386,7 @@ cm-diff-cancel > div {
 .settingsContainer:hover .cover-bar {
     opacity: 0;
     -webkit-transition: all 0.5s;
+    transition: all 0.5s;
 }
 
 .settings__title {
@@ -3360,98 +3362,88 @@ free servers .disabled_command .shortcut__block {
 }
 
 /* CodeX Production-Grade Welcome Screen - Premium Edition */
+/* Enterprise-Grade Welcome Screen */
+/* Enterprise-Grade Welcome Screen - Redesign */
 .welcome-container {
-    --accent-primary: var(--white);
-    --text-white: #ffffff;
-    --text-muted: #8a8a8a;
-    --glow-soft: rgba(255, 255, 255, 0.05);
-
+    --accent: #2c7be5;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.45);
+    --hover-bg: rgba(255, 255, 255, 0.04);
+    
     height: 100%;
     width: 100%;
     background-color: #000000;
-    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 32px 32px;
+    overflow: hidden;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-white);
-    overflow: auto;
-    position: relative;
 }
 
-.welcome-container::after {
+.welcome-container::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, transparent 0%, #000000 90%);
-    pointer-events: none;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at 30% 30%, rgba(44, 123, 229, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 70% 70%, rgba(44, 123, 229, 0.03) 0%, transparent 40%);
+    animation: welcomeBgMove 20s linear infinite alternate;
+}
+
+@keyframes welcomeBgMove {
+    from { transform: translate(-10%, -10%); }
+    to { transform: translate(0%, 0%); }
 }
 
 .welcome-content {
+    max-width: 900px;
     width: 100%;
-    max-width: 1100px;
-    padding: 6rem 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 4rem;
-    z-index: 2;
+    padding: 2rem;
+    z-index: 10;
+    opacity: 0;
+    animation: welcomeFadeIn 0.8s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@keyframes welcomeFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .welcome-header {
+    margin-bottom: 5rem;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.welcome-overline {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.4em;
-    font-weight: 700;
-    padding: 6px 14px;
-    border: 1px solid var(--gray-800);
-    border-radius: 2px;
-    background: var(--black-subtle);
 }
 
 .welcome-title {
-    font-size: 6.5rem;
+    font-size: 6rem;
     font-weight: 800;
-    margin: 0;
-    line-height: 0.9;
-    color: var(--text-white);
-    text-transform: uppercase;
-    letter-spacing: -0.065em;
-    font-family: var(--font-sans);
-    text-shadow: 0 0 40px var(--glow-soft);
-    background: linear-gradient(180deg, #ffffff 30%, #a0a0a0 100%);
-    background-clip: text;
+    letter-spacing: -0.05em;
+    margin-bottom: 1rem;
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 40px rgba(255,255,255,0.15));
+    line-height: 1;
 }
 
 .welcome-tagline {
-    font-size: 1.15rem;
-    font-family: var(--font-sans);
-    color: var(--text-muted);
+    font-size: 1.2rem;
+    color: var(--text-secondary);
     font-weight: 400;
-    max-width: 550px;
-    line-height: 1.6;
-    letter-spacing: 0.04em;
-    text-align: center;
+    max-width: 600px;
 }
 
-/* Grid Logic */
 .welcome-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4rem;
-    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .welcome-section {
@@ -3461,107 +3453,95 @@ free servers .disabled_command .shortcut__block {
 }
 
 .welcome-section-title {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--gray-500);
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.25em;
-    font-family: var(--font-mono);
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid var(--gray-900);
+    letter-spacing: 0.15em;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .welcome-card-list {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.25rem;
 }
 
-/* Premium Action Controls (Buttons and Recent Items) */
-.welcome-action-button,
-.welcome-recent-item-link {
+.welcome-action-button {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    padding: 0.8rem 0rem;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
     background: transparent !important;
     border: none !important;
     cursor: pointer;
     text-align: left;
-    color: var(--gray-300) !important;
-    font-size: 13px;
-    font-family: var(--font-sans);
-    font-weight: 500;
-    letter-spacing: 0.0125em;
-    position: relative;
-    padding-left: 0.8rem;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-primary) !important;
 }
 
-.welcome-action-button::before,
-.welcome-recent-item-link::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 2px;
-    height: 0;
-    background-color: var(--white);
-    transition: height 0.2s ease;
+.welcome-action-button:hover {
+    background: var(--hover-bg) !important;
 }
 
-.welcome-action-button:hover,
-.welcome-recent-item-link:hover {
-    padding-left: 1.4rem;
-    color: var(--white) !important;
-}
-
-.welcome-action-button:hover::before,
-.welcome-recent-item-link:hover::before {
-    height: 60%;
+.welcome-action-button:hover .welcome-action-icon {
+    transform: scale(1.1);
+    opacity: 1;
 }
 
 .welcome-action-icon {
-    font-size: 1.2rem;
-    color: var(--gray-500) !important;
+    font-size: 1.1rem;
+    color: var(--accent);
     width: 24px;
-    display: flex;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.welcome-action-button:hover .welcome-action-icon,
-.welcome-recent-item-link:hover .welcome-action-icon {
-    transform: scale(1.05);
-    color: var(--white) !important;
-}
-
-.welcome-recent-item {
-    font-family: 'Outfit', sans-serif;
-    color: var(--text-muted);
-    font-size: 1rem;
-    font-style: italic;
-    opacity: 0.6;
-    padding: 0.75rem 0.8rem;
-}
-
-.welcome-footer {
-    margin-top: 3rem;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    opacity: 0.4;
-    font-size: 11px;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    opacity: 0.7;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.welcome-footer input[type='checkbox'] {
-    accent-color: var(--white);
-    transform: scale(0.9);
+.welcome-action-text {
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+.welcome-recent-item-path {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
+    opacity: 0.6;
+}
+
+.welcome-empty-state {
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.welcome-footer {
+    margin-top: 6rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.welcome-author {
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.welcome-author span {
+    color: #fff;
+    font-weight: 600;
 }
 
 /* ============================================
@@ -3755,12 +3735,28 @@ free servers .disabled_command .shortcut__block {
 }
 
 .welcome-content {
-    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 0;
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s forwards;
 }
 
 .welcome-section {
     opacity: 0;
     animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.welcome-section:nth-child(1) { animation-delay: 0.2s; }
+.welcome-section:nth-child(2) { animation-delay: 0.3s; }
+.welcome-section:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ============================================
