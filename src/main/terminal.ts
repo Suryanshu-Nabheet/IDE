@@ -16,7 +16,7 @@ export function setupTerminal(mainWindow: any, rootPath?: string) {
     if (mainWindow) {
         mainWindow.on('closed', () => {
             log.info('Window closed, killing all terminal sessions')
-            sessions.forEach((proc, id) => {
+            sessions.forEach((proc, _id) => {
                 try {
                     proc.kill()
                 } catch (e) {
