@@ -35,6 +35,7 @@ export function App() {
     const rootPath = useAppSelector(getRootPath)
     const folders = useAppSelector(getFolders)
     const leftSideExpanded = useAppSelector(tsel.getLeftSideExpanded)
+    const aiSidebarOpen = useAppSelector(tsel.aiCommandPaletteTriggeredSelector)
     const welcomeDismissed = useAppSelector(tsel.getWelcomeDismissed)
 
     const paneSplits = useAppSelector(getPaneStateBySplits)
@@ -123,6 +124,8 @@ export function App() {
 
     const [dragging, setDragging] = useState(false)
     const [leftSideWidth, setLeftSideWidth] = useState(250)
+    const [rightSideWidth, setRightSideWidth] = useState(420)
+    const [rightDragging, setRightDragging] = useState(false)
 
     useEffect(() => {
         const throttledMouseMove = throttleCallback((event: any) => {
@@ -141,8 +144,25 @@ export function App() {
     }, [dragging])
 
     useEffect(() => {
+        const throttledMouseMove = throttleCallback((event: any) => {
+            if (rightDragging) {
+                event.preventDefault()
+                event.stopPropagation()
+
+                const diff = window.innerWidth - event.clientX
+                setRightSideWidth(Math.max(300, Math.min(diff, 800)))
+            }
+        }, 10)
+        document.addEventListener('mousemove', throttledMouseMove)
+        return () => {
+            document.removeEventListener('mousemove', throttledMouseMove)
+        }
+    }, [rightDragging])
+
+    useEffect(() => {
         function handleMouseUp() {
             setDragging(false)
+            setRightDragging(false)
         }
         document.addEventListener('mouseup', handleMouseUp)
         return () => {
@@ -185,12 +205,30 @@ export function App() {
                                 <BottomTerminal />
                             </div>
                         </div>
+
+                        {/* Right Sidebar for AI Chat */}
+                        {aiSidebarOpen && (
+                            <>
+                                <div
+                                    className="rightDrag"
+                                    onMouseDown={() => {
+                                        setRightDragging(true)
+                                    }}
+                                ></div>
+                                <div
+                                    className="app__rightsidebarwrapper flex"
+                                    style={{ width: rightSideWidth + 'px' }}
+                                >
+                                    <AIChatSidebar />
+                                </div>
+                            </>
+                        )}
+
                         <ChatPopup />
                         <ErrorPopup />
                         <SettingsPopup />
                         <FeedbackArea />
                         <SSHPopup />
-                        <AIChatSidebar />
                     </>
                 )}
             </div>

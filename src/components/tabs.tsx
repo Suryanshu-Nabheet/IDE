@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faXmark,
@@ -15,7 +15,7 @@ import * as gsel from '../features/selectors'
 import { HoverState } from '../features/window/state'
 
 // ============================================
-// TAB COMPONENT
+// TAB COMPONENT - VS CODE EXACT BEHAVIOR
 // ============================================
 interface TabProps {
     tid: number
@@ -26,6 +26,7 @@ function Tab({ tid }: TabProps) {
     const tab = useAppSelector(getTab(tid))
     const file = useAppSelector(getFile(tab.fileId))
     const tabRef = useRef<HTMLDivElement>(null)
+    const [isHovered, setIsHovered] = useState(false)
 
     if (!tab || !file) return null
 
@@ -101,7 +102,7 @@ function Tab({ tid }: TabProps) {
     }
 
     // ============================================
-    // RENDER
+    // RENDER - VS CODE EXACT REPLICA
     // ============================================
     return (
         <div
@@ -118,20 +119,27 @@ function Tab({ tid }: TabProps) {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
             {/* File Icon */}
             <div className="tab__icon">{getIconElement(fileName)}</div>
 
             {/* File Name */}
-            <div className="tab__name">{fileName}</div>
-
-            {/* Modified Indicator */}
-            {isModified && <div className="tab__modified">●</div>}
-
-            {/* Close Button */}
-            <div className="tab__close" onClick={handleClose}>
-                <FontAwesomeIcon icon={faXmark} />
+            <div className="tab__name" title={fileName}>
+                {fileName}
             </div>
+
+            {/* Modified Dot or Close Button */}
+            {isModified && !isHovered ? (
+                /* Show dot when modified and not hovering */
+                <div className="tab__modified">●</div>
+            ) : isHovered ? (
+                /* Show close button on hover (replaces dot if modified) */
+                <div className="tab__close" onClick={handleClose}>
+                    <FontAwesomeIcon icon={faXmark} />
+                </div>
+            ) : null}
         </div>
     )
 }
@@ -176,25 +184,46 @@ interface TabBarProps {
 export function TabBar({ tabIds }: TabBarProps) {
     const dispatch = useAppDispatch()
     const tabBarRef = useRef<HTMLDivElement>(null)
+    const containerRef = useRef<HTMLDivElement>(null)
     const currentPane = useAppSelector(gsel.getCurrentPane)
     const currentTab = useAppSelector(gsel.getCurrentTab(currentPane!))
 
     // ============================================
-    // HORIZONTAL SCROLL WITH MOUSE WHEEL
+    // VS CODE STYLE INSTANT SCROLLING
     // ============================================
     useEffect(() => {
+        const container = containerRef.current
         const tabBar = tabBarRef.current
-        if (!tabBar) return
+        if (!container || !tabBar) return
 
         const handleWheel = (e: WheelEvent) => {
-            if (e.deltaY !== 0) {
+            // Check if there's horizontal scroll available
+            const hasHorizontalScroll = tabBar.scrollWidth > tabBar.clientWidth
+
+            if (hasHorizontalScroll && (e.deltaY !== 0 || e.deltaX !== 0)) {
                 e.preventDefault()
-                tabBar.scrollLeft += e.deltaY
+                e.stopPropagation()
+
+                // VS Code uses direct scrolling - no easing, no momentum
+                // Use deltaY for mouse wheel, deltaX for trackpad
+                const scrollDelta = e.deltaX !== 0 ? e.deltaX : e.deltaY
+
+                // 2x multiplier for comfortable speed
+                tabBar.scrollLeft += scrollDelta * 2
             }
         }
 
-        tabBar.addEventListener('wheel', handleWheel, { passive: false })
-        return () => tabBar.removeEventListener('wheel', handleWheel)
+        // Attach to container with capture to intercept all wheel events
+        container.addEventListener('wheel', handleWheel, {
+            passive: false,
+            capture: true,
+        })
+
+        return () => {
+            container.removeEventListener('wheel', handleWheel, {
+                capture: true,
+            } as any)
+        }
     }, [])
 
     // ============================================
@@ -228,7 +257,7 @@ export function TabBar({ tabIds }: TabBarProps) {
     // RENDER
     // ============================================
     return (
-        <div className="window__tabbarcontainer">
+        <div ref={containerRef} className="window__tabbarcontainer">
             {/* Scrollable Tab List */}
             <div ref={tabBarRef} className="tabbar">
                 {tabIds.map((tabId) => (

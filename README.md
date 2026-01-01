@@ -7,6 +7,7 @@
 ![Welcome Screen](./assets/Demo/Welcome_Screen.png)
 ![Coding Screen](<./assets/Demo/Coding_Screen(1).png>)
 ![Coding Screen](<./assets/Demo/Coding_Screen(2).png>)
+![Coding Screen](<./assets/Demo/Coding_Screen(3).png>)
 
 ## Features
 
