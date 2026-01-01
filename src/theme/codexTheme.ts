@@ -21,7 +21,7 @@ const ANYSPHERE_COLORS = {
         bright: '#FFFFFF',
     },
 
-    // Syntax highlighting — EXACT Cursor (Anysphere Dark)
+    // Syntax highlighting (Anysphere Dark)
     syntax: {
         // Keywords, modifiers, directives ("use client", import, export, return)
         keyword: '#C792EA',
@@ -78,10 +78,10 @@ const ANYSPHERE_COLORS = {
 
 const codexEditorTheme = EditorView.theme(
     {
-        // Root editor - pure black
+        // Root editor - Anysphere Dark
         '&': {
             color: ANYSPHERE_COLORS.text.primary,
-            backgroundColor: '#000000', // Pure Black
+            backgroundColor: '#0B0E14', // Anysphere Editor BG
             fontSize: typography.fontSize.base,
             fontFamily: typography.fontFamilyMono,
             height: '100%',
@@ -89,7 +89,7 @@ const codexEditorTheme = EditorView.theme(
 
         // Content area
         '.cm-content': {
-            caretColor: '#FFFFFF', // White Cursor
+            caretColor: '#82AAFF', // Anysphere Cursor (Blue)
             padding: '4px 0',
             fontFamily: typography.fontFamilyMono,
             lineHeight: '1.6',
@@ -98,50 +98,45 @@ const codexEditorTheme = EditorView.theme(
 
         // Cursor
         '.cm-cursor, .cm-dropCursor': {
-            borderLeftColor: '#FFFFFF', // White Cursor
+            borderLeftColor: '#82AAFF', // Anysphere Cursor (Blue)
             borderLeftWidth: '2px',
             borderLeftStyle: 'solid',
         },
 
         // Selection
         '.cm-selectionBackground, ::selection': {
-            backgroundColor: 'rgba(97, 175, 239, 0.2) !important', // Blue Selection
+            backgroundColor: 'rgba(130, 170, 255, 0.18) !important', // Anysphere Selection
         },
         '&.cm-focused .cm-selectionBackground': {
-            backgroundColor: 'rgba(97, 175, 239, 0.2) !important', // Blue Selection
+            backgroundColor: 'rgba(130, 170, 255, 0.18) !important', // Anysphere Selection
         },
 
         // Active line
         '.cm-activeLine': {
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
         },
 
         // Selection match
         '.cm-selectionMatch': {
-            backgroundColor: '#44475A60',
-            outline: '1px solid #44475A90',
+            backgroundColor: 'rgba(130, 170, 255, 0.25)',
+            outline: '1px solid rgba(130, 170, 255, 0.3)',
         },
 
         // Matching brackets
         '&.cm-focused .cm-matchingBracket': {
             backgroundColor: 'transparent',
-            color: ANYSPHERE_COLORS.syntax.keyword, // Purple
-            outline: '2px solid ' + ANYSPHERE_COLORS.syntax.keyword, // Purple outlined
-            borderRadius: '3px',
-            fontWeight: '700',
+            outline: '1px solid #5F6B85', // Muted Gray outline
         },
 
         '&.cm-focused .cm-nonmatchingBracket': {
-            backgroundColor: '#FF79C620',
-            color: ANYSPHERE_COLORS.syntax.error,
-            outline: '2px solid ' + ANYSPHERE_COLORS.syntax.error,
-            borderRadius: '3px',
+            backgroundColor: 'rgba(255, 83, 112, 0.2)',
+            outline: '1px solid #FF5370',
         },
 
         // Gutters
         '.cm-gutters': {
-            backgroundColor: '#000000', // Pure Black
-            color: '#444444',
+            backgroundColor: '#0B0E14', // Editor BG
+            color: '#5F6B85', // Muted FG
             border: 'none',
             paddingRight: '16px',
             fontFamily: typography.fontFamilyMono,
@@ -150,7 +145,7 @@ const codexEditorTheme = EditorView.theme(
         // Active line gutter
         '.cm-activeLineGutter': {
             backgroundColor: 'transparent',
-            color: '#FFFFFF',
+            color: '#E6EAF2', // Active text color
             fontWeight: '600',
         },
 
@@ -169,14 +164,14 @@ const codexEditorTheme = EditorView.theme(
 
         // Panels
         '.cm-panels': {
-            backgroundColor: '#0a0a0a',
+            backgroundColor: '#0D1117', // Panel BG
             color: ANYSPHERE_COLORS.text.primary,
         },
 
         // Tooltips
         '.cm-tooltip': {
-            backgroundColor: '#1a1a1a',
-            border: '1px solid #2a2a2a',
+            backgroundColor: '#151B2E', // Hover/Tooltip BG
+            border: '1px solid #1C2333',
             color: ANYSPHERE_COLORS.text.primary,
             borderRadius: '6px',
             boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
@@ -184,12 +179,12 @@ const codexEditorTheme = EditorView.theme(
 
         // Autocomplete
         '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
-            backgroundColor: 'rgba(97, 175, 239, 0.2)', // Blue Selection
-            color: ANYSPHERE_COLORS.text.bright,
+            backgroundColor: 'rgba(130, 170, 255, 0.18)',
+            color: '#FFFFFF',
         },
 
         '.cm-panel': {
-            backgroundColor: '#0a0a0a',
+            backgroundColor: '#0D1117',
         },
 
         '.cm-scroller': {
