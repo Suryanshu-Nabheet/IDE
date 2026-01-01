@@ -13,7 +13,6 @@ import {
     getFolders,
     getPaneStateBySplits,
     getRootPath,
-    getZoomFactor,
 } from './features/selectors'
 
 import { ChatPopup, CommandBar } from './components/markdown'
@@ -40,14 +39,10 @@ export function App() {
 
     const paneSplits = useAppSelector(getPaneStateBySplits)
 
-    const zoomFactor = useAppSelector(getZoomFactor)
-
     const TITLEBAR_HEIGHT = 38
     const STATUS_BAR_HEIGHT = 22
-    const ACTIVITY_BAR_WIDTH = 48
 
     const titleHeight = TITLEBAR_HEIGHT + 'px'
-    const statusBarHeight = STATUS_BAR_HEIGHT + 'px'
     const windowHeight = `calc(100vh - ${TITLEBAR_HEIGHT}px - ${STATUS_BAR_HEIGHT}px)`
 
     const commandBarOpen = useAppSelector(csel.getIsCommandBarOpen)
@@ -231,8 +226,8 @@ export function App() {
                         <SSHPopup />
                     </>
                 )}
+                {screenState === 'normal' && <StatusBar />}
             </div>
-            <StatusBar />
         </>
     )
 }
