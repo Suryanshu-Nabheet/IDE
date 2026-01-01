@@ -174,7 +174,9 @@ function File({ fid }: { fid: number }) {
                     }
                     onKeyDown={(e) => {
                         if (e.key == 'Enter') dispatch(gs.commitRename({ fid }))
+                        if (e.key == 'Escape') dispatch(gs.cancelRename())
                     }}
+                    onBlur={() => dispatch(gs.commitRename({ fid }))}
                     onClick={(e) => e.stopPropagation()}
                 />
             ) : (
@@ -263,7 +265,11 @@ function Folder({ fid }: { fid: number }) {
                                 dispatch(
                                     gs.commitRename({ fid, isFolder: true })
                                 )
+                            if (e.key == 'Escape') dispatch(gs.cancelRename())
                         }}
+                        onBlur={() =>
+                            dispatch(gs.commitRename({ fid, isFolder: true }))
+                        }
                         onClick={(e) => e.stopPropagation()}
                     />
                 ) : (

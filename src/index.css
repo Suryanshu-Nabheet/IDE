@@ -1218,13 +1218,17 @@ li.rta__item--selected mark {
     width: 100%;
     flex-grow: 1;
     box-sizing: border-box;
-    padding: 12px 8px;
-    border: none;
+    padding: 1px 4px;
+    border: 1px solid var(--accent);
     outline: none;
-    font-size: 1rem;
-    color: var(--input-text);
-    background-color: var(--input-background);
-    border-radius: 5px;
+    font-size: 13px;
+    color: var(--ui-fg);
+    background-color: var(--any-bg-lighter);
+    border-radius: 2px;
+    height: 20px;
+    line-height: 18px;
+    font-family: inherit;
+    margin-right: 8px;
 }
 
 .filedialog {

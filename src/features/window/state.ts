@@ -14,6 +14,7 @@ export interface File {
     lastSavedTime?: number
     savedTime?: number
     deleted?: boolean
+    isCreating?: boolean
 }
 
 export interface Folder {
@@ -24,6 +25,7 @@ export interface Folder {
     folderIds: number[]
     loaded: boolean
     isOpen: boolean
+    isCreating?: boolean
 }
 
 export enum HoverState {

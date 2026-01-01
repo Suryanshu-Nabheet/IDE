@@ -51,8 +51,6 @@ import {
     findFolderIdFromPath,
     getAllParentIds,
     getContentsIfNeeded,
-    getNewFileName,
-    getNewFolderName,
     getPathForFileId,
     getPathForFolderId,
     insertNewFile,
@@ -74,27 +72,6 @@ import posthog from 'posthog-js'
 import { removeEditor } from './codemirror/codemirrorSlice'
 import { initializeChatState } from './chat/chatThunks'
 
-// export const monitorUploadProgress = createAsyncThunk(
-//     'global/monitorUploadProgress',
-//     async (args: null, { getState, dispatch }) => {
-//
-
-//         const state = getState() as FullState
-//         const { repoId } = state.global
-
-//         //         let newProgress = await connector.getProgress(repoId)
-//         dispatch(updateRepoProgress(newProgress))
-
-//         setInterval(async () => {
-//             const state = getState() as FullState
-//             const { repoProgress, repoId } = state.global
-//             if (repoProgress.state != 'done') {
-//                 //                 let newProgress = await connector.getProgress(repoId)
-//                 dispatch(updateRepoProgress(newProgress))
-//             }
-//         }, 2000)
-//     }
-// )
 const BAD_DIRECTORIES = ['.git', 'node_modules', '.vscode', '.webpack']
 
 export const gotoDefinition = createAsyncThunk(
@@ -426,6 +403,27 @@ export const commitRename = createAsyncThunk(
             }
         }
         const file = isFolder ? state.folders[fid] : state.files[fid]
+        if (!file) return
+
+        // Handle creation
+        if (file.isCreating) {
+            if (!file.renameName || file.renameName.trim() === '') {
+                return { abortCreation: true, fid, isFolder }
+            }
+            const name = file.renameName
+            // Check if name taken?
+            // The connector might error if exists, but for now assuming overwrite or error
+
+            const newPath = join(
+                getPathForFolderId(state, file.parentFolderId!),
+                name
+            )
+            if (isFolder) await connector.saveFolder(newPath)
+            else await connector.saveFile(newPath, '')
+
+            return { fid, isCreating: true }
+        }
+
         if (file.renameName == null || !isValidRenameName(state)) {
             return
         }
@@ -438,7 +436,7 @@ export const commitRename = createAsyncThunk(
         )
         // TODO: FIX
         await connector.renameFile(oldPath, newPath)
-        return state.rightClickId
+        return { fid }
     }
 )
 
@@ -763,10 +761,8 @@ export const newFile = createAsyncThunk(
         if (actualParent == null) {
             return
         }
-        const name = getNewFileName(state, actualParent)
-        const parentPath = getPathForFolderId(state, actualParent)
-        const newPath = `${parentPath}/${name}`
-        await connector.saveFile(newPath, '')
+        // Don't create file yet
+        const name = ''
 
         return { name, parentFolderId }
     }
@@ -783,10 +779,8 @@ export const newFolder = createAsyncThunk(
         if (actualParent == null) {
             return
         }
-        const name = getNewFolderName(state, actualParent)
-        const parentPath = getPathForFolderId(state, actualParent)
-        const newPath = `${parentPath}/${name}`
-        await connector.saveFolder(newPath)
+        // Don't create folder yet
+        const name = ''
 
         return { name, parentFolderId }
     }
@@ -899,6 +893,27 @@ const globalSlice = createSlice({
                 if (action.payload == null) {
                     return
                 }
+
+                // @ts-ignore
+                if (action.payload.abortCreation) {
+                    // @ts-ignore
+                    const { fid, isFolder } = action.payload
+                    if (isFolder) doDeleteFolder(state, fid)
+                    else doDeleteFile(state, fid)
+                    return
+                }
+
+                // @ts-ignore
+                if (action.payload.isCreating) {
+                    // @ts-ignore
+                    const { fid } = action.payload
+                    // @ts-ignore
+                    const file = state.isRightClickAFile
+                        ? state.files[fid]
+                        : state.folders[fid]
+                    if (file) delete file.isCreating
+                }
+
                 // const fileid = action.payload as number
                 commitFileRename(state)
             })
@@ -924,6 +939,7 @@ const globalSlice = createSlice({
                 }
                 const name = action.payload.name as string
                 const fileid = insertNewFile(state, actualParent, name)
+                state.files[fileid].isCreating = true
                 state.rightClickId = fileid
                 state.isRightClickAFile = true
                 doSelectFile(state, fileid)
@@ -940,6 +956,7 @@ const globalSlice = createSlice({
                 }
                 const name = action.payload.name as string
                 const folderId = insertNewFolder(state, actualParent, name)
+                state.folders[folderId].isCreating = true
                 state.rightClickId = folderId
                 state.isRightClickAFile = false
                 triggerFileRename(state)
@@ -1144,6 +1161,10 @@ const globalSlice = createSlice({
             }
             updateCachedContents(state, tab.fileId, code)
             updateEditorState(state, tabId, update)
+        },
+        cancelRename: (stobj: object) => {
+            const state = <State>stobj
+            abortFileRename(state)
         },
         vimUpdate(
             stobj: object,
@@ -1595,6 +1616,7 @@ export const {
     toggleTerminal,
     closeRateLimit,
     openRateLimit,
+    cancelRename,
 } = globalSlice.actions
 
 export default globalSlice.reducer

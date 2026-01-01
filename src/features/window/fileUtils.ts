@@ -33,6 +33,7 @@ export function isValidRenameName(state: State) {
     if (state.rightClickId == null) return false
     const files = state.isRightClickAFile ? state.files : state.folders
     const file = files[state.rightClickId]
+    if (!file) return false
     let isRenameNameTaken = false
     if (file.parentFolderId != null) {
         const parent = state.folders[file.parentFolderId]
@@ -146,6 +147,7 @@ export function getPathForFileId(
     includeRoot = true
 ): string {
     const file = state.files[fileid]
+    if (!file) return ''
     return (
         getPathForFolderId(state, file.parentFolderId, includeRoot) +
         connector.PLATFORM_DELIMITER +
@@ -370,6 +372,11 @@ export function abortFileRename(state: State) {
 
     if (file) {
         file.renameName = null
+        if (file.isCreating) {
+            if (state.isRightClickAFile) doDeleteFile(state, state.rightClickId)
+            else doDeleteFolder(state, state.rightClickId)
+            state.rightClickId = null
+        }
     }
 }
 
