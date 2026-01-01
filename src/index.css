@@ -123,20 +123,61 @@ body {
     overflow: hidden;
 }
 
+/* Activity Bar */
 .activity-bar {
     width: 48px;
     height: 100%;
-    background-color: var(--activity-bar-bg);
+    background-color: var(--black);
+    border-right: 1px solid #1a1a1a;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: center;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-bottom: 20px;
+    padding: 8px 0;
     flex-shrink: 0;
-    z-index: 50;
-    border-right: 1px solid var(--activity-bar-border);
+}
+
+.activity-bar__item {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    position: relative;
+    transition: color var(--transition-fast);
+}
+
+.activity-bar__item:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.activity-bar__item.active {
+    color: #ffffff;
+}
+
+/* Signature Anysphere Active Dot */
+.activity-bar__item.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 2px;
+    height: 24px;
+    background-color: #ffffff; /* White line on the far left */
+}
+
+.activity-bar__item.active::before {
+    content: '';
+    position: absolute;
+    right: 8px; /* Blue dot on the right side of the icon as seen in Anysphere image */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--blue-bright, #3794ff);
+    box-shadow: 0 0 8px rgba(55, 148, 255, 0.5);
 }
 
 .left-pane-header {
@@ -1044,16 +1085,16 @@ li.rta__item--selected mark {
 .tab {
     display: flex;
     align-items: center;
-    padding: 0 8px 0 12px;
+    padding: 0 10px 0 12px;
     height: 35px;
     min-width: 120px;
-    max-width: 300px;
-    background-color: #000000;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    max-width: 260px;
+    background-color: #0a0a0a;
+    border-right: 1px solid #1a1a1a;
     cursor: pointer;
     font-size: 13px;
     color: rgba(255, 255, 255, 0.5);
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
     user-select: none;
     position: relative;
     flex-shrink: 0;
@@ -1061,10 +1102,10 @@ li.rta__item--selected mark {
 
 /* Active Tab - Slightly Lighter Black with Accent */
 .tab__is_active {
-    background-color: #0a0a0a;
+    background-color: #000000;
     color: #ffffff;
-    border-bottom: 2px solid var(--accent);
-    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid #ffffff; /* White top accent like in image */
+    border-right: 1px solid #1a1a1a;
 }
 
 /* Hover State */

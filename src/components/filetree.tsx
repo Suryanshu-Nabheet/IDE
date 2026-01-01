@@ -8,12 +8,8 @@ import {
     faFileCirclePlus,
     faFolderPlus,
     faPuzzlePiece,
-    faStar,
-    faComment,
     faPalette,
     faVial,
-    faTools,
-    faCogs,
     faImages,
     faCube,
 } from '@fortawesome/pro-regular-svg-icons'
@@ -51,92 +47,118 @@ export function getIconElement(fname: string) {
 
     // exact names
     if (fname.toLowerCase() === 'package.json')
-        return <FontAwesomeIcon icon={faGear} className="file-icon--config" />
+        return (
+            <FontAwesomeIcon icon={faGear} className="file-icon icon--json" />
+        )
     if (fname.toLowerCase().includes('config'))
         return (
-            <FontAwesomeIcon
-                icon={faGear}
-                className="file-icon--config opacity-80"
-            />
+            <FontAwesomeIcon icon={faGear} className="file-icon icon--config" />
         )
     if (fname.toLowerCase().startsWith('readme'))
         return (
-            <FontAwesomeIcon icon={faFileLines} className="file-icon--readme" />
+            <FontAwesomeIcon
+                icon={faFileLines}
+                className="file-icon icon--md"
+            />
         )
     if (fname.toLowerCase().includes('license'))
         return (
-            <FontAwesomeIcon icon={faFileCode} className="file-icon--license" />
+            <FontAwesomeIcon
+                icon={faFileCode}
+                className="file-icon icon--config"
+            />
         )
 
     // language mappings
     if (['js', 'cjs', 'mjs'].includes(ext))
-        return <div className="file-icon-square js-bg">JS</div>
-    if (ext === 'ts') return <div className="file-icon-square ts-bg">TS</div>
+        return <FontAwesomeIcon icon={faCode} className="file-icon icon--js" />
+    if (ext === 'ts')
+        return <FontAwesomeIcon icon={faCode} className="file-icon icon--ts" />
     if (ext === 'tsx' || ext === 'jsx')
-        return <div className="file-icon-square react-bg">TSX</div>
+        return (
+            <FontAwesomeIcon icon={faCode} className="file-icon icon--react" />
+        )
     if (ext === 'py')
-        return <FontAwesomeIcon icon={faCode} className="file-icon--python" />
+        return <FontAwesomeIcon icon={faCode} className="file-icon icon--py" />
     if (ext === 'html' || ext === 'htm')
-        return <FontAwesomeIcon icon={faCode} className="file-icon--html" />
+        return (
+            <FontAwesomeIcon icon={faCode} className="file-icon icon--html" />
+        )
     if (['css', 'scss', 'sass', 'less'].includes(ext))
-        return <div className="file-icon-square css-bg">CSS</div>
+        return <FontAwesomeIcon icon={faCode} className="file-icon icon--css" />
     if (ext === 'md' || ext === 'markdown')
         return (
             <FontAwesomeIcon
                 icon={faFileLines}
-                className="file-icon--markdown"
+                className="file-icon icon--md"
             />
         )
     if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico'].includes(ext))
-        return <FontAwesomeIcon icon={faImage} className="file-icon--image" />
+        return (
+            <FontAwesomeIcon icon={faImage} className="file-icon icon--img" />
+        )
     if (['sh', 'bash', 'zsh', 'bat', 'cmd', 'ps1'].includes(ext))
         return (
             <FontAwesomeIcon
                 icon={faTerminalIcon}
-                className="file-icon--terminal"
+                className="file-icon icon--config"
             />
         )
     if (ext === 'pdf')
-        return <FontAwesomeIcon icon={faFilePdf} className="file-icon--pdf" />
+        return (
+            <FontAwesomeIcon
+                icon={faFilePdf}
+                className="file-icon icon--config"
+            />
+        )
     if (ext === 'csv')
-        return <FontAwesomeIcon icon={faFileCsv} className="file-icon--csv" />
+        return (
+            <FontAwesomeIcon
+                icon={faFileCsv}
+                className="file-icon icon--config"
+            />
+        )
     if (['zip', 'tar', 'gz', 'rar', '7z'].includes(ext))
         return (
             <FontAwesomeIcon
                 icon={faFileArchive}
-                className="file-icon--archive"
+                className="file-icon icon--config"
             />
         )
     if (ext === 'sql' || ext === 'db')
         return (
             <FontAwesomeIcon
                 icon={faDatabase}
-                className="file-icon--database"
+                className="file-icon icon--config"
             />
         )
 
-    return <FontAwesomeIcon icon={faFile} className="opacity-50" />
+    return <FontAwesomeIcon icon={faFile} className="file-icon opacity-40" />
 }
 
 function getFolderIcon(name: string, isOpen: boolean) {
     const lname = name.toLowerCase()
 
-    if (lname === '.github') return { icon: faFolderOpen, color: '#ffffff' }
-    if (lname === '.webpack') return { icon: faCube, color: '#8dd6f9' }
-    if (lname === 'assets') return { icon: faImages, color: '#eaba3a' }
-    if (lname === 'node_modules') return { icon: faCube, color: '#8bc34a' }
-    if (lname === 'src') return { icon: faFolderOpen, color: '#4caf50' }
-    if (lname === 'components') return { icon: faPuzzlePiece, color: '#cddc39' }
-    if (lname === 'features') return { icon: faStar, color: '#8bc34a' }
-    if (lname === 'chat') return { icon: faComment, color: '#ff9800' }
-    if (lname === 'extensions') return { icon: faPuzzlePiece, color: '#2196f3' }
-    if (lname === 'settings') return { icon: faGear, color: '#00bcd4' }
-    if (lname === 'tests') return { icon: faVial, color: '#009688' }
-    if (lname === 'tools') return { icon: faTools, color: '#2196f3' }
-    if (lname === 'theme') return { icon: faPalette, color: '#2196f3' }
-    if (lname === 'utils') return { icon: faCogs, color: '#8bc34a' }
+    // Coordination colors for folders
+    if (lname === '.github' || lname === '.git')
+        return {
+            icon: isOpen ? faFolderOpen : faFolder,
+            className: 'icon--config',
+        }
+    if (lname === 'node_modules' || lname === 'dist' || lname === 'build')
+        return { icon: faCube, className: 'icon--config' }
+    if (lname === 'src')
+        return { icon: isOpen ? faFolderOpen : faFolder, className: 'icon--ts' }
+    if (lname === 'components')
+        return { icon: faPuzzlePiece, className: 'icon--react' }
+    if (lname === 'assets' || lname === 'public')
+        return { icon: faImages, className: 'icon--img' }
+    if (lname === 'tests' || lname === '__tests__')
+        return { icon: faVial, className: 'icon--py' }
+    if (lname === 'theme' || lname === 'styles')
+        return { icon: faPalette, className: 'icon--css' }
 
-    return { icon: isOpen ? faFolderOpen : faFolder, color: 'var(--amber)' }
+    return { icon: isOpen ? faFolderOpen : faFolder, className: 'icon--folder' }
 }
 
 function File({ fid }: { fid: number }) {
@@ -232,13 +254,16 @@ function Folder({ fid }: { fid: number }) {
                     />
                 </div>
                 {(() => {
-                    const { icon, color } = getFolderIcon(folder.name, isOpen)
+                    const { icon, className } = getFolderIcon(
+                        folder.name,
+                        isOpen
+                    )
                     return (
                         <FontAwesomeIcon
                             icon={icon}
+                            className={`file-icon ${className}`}
                             style={{
                                 marginRight: '8px',
-                                color,
                                 opacity: 0.9,
                                 fontSize: '14px',
                             }}

@@ -90,13 +90,13 @@
     --titlebar-button-hover: var(--black-subtle);
     
     /* Sidebar */
-    --sidebar-bg: rgba(0, 0, 0, 0.7);
-    --sidebar-fg: var(--gray-100);
-    --sidebar-fg-muted: var(--gray-400);
-    --sidebar-hover: var(--black-subtle);
-    --sidebar-selected: var(--gray-900);
-    --sidebar-selected-accent: var(--accent);
-    --sidebar-border: var(--gray-800);
+    --sidebar-bg: var(--black);
+    --sidebar-fg: #cccccc;
+    --sidebar-fg-muted: #858585;
+    --sidebar-hover: rgba(255, 255, 255, 0.05);
+    --sidebar-selected: rgba(255, 255, 255, 0.1);
+    --sidebar-selected-accent: var(--blue);
+    --sidebar-border: #1a1a1a;
     
     /* Activity Bar */
     --activity-bar-bg: var(--black);

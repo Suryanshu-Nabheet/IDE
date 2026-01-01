@@ -110,30 +110,37 @@ const codexEditorTheme = EditorView.theme(
 )
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SYNTAX HIGHLIGHTING (Cursor / Anysphere Style)
+// SYNTAX HIGHLIGHTING (Anysphere Style)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const codexHighlightStyle = HighlightStyle.define([
-    // KEYWORDS (Anysphere Blue)
+    // KEYWORDS & SELECTORS (Anysphere Blue)
     {
-        tag: [t.keyword, t.modifier, t.controlKeyword, t.moduleKeyword],
+        tag: [
+            t.keyword,
+            t.modifier,
+            t.controlKeyword,
+            t.moduleKeyword,
+            t.tagName,
+            t.labelName,
+        ],
         color: semantic.syntax.keyword,
     },
 
     // VARIABLES (Crisp Off-white)
     {
-        tag: [t.variableName, t.attributeName, t.labelName],
+        tag: [t.variableName, t.attributeName],
         color: semantic.syntax.variable,
     },
     { tag: [t.definition(t.variableName)], color: semantic.syntax.variable },
 
-    // PROPERTIES & METHODS (Anysphere Yellow)
+    // PROPERTIES & ATTRIBUTES (Anysphere Light Blue)
     {
         tag: [t.propertyName, t.attributeValue],
         color: semantic.syntax.property,
     },
 
-    // FUNCTIONS (Pale Yellow)
+    // FUNCTIONS & METHODS (Anysphere Yellow)
     {
         tag: [
             t.function(t.variableName),
@@ -143,9 +150,9 @@ const codexHighlightStyle = HighlightStyle.define([
         color: semantic.syntax.function,
     },
 
-    // TYPES / CLASSES (Teal/Greenish)
+    // TYPES & CLASSES (Teal/Greenish)
     {
-        tag: [t.typeName, t.className, t.standard(t.typeName), t.tagName],
+        tag: [t.typeName, t.className, t.standard(t.typeName)],
         color: semantic.syntax.type,
     },
 

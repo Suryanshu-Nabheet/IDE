@@ -16,27 +16,27 @@ export const BASE_TOKENS = {
     gray200: '#e5e5e5', // Primary text (muted)
     gray100: '#ffffff', // Primary text (standard)
 
-    // Anysphere Dark Palette (Cursor / High-Fidelity Modern Dark)
+    // Anysphere Dark Palette (High-Fidelity Match)
     anysphere: {
-        bg: '#000000', // Pure Black (User Mandated)
-        fg: '#d4d4d4', // Crisp Gray (from image)
+        bg: '#000000',
+        fg: '#d4d4d4',
 
-        selection: '#264f78', // Deep Blue Selection
-        lineHighlight: '#2b2b2b66', // Subtle transparency
+        selection: '#264f78',
+        lineHighlight: '#2b2b2b66',
 
-        // Syntax (Precise Anysphere Palette)
-        keyword: '#569cd6', // Cyan-Blue
-        control: '#569cd6', // Cyan-Blue
+        // Syntax
+        keyword: '#569cd6', // Blue
+        control: '#569cd6', // Blue
         type: '#4ec9b0', // Teal
-        function: '#dcdcaa', // Yellow (Methods/Functions)
-        variable: '#d4d4d4', // Off-white (Variable Names)
-        property: '#dcdcaa', // Yellow (Properties - Image match)
-        parameter: '#9cdcfe', // Light Blue
+        property: '#9cdcfe', // Light Blue
+        function: '#dcdcaa', // Yellow
+        variable: '#d4d4d4', // Off-white
         number: '#b5cea8', // Pale Green
-        string: '#ce9178', // Salmon/Orange
+        string: '#ce9178', // Peach/Orange
         comment: '#6a9955', // Forest Green
         operator: '#d4d4d4', // Off-white
         tag: '#569cd6', // Blue
+        constant: '#4fc1ff', // Cyan
 
         // Accents
         blue: '#3794ff',
@@ -102,19 +102,19 @@ export const SEMANTIC_TOKENS = {
         method: BASE_TOKENS.anysphere.function,
         variable: BASE_TOKENS.anysphere.variable,
         property: BASE_TOKENS.anysphere.property,
-        parameter: BASE_TOKENS.anysphere.parameter,
-        constant: '#4fc1ff', // Cyan
+        parameter: '#9cdcfe',
+        constant: BASE_TOKENS.anysphere.constant,
         string: BASE_TOKENS.anysphere.string,
         number: BASE_TOKENS.anysphere.number,
-        boolean: '#569cd6', // Blue
+        boolean: '#569cd6',
         null: '#569cd6',
         comment: BASE_TOKENS.anysphere.comment,
         operator: BASE_TOKENS.anysphere.operator,
         punctuation: BASE_TOKENS.anysphere.operator,
         tag: BASE_TOKENS.anysphere.tag,
-        attribute: '#9cdcfe', // Light Blue
-        selector: '#d7ba7d', // Gold
-        regex: '#d16969', // Red-ish
+        attribute: '#9cdcfe',
+        selector: '#569cd6',
+        regex: '#d16969',
         escape: '#d7ba7d',
     },
 
