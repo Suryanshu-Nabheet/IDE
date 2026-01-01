@@ -189,7 +189,7 @@ export function TabBar({ tabIds }: TabBarProps) {
     const currentTab = useAppSelector(gsel.getCurrentTab(currentPane!))
 
     // ============================================
-    // VS CODE STYLE INSTANT SCROLLING
+    // SMOOTH HORIZONTAL SCROLL
     // ============================================
     useEffect(() => {
         const container = containerRef.current

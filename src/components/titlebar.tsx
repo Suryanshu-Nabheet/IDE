@@ -15,7 +15,7 @@ import {
     faCog,
     faHandWave,
     faMinus,
-    faRobot,
+    faSparkles,
     faSidebar,
     faSquare,
     faSquareTerminal,
@@ -366,7 +366,7 @@ export function TitleBar({
                             }}
                             title="AI Assistant (⌘K)"
                         >
-                            <FontAwesomeIcon icon={faRobot} />
+                            <FontAwesomeIcon icon={faSparkles} />
                         </div>
 
                         <div
