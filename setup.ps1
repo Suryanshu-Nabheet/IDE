@@ -57,6 +57,14 @@ try {
     exit 1
 }
 
+# Check for Python
+try {
+    $pythonVersion = python --version 2>&1
+    Print-Success "$pythonVersion detected"
+} catch {
+    Print-Info "Python not found in PATH (Recommended for full functionality)"
+}
+
 # Clean old builds
 Print-Info "Cleaning old build artifacts..."
 Remove-Item -Path ".webpack", "dist", "out" -Recurse -ErrorAction SilentlyContinue

@@ -57,6 +57,15 @@ if ! command -v git &> /dev/null; then
 fi
 print_success "git $(git --version | awk '{print $3}') detected"
 
+# Check for Python (Required for CodeX AI/LSP)
+if command -v python3 &> /dev/null; then
+    print_success "python3 detected"
+elif command -v python &> /dev/null; then
+    print_info "python detected (Legacy)"
+else
+    print_error "Python not found! Recommended for full functionality."
+fi
+
 # Clean old builds
 print_info "Cleaning old build artifacts..."
 rm -rf .webpack dist out
