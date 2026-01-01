@@ -34,7 +34,7 @@ export function WelcomeScreen() {
         } else if (action === 'open_folder') {
             dispatch(gs.openFolder(null))
         } else if (action === 'clone_repo') {
-            dispatch(gs.openRemotePopup())
+            dispatch(gs.openClonePopup())
         } else if (action === 'interactive_tutorial') {
             dispatch(gs.openTutorFolder(null))
             dispatch(dismissWelcome())

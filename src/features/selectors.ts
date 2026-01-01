@@ -533,6 +533,8 @@ export const getVersion = (state: FullState) => state.global.version
 
 export const getShowRemotePopup = (state: FullState) =>
     state.global.showRemotePopup
+export const getShowClonePopup = (state: FullState) =>
+    state.global.showClonePopup
 export const getRemoteCommand = (state: FullState) => state.global.remoteCommand
 export const getRemotePath = (state: FullState) => state.global.remotePath
 export const getRemoteBad = (state: FullState) => state.global.remoteBad

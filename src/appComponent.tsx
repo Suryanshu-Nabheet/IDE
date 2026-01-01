@@ -24,6 +24,7 @@ import { BottomTerminal } from './components/terminal'
 import { throttleCallback } from './components/componentUtils'
 import { ErrorPopup } from './components/errors'
 import { SSHPopup } from './components/sshPopup'
+import { GitClonePopup } from './components/gitClonePopup'
 
 import { ActivityBar } from './components/activityBar'
 import { StatusBar } from './components/statusBar'
@@ -185,7 +186,6 @@ export function App() {
                         >
                             <LeftSide />
                         </div>
-
                         <div
                             className="leftDrag"
                             onMouseDown={() => {
@@ -200,7 +200,6 @@ export function App() {
                                 <BottomTerminal />
                             </div>
                         </div>
-
                         {/* Right Sidebar for AI Chat */}
                         {aiSidebarOpen && (
                             <>
@@ -224,6 +223,7 @@ export function App() {
                         <SettingsPopup />
                         <FeedbackArea />
                         <SSHPopup />
+                        <GitClonePopup />
                     </>
                 )}
                 {screenState === 'normal' && <StatusBar />}

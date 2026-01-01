@@ -397,6 +397,14 @@ const electronConnector = {
     registerCloseErrors(callback: Callback) {
         ipcRenderer.on('closeErrors', callback)
     },
+    // Git
+    gitClone: (url: string, path: string) =>
+        ipcRenderer.invoke('git_clone', { url, path }),
+    gitStatus: (rootPath: string) =>
+        ipcRenderer.invoke('git_status', { rootPath }),
+    gitCommit: (rootPath: string, message: string) =>
+        ipcRenderer.invoke('git_commit', { rootPath, message }),
+    gitLog: (rootPath: string) => ipcRenderer.invoke('git_log', { rootPath }),
 }
 
 contextBridge.exposeInMainWorld('connector', electronConnector)

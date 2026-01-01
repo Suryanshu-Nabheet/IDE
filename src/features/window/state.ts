@@ -137,6 +137,7 @@ export interface State {
     version: string
 
     showRemotePopup: boolean
+    showClonePopup: boolean
     remoteCommand: string
     remotePath: string
     remoteBad: boolean
@@ -470,6 +471,7 @@ export const initialState = {
     version: '0.0.11',
 
     showRemotePopup: false,
+    showClonePopup: false,
     remoteCommand: '',
     remotePath: '',
     remoteBad: false,

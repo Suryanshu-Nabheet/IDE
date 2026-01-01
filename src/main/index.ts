@@ -12,6 +12,7 @@ import setupApplicationsFolder from './setup/appFolder'
 import setupAutoUpdater from './setup/autoUpdater'
 import { setupEnv } from './setup/env'
 import setupIpcs from './setup/ipcs'
+import setupGitIpcs from './setup/git'
 import setupLogger from './setup/logger'
 import setupProtocal from './setup/protocal'
 import setupSingleInstance from './setup/singleInstance'
@@ -36,6 +37,7 @@ app.on('ready', () => {
 
     setupApplicationsFolder()
     setupIpcs()
+    setupGitIpcs()
     setupLSPs(store)
     setupTerminal()
     setupSearch()

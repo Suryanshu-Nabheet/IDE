@@ -1565,6 +1565,12 @@ const globalSlice = createSlice({
         openRemotePopup(state: State) {
             state.showRemotePopup = true
         },
+        closeClonePopup(state: State) {
+            state.showClonePopup = false
+        },
+        openClonePopup(state: State) {
+            state.showClonePopup = true
+        },
         setRemoteCommand(state: State, action: PayloadAction<string>) {
             state.remoteCommand = action.payload
         },
@@ -1641,9 +1647,11 @@ export const {
     afterFileWasUpdated,
     setFolderOpen,
     closeRemotePopup,
+    openRemotePopup,
+    openClonePopup,
+    closeClonePopup,
     setRemoteCommand,
     setRemotePath,
-    openRemotePopup,
     setBadConnection,
     afterSelectFile,
     executeSplitPane,
