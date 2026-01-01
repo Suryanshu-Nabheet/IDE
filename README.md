@@ -16,19 +16,7 @@
 
 <div align="center">
 
-![Coding Screen 1](<./assets/Demo/Coding_Screen(1).png>)
-
-</div>
-
-<div align="center">
-
-![Coding Screen 2](<./assets/Demo/Coding_Screen(2).png>)
-
-</div>
-
-<div align="center">
-
-![Coding Screen 3](<./assets/Demo/Coding_Screen(3).png>)
+![Coding Screen 1](./assets/Demo/Coding_Screen.png)
 
 </div>
 
