@@ -4,6 +4,7 @@ import * as ssel from '../features/settings/settingsSelectors'
 import {
     changeSettings,
     toggleSettings,
+    setSettingsTab,
 } from '../features/settings/settingsSlice'
 import {
     installLanguageServer,
@@ -26,14 +27,16 @@ import {
     faGear,
     faRobot,
     faCode,
+    faUserCircle,
 } from '@fortawesome/pro-regular-svg-icons'
 
 export function SettingsPopup() {
     const dispatch = useAppDispatch()
     const settings = useAppSelector(ssel.getSettings)
     const isSettingsOpen = useAppSelector(ssel.getSettingsIsOpen)
+    // Use selector instead of local state
+    const activeTab = useAppSelector(ssel.getActiveSettingsTab)
     const languageServerNames = useAppSelector(getLanguages)
-    const [activeTab, setActiveTab] = useState('General')
 
     const customStyles = {
         overlay: {
@@ -76,7 +79,7 @@ export function SettingsPopup() {
                         className={cx('settings-sidebar-item', {
                             active: activeTab === 'General',
                         })}
-                        onClick={() => setActiveTab('General')}
+                        onClick={() => dispatch(setSettingsTab('General'))}
                     >
                         <FontAwesomeIcon icon={faGear} />
                         General
@@ -85,7 +88,7 @@ export function SettingsPopup() {
                         className={cx('settings-sidebar-item', {
                             active: activeTab === 'AI',
                         })}
-                        onClick={() => setActiveTab('AI')}
+                        onClick={() => dispatch(setSettingsTab('AI'))}
                     >
                         <FontAwesomeIcon icon={faRobot} />
                         AI & Models
@@ -94,10 +97,19 @@ export function SettingsPopup() {
                         className={cx('settings-sidebar-item', {
                             active: activeTab === 'Languages',
                         })}
-                        onClick={() => setActiveTab('Languages')}
+                        onClick={() => dispatch(setSettingsTab('Languages'))}
                     >
                         <FontAwesomeIcon icon={faCode} />
                         Language Servers
+                    </div>
+                    <div
+                        className={cx('settings-sidebar-item', {
+                            active: activeTab === 'Account',
+                        })}
+                        onClick={() => dispatch(setSettingsTab('Account'))}
+                    >
+                        <FontAwesomeIcon icon={faUserCircle} />
+                        Account
                     </div>
                 </div>
                 <div className="settings-content">
@@ -208,6 +220,31 @@ export function SettingsPopup() {
                                         languageName={name}
                                     />
                                 ))}
+                            </div>
+                        </div>
+                    )}
+                    {activeTab === 'Account' && (
+                        <div className="animate-fadeIn">
+                            <div className="settings-section-title">
+                                Account
+                            </div>
+                            <div className="settings-description">
+                                Manage your CodeX account.
+                            </div>
+                            <div className="p-8 text-center text-ui-fg-muted bg-white/5 rounded-lg border border-white/5 mt-8">
+                                <div className="text-3xl mb-4 opacity-50">
+                                    <FontAwesomeIcon icon={faUserCircle} />
+                                </div>
+                                <div className="text-lg font-medium mb-2">
+                                    No Account Synced
+                                </div>
+                                <div className="text-sm opacity-70 mb-6">
+                                    Sign in to sync your settings and
+                                    preferences.
+                                </div>
+                                <button className="primary-button bg-accent hover:bg-accent-hover px-6 py-2">
+                                    Sign In / Sign Up
+                                </button>
                             </div>
                         </div>
                     )}

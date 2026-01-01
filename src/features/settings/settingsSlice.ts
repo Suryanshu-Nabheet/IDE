@@ -18,6 +18,13 @@ export const settingsSlice = createSlice({
         toggleSettings(settingsState: SettingsState) {
             settingsState.isOpen = !settingsState.isOpen
         },
+        setSettingsTab(
+            settingsState: SettingsState,
+            action: PayloadAction<'General' | 'AI' | 'Languages' | 'Account'>
+        ) {
+            settingsState.activeTab = action.payload
+            settingsState.isOpen = true
+        },
         changeSettingsNoSideffect(
             settingsState: SettingsState,
             action: PayloadAction<any>
@@ -30,5 +37,5 @@ export const settingsSlice = createSlice({
     },
 })
 
-export const { toggleSettings, changeSettingsNoSideffect } =
+export const { toggleSettings, changeSettingsNoSideffect, setSettingsTab } =
     settingsSlice.actions

@@ -112,6 +112,9 @@ export function FeedbackArea() {
     )
 }
 
+import { GitPane } from './gitPane'
+import { ExtensionsPane } from './extensionsPane'
+
 // A simple functional react component that houses a number of different tabs
 export const LeftSide = () => {
     // A state variable to keep track of the active tab
@@ -124,6 +127,10 @@ export const LeftSide = () => {
                 return <SearchComponent />
             case 'filetree':
                 return <FileTree />
+            case 'git':
+                return <GitPane />
+            case 'extensions':
+                return <ExtensionsPane />
             default:
                 return null
         }

@@ -33,6 +33,16 @@ export const toolSlice = createSlice({
             state.openLeftTab = 'filetree'
             state.leftTabActive = true
         },
+        openGit: (state: ToolState) => {
+            untriggerAll(state)
+            state.openLeftTab = 'git'
+            state.leftTabActive = true
+        },
+        openExtensions: (state: ToolState) => {
+            untriggerAll(state)
+            state.openLeftTab = 'extensions'
+            state.leftTabActive = true
+        },
         leftTabInactive: (state: ToolState) => {
             state.leftTabActive = false
         },
@@ -78,6 +88,8 @@ export const toolSlice = createSlice({
 export const {
     openSearch,
     openFileTree,
+    openGit,
+    openExtensions,
     leftTabInactive,
     triggerFileSearch,
     untriggerFileSearch,

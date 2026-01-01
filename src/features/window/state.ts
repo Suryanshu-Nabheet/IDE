@@ -312,6 +312,7 @@ export interface Settings {
 export interface SettingsState {
     settings: Settings
     isOpen: boolean
+    activeTab: 'General' | 'AI' | 'Languages' | 'Account'
 }
 
 export interface LineChange {
@@ -341,7 +342,7 @@ export interface CommentState {
 }
 
 export interface ToolState {
-    openLeftTab: 'search' | 'filetree'
+    openLeftTab: 'search' | 'filetree' | 'git' | 'extensions'
     leftTabActive: boolean
     fileSearchTriggered: boolean
     commandPaletteTriggered: boolean
@@ -416,6 +417,7 @@ export const initialChatState: ChatState = {
 
 export const initialSettingsState = {
     isOpen: false,
+    activeTab: 'General' as 'General' | 'AI' | 'Languages' | 'Account',
     settings: {
         keyBindings: 'none',
         useFour: 'disabled',

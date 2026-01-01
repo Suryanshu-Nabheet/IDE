@@ -13,6 +13,11 @@ export const getSettings = createSelector(
     (settings: SettingsState) => settings.settings
 )
 
+export const getActiveSettingsTab = createSelector(
+    (state: FullState) => state.settingsState,
+    (settings: SettingsState) => settings.activeTab
+)
+
 export async function getModels(secretKey: string) {
     return await fetch('https://api.openai.com/v1/models', {
         headers: {
