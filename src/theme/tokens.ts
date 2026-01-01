@@ -1,70 +1,54 @@
 export const BASE_TOKENS = {
     // Pure Black Backgrounds (Progressive Depth)
-    black: '#000000', // Absolute zero — terminal, deepest panels
-    blackSoft: '#0a0a0a', // Editor background — slightly lifted
-    blackElevated: '#121212', // Elevated surfaces — modals, popups
-    blackSubtle: '#1a1a1a', // Hover states, subtle elevation
-
-    // Grays (Semantic Hierarchy)
-    gray900: '#1e1e1e', // Active line, selections
-    gray800: '#2b2b2b', // Borders, dividers
-    gray700: '#3a3a3a', // Disabled states
-    gray600: '#858585', // Muted text, line numbers
-    gray500: '#a6a6a6', // Secondary text
-    gray400: '#c5c5c5', // Tertiary text
-    gray300: '#d4d4d4', // Placeholder text
-    gray200: '#e5e5e5', // Primary text (muted)
-    gray100: '#ffffff', // Primary text (standard)
-
-    // Anysphere Dark Palette (High-Fidelity Match)
+    // Anysphere Dark Palette (Authoritative)
     anysphere: {
-        bg: '#000000',
-        fg: '#d4d4d4',
+        // UI Backgrounds
+        editorBg: '#0B0E14',
+        sidebarBg: '#0F1320',
+        panelBg: '#0D1117', // Terminal / AI
+        activityBarBg: '#0F1320',
+        titleBarBg: '#0F1320',
 
-        selection: '#264f78',
-        lineHighlight: '#2b2b2b66',
+        // Tabs
+        tabActiveBg: '#121826',
+        tabInactiveBg: 'transparent',
+        tabHoverBg: '#151B2E',
+        tabBorder: '#1C2333', // Border / Divider
 
-        // Syntax
-        keyword: '#569cd6', // Blue
-        control: '#569cd6', // Blue
-        type: '#4ec9b0', // Teal
-        property: '#9cdcfe', // Light Blue
-        function: '#dcdcaa', // Yellow
-        variable: '#d4d4d4', // Off-white
-        number: '#b5cea8', // Pale Green
-        string: '#ce9178', // Peach/Orange
-        comment: '#6a9955', // Forest Green
-        operator: '#d4d4d4', // Off-white
-        tag: '#569cd6', // Blue
-        constant: '#4fc1ff', // Cyan
+        // Text
+        fgPrimary: '#E6EAF2',
+        fgSecondary: '#9AA4BF',
+        fgMuted: '#5F6B85',
+        fgDisabled: '#3F475A',
 
-        // Accents
-        blue: '#3794ff',
-        focusBorder: '#4fc1ff',
+        // Editor Elements
+        cursor: '#82AAFF',
+        selection: 'rgba(130, 170, 255, 0.18)',
+        activeLine: 'rgba(255, 255, 255, 0.03)',
+        lineHighlight: 'rgba(255, 255, 255, 0.03)',
+        indentGuide: 'rgba(255, 255, 255, 0.05)',
+        bracketMatch: 'rgba(130, 170, 255, 0.25)',
 
-        // Diagnostics
-        error: '#f14c4c',
-        warning: '#cca700',
-        info: '#3794ff',
+        // Syntax Highlighting
+        keyword: '#C792EA',
+        string: '#ECC48D',
+        number: '#F78C6C',
+        function: '#82AAFF',
+        variable: '#E6EAF2',
+        type: '#FFCB6B',
+        comment: '#5F6B85',
+        tag: '#F07178',
+        attribute: '#C3E88D',
 
-        // Terminal
-        ansiBlack: '#000000',
-        ansiRed: '#cd3131',
-        ansiGreen: '#0dbc79',
-        ansiYellow: '#e5b95c',
-        ansiBlue: '#2472c8',
-        ansiMagenta: '#bc3fbc',
-        ansiCyan: '#11a8cd',
-        ansiWhite: '#e5e5e5',
-
-        ansiBrightBlack: '#666666',
-        ansiBrightRed: '#f14c4c',
-        ansiBrightGreen: '#23d18b',
-        ansiBrightYellow: '#f5f543',
-        ansiBrightBlue: '#3b8eea',
-        ansiBrightMagenta: '#d670d6',
-        ansiBrightCyan: '#29b8db',
-        ansiBrightWhite: '#ffffff',
+        // Accents & State
+        border: '#1C2333',
+        hover: '#151B2E',
+        focus: 'rgba(130, 170, 255, 0.15)',
+        error: '#FF5370',
+        success: '#C3E88D',
+        warning: '#FFCB6B',
+        activeFileBg: 'rgba(130, 170, 255, 0.12)',
+        activeFileText: '#FFFFFF',
     },
 } as const
 
@@ -73,99 +57,92 @@ export const BASE_TOKENS = {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const SEMANTIC_TOKENS = {
-    // Editor Core
     editor: {
-        background: BASE_TOKENS.anysphere.bg,
-        foreground: BASE_TOKENS.anysphere.fg,
-        lineHighlight: BASE_TOKENS.anysphere.lineHighlight,
+        background: BASE_TOKENS.anysphere.editorBg,
+        foreground: BASE_TOKENS.anysphere.fgPrimary,
         selection: BASE_TOKENS.anysphere.selection,
-        selectionMatch: '#29435c', // Subtle match
-        cursor: '#aeafad',
-        cursorAccent: '#000000',
+        lineHighlight: BASE_TOKENS.anysphere.activeLine,
+        selectionMatch: BASE_TOKENS.anysphere.bracketMatch,
+        cursor: BASE_TOKENS.anysphere.cursor,
+        indentGuide: BASE_TOKENS.anysphere.indentGuide,
     },
-
-    // Gutter (Line Numbers)
     gutter: {
-        background: BASE_TOKENS.anysphere.bg,
-        foreground: '#858585',
-        foregroundActive: '#c6c6c6',
+        background: BASE_TOKENS.anysphere.editorBg,
+        foreground: BASE_TOKENS.anysphere.fgMuted,
+        foregroundActive: BASE_TOKENS.anysphere.fgSecondary,
         border: 'transparent',
     },
-
-    // Syntax Highlighting
     syntax: {
         keyword: BASE_TOKENS.anysphere.keyword,
-        type: BASE_TOKENS.anysphere.type,
-        class: BASE_TOKENS.anysphere.type,
-        interface: BASE_TOKENS.anysphere.type,
-        function: BASE_TOKENS.anysphere.function,
-        method: BASE_TOKENS.anysphere.function,
-        variable: BASE_TOKENS.anysphere.variable,
-        property: BASE_TOKENS.anysphere.property,
-        parameter: '#9cdcfe',
-        constant: BASE_TOKENS.anysphere.constant,
+        constant: BASE_TOKENS.anysphere.number,
         string: BASE_TOKENS.anysphere.string,
         number: BASE_TOKENS.anysphere.number,
-        boolean: '#569cd6',
-        null: '#569cd6',
+        boolean: BASE_TOKENS.anysphere.number,
+        null: BASE_TOKENS.anysphere.number,
         comment: BASE_TOKENS.anysphere.comment,
-        operator: BASE_TOKENS.anysphere.operator,
-        punctuation: BASE_TOKENS.anysphere.operator,
+        operator: BASE_TOKENS.anysphere.fgSecondary,
+        punctuation: BASE_TOKENS.anysphere.fgSecondary,
         tag: BASE_TOKENS.anysphere.tag,
-        attribute: '#9cdcfe',
-        selector: '#569cd6',
-        regex: '#d16969',
-        escape: '#d7ba7d',
+        attribute: BASE_TOKENS.anysphere.attribute,
+        property: BASE_TOKENS.anysphere.variable,
+        function: BASE_TOKENS.anysphere.function,
+        variable: BASE_TOKENS.anysphere.variable,
+        type: BASE_TOKENS.anysphere.type,
+
+        // Legacy fallbacks / specific mappings
+        selector: BASE_TOKENS.anysphere.tag,
+        regex: BASE_TOKENS.anysphere.string,
+        escape: BASE_TOKENS.anysphere.number,
     },
 
     // Diagnostics
     diagnostic: {
         error: BASE_TOKENS.anysphere.error,
-        errorBackground: 'rgba(244, 135, 113, 0.2)',
+        errorBackground: 'rgba(255, 83, 112, 0.2)',
         warning: BASE_TOKENS.anysphere.warning,
-        warningBackground: 'rgba(204, 167, 0, 0.2)',
-        info: BASE_TOKENS.anysphere.info,
-        infoBackground: 'rgba(117, 190, 255, 0.2)',
-        hint: '#6c6c6c',
+        warningBackground: 'rgba(255, 203, 107, 0.2)',
+        info: '#82AAFF',
+        infoBackground: 'rgba(130, 170, 255, 0.2)',
+        hint: BASE_TOKENS.anysphere.fgMuted,
         hintBackground: 'transparent',
     },
 
     // UI Elements
     ui: {
-        background: BASE_TOKENS.black,
-        backgroundElevated: BASE_TOKENS.blackElevated,
-        backgroundSubtle: BASE_TOKENS.blackSubtle,
-        foreground: BASE_TOKENS.anysphere.fg,
-        foregroundMuted: '#969696',
-        border: '#2b2b2b',
-        borderSubtle: '#1e1e1e',
+        background: BASE_TOKENS.anysphere.sidebarBg,
+        backgroundElevated: BASE_TOKENS.anysphere.panelBg,
+        backgroundSubtle: BASE_TOKENS.anysphere.hover,
+        foreground: BASE_TOKENS.anysphere.fgPrimary,
+        foregroundMuted: BASE_TOKENS.anysphere.fgMuted,
+        border: BASE_TOKENS.anysphere.border,
+        borderSubtle: BASE_TOKENS.anysphere.border,
     },
 
     // Terminal
     terminal: {
-        background: BASE_TOKENS.black,
-        foreground: '#cccccc',
-        cursor: '#ffffff',
-        selection: '#264f78',
+        background: BASE_TOKENS.anysphere.panelBg,
+        foreground: BASE_TOKENS.anysphere.fgPrimary,
+        cursor: BASE_TOKENS.anysphere.cursor,
+        selection: BASE_TOKENS.anysphere.selection,
 
-        // ANSI
-        black: BASE_TOKENS.anysphere.ansiBlack,
-        red: BASE_TOKENS.anysphere.ansiRed,
-        green: BASE_TOKENS.anysphere.ansiGreen,
-        yellow: BASE_TOKENS.anysphere.ansiYellow,
-        blue: BASE_TOKENS.anysphere.ansiBlue,
-        magenta: BASE_TOKENS.anysphere.ansiMagenta,
-        cyan: BASE_TOKENS.anysphere.ansiCyan,
-        white: BASE_TOKENS.anysphere.ansiWhite,
+        // ANSI (Mapping to Anysphere Palette approximations where feasible or standards)
+        black: '#000000',
+        red: BASE_TOKENS.anysphere.error,
+        green: BASE_TOKENS.anysphere.success,
+        yellow: BASE_TOKENS.anysphere.warning,
+        blue: '#82AAFF',
+        magenta: '#C792EA',
+        cyan: '#89DDFF',
+        white: BASE_TOKENS.anysphere.fgPrimary,
 
-        brightBlack: BASE_TOKENS.anysphere.ansiBrightBlack,
-        brightRed: BASE_TOKENS.anysphere.ansiBrightRed,
-        brightGreen: BASE_TOKENS.anysphere.ansiBrightGreen,
-        brightYellow: BASE_TOKENS.anysphere.ansiBrightYellow,
-        brightBlue: BASE_TOKENS.anysphere.ansiBrightBlue,
-        brightMagenta: BASE_TOKENS.anysphere.ansiBrightMagenta,
-        brightCyan: BASE_TOKENS.anysphere.ansiBrightCyan,
-        brightWhite: BASE_TOKENS.anysphere.ansiBrightWhite,
+        brightBlack: BASE_TOKENS.anysphere.fgMuted,
+        brightRed: '#FF5370',
+        brightGreen: '#C3E88D',
+        brightYellow: '#FFCB6B',
+        brightBlue: '#82AAFF',
+        brightMagenta: '#C792EA',
+        brightCyan: '#89DDFF',
+        brightWhite: '#FFFFFF',
     },
 } as const
 
@@ -176,64 +153,64 @@ export const SEMANTIC_TOKENS = {
 export const COMPONENT_TOKENS = {
     // Title Bar
     titleBar: {
-        background: BASE_TOKENS.black,
-        foreground: '#cccccc',
-        border: '#2b2b2b',
-        buttonHover: '#333333',
-        aiButton: BASE_TOKENS.anysphere.blue,
+        background: BASE_TOKENS.anysphere.titleBarBg,
+        foreground: BASE_TOKENS.anysphere.fgSecondary,
+        border: BASE_TOKENS.anysphere.border,
+        buttonHover: BASE_TOKENS.anysphere.hover,
+        aiButton: '#3794ff',
         aiButtonHover: '#66b2ff',
     },
 
     // Sidebar / File Tree
     sidebar: {
-        background: BASE_TOKENS.black, // Pure Black
-        foreground: '#cccccc',
-        foregroundMuted: '#969696',
-        hover: '#2a2d2e',
-        selected: '#094771', // Standard Box selection
-        selectedAccent: BASE_TOKENS.anysphere.focusBorder,
-        border: '#252526',
+        background: BASE_TOKENS.anysphere.sidebarBg,
+        foreground: BASE_TOKENS.anysphere.fgSecondary, // #9AA4BF
+        foregroundMuted: BASE_TOKENS.anysphere.fgMuted,
+        hover: BASE_TOKENS.anysphere.hover,
+        selected: BASE_TOKENS.anysphere.activeFileBg,
+        selectedAccent: BASE_TOKENS.anysphere.activeFileText, // Or use a color bar?
+        border: BASE_TOKENS.anysphere.border,
     },
 
     // Tabs
     tabs: {
-        background: BASE_TOKENS.black,
-        backgroundActive: BASE_TOKENS.black,
-        foreground: '#969696',
-        foregroundActive: '#ffffff',
-        border: '#252526',
-        hover: '#2d2d2d',
-        dirty: '#ffffff',
+        background: BASE_TOKENS.anysphere.tabInactiveBg, // Transparent
+        backgroundActive: BASE_TOKENS.anysphere.tabActiveBg,
+        foreground: BASE_TOKENS.anysphere.fgSecondary, // #9AA4BF
+        foregroundActive: BASE_TOKENS.anysphere.activeFileText, // #FFFFFF
+        border: BASE_TOKENS.anysphere.tabBorder,
+        hover: BASE_TOKENS.anysphere.tabHoverBg,
+        dirty: '#CC3E44', // Reddish for dirty state? Or standard text
     },
 
     // Panels
     panel: {
-        background: BASE_TOKENS.black,
-        backgroundElevated: '#1e1e1e',
-        foreground: '#cccccc',
-        border: '#2b2b2b',
+        background: BASE_TOKENS.anysphere.panelBg,
+        backgroundElevated: BASE_TOKENS.anysphere.sidebarBg,
+        foreground: BASE_TOKENS.anysphere.fgPrimary,
+        border: BASE_TOKENS.anysphere.border,
     },
 
     // Inputs
     input: {
-        background: '#3c3c3c',
-        foreground: '#cccccc',
-        border: '#3c3c3c',
-        borderFocus: BASE_TOKENS.anysphere.focusBorder,
-        placeholder: '#a6a6a6',
+        background: '#0B0E14',
+        foreground: BASE_TOKENS.anysphere.fgPrimary,
+        border: BASE_TOKENS.anysphere.border,
+        borderFocus: BASE_TOKENS.anysphere.focus, // Blue glow
+        placeholder: BASE_TOKENS.anysphere.fgDisabled,
     },
 
     // Buttons
     button: {
-        primary: BASE_TOKENS.anysphere.blue,
+        primary: '#3794ff',
         primaryHover: '#006ab1',
         primaryActive: '#004f85',
 
-        success: '#89d185',
-        successHover: '#6a9955',
+        success: BASE_TOKENS.anysphere.success,
+        successHover: '#a3d995',
 
-        danger: '#f14c4c',
-        dangerHover: '#c13939',
+        danger: BASE_TOKENS.anysphere.error,
+        dangerHover: '#d93636',
 
         secondary: '#3c3c3c',
         secondaryHover: '#4d4d4d',
@@ -242,23 +219,23 @@ export const COMPONENT_TOKENS = {
     // Scrollbar
     scrollbar: {
         background: 'transparent',
-        thumb: '#79797966',
-        thumbHover: '#646464bb',
+        thumb: 'rgba(80, 80, 80, 0.5)',
+        thumbHover: 'rgba(100, 100, 100, 0.8)',
     },
 
     // Tooltips
     tooltip: {
-        background: '#252526',
-        foreground: '#cccccc',
-        border: '#454545',
+        background: BASE_TOKENS.anysphere.sidebarBg,
+        foreground: BASE_TOKENS.anysphere.fgPrimary,
+        border: BASE_TOKENS.anysphere.border,
     },
 
     // Modals
     modal: {
-        background: '#252526',
-        foreground: '#cccccc',
-        border: '#454545',
-        overlay: 'rgba(0, 0, 0, 0.65)',
+        background: BASE_TOKENS.anysphere.sidebarBg,
+        foreground: BASE_TOKENS.anysphere.fgPrimary,
+        border: BASE_TOKENS.anysphere.border,
+        overlay: 'rgba(0, 0, 0, 0.85)',
     },
 } as const
 
