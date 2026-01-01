@@ -14,74 +14,85 @@ const { typography } = CODEX_THEME
 const ANYSPHERE_COLORS = {
     // Base text colors
     text: {
-        primary: '#E6EDF3', // White - normal content
-        secondary: '#A0A8B5', // Light gray
-        muted: '#6B7280', // Muted gray
-        disabled: '#404450', // Very muted
-        bright: '#FFFFFF', // Pure white for emphasis
+        primary: '#E6EDF3', // White-ish
+        secondary: '#9DA7B3', // Gray
+        muted: '#768390', // Muted Gray
+        disabled: '#545D68',
+        bright: '#FFFFFF', // Pure White
     },
 
-    // Precision syntax colors
-    syntax: {
-        // PURPLE - Main keywords, "use client", className, decorators
-        purple: '#b54dfaff', // Main purple for className, "use client"
-        purpleBright: '#BB86FC', // Bright purple for special keywords
-        purpleDecorator: '#E879F9', // Hot purple for @decorators
-
-        // PINK - Content inside className, string values, JSX content
-        pink: '#ff50b3ff', // Bright pink for string content
-        pinkSoft: '#FFB3D9', // Soft pink for attributes
-        pinkVivid: '#FF6AC1', // Vivid pink for special strings
-
-        // LIGHT GREEN - import, export, interface, type keywords
-        green: '#36ff68ff', // Light green for import/export
-        greenSoft: '#69FF94', // Soft green for interface/type
-        greenMint: '#A6E3A1', // Mint for properties
-
-        // BLUE - Tag names like AlertCircle, motion.div
-        blue: '#03cffdff', // Cyan-blue for component tags
-        blueBright: '#82AAFF', // Bright blue for functions
-        blueVivid: '#61AFEF', // Vivid blue for special functions
-
-        // YELLOW - HTML tags (div, span, button)
-        yellow: '#F1FA8C', // Yellow for HTML elements
-        yellowBright: '#FFD866', // Bright yellow for types
-        yellowGold: '#E5C07B', // Gold for constants
-
-        // WHITE - Normal content, variables
-        white: '#E6EDF3', // White for normal text
-        whiteBright: '#FFFFFF', // Pure white for emphasis
-
-        // SUPPORTING COLORS
-        operator: '#89DDFF', // Cyan for operators
-        punctuation: '#ABB2BF', // Light gray for punctuation
-        comment: '#6272A4', // Purple-gray for comments
-        number: '#BD93F9', // Purple for numbers
-        boolean: '#BD93F9', // Purple for booleans
-        null: '#BD93F9', // Purple for null/undefined
-    },
-
-    // Editor UI
     editor: {
-        background: '#000000', // Pure black
-        lineHighlight: '#0d0d0d', // Barely visible
-        selection: '#44475A', // Dark gray selection
-        cursor: '#F8F8F2', // Bright cursor
-        matchingBracket: '#8BE9FD', // Cyan for brackets
+        background: '#000000', // Pure Black
+        cursor: '#FFFFFF', // White Cursor
+        selection: 'rgba(97, 175, 239, 0.2)', // Blue Selection
+        lineHighlight: 'rgba(255, 255, 255, 0.05)',
+        selectionMatch: '#44475A60',
+        matchingBracket: '#C678DD', // Purple
     },
 
-    // Gutter
     gutter: {
-        background: '#000000', // Pure black
-        foreground: '#3d3d3d', // Very muted
-        active: '#6E7681', // Active line
+        background: '#000000',
+        foreground: '#444444',
+        active: '#FFFFFF',
     },
 
-    // Diagnostics (no red)
     diagnostic: {
-        error: '#FF79C6', // Pink for errors
-        warning: '#F1FA8C', // Yellow for warnings
-        info: '#8BE9FD', // Blue for info
+        error: '#E06C75', // Pink
+        warning: '#E5C07B', // Yellow
+        info: '#61AFEF', // Blue
+    },
+
+    // Syntax highlighting — Vibrant Black Palette
+    syntax: {
+        // Base Mappings (Legacy Support)
+        keyword: '#C678DD',
+        string: '#98C379',
+        constant: '#E5C07B',
+        function: '#61AFEF',
+        variable: '#FFFFFF',
+        parameter: '#FFFFFF',
+        type: '#E5C07B',
+        tag: '#E06C75',
+        attribute: '#E5C07B',
+        property: '#FFFFFF',
+        operator: '#FFFFFF',
+        punctuation: '#FFFFFF',
+        comment: '#7F848E',
+        decorator: '#C678DD',
+        error: '#E06C75',
+        warning: '#E5C07B',
+        info: '#61AFEF',
+
+        // Specific Vibrant Keys
+        purple: '#C678DD',
+        purpleBright: '#C678DD',
+        purpleDecorator: '#C678DD',
+
+        green: '#98C379',
+        greenSoft: '#98C379',
+        greenMint: '#98C379',
+
+        yellow: '#E5C07B',
+        yellowBright: '#E5C07B',
+        yellowGold: '#E5C07B',
+
+        blue: '#61AFEF',
+        blueBright: '#61AFEF',
+
+        pink: '#E06C75',
+        pinkSoft: '#E06C75',
+        pinkVivid: '#E06C75',
+
+        white: '#FFFFFF',
+        whiteBright: '#FFFFFF',
+
+        number: '#E5C07B',
+        boolean: '#C678DD',
+        null: '#C678DD',
+
+        // Punctuation & Operators
+        punctuation: '#A6ACCD', // Muted Blue-Gray
+        operator: '#FFFFFF',
     },
 }
 
