@@ -1,54 +1,63 @@
 export const BASE_TOKENS = {
     // Pure Black Backgrounds (Progressive Depth)
-    // Anysphere Dark Palette (Authoritative)
+    // CodeX Vibrant Black Palette (User Requested)
     anysphere: {
         // UI Backgrounds
-        editorBg: '#0B0E14',
-        sidebarBg: '#0F1320',
-        panelBg: '#0D1117', // Terminal / AI
-        activityBarBg: '#0F1320',
-        titleBarBg: '#0F1320',
+        editorBg: '#000000', // Pure Black
+        sidebarBg: '#000000', // Pure Black
+        panelBg: '#000000', // Pure Black
+        activityBarBg: '#000000', // Pure Black
+        titleBarBg: '#000000', // Pure Black
 
         // Tabs
-        tabActiveBg: '#121826',
-        tabInactiveBg: 'transparent',
-        tabHoverBg: '#151B2E',
-        tabBorder: '#1C2333', // Border / Divider
+        tabActiveBg: '#000000',
+        tabInactiveBg: '#000000',
+        tabHoverBg: '#111111',
+        tabBorder: '#222222',
 
         // Text
-        fgPrimary: '#E6EAF2',
-        fgSecondary: '#9AA4BF',
-        fgMuted: '#5F6B85',
-        fgDisabled: '#3F475A',
+        fgPrimary: '#FFFFFF', // White
+        fgSecondary: '#B0B0B0',
+        fgMuted: '#666666',
+        fgDisabled: '#444444',
 
         // Editor Elements
-        cursor: '#82AAFF',
-        selection: 'rgba(130, 170, 255, 0.18)',
-        activeLine: 'rgba(255, 255, 255, 0.03)',
-        lineHighlight: 'rgba(255, 255, 255, 0.03)',
-        indentGuide: 'rgba(255, 255, 255, 0.05)',
-        bracketMatch: 'rgba(130, 170, 255, 0.25)',
+        cursor: '#FFFFFF',
+        selection: 'rgba(55, 148, 255, 0.2)', // Blue Selection
+        activeLine: 'rgba(255, 255, 255, 0.05)',
+        lineHighlight: 'rgba(255, 255, 255, 0.05)',
+        indentGuide: '#222222',
+        bracketMatch: 'rgba(198, 120, 221, 0.3)', // Purple
 
-        // Syntax Highlighting
-        keyword: '#C792EA',
-        string: '#ECC48D',
-        number: '#F78C6C',
-        function: '#82AAFF',
-        variable: '#E6EAF2',
-        type: '#FFCB6B',
-        comment: '#5F6B85',
-        tag: '#F07178',
-        attribute: '#C3E88D',
+        // Syntax Highlighting - Vibrant Palette
+        // "blue , purple , pink , light green , yellow , and white"
+        keyword: '#C678DD', // Purple
+        string: '#98C379', // Light Green
+        number: '#E5C07B', // Yellow
+        function: '#61AFEF', // Blue
+        variable: '#FFFFFF', // White
+        type: '#E5C07B', // Yellow
+        comment: '#666666', // Muted Gray (Classic)
+        tag: '#E06C75', // Pink (using Reddish-Pink for tags usually, or could be Pink #FF79C6)
+        attribute: '#D19A66', // Orange-ish for variety or reuse Pink? User asked for Pink. Let's use Pink for something distinct.
 
         // Accents & State
-        border: '#1C2333',
-        hover: '#151B2E',
-        focus: 'rgba(130, 170, 255, 0.15)',
-        error: '#FF5370',
-        success: '#C3E88D',
-        warning: '#FFCB6B',
-        activeFileBg: 'rgba(130, 170, 255, 0.12)',
-        activeFileText: '#FFFFFF',
+        border: '#222222',
+        hover: '#111111',
+        focus: '#61AFEF',
+        error: '#E06C75', // Pink/Red
+        success: '#98C379', // Light Green
+        warning: '#E5C07B', // Yellow
+        activeFileBg: '#111111',
+        activeFileText: '#61AFEF', // Blue Text for active file
+
+        // Specific User Colors mapped to generic names for reuse
+        userBlue: '#61AFEF',
+        userPurple: '#C678DD',
+        userPink: '#E06C75', // Using a nice soft pink/red
+        userGreen: '#98C379',
+        userYellow: '#E5C07B',
+        userWhite: '#FFFFFF',
     },
 } as const
 
@@ -82,17 +91,17 @@ export const SEMANTIC_TOKENS = {
         comment: BASE_TOKENS.anysphere.comment,
         operator: BASE_TOKENS.anysphere.fgSecondary,
         punctuation: BASE_TOKENS.anysphere.fgSecondary,
-        tag: BASE_TOKENS.anysphere.tag,
-        attribute: BASE_TOKENS.anysphere.attribute,
-        property: BASE_TOKENS.anysphere.variable,
-        function: BASE_TOKENS.anysphere.function,
-        variable: BASE_TOKENS.anysphere.variable,
-        type: BASE_TOKENS.anysphere.type,
+        tag: BASE_TOKENS.anysphere.userPink,
+        attribute: BASE_TOKENS.anysphere.userYellow,
+        property: BASE_TOKENS.anysphere.userWhite,
+        function: BASE_TOKENS.anysphere.userBlue,
+        variable: BASE_TOKENS.anysphere.userWhite,
+        type: BASE_TOKENS.anysphere.userYellow,
 
         // Legacy fallbacks / specific mappings
-        selector: BASE_TOKENS.anysphere.tag,
-        regex: BASE_TOKENS.anysphere.string,
-        escape: BASE_TOKENS.anysphere.number,
+        selector: BASE_TOKENS.anysphere.userPink,
+        regex: BASE_TOKENS.anysphere.userPurple,
+        escape: BASE_TOKENS.anysphere.userYellow,
     },
 
     // Diagnostics

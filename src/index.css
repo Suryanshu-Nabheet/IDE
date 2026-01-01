@@ -1337,8 +1337,8 @@ li.rta__item--selected mark {
 /* Active Tab */
 .tab__is_active {
     background-color: var(--tab-active-bg);
-    color: var(--gray-100);
-    border-top: 1px solid var(--accent); /* Subtle top glow */
+    color: var(--white);
+    border-top: 2px solid var(--blue); /* Blue Top Border */
     border-right: 1px solid var(--tab-border);
 }
 
