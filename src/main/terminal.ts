@@ -1,4 +1,5 @@
 import os from 'os'
+import fs from 'fs'
 import * as pty from 'node-pty'
 import { ipcMain } from 'electron'
 import log from 'electron-log'
@@ -50,8 +51,16 @@ export function setupTerminal(mainWindow: any, rootPath?: string) {
         requestRootPath?: string,
         requestedShell?: string
     ) => {
-        const cwd =
+        let cwd =
             requestRootPath || rootPath || process.env.HOME || os.homedir()
+
+        if (!fs.existsSync(cwd)) {
+            log.warn(
+                `Terminal CWD ${cwd} does not exist, falling back to home directory`
+            )
+            cwd = os.homedir()
+        }
+
         let shellToUse = requestedShell
 
         if (!shellToUse) {
