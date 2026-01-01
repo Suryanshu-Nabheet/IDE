@@ -48,13 +48,35 @@ try {
     exit 1
 }
 
+# Check if git is installed
+try {
+    $gitVersion = git --version
+    Print-Success "$gitVersion detected"
+} catch {
+    Print-Error "git is not installed!"
+    exit 1
+}
+
+# Clean old builds
+Print-Info "Cleaning old build artifacts..."
+Remove-Item -Path ".webpack", "dist", "out" -Recurse -ErrorAction SilentlyContinue
+Print-Success "Cleaned old builds"
+
 # Install dependencies
 Print-Info "Installing npm dependencies..."
 try {
-    npm install
-    Print-Success "Dependencies installed successfully"
+    npm ci
+    if ($LASTEXITCODE -ne 0) {
+        npm install
+    }
+    if ($LASTEXITCODE -eq 0) {
+        Print-Success "Dependencies installed successfully"
+    } else {
+        throw "npm install failed"
+    }
 } catch {
     Print-Error "Failed to install dependencies"
+    Write-Host "Try removing node_modules and package-lock.json, then run npm install"
     exit 1
 }
 

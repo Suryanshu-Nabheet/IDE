@@ -50,12 +50,27 @@ if ! command -v npm &> /dev/null; then
 fi
 print_success "npm $(npm -v) detected"
 
+# Check if git is installed
+if ! command -v git &> /dev/null; then
+    print_error "git is not installed!"
+    exit 1
+fi
+print_success "git $(git --version | awk '{print $3}') detected"
+
+# Clean old builds
+print_info "Cleaning old build artifacts..."
+rm -rf .webpack dist out
+print_success "Cleaned old builds"
+
 # Install dependencies
 print_info "Installing npm dependencies..."
-if npm install; then
+if npm ci; then
     print_success "Dependencies installed successfully"
+elif npm install; then
+    print_success "Dependencies installed successfully (fallback)"
 else
     print_error "Failed to install dependencies"
+    echo "Try running 'rm -rf node_modules package-lock.json && npm install'"
     exit 1
 fi
 
