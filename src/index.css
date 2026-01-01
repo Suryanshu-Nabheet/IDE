@@ -157,7 +157,7 @@ body {
     color: #ffffff;
 }
 
-/* Signature Anysphere Active Dot */
+/* Signature Anysphere Active indicator (Line only) */
 .activity-bar__item.active::after {
     content: '';
     position: absolute;
@@ -165,19 +165,6 @@ body {
     width: 2px;
     height: 24px;
     background-color: #ffffff; /* White line on the far left */
-}
-
-.activity-bar__item.active::before {
-    content: '';
-    position: absolute;
-    right: 8px; /* Blue dot on the right side of the icon as seen in Anysphere image */
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: var(--blue-bright, #3794ff);
-    box-shadow: 0 0 8px rgba(55, 148, 255, 0.5);
 }
 
 .left-pane-header {
@@ -271,31 +258,22 @@ body {
 /* ============================================
    FILE ICONS - Professional Colors
    ============================================ */
-.file-icon--js { color: #f7df1e; }
-.file-icon--ts { color: #3178c6; }
-.file-icon--readme { color: #42a5f5; }
-.file-icon--license { color: #ffca28; }
-.file-icon--react { color: #61dafb; }
-.file-icon--python { color: #3776ab; }
-.file-icon--html { color: #e34f26; }
-.file-icon--css { color: #1572b6; }
-.file-icon--rust { color: #dea584; }
-.file-icon--go { color: #00add8; }
-.file-icon--swift { color: #f05138; }
-.file-icon--java { color: #007396; }
-.file-icon--php { color: #777bb4; }
-.file-icon--markdown { color: #ffffff; }
-.file-icon--config { color: #8a8a8a; }
-.file-icon--image { color: #a074c4; }
-.file-icon--terminal { color: #4d4d4d; }
-.file-icon--archive { color: #dcb239; }
-.file-icon--pdf { color: #f40f02; }
-.file-icon--csv { color: #217346; }
-.file-icon--binary { color: #6d6d6d; }
-.file-icon--npm { color: #cb3837; }
-.file-icon--git { color: #f05032; }
-.file-icon--docker { color: #2496ed; }
-.file-icon--tailwind { color: #38bdf8; }
+/* ============================================
+   FILE ICONS - Premium & Tech-Aligned
+   ============================================ */
+.icon--js { color: #f1e05a; }
+.icon--ts { color: #3178c6; }
+.icon--react { color: #61dafb; }
+.icon--css { color: #6272a4; }
+.icon--html { color: #e34c26; }
+.icon--py { color: #3776ab; }
+.icon--json { color: #cbcb41; }
+.icon--md { color: #42a5f5; }
+.icon--img { color: #bb8adb; }
+.icon--config { color: #8a8a8a; }
+.icon--folder { color: #d7ba7d; }
+.icon--folder-open { color: #d7ba7d; }
+.icon--binary { color: #6d6d6d; }
 
 .app__lefttopwrapper {
     flex-direction: column;

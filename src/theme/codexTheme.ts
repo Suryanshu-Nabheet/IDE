@@ -192,6 +192,20 @@ const codexHighlightStyle = HighlightStyle.define([
     // HTML/CSS SPECIALS
     { tag: [t.angleBracket], color: '#808080' },
     { tag: [t.labelName], color: '#d7ba7d' }, // CSS Selector (Gold)
+
+    // MARKDOWN (Premium Support)
+    {
+        tag: [t.heading, t.heading1, t.heading2, t.heading3],
+        color: semantic.syntax.keyword,
+        fontWeight: 'bold',
+    },
+    { tag: [t.list, t.quote], color: '#6a9955' },
+    { tag: [t.emphasis], fontStyle: 'italic', color: semantic.syntax.variable },
+    { tag: [t.strong], fontWeight: 'bold', color: semantic.syntax.variable },
+    { tag: [t.link], color: '#3794ff', textDecoration: 'underline' },
+    { tag: [t.url], color: '#9cdcfe' },
+    { tag: [t.strikethrough], textDecoration: 'line-through' },
+    { tag: [t.meta], color: semantic.syntax.comment },
 ])
 
 // ═══════════════════════════════════════════════════════════════════════════
