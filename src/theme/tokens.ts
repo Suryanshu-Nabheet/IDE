@@ -16,34 +16,36 @@ export const BASE_TOKENS = {
     gray200: '#e5e5e5', // Primary text (muted)
     gray100: '#ffffff', // Primary text (standard)
 
-    // Cursor / Anysphere Palette (VS Code Dark+ / Modern Dark)
+    // Anysphere Dark Palette (Cursor / High-Fidelity Modern Dark)
     anysphere: {
-        bg: '#000000', // User mandated Pure Black
-        fg: '#cccccc', // Standard Light Grey
+        bg: '#000000', // Pure Black (User Mandated)
+        fg: '#d4d4d4', // Crisp Gray (from image)
 
-        selection: '#264f78', // Classic VS Code Blue Selection
-        lineHighlight: '#2b2b2b', // Subtle grey
+        selection: '#264f78', // Deep Blue Selection
+        lineHighlight: '#2b2b2b66', // Subtle transparency
 
-        // Syntax
-        keyword: '#c586c0', // Purple
-        control: '#c586c0', // Purple
-        type: '#4ec9b0', // Teal/Greenish
-        function: '#dcdcaa', // Pale Yellow
-        variable: '#9cdcfe', // Light Blue
-        number: '#b5cea8', // Lime Green
-        string: '#ce9178', // Orange / Clay
-        comment: '#6a9955', // Green
-        operator: '#d4d4d4', // White/Grey
-        tag: '#569cd6', // Blue (HTML keys)
+        // Syntax (Precise Anysphere Palette)
+        keyword: '#569cd6', // Cyan-Blue
+        control: '#569cd6', // Cyan-Blue
+        type: '#4ec9b0', // Teal
+        function: '#dcdcaa', // Yellow (Methods/Functions)
+        variable: '#d4d4d4', // Off-white (Variable Names)
+        property: '#dcdcaa', // Yellow (Properties - Image match)
+        parameter: '#9cdcfe', // Light Blue
+        number: '#b5cea8', // Pale Green
+        string: '#ce9178', // Salmon/Orange
+        comment: '#6a9955', // Forest Green
+        operator: '#d4d4d4', // Off-white
+        tag: '#569cd6', // Blue
 
         // Accents
-        blue: '#3794ff', // Cursor Blue
-        focusBorder: '#007fd4',
+        blue: '#3794ff',
+        focusBorder: '#4fc1ff',
 
         // Diagnostics
-        error: '#f48771',
+        error: '#f14c4c',
         warning: '#cca700',
-        info: '#75beff',
+        info: '#3794ff',
 
         // Terminal
         ansiBlack: '#000000',
@@ -99,9 +101,9 @@ export const SEMANTIC_TOKENS = {
         function: BASE_TOKENS.anysphere.function,
         method: BASE_TOKENS.anysphere.function,
         variable: BASE_TOKENS.anysphere.variable,
-        property: BASE_TOKENS.anysphere.variable,
-        parameter: BASE_TOKENS.anysphere.variable,
-        constant: '#4fc1ff', // Blue-ish
+        property: BASE_TOKENS.anysphere.property,
+        parameter: BASE_TOKENS.anysphere.parameter,
+        constant: '#4fc1ff', // Cyan
         string: BASE_TOKENS.anysphere.string,
         number: BASE_TOKENS.anysphere.number,
         boolean: '#569cd6', // Blue
@@ -110,7 +112,7 @@ export const SEMANTIC_TOKENS = {
         operator: BASE_TOKENS.anysphere.operator,
         punctuation: BASE_TOKENS.anysphere.operator,
         tag: BASE_TOKENS.anysphere.tag,
-        attribute: BASE_TOKENS.anysphere.variable,
+        attribute: '#9cdcfe', // Light Blue
         selector: '#d7ba7d', // Gold
         regex: '#d16969', // Red-ish
         escape: '#d7ba7d',

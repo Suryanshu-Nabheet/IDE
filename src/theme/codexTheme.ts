@@ -114,18 +114,24 @@ const codexEditorTheme = EditorView.theme(
 // ═══════════════════════════════════════════════════════════════════════════
 
 const codexHighlightStyle = HighlightStyle.define([
-    // KEYWORDS (Purple/Magenta)
+    // KEYWORDS (Anysphere Blue)
     {
         tag: [t.keyword, t.modifier, t.controlKeyword, t.moduleKeyword],
         color: semantic.syntax.keyword,
     },
 
-    // VARIABLES (Light Blue)
+    // VARIABLES (Crisp Off-white)
     {
-        tag: [t.variableName, t.propertyName, t.attributeName],
+        tag: [t.variableName, t.attributeName, t.labelName],
         color: semantic.syntax.variable,
     },
     { tag: [t.definition(t.variableName)], color: semantic.syntax.variable },
+
+    // PROPERTIES & METHODS (Anysphere Yellow)
+    {
+        tag: [t.propertyName, t.attributeValue],
+        color: semantic.syntax.property,
+    },
 
     // FUNCTIONS (Pale Yellow)
     {
