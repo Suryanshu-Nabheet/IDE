@@ -13,7 +13,6 @@ import {
 } from '../features/lsp/languageServerSlice'
 import { Switch } from '@headlessui/react'
 import Dropdown from 'react-dropdown'
-import 'react-dropdown/style.css'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import {
     getLanguages,
@@ -316,6 +315,7 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                     value={localAPIKey || ''}
                     spellCheck="false"
                     type="password"
+                    autoComplete="new-password"
                 />
                 <button
                     className="secondary-button !bg-white !text-black !border-transparent hover:!bg-gray-200 transition-all font-bold"

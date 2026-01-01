@@ -251,6 +251,10 @@ function SearchComponent() {
                     placeholder="Search in files..."
                     value={query}
                     onChange={handleTextareaChange}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             throttledSearch(query, setResults)
