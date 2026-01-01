@@ -248,18 +248,10 @@ const electronConnector = {
     getAllArrayValues: (key: string) =>
         ipcRenderer.invoke('getAllArrayValues', key),
 
-    saveComments: (blob: any) => {
-        ipcRenderer.invoke('saveComments', blob)
-    },
-    loadComments: (path: string) => {
-        ipcRenderer.invoke('loadComments', path)
-    },
-    saveTests: (blob: any) => {
-        return ipcRenderer.invoke('saveTests', blob)
-    },
-    loadTests: (blob: any) => {
-        return ipcRenderer.invoke('loadTests', blob)
-    },
+    saveComments: (blob: any) => ipcRenderer.invoke('saveComments', blob),
+    loadComments: (path: string) => ipcRenderer.invoke('loadComments', path),
+    saveTests: (blob: any) => ipcRenderer.invoke('saveTests', blob),
+    loadTests: (blob: any) => ipcRenderer.invoke('loadTests', blob),
     getProject: () => ipcRenderer.invoke('getProject'),
     saveProject: (data: unknown) => ipcRenderer.invoke('saveProject', data),
 

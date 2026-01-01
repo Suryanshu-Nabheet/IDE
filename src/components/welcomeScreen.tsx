@@ -186,8 +186,8 @@ export function WelcomeScreen() {
 
                 <footer className="welcome-footer">
                     <div className="welcome-author">
-                        V{version?.toUpperCase() || '0.0.11'} &mdash; BUILT BY{' '}
-                        <span>SURYANSHU NABHEET</span>
+                        V{version?.toString().toUpperCase() || '0.0.11'} &mdash;
+                        BUILT BY <span>SURYANSHU NABHEET</span>
                     </div>
                 </footer>
             </div>

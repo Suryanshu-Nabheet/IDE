@@ -535,8 +535,9 @@ export const openRemoteFolder = createAsyncThunk(
             dispatch(initializeIndex(null))
         }
 
+        const normalizedPath = folderPath.replace(/[/\\]$/, '')
         // Add to recent projects
-        await connector.appendToArray('recentProjects', folderPath)
+        await connector.appendToArray('recentProjects', normalizedPath)
         dispatch(loadRecentProjects())
 
         const remote = await connector.getRemote()
@@ -585,7 +586,8 @@ export const openFolder = createAsyncThunk(
             return
         }
 
-        const jsonData = { defaultFolder: folderPath }
+        const normalizedPath = folderPath.replace(/[/\\]$/, '')
+        const jsonData = { defaultFolder: normalizedPath }
 
         await connector.saveProject(jsonData)
 
@@ -613,7 +615,7 @@ export const openFolder = createAsyncThunk(
         }
 
         // Add to recent projects
-        await connector.appendToArray('recentProjects', folderPath)
+        await connector.appendToArray('recentProjects', normalizedPath)
         dispatch(loadRecentProjects())
 
         const remote = await connector.getRemote()
@@ -665,7 +667,8 @@ export const trulyOpenFolder = createAsyncThunk(
             BAD_DIRECTORIES
         )
 
-        dispatch(overwriteFolder({ folderPath: args, folderData }))
+        const normalizedPath = args.replace(/[/\\]$/, '')
+        dispatch(overwriteFolder({ folderPath: normalizedPath, folderData }))
 
         const version = await connector.getVersion()
         dispatch(setVersion(version))
@@ -689,7 +692,7 @@ export const trulyOpenFolder = createAsyncThunk(
         }
 
         // Add to recent projects
-        await connector.appendToArray('recentProjects', args)
+        await connector.appendToArray('recentProjects', normalizedPath)
         dispatch(loadRecentProjects())
     }
 )
