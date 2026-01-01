@@ -6,50 +6,6 @@ export class ExpectedBackendError extends Error {
     public title: string | null = null
 }
 
-export class NoAuthRateLimitError extends ExpectedBackendError {
-    constructor(
-        message = 'Rate limit reached. Please wait a moment before trying again.'
-    ) {
-        super(message)
-        this.name = 'NoAuthRateLimitError'
-        this.title = 'Rate Limit Reached'
-    }
-}
-
-export class AuthRateLimitError extends ExpectedBackendError {
-    constructor(message = 'Too many requests. Please try again in a moment.') {
-        super(message)
-        this.name = 'AuthRateLimitError'
-        this.title = 'Rate Limit'
-    }
-}
-
-export class NoAuthLocalRateLimitError extends ExpectedBackendError {
-    constructor(message = 'Please wait a moment before making more requests.') {
-        super(message)
-        this.name = 'NoAuthLocalRateLimitError'
-        this.title = 'Rate Limit'
-    }
-}
-
-export class NoAuthGlobalOldRateLimitError extends ExpectedBackendError {
-    constructor(message = 'Rate limit exceeded. Please try again later.') {
-        super(message)
-        this.name = 'NoAuthGlobalOldRateLimitError'
-        this.title = 'Rate Limit Exceeded'
-    }
-}
-
-export class NoAuthGlobalNewRateLimitError extends ExpectedBackendError {
-    constructor(
-        message = 'High volume of requests detected. Please try again in a few minutes.'
-    ) {
-        super(message)
-        this.name = 'NoAuthGlobalNewRateLimitError'
-        this.title = 'Rate Limit Reached'
-    }
-}
-
 export class OpenAIError extends ExpectedBackendError {}
 export class BadOpenAIAPIKeyError extends OpenAIError {
     constructor(
@@ -69,48 +25,9 @@ export class BadModelError extends ExpectedBackendError {
     }
 }
 
-export class NotLoggedInError extends ExpectedBackendError {
-    constructor(message = 'This feature requires authentication.') {
-        super(message)
-        this.name = 'NotLoggedInError'
-    }
-}
-export type ExpectedError =
-    | NoAuthRateLimitError
-    | AuthRateLimitError
-    | NoAuthLocalRateLimitError
-    | NoAuthGlobalOldRateLimitError
-    | NoAuthGlobalNewRateLimitError
-    | BadOpenAIAPIKeyError
-    | BadModelError
-    | NotLoggedInError
-
-export async function fetchWithCookies(url: string, options: RequestInit = {}) {
-    const response = await fetch(url, options)
-    // Get the cookies
-    const cookies = response.headers.get('Set-Cookie')
-    if (cookies) {
-        console.log(cookies)
-        const [name, value] = cookies.split('=')
-        await connector.setCookies({
-            url: url,
-            name,
-            value,
-        })
-    }
-    return response
-}
+export type ExpectedError = BadOpenAIAPIKeyError | BadModelError
 
 export async function* streamSource(response: Response): AsyncGenerator<any> {
-    if (response.status == 429) {
-        // Check the error text
-        if (response.statusText == 'NO_AUTH') {
-            throw new NoAuthRateLimitError()
-        } else {
-            throw new AuthRateLimitError()
-        }
-    }
-
     // Check if the response is an event-stream
     if (
         response.headers.get('content-type') ==

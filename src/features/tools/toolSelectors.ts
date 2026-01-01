@@ -33,14 +33,6 @@ export const getLeftSideExpanded = createSelector(
     (tool: ToolState) => tool.leftSideExpanded
 )
 
-export const loginStatus = createSelector(
-    (state: FullState) => state.toolState,
-    (tool: ToolState) => ({
-        signedIn: !!(tool.authLogin.accessToken && tool.authLogin.profile),
-        proVersion: !!tool.authLogin.stripeId,
-    })
-)
-
 export const getWelcomeDismissed = createSelector(
     (state: FullState) => state.toolState,
     (tool: ToolState) => tool.welcomeDismissed

@@ -250,7 +250,7 @@ body {
 }
 
 /* ============================================
-   AI SIDEBAR - VS CODE STYLE
+   AI SIDEBAR 
    ============================================ */
 .ai-sidebar {
     display: flex;
@@ -3169,52 +3169,7 @@ free servers .disabled_command .shortcut__block {
     border-radius: 2px;
 }
 
-.signup__body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    font-size: 18px;
-    width: 100%;
-    margin: 8px 0;
-}
 
-.signup__title {
-    font-size: 24px;
-    margin-bottom: 24px;
-    font-weight: 600;
-    color: #ddd;
-}
-
-.signup__subtitle {
-    color: #999;
-    font-size: 14px;
-    margin-bottom: 12px;
-}
-
-.signup__signup_button {
-    padding: 8px 16px;
-    width: 100%;
-    background-color: var(--vscode-blue);
-    border-radius: 5px;
-    margin: 8px 0px;
-    cursor: pointer;
-}
-
-.signup__signup_button:hover {
-    opacity: 0.8;
-    cursor: pointer;
-}
-
-.signup__module {
-    margin-bottom: 24px;
-    width: 100%;
-}
-
-.signup__last_module {
-    margin-bottom: 0px;
-    text-align: center;
-}
 
 .error-message {
     margin-top: 8px;
@@ -3532,3 +3487,28 @@ free servers .disabled_command .shortcut__block {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Premium Entrance Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.welcome-content {
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.welcome-section {
+    opacity: 0;
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.welcome-section:nth-child(1) { animation-delay: 0.1s; }
+.welcome-section:nth-child(2) { animation-delay: 0.2s; }
+.welcome-section:nth-child(3) { animation-delay: 0.3s; }

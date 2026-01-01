@@ -181,7 +181,7 @@ export const BottomTerminal: React.FC = () => {
             term.loadAddon(searchAddon)
 
             // 2. Request Backend Session (Default Shell)
-            const { id, shell } = await connector.terminalCreate(80, 24)
+            const { id } = await connector.terminalCreate(80, 24)
 
             // 3. Setup Input Handling
             term.onData((data) => {
@@ -227,7 +227,6 @@ export const BottomTerminal: React.FC = () => {
 
         const onExit = (_: any, { id }: { id: string }) => {
             if (session && session.id === id) {
-                console.log('Default terminal exited. Restarting...')
                 session.instance.dispose()
                 setSession(null)
                 // Effect 1 will trigger re-creation because session is now null

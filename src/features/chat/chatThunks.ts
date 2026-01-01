@@ -6,14 +6,9 @@ import {
 } from '@reduxjs/toolkit'
 import {
     API_ROOT,
-    AuthRateLimitError,
     BadModelError,
     BadOpenAIAPIKeyError,
     ExpectedBackendError,
-    NoAuthGlobalNewRateLimitError,
-    NoAuthGlobalOldRateLimitError,
-    NoAuthLocalRateLimitError,
-    NotLoggedInError,
     streamSource,
 } from '../../utils'
 import { log } from '../../utils/logger'
@@ -68,18 +63,6 @@ import {
     lintState,
     setActiveLint,
 } from '../linter/lint'
-
-const getBearerTokenHeader = (getState: () => unknown) => {
-    const accessToken = (getState() as FullState).toolState.authLogin
-        .accessToken
-    if (accessToken) {
-        return {
-            Authorization: `Bearer ${accessToken}`,
-        }
-    } else {
-        return null
-    }
-}
 
 function getMatchingLines(doc: Text, ...lines: string[]): number[][] {
     // Iterate through the lines in the document and find matching line numbers
@@ -358,7 +341,7 @@ export const continueGeneration = createAsyncThunk(
             const state = getState() as FullState
 
             const chatState = state.chatState
-            const currentTab = getActiveTabId(state.global)!
+            // const currentTab = getActiveTabId(state.global)!
 
             const numUserMessages = chatState.userMessages.length
             const checkSend = () => {
@@ -377,7 +360,6 @@ export const continueGeneration = createAsyncThunk(
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...getBearerTokenHeader(getState),
                     // Cookie: `repo_path=${state.global.rootPath}`,
                 },
                 //credentials: 'include',
@@ -386,20 +368,10 @@ export const continueGeneration = createAsyncThunk(
                 if (resp.status != 200) {
                     const text = await resp.json()
                     switch (text.detail) {
-                        case 'NO_AUTH_LOCAL':
-                            throw new NoAuthLocalRateLimitError()
-                        case 'NO_AUTH_GLOBAL_NEW':
-                            throw new NoAuthGlobalOldRateLimitError()
-                        case 'NO_AUTH_GLOBAL_OLD':
-                            throw new NoAuthGlobalNewRateLimitError()
-                        case 'AUTH':
-                            throw new AuthRateLimitError()
                         case 'BAD_API_KEY':
                             throw new BadOpenAIAPIKeyError()
                         case 'BAD_MODEL':
                             throw new BadModelError()
-                        case 'NOT_LOGGED_IN':
-                            throw new NotLoggedInError()
                         default:
                             break
                     }
@@ -410,10 +382,10 @@ export const continueGeneration = createAsyncThunk(
             dispatch(resumeGeneration(conversationId))
 
             // There must exist this view
-            const editorViewId = getViewId(currentTab)(
-                getState() as FullCodeMirrorState
-            )!
-            const editorView = getCodeMirrorView(editorViewId)!
+            // const editorViewId = getViewId(currentTab)(
+            //     getState() as FullCodeMirrorState
+            // )!
+            // const editorView = getCodeMirrorView(editorViewId)!
 
             const isGenerating = () =>
                 (<FullState>getState()).chatState.generating
@@ -433,8 +405,8 @@ export const continueGeneration = createAsyncThunk(
                 .filter((bm) => bm.conversationId == conversationId)
                 .at(-1)!.message
 
-            const pos = chatState.pos == undefined ? 0 : chatState.pos
-            let currentPos = pos
+            // const pos = chatState.pos == undefined ? 0 : chatState.pos
+            // let currentPos = pos
 
             let toBreak = false
             let finalMessage = ''
@@ -476,7 +448,7 @@ export const continueGeneration = createAsyncThunk(
                     buffer += token
                 }
                 bigBuffer += buffer
-                currentPos += buffer.length
+                // currentPos += buffer.length
                 checkSend()
                 throttledAppendResponse(bigBuffer, token)
                 buffer = ''
@@ -600,7 +572,6 @@ export const streamResponse = createAsyncThunk(
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...getBearerTokenHeader(getState),
                     // Cookie: `repo_path=${state.global.rootPath}`,
                 },
                 //credentials: 'include',
@@ -609,20 +580,10 @@ export const streamResponse = createAsyncThunk(
                 if (resp.status != 200) {
                     const text = await resp.json()
                     switch (text.detail) {
-                        case 'NO_AUTH_LOCAL':
-                            throw new NoAuthLocalRateLimitError()
-                        case 'NO_AUTH_GLOBAL_NEW':
-                            throw new NoAuthGlobalOldRateLimitError()
-                        case 'NO_AUTH_GLOBAL_OLD':
-                            throw new NoAuthGlobalNewRateLimitError()
-                        case 'AUTH':
-                            throw new AuthRateLimitError()
                         case 'BAD_API_KEY':
                             throw new BadOpenAIAPIKeyError()
                         case 'BAD_MODEL':
                             throw new BadModelError()
-                        case 'NOT_LOGGED_IN':
-                            throw new NotLoggedInError()
                         default:
                             break
                     }
@@ -1034,7 +995,6 @@ export const diffResponse = createAsyncThunk(
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...getBearerTokenHeader(getState),
                     // Cookie: `repo_path=${state.global.rootPath}`,
                 },
                 //credentials: 'include',
@@ -1043,20 +1003,10 @@ export const diffResponse = createAsyncThunk(
                 if (resp.status != 200) {
                     const text = await resp.json()
                     switch (text.detail) {
-                        case 'NO_AUTH_LOCAL':
-                            throw new NoAuthLocalRateLimitError()
-                        case 'NO_AUTH_GLOBAL_NEW':
-                            throw new NoAuthGlobalOldRateLimitError()
-                        case 'NO_AUTH_GLOBAL_OLD':
-                            throw new NoAuthGlobalNewRateLimitError()
-                        case 'AUTH':
-                            throw new AuthRateLimitError()
                         case 'BAD_API_KEY':
                             throw new BadOpenAIAPIKeyError()
                         case 'BAD_MODEL':
                             throw new BadModelError()
-                        case 'NOT_LOGGED_IN':
-                            throw new NotLoggedInError()
                         default:
                             break
                     }

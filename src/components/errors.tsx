@@ -4,9 +4,9 @@ import { getError, getShowErrors } from '../features/selectors'
 import { faClose } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from 'react-modal'
-import { NoAuthGlobalOldRateLimitError, NotLoggedInError } from '../utils'
-import { OpenAIPanel } from './settingsPane'
-import { signIn, upgrade } from '../features/tools/toolSlice'
+// import { NoAuthGlobalOldRateLimitError, NotLoggedInError } from '../utils'
+
+// import { signIn, upgrade } from '../features/tools/toolSlice'
 
 const customStyles = {
     overlay: {
@@ -26,28 +26,6 @@ const customStyles = {
         marginLeft: 'auto',
         marginRight: 'auto',
         maxWidth: '600px',
-    },
-}
-
-const loginStyles = {
-    overlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        display: 'flex',
-        alignItems: 'center',
-        zIndex: 10000,
-    },
-    content: {
-        padding: 'none',
-        top: '150px',
-        bottom: 'none',
-        background: 'none',
-        border: 'none',
-        width: 'auto',
-        height: 'auto',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        maxWidth: '450px',
-        overflow: 'none',
     },
 }
 
@@ -85,110 +63,8 @@ export function ErrorPopup() {
                 </div>
             </Modal>
         )
-    } else if (error instanceof NotLoggedInError) {
-        return (
-            <Modal
-                isOpen={showError}
-                onRequestClose={() => {
-                    dispatch(closeError())
-                }}
-                style={loginStyles}
-            >
-                <div className="errorPopup">
-                    <div className="errorPopup__title">
-                        <div className="errorPopup__title_text"></div>
-                        <div
-                            className="errorPopup__title_close"
-                            onClick={() => dispatch(closeError())}
-                        >
-                            <FontAwesomeIcon icon={faClose} />
-                        </div>
-                    </div>
-                    <div className="signup__body">
-                        <div className="signup__title">CodeX</div>
-                        <div className="signup__module">
-                            <div className="signup__subtitle">
-                                To avoid abuse on our backend, we ask that you
-                                login in to use the AI features
-                            </div>
-                            <div
-                                className="signup__signup_button"
-                                onClick={() => dispatch(signIn(null))}
-                            >
-                                Log in
-                            </div>
-
-                            <div
-                                className="signup__signup_button"
-                                onClick={() => dispatch(signIn(null))}
-                            >
-                                Sign up
-                            </div>
-                        </div>
-                    </div>
-                    <div className="signup__module signup__last_module">
-                        <div className="signup__subtitle">
-                            Or enter your OpenAI API key
-                        </div>
-                        <OpenAIPanel
-                            onSave={() => {
-                                dispatch(closeError())
-                            }}
-                        />
-                    </div>
-                </div>
-            </Modal>
-        )
-    } else if (error instanceof NoAuthGlobalOldRateLimitError) {
-        return (
-            <Modal
-                isOpen={true || showError}
-                onRequestClose={() => {
-                    dispatch(closeError())
-                }}
-                style={loginStyles}
-            >
-                <div className="errorPopup">
-                    <div className="errorPopup__title">
-                        <div className="errorPopup__title_text"></div>
-                        <div
-                            className="errorPopup__title_close"
-                            onClick={() => dispatch(closeError())}
-                        >
-                            <FontAwesomeIcon icon={faClose} />
-                        </div>
-                    </div>
-                    <div className="signup__body">
-                        <div className="signup__title">
-                            Free tier limit exceeded
-                        </div>
-                        <div className="signup__module">
-                            <div className="signup__subtitle">
-                                If you've enjoyed using CodeX, please consider
-                                subscribing to one of our paid plans
-                            </div>
-                            <div
-                                className="signup__signup_button"
-                                onClick={() => dispatch(upgrade(null))}
-                            >
-                                Upgrade
-                            </div>
-                        </div>
-                    </div>
-                    <div className="signup__module signup__last_module">
-                        <div className="signup__subtitle">
-                            Or enter your OpenAI API key to continue using the
-                            AI features at-cost
-                        </div>
-                        <OpenAIPanel
-                            onSave={() => {
-                                dispatch(closeError())
-                            }}
-                        />
-                    </div>
-                </div>
-            </Modal>
-        )
+        // NotLoggedInError block removed
+        // NoAuthGlobalOldRateLimitError block removed
     } else {
         return (
             <Modal

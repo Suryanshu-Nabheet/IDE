@@ -403,40 +403,7 @@ const electronConnector = {
             callback(data)
         })
     },
-    setCookies: async (cookieObject: {
-        url: string
-        name: string
-        value: string
-    }) => {
-        await ipcRenderer.invoke('setCookies', cookieObject)
-    },
-    loginCodeX: async () => {
-        await ipcRenderer.invoke('loginCodeX')
-    },
-    logoutCodeX: async () => {
-        await ipcRenderer.invoke('logoutCodeX')
-    },
-    getUserCreds: async () => {
-        return await ipcRenderer.invoke('getUserCreds')
-    },
-    payCodeX: async () => {
-        return await ipcRenderer.invoke('payCodeX')
-    },
-    registerUpdateAuthStatus(
-        callback: (payload: {
-            accessToken?: string | null
-            profile?: any | null
-            stripeProfile?: string | null
-        }) => void
-    ) {
-        ipcRenderer.on('updateAuthStatus', (event, data) => {
-            console.log('UPDATING AUTH STATUS', data)
-            callback(data)
-        })
-    },
-    refreshTokens() {
-        ipcRenderer.invoke('refreshTokens')
-    },
+
     registerCloseErrors(callback: Callback) {
         ipcRenderer.on('closeErrors', callback)
     },

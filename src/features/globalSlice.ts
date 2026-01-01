@@ -578,7 +578,6 @@ export const openFolder = createAsyncThunk(
     'global/openFolder',
     async (args: { path: string } | null, { dispatch }) => {
         posthog.capture('Opened Folder', {})
-        connector.refreshTokens()
 
         const folderPath =
             (args != null ? args.path : null) || (await connector.openFolder())
@@ -704,7 +703,6 @@ export const initState = createAsyncThunk(
     'global/initState',
     async (args: null, { dispatch }) => {
         const config = await connector.getProject()
-        connector.refreshTokens()
 
         // if (config == null) {
         //     return
@@ -1385,12 +1383,7 @@ const globalSlice = createSlice({
         openRateLimit(state: State) {
             state.showRateLimit = true
         },
-        closeNoAuthRateLimit(state: State) {
-            state.showNoAuthRateLimit = false
-        },
-        openNoAuthRateLimit(state: State) {
-            state.showNoAuthRateLimit = true
-        },
+
         closeError(state: State) {
             state.showError = false
             state.errorValue = null
@@ -1602,8 +1595,6 @@ export const {
     toggleTerminal,
     closeRateLimit,
     openRateLimit,
-    closeNoAuthRateLimit,
-    openNoAuthRateLimit,
 } = globalSlice.actions
 
 export default globalSlice.reducer

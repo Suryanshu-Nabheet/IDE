@@ -13,16 +13,6 @@ connector.registerRenameClick(() => {
     store.dispatch(gs.triggerRename(null))
 })
 
-connector.registerUpdateAuthStatus(
-    (data: {
-        accessToken?: string | null
-        profile?: any | null
-        stripeProfile?: string | null
-    }) => {
-        store.dispatch(ts.login(data))
-    }
-)
-
 connector.registerCloseErrors(() => {
     store.dispatch(gs.closeError())
 })

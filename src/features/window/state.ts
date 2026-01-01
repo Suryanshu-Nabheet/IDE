@@ -128,7 +128,6 @@ export interface State {
 
     showError: boolean
     showRateLimit: boolean
-    showNoAuthRateLimit: boolean
     errorValue: ExpectedError | null
     errorType: string
     errorInfo: string
@@ -346,12 +345,6 @@ export interface ToolState {
     commandPaletteTriggered: boolean
     aiCommandPaletteTriggered: boolean
     leftSideExpanded: boolean
-
-    authLogin: {
-        accessToken?: string
-        profile?: string
-        stripeId?: string
-    }
     welcomeDismissed: boolean
 }
 
@@ -465,7 +458,6 @@ export const initialState = {
     },
 
     showError: false,
-    showNoAuthRateLimit: false,
     showRateLimit: false,
     errorValue: null,
     errorType: 'server',

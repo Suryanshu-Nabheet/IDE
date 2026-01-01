@@ -16,7 +16,7 @@ export default function setupSingleInstance() {
             }
             const url = commandLine.pop()
             if (url) {
-                console.log('Second instance URL: ' + url)
+                // console.log('Second instance URL: ' + url)
             }
         })
     }
