@@ -114,64 +114,88 @@ const codexEditorTheme = EditorView.theme(
 // ═══════════════════════════════════════════════════════════════════════════
 
 const codexHighlightStyle = HighlightStyle.define([
-    // KEYWORDS & SELECTORS (Anysphere Blue)
+    // KEYWORDS & CONTROL FLOW -> Purple
     {
         tag: [
             t.keyword,
             t.modifier,
             t.controlKeyword,
             t.moduleKeyword,
-            t.tagName,
-            t.labelName,
+            t.definitionKeyword,
+            t.standard(t.tagName),
         ],
-        color: semantic.syntax.keyword,
+        color: '#C678DD', // Purple
     },
 
-    // VARIABLES (Crisp Off-white)
-    {
-        tag: [t.variableName, t.attributeName],
-        color: semantic.syntax.variable,
-    },
-    { tag: [t.definition(t.variableName)], color: semantic.syntax.variable },
-
-    // PROPERTIES & ATTRIBUTES (Anysphere Light Blue)
-    {
-        tag: [t.propertyName, t.attributeValue],
-        color: semantic.syntax.property,
-    },
-
-    // FUNCTIONS & METHODS (Anysphere Yellow)
+    // FUNCTIONS & METHODS -> Blue
     {
         tag: [
             t.function(t.variableName),
             t.function(t.propertyName),
             t.macroName,
+            t.special(t.variableName),
         ],
-        color: semantic.syntax.function,
+        color: '#61AFEF', // Blue
     },
 
-    // TYPES & CLASSES (Teal/Greenish)
+    // STRINGS -> Light Green
     {
-        tag: [t.typeName, t.className, t.standard(t.typeName)],
-        color: semantic.syntax.type,
+        tag: [t.string, t.special(t.string), t.regexp, t.escape],
+        color: '#98C379', // Light Green
     },
 
-    // STRINGS (Orange/Clay)
-    { tag: [t.string, t.special(t.string)], color: semantic.syntax.string },
-
-    // NUMBERS (Lime)
-    { tag: [t.number, t.integer, t.float], color: semantic.syntax.number },
-
-    // CONSTANTS & BOOLEANS (Blue)
-    { tag: [t.bool, t.null, t.atom, t.constant(t.name)], color: '#569cd6' },
-
-    // COMMENTS (Green)
+    // NUMBERS & CONSTANTS -> Yellow (or Orange/Yellow hybrid)
     {
-        tag: [t.comment, t.lineComment, t.blockComment],
-        color: semantic.syntax.comment,
+        tag: [
+            t.number,
+            t.integer,
+            t.float,
+            t.bool,
+            t.null,
+            t.atom,
+            t.constant(t.name),
+        ],
+        color: '#E5C07B', // Yellow
     },
 
-    // OPERATORS & PUNCTUATION (Grey/White)
+    // TYPES, CLASSES, & INTERFACES -> Yellow
+    {
+        tag: [
+            t.typeName,
+            t.className,
+            t.standard(t.typeName),
+            t.changed,
+            t.annotation,
+            t.namespace,
+        ],
+        color: '#E5C07B', // Yellow
+    },
+
+    // VARIABLES & PROPERTIES -> White
+    {
+        tag: [
+            t.variableName,
+            t.propertyName,
+            t.attributeName,
+            t.labelName,
+            t.definition(t.variableName),
+        ],
+        color: '#FFFFFF', // White
+    },
+
+    // TAGS (HTML/JSX) -> Pink
+    {
+        tag: [t.tagName, t.standard(t.tagName), t.angleBracket],
+        color: '#E06C75', // Pink
+    },
+
+    // ATTRIBUTES -> Yellow (or soft Orange)
+    {
+        tag: [t.attributeValue],
+        color: '#E5C07B', // Yellow
+    },
+
+    // OPERATORS & PUNCTUATION -> White / Muted White
     {
         tag: [
             t.operator,
@@ -180,32 +204,54 @@ const codexHighlightStyle = HighlightStyle.define([
             t.paren,
             t.brace,
             t.separator,
+            t.derefOperator,
+            t.arithmeticOperator,
+            t.logicOperator,
+            t.bitwiseOperator,
         ],
-        color: semantic.syntax.operator,
+        color: '#FFFFFF', // White
     },
 
-    // SPECIAL
-    { tag: [t.escape], color: '#d7ba7d' }, // Gold
-    { tag: [t.regexp], color: '#d16969' }, // Red-ish
-    { tag: [t.link], color: '#9cdcfe', textDecoration: 'underline' },
-
-    // HTML/CSS SPECIALS
-    { tag: [t.angleBracket], color: '#808080' },
-    { tag: [t.labelName], color: '#d7ba7d' }, // CSS Selector (Gold)
-
-    // MARKDOWN (Premium Support)
+    // COMMENTS -> Muted Gray
     {
-        tag: [t.heading, t.heading1, t.heading2, t.heading3],
-        color: semantic.syntax.keyword,
+        tag: [t.comment, t.lineComment, t.blockComment, t.meta],
+        color: '#7F848E', // Muted Gray
+        fontStyle: 'italic',
+    },
+
+    // URL/LINKS -> Blue
+    {
+        tag: [t.link, t.url],
+        color: '#61AFEF', // Blue
+        textDecoration: 'underline',
+    },
+
+    // MARKDOWN HEADERS -> Purple (Distinct)
+    {
+        tag: [t.heading, t.heading1, t.heading2, t.heading3, t.heading4],
+        color: '#C678DD', // Purple
         fontWeight: 'bold',
     },
-    { tag: [t.list, t.quote], color: '#6a9955' },
-    { tag: [t.emphasis], fontStyle: 'italic', color: semantic.syntax.variable },
-    { tag: [t.strong], fontWeight: 'bold', color: semantic.syntax.variable },
-    { tag: [t.link], color: '#3794ff', textDecoration: 'underline' },
-    { tag: [t.url], color: '#9cdcfe' },
-    { tag: [t.strikethrough], textDecoration: 'line-through' },
-    { tag: [t.meta], color: semantic.syntax.comment },
+
+    // LISTS & QUOTES -> Yellow
+    {
+        tag: [t.list, t.quote],
+        color: '#E5C07B',
+    },
+
+    // EMPHASIS -> White Italic
+    {
+        tag: [t.emphasis],
+        color: '#FFFFFF',
+        fontStyle: 'italic',
+    },
+
+    // STRONG -> White Bold
+    {
+        tag: [t.strong],
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+    },
 ])
 
 // ═══════════════════════════════════════════════════════════════════════════
