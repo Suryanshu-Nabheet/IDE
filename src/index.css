@@ -1612,6 +1612,14 @@ textarea:focus {
     background: var(--any-fg-muted);
 }
 
+:root {
+    /* Authoritative Anysphere Palette */
+    --black: #000000; /* Editor BG (User Requested Pure Black) */
+    --black-soft: #000000; /* Sidebar BG */
+    --black-elevated: #000000; /* Panel BG */
+    --black-subtle: #151B2E; /* Hover BG */
+}
+
 .cover-bar {
     position: absolute;
     height: 100%;
@@ -2063,6 +2071,13 @@ input[type='file']::before {
     box-sizing: border-box;
     /* prevent the texarea from having the border highlighted: */
     outline: none;
+
+    /* Component Variables */
+    --editor-bg: #000000;
+    --sidebar-bg: #000000;
+    --panel-bg: #000000;
+    --activity-bar-bg: #000000;
+    --tab-active-bg: #000000;
 
     max-height: 400px;
     overflow-y: auto;

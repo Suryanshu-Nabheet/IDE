@@ -2,16 +2,16 @@ export const BASE_TOKENS = {
     // Anysphere Dark Palette (Authoritative)
     anysphere: {
         // UI Backgrounds
-        editorBg: '#0B0E14',
-        sidebarBg: '#0F1320',
-        panelBg: '#0D1117', // Terminal / AI
-        activityBarBg: '#0F1320',
-        titleBarBg: '#0F1320',
+        editorBg: '#000000', // Pure Black
+        sidebarBg: '#000000', // Pure Black
+        panelBg: '#000000',
+        activityBarBg: '#000000',
+        titleBarBg: '#000000',
 
         // Tabs
-        tabActiveBg: '#121826',
+        tabActiveBg: '#000000',
         tabInactiveBg: 'transparent',
-        tabHoverBg: '#151B2E',
+        tabHoverBg: '#111111',
         tabBorder: '#1C2333', // Border / Divider
 
         // Text
