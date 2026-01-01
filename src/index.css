@@ -145,44 +145,45 @@ body {
     min-height: 35px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    font-size: 11px;
+    padding: 0 16px;
+    font-size: 10px;
     font-weight: 700;
-    color: var(--ui-fg-muted);
-    letter-spacing: 0.8px;
+    color: var(--gray-500);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    border-bottom: 1px solid var(--ui-border-subtle);
+    border-bottom: 1px solid var(--gray-900);
     user-select: none;
-    background-color: var(--sidebar-bg);
+    background-color: var(--black);
     flex-shrink: 0;
     z-index: 10;
 }
 
 .search-input-wrapper {
-    padding: 12px;
+    padding: 12px 16px;
 }
 
 .search-input {
     width: 100%;
-    background-color: var(--black-elevated);
-    border: 1px solid var(--ui-border);
-    border-radius: var(--radius-md);
-    padding: 6px 10px;
+    background-color: var(--black-subtle) !important;
+    border: 1px solid var(--gray-800) !important;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
     color: var(--ui-fg);
     font-size: 13px;
     outline: none;
     transition: all 0.2s ease;
     resize: none;
-    min-height: 28px;
+    min-height: 32px;
 }
 
 .search-input:focus {
-    border-color: var(--accent);
+    border-color: var(--accent) !important;
+    background-color: var(--black) !important;
 }
 
 .search-input::placeholder {
-    color: var(--ui-fg-muted);
-    opacity: 0.6;
+    color: var(--white);
+    opacity: 0.2;
 }
 
 .search-results-container {
@@ -192,11 +193,12 @@ body {
 }
 
 .search-result-item {
-    transition: background-color 0.1s ease;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .search-result-item:hover {
-    background-color: var(--black-subtle);
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 
@@ -833,12 +835,6 @@ body {
     min-height: 0;
 }
 
-.highlight-search {
-    background-color: rgba(156, 220, 254, 0.3);
-    color: var(--blue-bright);
-    border-radius: 2px;
-    padding: 0 2px;
-}
 
 .smallPath {
     font-size: 11px;
@@ -2517,17 +2513,17 @@ cm-diff-cancel > div {
 }
 
 .search-line-result {
-    padding-left: 40px;
-    height: auto;
-    min-height: 24px;
+    padding-left: 20px;
+    padding-top: 4px;
+    padding-bottom: 4px;
     display: flex;
     align-items: flex-start;
     padding-right: 12px;
     cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.6;
     color: var(--ui-fg-muted);
-    transition: all 0.1s ease;
+    transition: all 0.2s ease;
 }
 
 .search-line-result:hover {
@@ -2538,9 +2534,9 @@ cm-diff-cancel > div {
 .search-line-number {
     width: 32px;
     flex-shrink: 0;
-    text-align: right;
-    padding-right: 12px;
     color: var(--gray-600);
+    font-size: 11px;
+    font-family: var(--font-mono);
 }
 
 .search-line-text {
@@ -2551,10 +2547,11 @@ cm-diff-cancel > div {
 }
 
 .highlight-search {
-    color: var(--accent-light) !important;
-    background-color: rgba(86, 156, 214, 0.2);
+    background-color: rgba(220, 220, 170, 0.25); /* Subtle amber background */
+    color: var(--yellow-bright); /* Warm yellow text */
     font-weight: 600;
-    border-radius: 2px;
+    border-radius: 1px;
+    box-shadow: 0 1px 0 0 var(--amber); /* Underline-effect shadow */
     padding: 0 1px;
 }
 
@@ -2576,11 +2573,6 @@ cm-diff-cancel > div {
     border-radius: 5px;
 }
 
-.highlight-search {
-    color: var(--text);
-    background-color: var(--selection-match);
-    border-bottom: 2px solid var(--any-tag);
-}
 
 /* ============================================
    ERROR POPUP - Enterprise Design

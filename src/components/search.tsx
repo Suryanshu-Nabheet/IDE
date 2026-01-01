@@ -323,22 +323,26 @@ function FileResultComponent({ result }: { result: FileLevelResult }) {
     }
 
     return (
-        <div className="search-result-item text-white border-b border-ui-border-subtle/10 last:border-0">
+        <div className="search-result-item last:border-0 overflow-hidden">
             {/* Tailwind arrange children to be horizontally adjacent*/}
             <div
-                className="folder__line hover:bg-white/5 transition-all cursor-pointer py-2 px-3"
+                className="folder__line hover:bg-white/[0.03] transition-all cursor-pointer py-1.5 px-4 flex items-center gap-2"
                 onClick={toggleLineResults}
             >
-                <div className="folder__icon">
+                <div className="folder__icon w-4 flex justify-center text-[10px] opacity-40">
                     {showLineResults ? (
                         <FontAwesomeIcon icon={faChevronDown} />
                     ) : (
                         <FontAwesomeIcon icon={faChevronRight} />
                     )}
                 </div>
-                <div className="file__icon">{iconElement}</div>
-                <div className="folder__name truncate shrink-0">{fileName}</div>
-                <div className="smallPath truncate text-gray-500">
+                <div className="file__icon flex items-center">
+                    {iconElement}
+                </div>
+                <div className="folder__name text-[13px] font-medium text-ui-fg opacity-90 truncate shrink-0">
+                    {fileName}
+                </div>
+                <div className="smallPath text-[11px] opacity-30 truncate">
                     {precedingPath}
                 </div>
             </div>
