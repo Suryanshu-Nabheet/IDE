@@ -12,7 +12,6 @@ import {
     faCodeBranch,
     faCog,
     faKeyboard,
-    faGraduationCap,
     faClock,
     faTerminal,
 } from '@fortawesome/pro-regular-svg-icons'
@@ -41,9 +40,6 @@ export function WelcomeScreen() {
         } else if (action === 'connect_ssh') {
             dispatch(dismissWelcome())
             dispatch(gs.openRemotePopup())
-        } else if (action === 'interactive_tutorial') {
-            dispatch(gs.openTutorFolder(null))
-            dispatch(dismissWelcome())
         } else if (action === 'open_recent') {
             dispatch(gs.trulyOpenFolder(payload))
             dispatch(dismissWelcome())
@@ -110,19 +106,6 @@ export function WelcomeScreen() {
                                     Connect via SSH
                                 </span>
                             </button>
-                            <button
-                                className="welcome-action-button"
-                                onClick={() =>
-                                    handleAction('interactive_tutorial')
-                                }
-                            >
-                                <span className="welcome-action-icon">
-                                    <FontAwesomeIcon icon={faGraduationCap} />
-                                </span>
-                                <span className="welcome-action-text">
-                                    Interactive Tutorial
-                                </span>
-                            </button>
                         </div>
 
                         <h2
@@ -134,7 +117,10 @@ export function WelcomeScreen() {
                         <div className="welcome-card-list">
                             <button
                                 className="welcome-action-button"
-                                onClick={() => dispatch(toggleSettings())}
+                                onClick={() => {
+                                    dispatch(dismissWelcome())
+                                    dispatch(toggleSettings())
+                                }}
                             >
                                 <span className="welcome-action-icon">
                                     <FontAwesomeIcon icon={faKeyboard} />
@@ -145,7 +131,10 @@ export function WelcomeScreen() {
                             </button>
                             <button
                                 className="welcome-action-button"
-                                onClick={() => dispatch(toggleSettings())}
+                                onClick={() => {
+                                    dispatch(dismissWelcome())
+                                    dispatch(toggleSettings())
+                                }}
                             >
                                 <span className="welcome-action-icon">
                                     <FontAwesomeIcon icon={faCog} />

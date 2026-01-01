@@ -228,9 +228,6 @@ const electronConnector = {
 
     checkSave: (path: string) => ipcRenderer.invoke('checkSave', path),
 
-    createTutorDir: (path: string) =>
-        ipcRenderer.invoke('createTutorDir', path),
-
     getLastModifiedTime: (path: string) =>
         ipcRenderer.invoke('getLastModifiedTime', path),
 

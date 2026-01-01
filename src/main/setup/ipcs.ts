@@ -10,7 +10,6 @@ import {
     shell,
 } from 'electron'
 import log from 'electron-log'
-import * as fs from 'fs'
 import { machineIdSync } from 'node-machine-id'
 import path from 'path'
 
@@ -18,7 +17,6 @@ import { File, Folder, Settings } from '../../features/window/state'
 import { FileSystem, fileSystem, setFileSystem } from '../fileSystem'
 import mainWindow from '../window'
 import { store } from '../storeHandler'
-import { resourcesDir } from '../utils'
 
 // TODO: These IPCs should be separated into different modules.
 export default function setupIpcs() {
@@ -150,22 +148,6 @@ export default function setupIpcs() {
         } else {
             return false
         }
-    })
-
-    ipcMain.handle('createTutorDir', function (_event: any) {
-        const toCopyFrom = path.join(resourcesDir, 'tutor')
-        const toCopyTo = path.join(app.getPath('home'), 'codex-tutor')
-
-        if (fs.existsSync(toCopyTo)) {
-            // delete the directory
-            fs.rmdirSync(toCopyTo, { recursive: true })
-        }
-        // create the directory
-        fs.mkdirSync(toCopyTo)
-        // copy the contents of the source directory to the destination directory
-        fs.cpSync(toCopyFrom, toCopyTo, { recursive: true })
-
-        return toCopyTo
     })
 
     ipcMain.handle(

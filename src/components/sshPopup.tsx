@@ -1,11 +1,7 @@
 import React, { useState } from 'react'
 import Modal from 'react-modal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faClose,
-    faTerminal,
-    faFolder,
-} from '@fortawesome/pro-regular-svg-icons'
+import { faClose, faTerminal } from '@fortawesome/pro-regular-svg-icons'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import * as gs from '../features/globalSlice'
 import * as gsel from '../features/selectors'
@@ -40,9 +36,7 @@ export function SSHPopup() {
     const remoteBad = useAppSelector(gsel.getRemoteBad)
     const dispatch = useAppDispatch()
 
-    // Local state for immediate feedback/validation if needed,
-    // but we are syncing with global state as per original design.
-
+    // Local state for connecting status
     const [isConnecting, setIsConnecting] = useState(false)
 
     function submit() {
@@ -63,68 +57,63 @@ export function SSHPopup() {
             isOpen={showRemotePopup}
             onRequestClose={onClose}
             style={customStyles}
+            contentLabel="SSH Connect"
             ariaHideApp={false}
         >
-            <div className="flex flex-col h-full bg-[#1e1e1e] text-[#cccccc] rounded-xl overflow-hidden font-sans">
-                {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 border-b border-[#333333] bg-[#252526]">
-                    <h2 className="text-sm font-semibold uppercase tracking-wide text-white flex items-center gap-2">
+            <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-lg font-semibold text-ui-fg flex items-center gap-2">
                         <FontAwesomeIcon
                             icon={faTerminal}
-                            className="text-accent"
+                            className="text-sm opacity-50"
                         />
                         Connect via SSH
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-white transition-colors outline-none"
+                        className="text-ui-fg-muted hover:text-ui-fg"
                     >
                         <FontAwesomeIcon icon={faClose} />
                     </button>
                 </div>
 
-                {/* Body */}
-                <div className="p-6 flex flex-col gap-5">
-                    {remoteBad && (
-                        <div className="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded text-xs">
-                            The SSH command or path you entered is invalid.
-                            Please try again.
-                        </div>
-                    )}
+                {remoteBad && (
+                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded">
+                        The SSH command or path you entered is invalid. Please
+                        try again.
+                    </div>
+                )}
 
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-xs font-medium text-ui-fg-muted uppercase mb-1">
                             SSH Command
                         </label>
-                        <div className="relative group">
-                            <input
-                                type="text"
-                                className="w-full bg-black/20 border border-[#3c3c3c] rounded px-3 py-2.5 text-sm text-white focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-gray-600"
-                                placeholder="ssh -i ~/keys/my-key.pem ubuntu@1.2.3.4"
-                                value={remoteCommand}
-                                onChange={(e) =>
-                                    dispatch(
-                                        gs.setRemoteCommand(e.target.value)
-                                    )
-                                }
-                                onKeyDown={(e) => e.key === 'Enter' && submit()}
-                                autoFocus
-                            />
-                        </div>
-                        <p className="text-[10px] text-gray-500">
+                        <input
+                            type="text"
+                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm focus:border-accent outline-none"
+                            placeholder="ssh -i ~/keys/my-key.pem ubuntu@1.2.3.4"
+                            value={remoteCommand}
+                            onChange={(e) =>
+                                dispatch(gs.setRemoteCommand(e.target.value))
+                            }
+                            onKeyDown={(e) => e.key === 'Enter' && submit()}
+                            autoFocus
+                        />
+                        <p className="text-[10px] text-ui-fg-muted mt-1 opacity-60">
                             Enter the full SSH command you use to connect in
                             your terminal.
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <div>
+                        <label className="block text-xs font-medium text-ui-fg-muted uppercase mb-1">
                             Remote Folder Path
                         </label>
-                        <div className="relative group">
+                        <div className="relative">
                             <input
                                 type="text"
-                                className="w-full bg-black/20 border border-[#3c3c3c] rounded px-3 py-2.5 pl-9 text-sm text-white focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-gray-600"
+                                className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm focus:border-accent outline-none"
                                 placeholder="/home/ubuntu/project"
                                 value={remotePath}
                                 onChange={(e) =>
@@ -132,38 +121,24 @@ export function SSHPopup() {
                                 }
                                 onKeyDown={(e) => e.key === 'Enter' && submit()}
                             />
-                            <div className="absolute left-3 top-2.5 text-gray-500">
-                                <FontAwesomeIcon icon={faFolder} />
-                            </div>
                         </div>
-                        <p className="text-[10px] text-gray-500">
-                            Absolute path to the directory you want to open on
-                            the remote server.
+                        <p className="text-[10px] text-ui-fg-muted mt-1 opacity-60">
+                            Absolute path to the directory on the remote server.
                         </p>
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className="px-6 py-4 bg-[#252526] border-t border-[#333333] flex justify-end gap-3">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 rounded text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
-                    >
-                        Cancel
-                    </button>
+                <div className="mt-6 flex justify-end">
                     <button
                         onClick={submit}
                         disabled={isConnecting || !remoteCommand || !remotePath}
-                        className={`
-                            px-4 py-2 rounded text-xs font-semibold text-white transition-all
-                            ${
-                                isConnecting || !remoteCommand || !remotePath
-                                    ? 'bg-accent/50 cursor-not-allowed opacity-70'
-                                    : 'bg-accent hover:bg-accent-hover shadow-lg shadow-accent/20'
-                            }
-                        `}
+                        className={`primary-button px-6 py-2 ${
+                            isConnecting || !remoteCommand || !remotePath
+                                ? 'opacity-50 cursor-not-allowed'
+                                : ''
+                        }`}
                     >
-                        {isConnecting ? 'Connecting...' : 'Connect Window'}
+                        {isConnecting ? 'Connecting...' : 'Connect'}
                     </button>
                 </div>
             </div>

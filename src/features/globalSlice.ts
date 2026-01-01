@@ -554,31 +554,6 @@ export const openRemoteFolder = createAsyncThunk(
     }
 )
 
-export const openTutorFolder = createAsyncThunk(
-    'global/openTutorFolder',
-    async (args: null, { getState, dispatch }) => {
-        posthog.capture('Opened Tutor Folder', {})
-
-        //@ts-ignore
-        const path = await connector.createTutorDir()
-
-        await dispatch(openFolder({ path }))
-        // await for 1 second
-        // await new Promise((resolve) => setTimeout(resolve, 100))
-
-        function open(fn: string) {
-            const desiredFilePath = join(path, fn)
-            const state = (<FullState>getState()).global
-            const fileId = findFileIdFromPath(state, desiredFilePath)
-            if (fileId != null) dispatch(selectFile(fileId!))
-        }
-
-        open('main.js')
-
-        // open('main.py')
-    }
-)
-
 export const openFolder = createAsyncThunk(
     'global/openFolder',
     async (args: { path: string } | null, { dispatch }) => {
