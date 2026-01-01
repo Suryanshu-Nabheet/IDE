@@ -93,7 +93,7 @@
     --titlebar-button-hover: var(--black-subtle);
     
     /* Sidebar */
-    --sidebar-bg: var(--black);
+    --sidebar-bg: rgba(0, 0, 0, 0.7);
     --sidebar-fg: var(--gray-100);
     --sidebar-fg-muted: var(--gray-400);
     --sidebar-hover: var(--black-subtle);

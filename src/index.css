@@ -264,6 +264,7 @@ body {
     flex-shrink: 0;
     min-height: 0;
     overflow: hidden;
+    backdrop-filter: blur(20px);
 }
 
 .app__righttopwrapper {
@@ -293,6 +294,7 @@ body {
     min-height: 0;
     overflow: hidden;
     height: 100%;
+    backdrop-filter: blur(20px);
 }
 
 /* Drag Handles */
@@ -3405,7 +3407,7 @@ cm-diff-cancel > div {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 6rem;
+    padding-top: 15vh;
 }
 
 @keyframes welcomeFadeIn {
@@ -3414,7 +3416,7 @@ cm-diff-cancel > div {
 }
 
 .welcome-header {
-    margin-bottom: 5rem;
+    margin-bottom: 2rem;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -3422,18 +3424,18 @@ cm-diff-cancel > div {
 }
 
 .welcome-title {
-    font-size: 7.5rem;
+    font-size: 8rem;
     font-weight: 800;
-    letter-spacing: -0.07em;
+    letter-spacing: -0.06em;
     margin-bottom: 0;
     font-family: 'Outfit', sans-serif;
     background: linear-gradient(180deg, #ffffff 40%, #555555 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 20px 50px rgba(0,0,0,0.7));
-    line-height: 0.85;
-    padding: 0 1.5rem 1.5rem 1.5rem;
+    filter: drop-shadow(0 20px 60px rgba(0,0,0,0.8));
+    line-height: 0.8;
+    padding: 0 1.5rem 0.2rem 1.5rem;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-block;
 }
@@ -3443,24 +3445,26 @@ cm-diff-cancel > div {
 }
 
 .welcome-title-line {
-    width: 80px;
-    height: 4px;
+    width: 200px;
+    height: 1.5px;
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    margin-bottom: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
     border-radius: 10px;
-    opacity: 0.8;
+    opacity: 0.9;
+    box-shadow: 0 0 15px var(--accent);
 }
 
 .welcome-motto {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--text-secondary);
     font-weight: 400;
     letter-spacing: 0.02em;
-    margin-bottom: 6rem;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    opacity: 0.8;
+    opacity: 0.5;
 }
 
 .welcome-motto kbd {
@@ -3563,7 +3567,7 @@ cm-diff-cancel > div {
 }
 
 .welcome-footer {
-    margin-top: 6rem;
+    margin-top: 3rem;
     padding-top: 2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.04);
     display: flex;
