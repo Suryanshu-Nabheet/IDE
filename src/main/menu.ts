@@ -5,7 +5,7 @@ import mainWindow from './window'
 export default function setupMainMenu() {
     let menuList: any[] = []
     const quitApp = {
-        label: 'Quit App',
+        label: 'Quit CodeX',
         click: () => {
             app.quit()
         },
@@ -13,7 +13,7 @@ export default function setupMainMenu() {
     }
     if (process.platform === 'darwin') {
         menuList.push({
-            label: process.platform === 'darwin' ? 'Custom Menu' : 'CodeX',
+            label: 'CodeX',
             submenu: [quitApp],
         })
     }

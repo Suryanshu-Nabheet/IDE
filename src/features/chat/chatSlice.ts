@@ -435,7 +435,7 @@ export const chatSlice = createSlice({
             chatState.draftMessages[conversationId].message = action.payload
         },
         abortCommandBar(chatState: ChatState) {
-            const conversationId = chatState.currentConversationId
+            const _conversationId = chatState.currentConversationId
             chatState.isCommandBarOpen = false
         },
         turnOnCommandK(chatState: ChatState) {
@@ -462,7 +462,7 @@ export const chatSlice = createSlice({
         },
         updateLastUserMessageMsgType(
             chatState: ChatState,
-            action: PayloadAction<null>
+            _action: PayloadAction<null>
         ) {
             const lastUserMessage =
                 chatState.userMessages[chatState.userMessages.length - 1]

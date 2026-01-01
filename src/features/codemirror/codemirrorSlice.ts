@@ -6,7 +6,7 @@ import {
     StateField,
     Transaction,
 } from '@codemirror/state'
-import { FullState, State } from '../window/state'
+import { FullState } from '../window/state'
 import { EditorView } from '@codemirror/view'
 import {
     customDispatch,
@@ -34,17 +34,15 @@ interface UpsertEditor {
     useCustomDispatch?: boolean
 }
 
-// THESSE CANNOT be exported, because it must only be modifiable
-// on state transitions
-// Technically, I think you can sub out things in the middle
+// Internal state management for CodeMirror views
 let codeMirrorViews: ReadonlyArray<[number, EditorView]> = []
 
 function cleanViews(state: CodeMirrorState) {
-    // When we clean the views, we destroy the views that we have deleted from state
+    // Destroy views that have been deleted from state
     codeMirrorViews
-        .filter(([viewId, view]) => !state.editorIds.includes(viewId))
-        .forEach(([viewId, view]) => void view.destroy())
-    codeMirrorViews = codeMirrorViews.filter(([viewId, view]) =>
+        .filter(([viewId, _view]) => !state.editorIds.includes(viewId))
+        .forEach(([_viewId, view]) => void view.destroy())
+    codeMirrorViews = codeMirrorViews.filter(([viewId, _view]) =>
         state.editorIds.includes(viewId)
     )
 }
@@ -69,10 +67,9 @@ export interface CodeMirrorState {
         [tabId: number]: number
     }
 }
-
 export interface FullCodeMirrorState {
     codeMirrorState: CodeMirrorState
-    global: State
+    global: FullState['global']
 }
 
 export const initialCodeMirrorState: CodeMirrorState = {
@@ -85,7 +82,6 @@ function updateSyncViews(codeMirrorState: CodeMirrorState, tabIds: number[]) {
         const editorId = codeMirrorState.editorMap[tabId]
         return getCodeMirrorView(editorId)!
     })
-    //
     for (let i = 0; i < tabIds.length; i++) {
         const currentView = views[i]
         const otherViews = views.filter((view) => view !== currentView)
@@ -108,7 +104,6 @@ export const upsertEditor = createAsyncThunk(
         { tabId, editorStateConfig, useCustomDispatch }: UpsertEditor,
         { getState, dispatch }
     ) => {
-        // Upsert the editor
         dispatch(_upsertEditor({ tabId, editorStateConfig, useCustomDispatch }))
 
         const state = (<FullState>getState()).global
@@ -159,7 +154,7 @@ export const removeEditor = createAsyncThunk(
 export const codeMirrorSlice = createSlice({
     name: 'codeMirrorState',
     initialState: initialCodeMirrorState as CodeMirrorState,
-    extraReducers: (builder) => {
+    extraReducers: (_builder) => {
         // Case for installing a language server
     },
     reducers: {
@@ -170,10 +165,6 @@ export const codeMirrorSlice = createSlice({
                 useCustomDispatch,
             } = action.payload
             // Check if we already have an editor for this tab
-            // if (tabId in state.editorMap) {
-            //     // we can still update the editor
-            //     return
-            // }
 
             const stateCurrent = initialState
                 ? EditorState.fromJSON(
@@ -184,8 +175,7 @@ export const codeMirrorSlice = createSlice({
                 : EditorState.create(config)
 
             // Otherwise, create a new editor
-            let view: EditorView
-            view = new EditorView({
+            const view: EditorView = new EditorView({
                 ...stateCurrent,
                 dispatch: useCustomDispatch
                     ? (tr) => customDispatch(view, tr)
@@ -209,9 +199,7 @@ export const codeMirrorSlice = createSlice({
 
             if (tabId in state.editorMap) {
                 const editorId = state.editorMap[tabId]
-                // Find the index of the editorId
                 delete state.editorMap[tabId]
-                // Get the index of the editorId from the editorIds
                 state.editorIds = state.editorIds.filter(
                     (eid) => eid !== editorId
                 )

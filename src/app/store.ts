@@ -53,12 +53,6 @@ const reduceReducers = (...args: any) => {
     }
 }
 
-const logReducer = (state: object, action: object) => {
-    //
-    //
-    return state
-}
-
 export const fullReducer = combineReducers({
     global: reduceReducers(
         initialState,
@@ -79,10 +73,6 @@ export const fullReducer = combineReducers({
 
 export const store = configureStore({
     reducer: fullReducer,
-    // middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    //   serializableCheck: false,
-    //   immutableCheck: false
-    // }),
 })
 
 export function setupStore(preloadedState?: PreloadedState<RootState>) {

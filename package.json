@@ -7,7 +7,7 @@
     },
     "productName": "CodeX",
     "version": "1.0.0",
-    "description": "CodeX is an AI-powered code editor Build by Suryanshu Nabheet",
+    "description": "CodeX: A high-performance, premium AI-powered IDE engineered for the modern developer by Suryanshu Nabheet.",
     "main": ".webpack/main",
     "scripts": {
         "fix": "eslint --ext .ts,.tsx --fix .",

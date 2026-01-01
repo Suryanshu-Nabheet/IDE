@@ -138,7 +138,7 @@ export function AIChatSidebar() {
                         <div className="ai-message__avatar">
                             <FontAwesomeIcon icon={faSparkles} />
                         </div>
-                        <div className="typing-indicator-vscode">
+                        <div className="typing-indicator-codex">
                             <span></span>
                             <span></span>
                             <span></span>

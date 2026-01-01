@@ -37,13 +37,12 @@ export function WelcomeScreen() {
         <div className="welcome-container">
             <div className="welcome-content">
                 <div className="welcome-header">
-                    <div className="welcome-overline">
-                        Created by Suryanshu Nabheet
-                    </div>
+                    <div className="welcome-overline">The Future of Coding</div>
                     <h1 className="welcome-title">CodeX</h1>
                     <p className="welcome-tagline">
-                        The Enterprise IDE. Production Ready. Your Code,
-                        Evolved.
+                        An elite, AI-powered IDE engineered for excellence.
+                        <br />
+                        Built by Suryanshu Nabheet.
                     </p>
                 </div>
 

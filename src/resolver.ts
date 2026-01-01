@@ -1,6 +1,5 @@
 import { dirname, extname } from 'path'
 import { resolve as resolveExports } from 'resolve.exports'
-// import type defaultResolver from 'jest-resolve/build/defaultResolver';
 
 interface ResolveOptions {
     rootDir: string
@@ -9,7 +8,7 @@ interface ResolveOptions {
     moduleDirectory: string[]
     browser: boolean
     extensions: string[]
-    defaultResolver: any //typeof defaultResolver;
+    defaultResolver: any
 }
 
 let compilerSetup: any
@@ -54,7 +53,6 @@ export default function resolver(path: string, options: ResolveOptions) {
             // Try to use the defaultResolver with default options
             return options.defaultResolver(path, options)
         } catch {
-            // Try to use the defaultResolver with a packageFilter
             return options.defaultResolver(path, {
                 ...options,
                 packageFilter: (pkg: any) => ({
@@ -77,7 +75,6 @@ export default function resolver(path: string, options: ResolveOptions) {
         ) {
             return
         }
-        // Fallback to using typescript
         ts = ts || require('typescript')
         compilerSetup = compilerSetup || getCompilerSetup(options.rootDir)
         const { compilerOptions, host } = compilerSetup

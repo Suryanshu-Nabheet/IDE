@@ -225,9 +225,9 @@
     --input-background: var(--input-bg);
     --input-text: var(--input-fg);
     --chat-text: var(--ui-fg);
-    --vscode-theme-editor-background: var(--editor-bg);
-    --vscode-blue: var(--blue);
-    --link-vscode-blue: var(--blue-light);
+    --codex-theme-editor-background: var(--editor-bg);
+    --codex-blue: var(--blue);
+    --link-codex-blue: var(--blue-light);
     --submit-button: var(--button-success);
     --reject-button: var(--button-danger);
     --submit-transparent-button: rgba(137, 209, 133, 0.5);

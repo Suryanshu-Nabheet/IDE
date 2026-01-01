@@ -11,7 +11,6 @@ import {
     ExpectedBackendError,
     streamSource,
 } from '../../utils'
-import { log } from '../../utils/logger'
 import { getViewId } from '../codemirror/codemirrorSelectors'
 import {
     FullCodeMirrorState,
@@ -27,7 +26,6 @@ import {
     changeMsgType,
     doSetChatState,
     dummySubmitCommandBar,
-    // chatSlice,
     endFinishResponse,
     getLastBotMessage,
     interruptGeneration,
@@ -65,18 +63,12 @@ import {
 } from '../linter/lint'
 
 function getMatchingLines(doc: Text, ...lines: string[]): number[][] {
-    // Iterate through the lines in the document and find matching line numbers
-    // Initialize an empty array to store matching line numbers
     const matchingLineNumbers = Array(lines.length).fill([])
 
-    // Iterate through the lines in the document
     for (let i = 0; i < doc.lines; i++) {
-        // Get the line text at the current index
         const lineText = doc.line(i + 1).text
 
         for (let j = 0; j < lines.length; j++) {
-            // If the line text matches the line text at the current index, add the line number to the array
-            //
             if (lineText.trimEnd() === lines[j]) {
                 matchingLineNumbers[j].push(i + 1)
             }
@@ -94,7 +86,6 @@ const thunkFactory = (
         `chat/${name}`,
         async (payload: null, { getState, dispatch }) => {
             dispatch(actionCreator())
-            // If message type is chat_edit, then we want to change the message type to chat
             if (
                 (getState() as FullState).chatState.userMessages.at(-1)
                     ?.msgType == 'chat_edit'
@@ -143,14 +134,11 @@ export async function getPayload({
             prompt: lastUserMessage.message,
         })
 
-        // TODO - make this work when currentTab is None
         if (currentTab != null) {
-            // TODO - have this directly dispatch the transaction
             dispatch(
                 addTransaction({
                     tabId: currentTab,
                     transactionFunction: {
-                        // Starts the undo ig
                         type: 'bar',
                         blob: {
                             message: lastUserMessage.message,
@@ -174,7 +162,6 @@ export async function getPayload({
         })
     }
 
-    // add in prompts to the last user message
     const fileId = lastUserMessage.currentFile
         ? findFileIdFromPath(state.global, lastUserMessage.currentFile)
         : null
@@ -189,18 +176,15 @@ export async function getPayload({
         }),
     ]
 
-    // Capture all `CODE_HERE` with regex from the last message
     const capturedSymbols = lastUserMessage.message
         .match(/`(\w+\.*)+`/g)
         ?.map((symbol) => symbol.replace(/`/g, ''))
-    // Convert to a set
     const codeSymbols = new Set<string>()
     if (capturedSymbols) {
         capturedSymbols.forEach((symbol) => {
             codeSymbols.add(symbol)
         })
     }
-    // Now set filter out the lastUserMessage.codeSymbols to only be the ones that are in the message
 
     const codeBlockIdentifiers = [
         ...lastUserMessage.codeSymbols
@@ -211,7 +195,6 @@ export async function getPayload({
                 type: symbol.type,
             })),
     ]
-    // Split the `precedingCode` into chunks of 20 line blocks called `precedingCodeBlocks`
     const blockSize = 20
 
     const precedingCodeBlocks = []
@@ -223,7 +206,6 @@ export async function getPayload({
         }
     }
 
-    // Split the `procedingCodeBlocks` into chunks of 20 line blocks called `procedingCodeBlocks`
     const procedingCodeBlocks = []
     if (lastUserMessage.procedingCode) {
         const procedingCodeLines = lastUserMessage.procedingCode.split('\n')
@@ -235,8 +217,6 @@ export async function getPayload({
 
     const rootPath = state.global.rootPath
 
-    // Get the viewId and the editorView
-    // Really hacky - need to change at some point
     const viewId = getViewId(currentTab)(
         getState() as unknown as FullCodeMirrorState
     )
@@ -247,7 +227,6 @@ export async function getPayload({
         editorView = null
     }
 
-    // hack
     dispatch(updateLastUserMessageMsgType(null))
 
     let oaiKey: string | undefined | null =
@@ -258,21 +237,16 @@ export async function getPayload({
         oaiKey = null
     }
     const userRequest = {
-        // Core request
         message: lastUserMessage.message,
-        // Context of the current file
         currentRootPath: rootPath,
         currentFileName: lastUserMessage.currentFile,
         currentFileContents,
-        // Context surrounding the cursor position
         precedingCode: precedingCodeBlocks,
         currentSelection: lastUserMessage.currentSelection,
         suffixCode: procedingCodeBlocks,
-        // Get user defined values
         customCodeBlocks,
         codeBlockIdentifiers,
         msgType: chatState.msgType,
-        // Messy, but needed for the single lsp stuff to work
         maxOrigLine: forContinue
             ? getLastBotMessage(chatState, conversationId)!.maxOrigLine
             : forDiagnostics
@@ -302,20 +276,13 @@ export async function getPayload({
                 (bm) => bm.conversationId == lastUserMessage.conversationId
             ),
         ],
-        //useFour: state.settingsState.settings.useFour === 'enabled',
         contextType: state.settingsState.settings.contextType,
 
         rootPath: state.global.rootPath,
         apiKey: oaiKey,
         customModel: openAIModel,
     }
-    log.debug(
-        'Sending chat request',
-        { userRequest: data.userRequest },
-        'chatThunks'
-    )
 
-    // document.cookie = `repo_path=${state.global.rootPath}`
     return data
 }
 
@@ -331,7 +298,6 @@ export const continueGeneration = createAsyncThunk(
         try {
             const getFullState = () => getState() as FullState
 
-            // forcontinue is set to true here
             const data = await getPayload({
                 getState: getFullState,
                 dispatch,
@@ -341,7 +307,6 @@ export const continueGeneration = createAsyncThunk(
             const state = getState() as FullState
 
             const chatState = state.chatState
-            // const currentTab = getActiveTabId(state.global)!
 
             const numUserMessages = chatState.userMessages.length
             const checkSend = () => {
@@ -353,16 +318,13 @@ export const continueGeneration = createAsyncThunk(
                     throw new PromptCancelledError()
                 }
             }
-            // Hit the diffs endpoint
             const server = `${API_ROOT}/continue/`
 
             const response = await fetch(server, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Cookie: `repo_path=${state.global.rootPath}`,
                 },
-                //credentials: 'include',
                 body: JSON.stringify(data),
             }).then(async (resp) => {
                 if (resp.status != 200) {
@@ -380,12 +342,6 @@ export const continueGeneration = createAsyncThunk(
             })
 
             dispatch(resumeGeneration(conversationId))
-
-            // There must exist this view
-            // const editorViewId = getViewId(currentTab)(
-            //     getState() as FullCodeMirrorState
-            // )!
-            // const editorView = getCodeMirrorView(editorViewId)!
 
             const isGenerating = () =>
                 (<FullState>getState()).chatState.generating
@@ -405,9 +361,6 @@ export const continueGeneration = createAsyncThunk(
                 .filter((bm) => bm.conversationId == conversationId)
                 .at(-1)!.message
 
-            // const pos = chatState.pos == undefined ? 0 : chatState.pos
-            // let currentPos = pos
-
             let toBreak = false
             let finalMessage = ''
 
@@ -419,7 +372,6 @@ export const continueGeneration = createAsyncThunk(
 
             while (!toBreak) {
                 const token = await getNextToken()
-                // When there are no more tokens, or we are interrupted, stop the generation
                 if (token == null) break
                 if (!isGenerating() || isInterrupted()) break
                 if ((buffer + token).match(/.*<\|\w*?\|>.*/)) {
@@ -437,7 +389,6 @@ export const continueGeneration = createAsyncThunk(
                     }
                 } else if ((buffer + token).length > 20) {
                     buffer += token
-                    // Then we ignore the other stuff
                 } else if ((buffer + token).includes('<|')) {
                     buffer += token
                     continue
@@ -448,7 +399,6 @@ export const continueGeneration = createAsyncThunk(
                     buffer += token
                 }
                 bigBuffer += buffer
-                // currentPos += buffer.length
                 checkSend()
                 throttledAppendResponse(bigBuffer, token)
                 buffer = ''
@@ -458,10 +408,7 @@ export const continueGeneration = createAsyncThunk(
             while (true) {
                 if (buffer.includes(`<|END_interrupt|>`)) {
                     buffer = buffer.replace(`<|END_interrupt|>`, '')
-                    // Interrupt the generation here when we run out of tokens
-
                     dispatch(tokenLimitInterrupt())
-                    //dispatch(cs.setChatOpen(false))
                     break
                 } else if (buffer.includes(`<|END_message|>`)) {
                     buffer = buffer.replace(`<|END_message|>`, '')
@@ -479,13 +426,11 @@ export const continueGeneration = createAsyncThunk(
                 (getState() as FullState).chatState
             )!
             if (
-                !setFinished &&
-                lastBotMessage.type == 'edit' &&
-                lastBotMessage.interrupted &&
-                lastBotMessage.hitTokenLimit
+                setFinished ||
+                lastBotMessage.type != 'edit' ||
+                !lastBotMessage.interrupted ||
+                !lastBotMessage.hitTokenLimit
             ) {
-                // Do nothing
-            } else {
                 dispatch(finishResponse())
             }
         } catch (e) {
@@ -505,8 +450,6 @@ export const finishResponse = createAsyncThunk(
     'chat/finishResponse',
     async (arg, { dispatch, getState }) => {
         const chatState = (getState() as FullState).chatState
-        // connector.setStore('userMessages', chatState.userMessages)
-        // connector.setStore('botMessages', chatState.botMessages)
         connector.setStore('chatState', chatState)
         dispatch(endFinishResponse())
     }
@@ -515,10 +458,7 @@ export const finishResponse = createAsyncThunk(
 export const initializeChatState = createAsyncThunk(
     'chat/getResponse',
     async (payload: null, { dispatch }) => {
-        // const userMessages = await connector.getStore('userMessages');
-        // const botMessages = await connector.getStore('botMessages');
         const chatState = await connector.getStore('chatState')
-        // dispatch(doSetMessages({ userMessages, botMessages }));
         dispatch(doSetChatState(chatState))
     }
 )
@@ -572,9 +512,7 @@ export const streamResponse = createAsyncThunk(
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Cookie: `repo_path=${state.global.rootPath}`,
                 },
-                //credentials: 'include',
                 body: JSON.stringify(data),
             }).then(async (resp) => {
                 if (resp.status != 200) {
@@ -646,19 +584,11 @@ export const streamResponse = createAsyncThunk(
                     }
                 }
 
-                // parse out the value between the tags
                 const value = buffer!.match(
                     /<\|BEGIN_\w+\|>([\s\S]*)<\|END_\w+\|>/
                 )![1]!
                 return { value, buffer }
             }
-
-            /**
-             * Sends the body of a message by identifying the token the message starts with and adding tokens until finding the end.
-             * @param startToken Token the message started with
-             * @param typeStr Type of message (e.g. 'continue', 'new')
-             * @returns void - this function is async and returns no value
-             */
 
             const throttledAppendResponse = throttle(
                 (text: string, token: string) =>
@@ -680,10 +610,6 @@ export const streamResponse = createAsyncThunk(
                 let finalMessage = ''
                 while (!toBreak) {
                     const token = await getNextToken()
-                    // When there are no more tokens, or we are interrupted, stop the generation
-                    // Wait for 100 ms
-
-                    //
                     if (token == null) break
                     if (!isGenerating() || isInterrupted()) break
                     if ((buffer + token).match(/.*<\|\w*?\|>.*/)) {
@@ -701,7 +627,6 @@ export const streamResponse = createAsyncThunk(
                         }
                     } else if ((buffer + token).length > 20) {
                         buffer += token
-                        // Then we ignore the other stuff
                     } else if ((buffer + token).includes('<|')) {
                         buffer += token
                         continue
@@ -734,8 +659,6 @@ export const streamResponse = createAsyncThunk(
                                     tabId: currentTab,
                                     transactionFunction: {
                                         type: 'insert',
-                                        // from: currentPos,
-                                        // to: currentPos,
                                         text: buffer,
                                         scroll: 'intoView',
                                     },
@@ -746,9 +669,7 @@ export const streamResponse = createAsyncThunk(
                     bigBuffer += buffer
                     currentPos += buffer.length
                     checkSend()
-                    // This might cause a bug with things like generate but not sure
                     throttledAppendResponse(bigBuffer, token)
-                    // dispatch(appendResponse({ text: bigBuffer, token: token }))
                     buffer = ''
                 }
                 dispatch(appendResponse({ text: bigBuffer, token: '' }))
@@ -756,10 +677,7 @@ export const streamResponse = createAsyncThunk(
                 while (true) {
                     if (buffer.includes(`<|END_interrupt|>`)) {
                         buffer = buffer.replace(`<|END_interrupt|>`, '')
-                        // Interrupt the generation here when we run out of tokens
-
                         dispatch(tokenLimitInterrupt())
-                        //dispatch(cs.setChatOpen(false))
                         break
                     } else if (buffer.includes(`<|END_message|>`)) {
                         buffer = buffer.replace(`<|END_message|>`, '')
@@ -824,7 +742,6 @@ export const streamResponse = createAsyncThunk(
                     }[] = JSON.parse(generationString)
 
                     const relevantFilePath = generationJson[0].filePath
-                    //
                     if (
                         !generationJson.every(
                             (value) => value.filePath == relevantFilePath
@@ -839,7 +756,6 @@ export const streamResponse = createAsyncThunk(
                         )
                     }
 
-                    // Todo investigate this for causing an error with line numbers changing as diffs are added
                     checkSend()
                     const thunkResult = await dispatch(
                         openFile({
@@ -937,7 +853,6 @@ export const diffResponse = createAsyncThunk(
     'chat/diffResponse',
     async (type: 'lsp' | 'chat' | null, { getState, dispatch }) => {
         try {
-            // Making this chat_edit message type
             type = type || 'chat'
 
             const getFullState = () => getState() as FullState
@@ -957,11 +872,9 @@ export const diffResponse = createAsyncThunk(
             })
 
             const state = getState() as FullState
-
-            const chatState = state.chatState
             const currentTab = getActiveTabId(state.global)!
 
-            const numUserMessages = chatState.userMessages.length
+            const numUserMessages = state.chatState.userMessages.length
             const checkSend = () => {
                 if (
                     numUserMessages !=
@@ -971,33 +884,21 @@ export const diffResponse = createAsyncThunk(
                     throw new PromptCancelledError()
                 }
             }
-            // Hit the diffs endpoint
 
             const server = `${API_ROOT}/diffs/`
-
-            // Exclamation means this can only be invoked if the value is not null
             const viewId = getViewId(currentTab)(state)!
             const view = getCodeMirrorView(viewId)!
 
-            // Override data to set selected_code as the whole doc
             data.userRequest.currentSelection = view.state.doc.toString()
-
-            // If the cursor is in a current pos, set the active line to the top of that
             data.userRequest.maxOrigLine = view.state.doc.lineAt(
                 view.state.selection.main.from
             ).number
-
-            // Set the message to dummy data
-            // data.userRequest.message =
-            //     'create a new Modal component, importing from headlessui'
 
             const response = await fetch(server, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Cookie: `repo_path=${state.global.rootPath}`,
                 },
-                //credentials: 'include',
                 body: JSON.stringify(data),
             }).then(async (resp) => {
                 if (resp.status != 200) {
@@ -1013,7 +914,7 @@ export const diffResponse = createAsyncThunk(
                 }
                 return resp
             })
-            // There must exist this view
+
             const editorViewId = getViewId(currentTab)(
                 getState() as FullCodeMirrorState
             )!
@@ -1026,7 +927,6 @@ export const diffResponse = createAsyncThunk(
                 (<FullState>getState()).chatState.botMessages.at(-1)
                     ?.interrupted
 
-            // Dispatching a new response from main
             dispatch(
                 newResponse({
                     type: type == 'chat' ? 'chat_edit' : 'lsp_edit',
@@ -1039,10 +939,8 @@ export const diffResponse = createAsyncThunk(
             const usedChunks = []
             for await (const chunk of generator) {
                 if (!isGenerating() || isInterrupted()) {
-                    // todo
+                    break
                 }
-                // checkSend()
-                // chunk will n
 
                 const typedChunk = chunk as null | {
                     diff_number: number
@@ -1055,18 +953,8 @@ export const diffResponse = createAsyncThunk(
                     last: boolean
                 }
 
-                if (typedChunk == null || typedChunk.last) {
-                    // we're probably done. Just in case, dont break
-                } else {
-                    // We're gonna run set diff
-                    // first, we're gonna need to get the text between start_line and end_line
-
-                    // If the chunk has finished, add the current typedChunk to the start of usedChunks
-
-                    // Build up the updatedText using all usedChunks
+                if (typedChunk != null && !typedChunk.last) {
                     let updatedText = origState.doc
-
-                    //
                     const tmpChunks = [typedChunk, ...usedChunks]
                     tmpChunks.sort((a, b) => a.start_line - b.start_line)
                     for (const chunk of [typedChunk, ...usedChunks]) {
@@ -1095,7 +983,6 @@ export const diffResponse = createAsyncThunk(
                     if (typedChunk.finished) {
                         usedChunks.unshift(typedChunk)
                     }
-                    // Set the diff with the updatedText
 
                     setDiff({
                         origLine: 1,
@@ -1136,7 +1023,6 @@ export const diffResponse = createAsyncThunk(
                 appendResponse({ text: updatedText.toString(), token: '' })
             )
             dispatch(finishResponse())
-            //debugger
             setDiff({
                 origLine: 1,
                 origEndLine: origState.doc.lines,
@@ -1147,10 +1033,8 @@ export const diffResponse = createAsyncThunk(
                 isFinalDiff: true,
                 isFinished: true,
             })(view)
-            //debugger
 
             checkSend()
-            //debugger
         } catch (e) {
             dispatch(setGenerating(false))
             if (e instanceof ExpectedBackendError) {
@@ -1162,11 +1046,10 @@ export const diffResponse = createAsyncThunk(
         }
     }
 )
+
 export const pressAICommand = createAsyncThunk(
     'chat/pressAICommand',
     (
-        // TODO - use this instead of keypress
-        // aiFunction: 'allLSPs' | 'codegen' | 'chat' | 'accept' | 'interrupt',
         keypress:
             | 'Shift-Enter'
             | 'k'
@@ -1177,7 +1060,6 @@ export const pressAICommand = createAsyncThunk(
             | 'history',
         { getState, dispatch }
     ) => {
-        // If currently responding to a chat, make this a chat_edit response
         const chatState = (getState() as FullState).chatState
         const globState = (getState() as FullState).global
 
@@ -1187,13 +1069,11 @@ export const pressAICommand = createAsyncThunk(
         const viewId = getViewId(tabId)(getState() as FullCodeMirrorState)
         const editorView = viewId && getCodeMirrorView(viewId)
 
-        // Okay, this will be the main logic in general here
         const lastBotMessage = getLastBotMessage(
             chatState,
             chatState.currentConversationId
         )
         if (chatState.generating && keypress != 'Backspace') {
-            // Do nothing!
             return
         }
         switch (keypress) {
@@ -1201,7 +1081,6 @@ export const pressAICommand = createAsyncThunk(
                 dispatch(toggleChatHistory())
                 return
             case 'Enter':
-                // Need to be in diff state or diff accept state
                 if (
                     chatState.msgType === 'edit' ||
                     chatState.msgType == 'chat_edit'
@@ -1212,31 +1091,7 @@ export const pressAICommand = createAsyncThunk(
                 }
                 return
             case 'Backspace':
-                if (
-                    // chatState.msgType === 'edit' ||
-                    // chatState.msgType == 'chat_edit'
-                    // For we now dont do this here bc of weird cmd+backspace behavior in editor
-                    false
-                ) {
-                    // if (lastBotMessage && editorView) {
-                    //     if (lastBotMessage?.finished) {
-                    //         // In the case where done loading, we reject the message
-                    //         dispatch(
-                    //             rejectMessage(lastBotMessage.conversationId)
-                    //         )
-                    //         rejectDiff(lastBotMessage.conversationId)(
-                    //             editorView
-                    //         )
-                    //     } else {
-                    //
-                    //         dispatch(
-                    //             interruptGeneration(
-                    //                 lastBotMessage.conversationId
-                    //             )
-                    //         )
-                    //     }
-                    // }
-                } else if (chatState.msgType != 'edit') {
+                if (chatState.msgType != 'edit') {
                     if (lastBotMessage && chatState.generating) {
                         dispatch(
                             interruptGeneration(lastBotMessage.conversationId)
@@ -1245,9 +1100,7 @@ export const pressAICommand = createAsyncThunk(
                 }
                 return
             case 'l':
-                // If the chat state is currently open, then we close it
                 if (chatState.chatIsOpen) {
-                    // Close it
                     dispatch(setChatOpen(false))
                 } else {
                     dispatch(changeMsgType('freeform'))
@@ -1265,9 +1118,6 @@ export const pressAICommand = createAsyncThunk(
                         dispatch(openCommandBar())
                     } else {
                         const selection = editorView.state.selection.main
-
-                        // TODO - need to remove antipattern of dispatching multiple reducers at once.
-                        // This should be handled by a single dispatch call
                         dispatch(openCommandBar())
                         dispatch(
                             activateDiffFromEditor({
@@ -1292,12 +1142,6 @@ export const pressAICommand = createAsyncThunk(
                 }
                 return
             case 'k':
-                // if (chatState.chatIsOpen && lastBotMessage?.finished) {
-                //     if (editorView) {
-                //         // When there is an editorView, we dispatch something
-                //         dispatch(changeMsgType('chat_edit'))
-                //         dispatch(changeDraftMsgType('chat_edit'))
-                //     }
                 if (editorView) {
                     const selPos = getSelectedPos(editorView)
                     const selection = editorView.state.selection.main
@@ -1309,16 +1153,13 @@ export const pressAICommand = createAsyncThunk(
                     })
                     const cursorPos = selection.from
 
-                    //const preceedingPos = getPrecedingLinesPos(view, 20);
                     editorView.dispatch({
                         effects: insertCursorEffect.of({
-                            //pos: preceedingPos.endLinePos+1,
                             pos: cursorPos,
                         }),
                     })
 
                     if (selection.from != selection.to) {
-                        // Always done before command bar - though we need to clean this up
                         dispatch(changeMsgType('edit'))
                         dispatch(openCommandBar())
                     } else {
@@ -1347,7 +1188,6 @@ export const pressAICommand = createAsyncThunk(
                             userMessage: 'Help me fix this errors',
                             messageType: 'freeform',
                             currentFile: getPathForFileId(globState, fileId!)!,
-                            // Get the entire editor
                             currentSelection: editorView.state.doc.toString(),
                         })
                     )
@@ -1364,11 +1204,11 @@ export const pressAICommand = createAsyncThunk(
                     if (currentErrorField) {
                         relevantLine = currentErrorField.line
                     } else {
-                        const diagnostics = getDiagnostics(
+                        const lintDiagnostics = getDiagnostics(
                             editorView.state.field(lintState),
                             editorView.state
                         )
-                        const seriousDiagnostics = diagnostics.filter(
+                        const seriousDiagnostics = lintDiagnostics.filter(
                             (d) => d.severity == 'error'
                         )
                         const currentPos = editorView.state.selection.main.from
@@ -1395,7 +1235,6 @@ export const pressAICommand = createAsyncThunk(
                                     globState,
                                     fileId!
                                 )!,
-                                // Get the entire editor
                                 currentSelection:
                                     editorView.state.doc.toString(),
                                 userMaxOrigLine: relevantLine,

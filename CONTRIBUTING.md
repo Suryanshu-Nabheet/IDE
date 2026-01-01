@@ -1,234 +1,82 @@
-# Contributing to CodeX
+# Contributing to CodeX IDE
 
-Thank you for your interest in contributing to CodeX! This document provides guidelines and instructions for contributing.
-
-## Table of Contents
-
--   [Code of Conduct](#code-of-conduct)
--   [Getting Started](#getting-started)
--   [Development Setup](#development-setup)
--   [Code Style](#code-style)
--   [Pull Request Process](#pull-request-process)
--   [Reporting Bugs](#reporting-bugs)
--   [Suggesting Enhancements](#suggesting-enhancements)
-
-## Code of Conduct
-
-By participating in this project, you agree to maintain a respectful and inclusive environment for all contributors.
-
-## Getting Started
-
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/CodeX.git`
-3. Add upstream remote: `git remote add upstream https://github.com/Suryanshu-Nabheet/CodeX.git`
-4. Create a new branch: `git checkout -b feature/your-feature-name`
-
-## Development Setup
-
-### Prerequisites
-
--   Node.js 16 or higher
--   npm or yarn
--   Git
-
-### Installation
-
-```bash
-# Install dependencies
-npm install
-
-# Download non-versioned dependencies
-./setup.sh  # Mac/Linux
-./setup.ps1 # Windows
-
-# Start development server
-npm start
-```
-
-### Project Structure
-
-```
-CodeX/
-├── src/
-│   ├── components/     # React components
-│   ├── features/       # Redux slices and business logic
-│   ├── main/          # Electron main process
-│   └── index.css      # Global styles
-├── assets/            # Icons, fonts, static assets
-└── .webpack/          # Webpack build output
-```
-
-## Code Style
-
-### TypeScript/JavaScript
-
--   Use TypeScript for all new code
--   Follow existing code patterns
--   Prefix unused variables with underscore (`_variableName`)
--   Use meaningful variable and function names
--   Add JSDoc comments for complex functions
-
-### CSS
-
--   Use CSS variables for colors and transitions
--   Follow BEM naming convention where applicable
--   Group related styles together
--   Add comments for major UI sections
--   Keep selectors specific but not overly nested
-
-### Formatting
-
-```bash
-# Format code
-npm run format
-
-# Check formatting
-npm run format-check
-
-# Lint code
-npm run lint
-
-# Fix linting issues
-npm run fix
-```
-
-## Pull Request Process
-
-### Before Submitting
-
-1. **Test your changes**
-
-    ```bash
-    npm start  # Verify app runs
-    npm test   # Run tests
-    npm run lint  # Check for linting errors
-    ```
-
-2. **Update documentation**
-
-    - Update README.md if adding features
-    - Add entry to CHANGELOG.md
-    - Update JSDoc comments
-
-3. **Commit messages**
-    - Use clear, descriptive commit messages
-    - Follow conventional commits format:
-        ```
-        feat: add command palette fuzzy search
-        fix: resolve LSP connection error
-        docs: update installation instructions
-        style: improve button hover effects
-        refactor: consolidate duplicate imports
-        ```
-
-### Submitting
-
-1. Push to your fork
-2. Create a Pull Request to `main` branch
-3. Fill out the PR template completely
-4. Link any related issues
-5. Wait for review
-
-### PR Requirements
-
--   ✅ All tests pass
--   ✅ No linting errors
--   ✅ Code is formatted
--   ✅ Documentation updated
--   ✅ CHANGELOG.md updated
--   ✅ No merge conflicts
-
-## Reporting Bugs
-
-### Before Reporting
-
-1. Check existing issues
-2. Verify bug in latest version
-3. Try to reproduce consistently
-
-### Bug Report Template
-
-```markdown
-**Describe the bug**
-A clear description of the bug.
-
-**To Reproduce**
-Steps to reproduce:
-
-1. Go to '...'
-2. Click on '...'
-3. See error
-
-**Expected behavior**
-What you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots.
-
-**Environment:**
-
--   OS: [e.g. macOS 13.0]
--   CodeX Version: [e.g. 1.0.0]
--   Node Version: [e.g. 18.0.0]
-
-**Additional context**
-Any other relevant information.
-```
-
-## Suggesting Enhancements
-
-### Enhancement Template
-
-```markdown
-**Is your feature request related to a problem?**
-A clear description of the problem.
-
-**Describe the solution you'd like**
-A clear description of what you want to happen.
-
-**Describe alternatives you've considered**
-Alternative solutions or features you've considered.
-
-**Additional context**
-Any other context or screenshots.
-```
-
-## Development Guidelines
-
-### Adding New Features
-
-1. **Plan first**: Discuss major features in an issue first
-2. **Small PRs**: Keep changes focused and manageable
-3. **Test thoroughly**: Add tests for new functionality
-4. **Document**: Update relevant documentation
-
-### Code Review
-
--   Be respectful and constructive
--   Explain reasoning for suggestions
--   Be open to feedback
--   Respond to review comments promptly
-
-### Performance
-
--   Profile before optimizing
--   Avoid premature optimization
--   Consider bundle size impact
--   Test with large files/projects
-
-### Accessibility
-
--   Use semantic HTML
--   Add ARIA labels where needed
--   Test keyboard navigation
--   Ensure sufficient color contrast
-
-## Questions?
-
--   📧 Email: suryanshu@codex.dev
--   💬 Discussions: [GitHub Discussions](https://github.com/Suryanshu-Nabheet/CodeX/discussions)
--   🐛 Issues: [GitHub Issues](https://github.com/Suryanshu-Nabheet/CodeX/issues)
+Thank you for choosing to contribute to **CodeX IDE**. We are committed to building a world-class, professional coding environment, and your expertise is invaluable.
 
 ---
 
-**Thank you for contributing to CodeX!** 🎉
+## 💎 Excellence Standards
+
+CodeX is a premium product. We maintain high standards for all contributions:
+
+-   **Quality**: Code must be robust, type-safe, and well-architected.
+-   **Aesthetics**: UI changes must align with our monochromatic, professional design system.
+-   **Performance**: Every feature must be optimized for speed and resource efficiency.
+-   **Privacy**: We prioritize offline functionality and data security.
+
+---
+
+## 🚀 Getting Started
+
+1.  **Fork** the repository and create your feature branch.
+2.  **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/CodeX.git`
+3.  **Configure** upstream: `git remote add upstream https://github.com/Suryanshu-Nabheet/CodeX.git`
+4.  **Install** dependencies: `npm install`
+5.  **Initialize** build tools: `./setup.sh` (macOS/Linux) or `.\setup.ps1` (Windows)
+
+---
+
+## 🛠️ Development Workflow
+
+### Coding Standards
+
+-   **TypeScript**: Mandatory for all logic. Follow strict typing patterns.
+-   **Architecture**: Keep components focused. Business logic should reside in Redux slices or custom hooks.
+-   **Linting**: Ensure all code passes `npm run lint`. Prefix intentionally unused variables with `_`.
+-   **Styling**: Use CSS variables and maintain the professional monochromatic theme.
+
+### Verification
+
+Before submitting a Pull Request, ensure:
+
+```bash
+npm run format-check  # Verify code style
+npm run lint          # Check for logic errors
+npm test              # (If applicable) Run test suites
+npm start             # Verify runtime stability
+```
+
+---
+
+## 📤 Pull Request Process
+
+1.  **Branch Naming**: Use descriptive names like `feat/advanced-fuzzy-search` or `fix/terminal-rendering`.
+2.  **Conventional Commits**: We follow [Conventional Commits](https://www.conventionalcommits.org/):
+    -   `feat:` for new capabilities.
+    -   `fix:` for bug resolutions.
+    -   `perf:` for performance enhancements.
+    -   `refactor:` for code structural improvements.
+3.  **Documentation**: Update `README.md` if your change impacts user behavior.
+4.  **Changelog**: Add a concise entry to `CHANGELOG.md` under the `[Unreleased]` section.
+
+---
+
+## 🐛 Reporting Issues
+
+Use our dedicated templates for professional reports:
+
+-   **Bug Reports**: Include exact steps to reproduce, environment details, and screenshots.
+-   **Feature Requests**: Provide a clear rationale on how the feature enhances the professional developer experience.
+
+---
+
+## 💬 Community & Support
+
+-   **Discussions**: [GitHub Discussions](https://github.com/Suryanshu-Nabheet/CodeX/discussions)
+-   **Email Support**: suryanshunab@gmail.com
+-   **Lead Developer**: Suryanshu Nabheet
+
+---
+
+<p align="center">
+  <b>Thank you for helping us define the future of coding.</b> 🎉
+</p>

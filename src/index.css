@@ -755,30 +755,30 @@ body {
     background: #4f4f4f;
 }
 
-.typing-indicator-vscode {
+.typing-indicator-codex {
     display: flex;
     align-items: center;
     gap: 4px;
     padding: 8px 0;
 }
 
-.typing-indicator-vscode span {
+.typing-indicator-codex span {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: #858585;
-    animation: typing-vscode 1.4s infinite ease-in-out;
+    animation: typing-codex 1.4s infinite ease-in-out;
 }
 
-.typing-indicator-vscode span:nth-child(2) {
+.typing-indicator-codex span:nth-child(2) {
     animation-delay: 0.2s;
 }
 
-.typing-indicator-vscode span:nth-child(3) {
+.typing-indicator-codex span:nth-child(3) {
     animation-delay: 0.4s;
 }
 
-@keyframes typing-vscode {
+@keyframes typing-codex {
     0%, 60%, 100% {
         opacity: 0.3;
     }
@@ -1292,7 +1292,7 @@ li.rta__item--selected mark {
     cursor: pointer;
     color: #fff;
     display: block;
-    background-color: var(--vscode-blue);
+    background-color: var(--accent);
     border-radius: 5px;
     padding: 1rem;
     font-size: 16px;
@@ -2191,7 +2191,7 @@ cm-diff-cancel > div {
 
 .multieditor {
     height: 100%;
-    /* background-color: var(--vscode-theme-editor-background); */
+    /* background-color: var(--codex-theme-editor-background); */
 }
 
 .multieditor__snippet_header {
@@ -2501,7 +2501,7 @@ cm-diff-cancel > div {
 
 
 .settings__button {
-    background-color: var(--vscode-blue);
+    background-color: var(--accent);
     padding: 4px 12px;
     border-radius: 5px;
     color: #fff;
@@ -2648,7 +2648,7 @@ cm-diff-cancel > div {
 }
 
 .submit-button-ssh {
-    background-color: var(--vscode-blue);
+    background-color: var(--accent);
     padding: 8px 12px;
     border-radius: 5px;
     color: #fff;
@@ -3320,7 +3320,7 @@ free servers .disabled_command .shortcut__block {
 }
 
 .pay-button {
-    background-color: var(--vscode-blue);
+    background-color: var(--accent);
 }
 
 .pay-link {
@@ -3361,16 +3361,16 @@ free servers .disabled_command .shortcut__block {
 
 /* CodeX Production-Grade Welcome Screen - Premium Edition */
 .welcome-container {
-    --accent-blue: #4a8eff;
+    --accent-primary: var(--white);
     --text-white: #ffffff;
-    --text-muted: #8b949e;
-    --glow-blue: rgba(74, 142, 255, 0.4);
+    --text-muted: #8a8a8a;
+    --glow-soft: rgba(255, 255, 255, 0.05);
 
     height: 100%;
     width: 100%;
-    background-color: #050505;
-    background-image: radial-gradient(#1a4d8c 1px, transparent 1px);
-    background-size: 40px 40px;
+    background-color: #000000;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3407,17 +3407,16 @@ free servers .disabled_command .shortcut__block {
 }
 
 .welcome-overline {
-    font-family: 'Space Grotesk', monospace;
-    font-size: 0.8rem;
-    color: var(--accent-blue);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--gray-400);
     text-transform: uppercase;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.4em;
     font-weight: 700;
-    padding: 0.6rem 1.2rem;
-    border: 1px solid rgba(74, 142, 255, 0.25);
-    border-radius: 100px;
-    background: rgba(10, 10, 10, 0.6);
-    backdrop-filter: blur(8px);
+    padding: 6px 14px;
+    border: 1px solid var(--gray-800);
+    border-radius: 2px;
+    background: var(--black-subtle);
 }
 
 .welcome-title {
@@ -3428,9 +3427,9 @@ free servers .disabled_command .shortcut__block {
     color: var(--text-white);
     text-transform: uppercase;
     letter-spacing: -0.065em;
-    font-family: 'Space Grotesk', sans-serif;
-    text-shadow: 0 0 70px var(--glow-blue);
-    background: linear-gradient(180deg, #ffffff 10%, var(--accent-blue) 100%);
+    font-family: var(--font-sans);
+    text-shadow: 0 0 40px var(--glow-soft);
+    background: linear-gradient(180deg, #ffffff 30%, #a0a0a0 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -3438,7 +3437,7 @@ free servers .disabled_command .shortcut__block {
 
 .welcome-tagline {
     font-size: 1.15rem;
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-sans);
     color: var(--text-muted);
     font-weight: 400;
     max-width: 550px;
@@ -3462,14 +3461,14 @@ free servers .disabled_command .shortcut__block {
 }
 
 .welcome-section-title {
-    font-size: 1.05rem;
+    font-size: 11px;
     font-weight: 800;
-    color: var(--text-white);
+    color: var(--gray-500);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.25em;
+    font-family: var(--font-mono);
     padding-bottom: 0.8rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid var(--gray-900);
 }
 
 .welcome-card-list {
@@ -3484,22 +3483,21 @@ free servers .disabled_command .shortcut__block {
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    padding: 1rem 0rem;
+    padding: 0.8rem 0rem;
     background: transparent !important;
     border: none !important;
     cursor: pointer;
     text-align: left;
-    color: var(--text-white) !important;
-    font-size: 1.05rem;
-    font-family: 'Outfit', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    color: var(--gray-300) !important;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: 0.0125em;
     position: relative;
     padding-left: 0.8rem;
-    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: all 0.2s ease;
 }
 
-/* The "Side Blue" Hover Bar for ALL interactive items */
 .welcome-action-button::before,
 .welcome-recent-item-link::before {
     content: '';
@@ -3507,38 +3505,36 @@ free servers .disabled_command .shortcut__block {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 3px;
+    width: 2px;
     height: 0;
-    background-color: var(--accent-blue);
-    box-shadow: 0 0 10px var(--accent-blue);
-    transition: height 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    background-color: var(--white);
+    transition: height 0.2s ease;
 }
 
 .welcome-action-button:hover,
 .welcome-recent-item-link:hover {
-    padding-left: 1.6rem;
-    color: var(--text-white) !important;
+    padding-left: 1.4rem;
+    color: var(--white) !important;
 }
 
 .welcome-action-button:hover::before,
 .welcome-recent-item-link:hover::before {
-    height: 70%;
+    height: 60%;
 }
 
 .welcome-action-icon {
-    font-size: 1.35rem;
-    color: var(--accent-blue) !important;
-    width: 28px;
+    font-size: 1.2rem;
+    color: var(--gray-500) !important;
+    width: 24px;
     display: flex;
     justify-content: center;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 0 6px rgba(74, 142, 255, 0.5));
+    transition: all 0.2s ease;
 }
 
 .welcome-action-button:hover .welcome-action-icon,
 .welcome-recent-item-link:hover .welcome-action-icon {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 10px var(--accent-blue));
+    transform: scale(1.05);
+    color: var(--white) !important;
 }
 
 .welcome-recent-item {
@@ -3556,13 +3552,16 @@ free servers .disabled_command .shortcut__block {
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    opacity: 0.5;
-    font-size: 0.9rem;
-    font-family: 'Outfit', sans-serif;
+    opacity: 0.4;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .welcome-footer input[type='checkbox'] {
-    accent-color: var(--accent-blue);
+    accent-color: var(--white);
+    transform: scale(0.9);
 }
 
 /* ============================================
