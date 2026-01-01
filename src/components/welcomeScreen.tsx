@@ -48,10 +48,6 @@ export function WelcomeScreen() {
             <div className="welcome-content">
                 <header className="welcome-header">
                     <h1 className="welcome-title">CodeX</h1>
-                    <p className="welcome-tagline">
-                        The evolution of intelligent software engineering.
-                        Engineering flow state for the modern developer.
-                    </p>
                 </header>
 
                 <main className="welcome-grid">
