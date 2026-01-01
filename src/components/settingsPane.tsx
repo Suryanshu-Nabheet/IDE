@@ -102,21 +102,24 @@ export function SettingsPopup() {
                 </div>
                 <div className="settings-content">
                     {activeTab === 'General' && (
-                        <div className="settings-group">
+                        <div className="animate-fadeIn">
                             <div className="settings-section-title">
                                 General
                             </div>
 
                             <div className="settings-group">
                                 <label className="settings-label">
-                                    Key Bindings
+                                    Editor: Key Bindings
                                 </label>
                                 <div className="settings-description">
-                                    Choose your preferred keyboard shortcuts.
+                                    Configure keyboard shortcuts for the editor.
                                 </div>
                                 <Dropdown
                                     options={[
-                                        { value: 'none', label: 'Default' },
+                                        {
+                                            value: 'none',
+                                            label: 'Default (CodeX)',
+                                        },
                                         { value: 'vim', label: 'Vim' },
                                         { value: 'emacs', label: 'Emacs' },
                                     ]}
@@ -134,11 +137,11 @@ export function SettingsPopup() {
 
                             <div className="settings-group">
                                 <label className="settings-label">
-                                    Text Wrapping
+                                    Editor: Text Wrapping
                                 </label>
                                 <div className="settings-description">
-                                    Control how lines behave when they exceed
-                                    the viewport width.
+                                    Control whether lines wrap or scroll
+                                    horizontally.
                                 </div>
                                 <Dropdown
                                     options={['enabled', 'disabled']}
@@ -156,10 +159,10 @@ export function SettingsPopup() {
 
                             <div className="settings-group">
                                 <label className="settings-label">
-                                    Tab Size
+                                    Editor: Tab Size
                                 </label>
                                 <div className="settings-description">
-                                    Number of spaces per tab.
+                                    Define the width of tab characters.
                                 </div>
                                 <Dropdown
                                     options={['2', '4', '8']}
@@ -176,9 +179,9 @@ export function SettingsPopup() {
                     )}
 
                     {activeTab === 'AI' && (
-                        <div className="settings-group">
+                        <div className="animate-fadeIn">
                             <div className="settings-section-title">
-                                AI Configuration
+                                AI & Models
                             </div>
                             <OpenAIPanel
                                 onSave={() => {
@@ -189,28 +192,31 @@ export function SettingsPopup() {
                     )}
 
                     {activeTab === 'Languages' && (
-                        <div className="settings-group">
+                        <div className="animate-fadeIn">
                             <div className="settings-section-title">
                                 Language Servers
                             </div>
                             <div className="settings-description">
-                                Manage LSP installations for intelligent code
-                                features.
+                                Install and manage protocol servers for
+                                intelligent language features like
+                                autocompletion and linting.
                             </div>
-                            {languageServerNames.map((name) => (
-                                <LanguageServerPanel
-                                    key={name}
-                                    languageName={name}
-                                />
-                            ))}
+                            <div className="mt-8 space-y-4">
+                                {languageServerNames.map((name) => (
+                                    <LanguageServerPanel
+                                        key={name}
+                                        languageName={name}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
                 <div
-                    className="icon-button absolute top-4 right-4"
+                    className="icon-button absolute top-6 right-8 text-ui-fg-muted hover:text-ui-fg transition-colors"
                     onClick={() => dispatch(toggleSettings())}
                 >
-                    <FontAwesomeIcon icon={faTimes} />
+                    <FontAwesomeIcon icon={faTimes} className="text-lg" />
                 </div>
             </div>
         </Modal>
@@ -275,10 +281,10 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                     type="password"
                 />
                 <button
-                    className="secondary-button !bg-gray-800 !text-white !border-transparent hover:!bg-gray-700"
+                    className="secondary-button !bg-white !text-black !border-transparent hover:!bg-gray-200 transition-all font-bold"
                     onClick={handleNewAPIKey}
                 >
-                    Save Key
+                    Save
                 </button>
             </div>
             {keyError && (

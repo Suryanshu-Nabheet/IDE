@@ -3641,14 +3641,26 @@ free servers .disabled_command .shortcut__block {
 }
 
 .settings-section-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 32px;
-    color: var(--ui-fg);
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--ui-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.settings-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--gray-900);
 }
 
 .settings-group {
-    margin-bottom: 40px;
+    margin-bottom: 32px;
 }
 
 .settings-label {
@@ -3668,19 +3680,25 @@ free servers .disabled_command .shortcut__block {
 
 .settings-input {
     width: 100%;
-    max-width: 400px;
-    padding: 8px 12px;
+    max-width: 480px;
+    padding: 10px 14px;
     background-color: var(--black-subtle) !important;
     border: 1px solid var(--gray-800) !important;
     border-radius: var(--radius-sm);
     color: var(--ui-fg);
     font-size: 13px;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
+}
+
+.settings-input:hover {
+    border-color: var(--gray-700) !important;
 }
 
 .settings-input:focus {
-    border-color: var(--gray-600) !important;
+    border-color: var(--accent) !important;
+    background-color: var(--black) !important;
+    box-shadow: 0 0 0 1px var(--accent);
 }
 
 .settings-dropdown .Dropdown-control {
@@ -3730,10 +3748,14 @@ free servers .disabled_command .shortcut__block {
 }
 
 /* Premium Entrance Animation */
-@keyframes fadeInUp {
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(4px);
     }
     to {
         opacity: 1;
