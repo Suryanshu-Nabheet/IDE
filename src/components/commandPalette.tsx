@@ -15,9 +15,7 @@ import {
     untriggerCommandPalette,
 } from '../features/tools/toolSlice'
 import { toggleSettings } from '../features/settings/settingsSlice'
-import {
-    commandPaletteTriggeredSelector,
-} from '../features/tools/toolSelectors'
+import { commandPaletteTriggeredSelector } from '../features/tools/toolSelectors'
 import { Combobox } from '@headlessui/react'
 import { toggleFeedback } from '../features/logging/loggingSlice'
 import { selectFocusedTabId } from '../features/selectors'

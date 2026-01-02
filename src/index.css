@@ -128,15 +128,13 @@ body {
     width: 48px;
     height: 100%;
     background-color: var(--activity-bar-bg);
-    border-right: 1px solid var(--ui-border); 
+    border-right: 1px solid var(--ui-border);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 8px 0;
     flex-shrink: 0;
 }
-
-
 
 /* Signature Anysphere Active indicator */
 .activity-bar__item.active::after {
@@ -220,7 +218,6 @@ body {
     background-color: rgba(255, 255, 255, 0.02);
 }
 
-
 .activity-bar__item {
     width: 100%;
     height: 48px;
@@ -253,19 +250,45 @@ body {
 /* ============================================
    FILE ICONS - Premium & Tech-Aligned
    ============================================ */
-.icon--js { color: #f1e05a; }
-.icon--ts { color: #3178c6; }
-.icon--react { color: #61dafb; }
-.icon--css { color: #6272a4; }
-.icon--html { color: #e34c26; }
-.icon--py { color: #3776ab; }
-.icon--json { color: #cbcb41; }
-.icon--md { color: #42a5f5; }
-.icon--img { color: #bb8adb; }
-.icon--config { color: #8a8a8a; }
-.icon--folder { color: #d7ba7d; }
-.icon--folder-open { color: #d7ba7d; }
-.icon--binary { color: #6d6d6d; }
+.icon--js {
+    color: #f1e05a;
+}
+.icon--ts {
+    color: #3178c6;
+}
+.icon--react {
+    color: #61dafb;
+}
+.icon--css {
+    color: #6272a4;
+}
+.icon--html {
+    color: #e34c26;
+}
+.icon--py {
+    color: #3776ab;
+}
+.icon--json {
+    color: #cbcb41;
+}
+.icon--md {
+    color: #42a5f5;
+}
+.icon--img {
+    color: #bb8adb;
+}
+.icon--config {
+    color: #8a8a8a;
+}
+.icon--folder {
+    color: #d7ba7d;
+}
+.icon--folder-open {
+    color: #d7ba7d;
+}
+.icon--binary {
+    color: #6d6d6d;
+}
 
 .app__lefttopwrapper {
     flex-direction: column;
@@ -541,7 +564,6 @@ body {
     opacity: 0.9;
 }
 
-
 /* ============================================
    STATUS BAR - Professional Footer
    ============================================ */
@@ -560,7 +582,7 @@ body {
     font-size: 12px;
     flex-shrink: 0;
     z-index: 100;
-    border-top: 1px solid var(--pane-border); 
+    border-top: 1px solid var(--pane-border);
 }
 
 .status-bar__left,
@@ -793,7 +815,9 @@ body {
 }
 
 @keyframes typing-codex {
-    0%, 60%, 100% {
+    0%,
+    60%,
+    100% {
         opacity: 0.3;
     }
     30% {
@@ -856,7 +880,6 @@ body {
     min-height: 0;
 }
 
-
 .smallPath {
     font-size: 11px;
     opacity: 0.5;
@@ -889,7 +912,6 @@ body {
 .file__icon svg {
     margin-left: auto;
 }
-
 
 .folder__name,
 .file__name {
@@ -964,12 +986,23 @@ li.rta__item--selected mark {
     flex-shrink: 0;
 }
 
-.js-bg { background-color: #f7df1e; color: #1e1e1e !important; }
-.ts-bg { background-color: #3178c6; }
-.react-bg { background-color: #61dafb; color: #1e1e1e !important; }
-.css-bg { background-color: #264de4; }
+.js-bg {
+    background-color: #f7df1e;
+    color: #1e1e1e !important;
+}
+.ts-bg {
+    background-color: #3178c6;
+}
+.react-bg {
+    background-color: #61dafb;
+    color: #1e1e1e !important;
+}
+.css-bg {
+    background-color: #264de4;
+}
 
-.folder__line, .file__line {
+.folder__line,
+.file__line {
     display: flex;
     align-items: center;
     height: 24px;
@@ -983,7 +1016,8 @@ li.rta__item--selected mark {
     margin: 1px 6px;
 }
 
-.folder__line:hover, .file__line:hover {
+.folder__line:hover,
+.file__line:hover {
     background-color: var(--sidebar-hover);
     color: var(--gray-100);
 }
@@ -994,19 +1028,45 @@ li.rta__item--selected mark {
 }
 
 /* Icons - "Real" Tech Colors */
-.icon--js { color: #F7DF1E !important; }
-.icon--ts { color: #3178C6 !important; }
-.icon--react { color: #61DAFB !important; }
-.icon--css { color: #264DE4 !important; }
-.icon--html { color: #E34F26 !important; }
-.icon--py { color: #3776AB !important; }
-.icon--json { color: #F90 !important; }
-.icon--md { color: #FFFFFF !important; }
-.icon--img { color: #B072D1 !important; }
-.icon--config { color: #6D6D6D !important; }
-.icon--folder { color: #5F6B85 !important; }
-.icon--folder-open { color: #9AA4BF !important; }
-.icon--binary { color: #6d6d6d; }
+.icon--js {
+    color: #f7df1e !important;
+}
+.icon--ts {
+    color: #3178c6 !important;
+}
+.icon--react {
+    color: #61dafb !important;
+}
+.icon--css {
+    color: #264de4 !important;
+}
+.icon--html {
+    color: #e34f26 !important;
+}
+.icon--py {
+    color: #3776ab !important;
+}
+.icon--json {
+    color: #f90 !important;
+}
+.icon--md {
+    color: #ffffff !important;
+}
+.icon--img {
+    color: #b072d1 !important;
+}
+.icon--config {
+    color: #6d6d6d !important;
+}
+.icon--folder {
+    color: #5f6b85 !important;
+}
+.icon--folder-open {
+    color: #9aa4bf !important;
+}
+.icon--binary {
+    color: #6d6d6d;
+}
 
 .app__lefttopwrapper {
     flex-direction: column;
@@ -1064,8 +1124,6 @@ li.rta__item--selected mark {
 .rightDrag:hover {
     background-color: var(--accent);
 }
-
-
 
 /* ============================================
    TAB BAR - PURE BLACK THEME
@@ -1288,11 +1346,41 @@ li.rta__item--selected mark {
     pointer-events: none;
 }
 
-.pane__hover_left { width: 50%; height: 100%; display: block; left: 0; top: 0; }
-.pane__hover_right { width: 50%; height: 100%; display: block; left: 50%; top: 0; }
-.pane__hover_top { width: 100%; height: 50%; display: block; top: 0; left: 0; }
-.pane__hover_bottom { width: 100%; height: 50%; display: block; top: 50%; left: 0; }
-.pane__hover_full { width: 100%; height: 100%; display: block; top: 0; left: 0; }
+.pane__hover_left {
+    width: 50%;
+    height: 100%;
+    display: block;
+    left: 0;
+    top: 0;
+}
+.pane__hover_right {
+    width: 50%;
+    height: 100%;
+    display: block;
+    left: 50%;
+    top: 0;
+}
+.pane__hover_top {
+    width: 100%;
+    height: 50%;
+    display: block;
+    top: 0;
+    left: 0;
+}
+.pane__hover_bottom {
+    width: 100%;
+    height: 50%;
+    display: block;
+    top: 50%;
+    left: 0;
+}
+.pane__hover_full {
+    width: 100%;
+    height: 100%;
+    display: block;
+    top: 0;
+    left: 0;
+}
 
 .window__editorcontainer {
     height: 100%;
@@ -1398,7 +1486,7 @@ textarea:focus {
     --black: #000000; /* Editor BG (User Requested Pure Black) */
     --black-soft: #000000; /* Sidebar BG */
     --black-elevated: #000000; /* Panel BG */
-    --black-subtle: #151B2E; /* Hover BG */
+    --black-subtle: #151b2e; /* Hover BG */
 }
 
 .cover-bar {
@@ -1820,7 +1908,6 @@ button:hover {
 
 input[type='file']::before {
     background-color: black;
-
 }
 
 .__react_component_tooltip.show {
@@ -2010,7 +2097,6 @@ input[type='file']::before {
     font-family: var(--font-mono);
 }
 
-
 .cm-accept-reject,
 .cm-diff-loading {
     padding-top: 12px;
@@ -2193,8 +2279,8 @@ cm-diff-cancel > div {
     border-bottom-style: solid;
 }
 
-.markdownpopup__content h1, 
-.markdownpopup__content h2, 
+.markdownpopup__content h1,
+.markdownpopup__content h2,
 .markdownpopup__content h3 {
     color: var(--ui-fg);
     margin-top: 1.2em;
@@ -2202,9 +2288,17 @@ cm-diff-cancel > div {
     font-weight: 600;
 }
 
-.markdownpopup__content h1 { font-size: 1.4rem; border-bottom: 1px solid var(--ui-border); padding-bottom: 0.3em; }
-.markdownpopup__content h2 { font-size: 1.2rem; }
-.markdownpopup__content h3 { font-size: 1.1rem; }
+.markdownpopup__content h1 {
+    font-size: 1.4rem;
+    border-bottom: 1px solid var(--ui-border);
+    padding-bottom: 0.3em;
+}
+.markdownpopup__content h2 {
+    font-size: 1.2rem;
+}
+.markdownpopup__content h3 {
+    font-size: 1.1rem;
+}
 
 .markdownpopup__content p {
     font-size: var(--font-size-base);
@@ -2232,7 +2326,6 @@ cm-diff-cancel > div {
     font-family: var(--font-mono);
     font-size: 13px;
 }
-
 
 .code__span {
     font-family: monospace;
@@ -2377,7 +2470,6 @@ cm-diff-cancel > div {
     resize: none;
     padding: 12px;
 }
-
 
 /* .cm-diagnostic {
   display: block;
@@ -2570,7 +2662,6 @@ cm-diff-cancel > div {
     cursor: pointer;
 }
 
-
 .settings__button {
     background-color: var(--accent);
     padding: 4px 12px;
@@ -2644,7 +2735,6 @@ cm-diff-cancel > div {
     border-radius: 5px;
 }
 
-
 /* ============================================
    ERROR POPUP - Enterprise Design
    ============================================ */
@@ -2660,8 +2750,14 @@ cm-diff-cancel > div {
 }
 
 @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .errorPopup__title {
@@ -2695,7 +2791,6 @@ cm-diff-cancel > div {
     line-height: 1.6;
     color: var(--gray-200);
 }
-
 
 .remotePopup__body {
     margin-top: 32px;
@@ -3414,8 +3509,6 @@ cm-diff-cancel > div {
     border-radius: 2px;
 }
 
-
-
 .error-message {
     margin-top: 8px;
     color: rgb(251 142 142 / 90%);
@@ -3438,30 +3531,42 @@ cm-diff-cancel > div {
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.45);
     --hover-bg: rgba(255, 255, 255, 0.04);
-     
+
     height: 100%;
     width: 100%;
     background-color: #000000;
     overflow: hidden;
     position: relative;
     display: flex;
-    align-items: center; 
+    align-items: center;
     justify-content: center;
 }
- 
+
 .welcome-container::before {
     content: '';
     position: absolute;
     width: 150%;
     height: 150%;
-    background: radial-gradient(circle at 30% 30%, rgba(44, 123, 229, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 70% 70%, rgba(44, 123, 229, 0.03) 0%, transparent 40%);
+    background: radial-gradient(
+            circle at 30% 30%,
+            rgba(44, 123, 229, 0.05) 0%,
+            transparent 40%
+        ),
+        radial-gradient(
+            circle at 70% 70%,
+            rgba(44, 123, 229, 0.03) 0%,
+            transparent 40%
+        );
     animation: welcomeBgMove 20s linear infinite alternate;
 }
 
 @keyframes welcomeBgMove {
-    from { transform: translate(-10%, -10%); }
-    to { transform: translate(0%, 0%); }
+    from {
+        transform: translate(-10%, -10%);
+    }
+    to {
+        transform: translate(0%, 0%);
+    }
 }
 
 .welcome-content {
@@ -3476,8 +3581,14 @@ cm-diff-cancel > div {
 }
 
 @keyframes welcomeFadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .welcome-header {
@@ -3498,7 +3609,7 @@ cm-diff-cancel > div {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 20px 60px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.8));
     line-height: 0.8;
     padding: 0 1.5rem 0.2rem 1.5rem;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3541,8 +3652,6 @@ cm-diff-cancel > div {
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
 }
-
-
 
 .welcome-grid {
     display: grid;
@@ -3761,7 +3870,6 @@ cm-diff-cancel > div {
     line-height: 1.6;
 }
 
-
 .settings-dropdown .Dropdown-control {
     background-color: var(--black-subtle);
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -3777,7 +3885,7 @@ cm-diff-cancel > div {
     background-color: var(--black-elevated);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--radius-sm);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .settings-dropdown .Dropdown-option {
@@ -3835,9 +3943,15 @@ cm-diff-cancel > div {
     animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-.welcome-section:nth-child(1) { animation-delay: 0.2s; }
-.welcome-section:nth-child(2) { animation-delay: 0.3s; }
-.welcome-section:nth-child(3) { animation-delay: 0.4s; }
+.welcome-section:nth-child(1) {
+    animation-delay: 0.2s;
+}
+.welcome-section:nth-child(2) {
+    animation-delay: 0.3s;
+}
+.welcome-section:nth-child(3) {
+    animation-delay: 0.4s;
+}
 
 @keyframes fadeInUp {
     from {
@@ -3918,11 +4032,10 @@ cm-diff-cancel > div {
     color: var(--ui-fg);
 }
 
-
 /* Global override for browser autofill styles to remove blue background */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
@@ -3995,10 +4108,10 @@ select:-webkit-autofill:active {
 }
 
 /* Prevent any browser-specific input styling */
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="search"],
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='search'],
 textarea {
     background-color: #1a1a1a !important;
     color: #dedede !important;

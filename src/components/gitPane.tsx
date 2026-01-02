@@ -4,10 +4,7 @@ import {
     faRotateRight,
     faCheck,
     faCodeBranch,
-    faArrowUp,
-    faArrowDown,
     faPlus,
-    faCodePullRequest,
     faCloudArrowUp,
     faCloudArrowDown,
 } from '@fortawesome/pro-regular-svg-icons'
@@ -85,7 +82,7 @@ export const GitPane = () => {
             const status = await connector.gitStatus(rootPath)
             if (Array.isArray(status)) setStatusFiles(status)
         } catch (e) {
-            console.error('Failed to get git info', e)
+            // Silent fail - status will show no data
         } finally {
             setLoading(false)
         }
@@ -102,7 +99,9 @@ export const GitPane = () => {
                 await fetchGitInfo()
             }
         } catch (e) {
-            console.error('Failed to init repo', e)
+            alert(
+                'Failed to initialize repository. Please check if Git is installed.'
+            )
         } finally {
             setLoading(false)
         }
@@ -117,7 +116,7 @@ export const GitPane = () => {
             setCommitMessage('')
             await fetchGitInfo()
         } catch (e) {
-            console.error('Commit failed', e)
+            alert('Commit failed. Please check your changes and try again.')
         } finally {
             setLoading(false)
         }
@@ -130,13 +129,13 @@ export const GitPane = () => {
             // @ts-ignore
             const result = await connector.gitPush(rootPath)
             if (result.success) {
-                console.log('Push successful:', result.output)
+                // Push successful
             } else {
-                console.error('Push failed:', result.error)
+                alert(`Push failed: ${result.error}`)
             }
             await fetchGitInfo()
         } catch (e) {
-            console.error('Push failed', e)
+            alert('Push failed. Please check your remote configuration.')
         } finally {
             setLoading(false)
         }
@@ -149,13 +148,13 @@ export const GitPane = () => {
             // @ts-ignore
             const result = await connector.gitPull(rootPath)
             if (result.success) {
-                console.log('Pull successful:', result.output)
+                // Pull successful
             } else {
-                console.error('Pull failed:', result.error)
+                alert(`Pull failed: ${result.error}`)
             }
             await fetchGitInfo()
         } catch (e) {
-            console.error('Pull failed', e)
+            alert('Pull failed. Please check your remote configuration.')
         } finally {
             setLoading(false)
         }
@@ -171,7 +170,7 @@ export const GitPane = () => {
             setShowBranchMenu(false)
             await fetchGitInfo()
         } catch (e) {
-            console.error('Create branch failed', e)
+            alert('Failed to create branch. Branch name may already exist.')
         } finally {
             setLoading(false)
         }
@@ -186,7 +185,9 @@ export const GitPane = () => {
             setShowBranchMenu(false)
             await fetchGitInfo()
         } catch (e) {
-            console.error('Checkout failed', e)
+            alert(
+                'Failed to switch branch. Please commit or stash your changes first.'
+            )
         } finally {
             setLoading(false)
         }
@@ -203,7 +204,7 @@ export const GitPane = () => {
             setShowRemoteMenu(false)
             await fetchGitInfo()
         } catch (e) {
-            console.error('Add remote failed', e)
+            alert('Failed to add remote. Please check the URL and try again.')
         } finally {
             setLoading(false)
         }
