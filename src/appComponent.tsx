@@ -7,7 +7,9 @@ import * as ct from './features/chat/chatThunks'
 import * as ts from './features/tools/toolSlice'
 import * as csel from './features/chat/chatSelectors'
 import * as tsel from './features/tools/toolSelectors'
+import * as ssel from './features/settings/settingsSelectors'
 import { initializeExtensions } from './features/extensions/extensionsSlice'
+import { store } from './app/store'
 
 import {
     getFocusedTab,
@@ -170,6 +172,56 @@ export function App() {
             document.removeEventListener('mouseup', handleMouseUp)
         }
     }, [])
+
+    const settings = useAppSelector(ssel.getSettings)
+    const availableThemes = useAppSelector(
+        (state) => state.extensionsState.availableThemes
+    )
+
+    // Global Settings Applicator
+    useEffect(() => {
+        const root = document.documentElement
+
+        // 1. Font Settings
+        if (settings.fontFamily) {
+            root.style.setProperty(
+                '--font-mono',
+                `${settings.fontFamily}, monospace`
+            )
+        }
+        if (settings.fontSize) {
+            root.style.setProperty(
+                '--editor-font-size',
+                `${settings.fontSize}px`
+            )
+            // Also update main base font size if desired for UI
+            // root.style.setProperty('--font-size-base', `${settings.fontSize}px`)
+        }
+
+        // 2. Theme Settings
+        const themeName = settings.theme || 'codex-dark'
+        const theme = availableThemes[themeName]
+
+        if (theme) {
+            const c = theme.colors
+            root.style.setProperty('--background', c.background)
+            root.style.setProperty('--sidebar-bg', c.background)
+            root.style.setProperty('--activity-bar-bg', c.background)
+            root.style.setProperty('--title-bar-background', c.background)
+            root.style.setProperty('--tab-bg', c.background)
+            root.style.setProperty('--ui-bg', c.background)
+            root.style.setProperty('--panel-bg', c.background)
+
+            root.style.setProperty('--text', c.foreground)
+            root.style.setProperty('--ui-fg', c.foreground)
+
+            root.style.setProperty('--accent', c.keyword)
+            root.style.setProperty('--selection', c.selection)
+
+            root.style.setProperty('--ui-border', c.lineHighlight)
+            root.style.setProperty('--pane-border', c.lineHighlight)
+        }
+    }, [settings, availableThemes])
 
     return (
         <>

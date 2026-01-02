@@ -7,6 +7,7 @@ import 'xterm/css/xterm.css'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { FullState } from '../features/window/state'
 import * as gs from '../features/globalSlice'
+import * as ssel from '../features/settings/settingsSelectors' // Import settings selectors
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes, faTerminal } from '@fortawesome/free-solid-svg-icons'
 import { throttleCallback } from './componentUtils'
@@ -152,6 +153,10 @@ export const BottomTerminal: React.FC = () => {
     const isOpen = useAppSelector(
         (state: FullState) => state.global.terminalOpen
     ) // Redux State
+    const settings = useAppSelector(ssel.getSettings)
+    const availableThemes = useAppSelector(
+        (state: any) => state.extensionsState.availableThemes
+    ) // Access extensions via any to avoid deep type imports for now
 
     // Local State
     const [session, setSession] = useState<Session | null>(null)
@@ -252,6 +257,33 @@ export const BottomTerminal: React.FC = () => {
         window.addEventListener('keydown', handleKey)
         return () => window.removeEventListener('keydown', handleKey)
     }, [dispatch])
+
+    // 4. Sync Settings (Font & Theme)
+    useEffect(() => {
+        if (!session || !session.instance) return
+
+        // Font
+        const fontFamily = settings.fontFamily || "'JetBrains Mono', monospace"
+        const fontSize = parseInt(settings.fontSize || '13')
+
+        session.instance.options.fontFamily = fontFamily
+        session.instance.options.fontSize = fontSize
+
+        // Theme
+        const themeName = settings.theme || 'codex-dark'
+        const theme = availableThemes[themeName]
+
+        if (theme && theme.colors) {
+            session.instance.options.theme = {
+                background: theme.colors.background,
+                foreground: theme.colors.foreground,
+                cursor: theme.colors.cursor,
+                selection: theme.colors.selection,
+                // We rely on default ANSI colors for the rest unless theme defines them,
+                // but background/foreground are the most important for consistency.
+            }
+        }
+    }, [settings, session, availableThemes])
 
     // --- Dragging Logic ---
     const [isDragging, setIsDragging] = useState(false)
