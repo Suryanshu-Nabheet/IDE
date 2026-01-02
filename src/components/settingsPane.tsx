@@ -11,14 +11,12 @@ import {
     runLanguageServer,
     stopLanguageServer,
 } from '../features/lsp/languageServerSlice'
-import { Switch } from '@headlessui/react'
-import Dropdown from 'react-dropdown'
+import { Switch, Listbox } from '@headlessui/react'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import {
     getLanguages,
     languageServerStatus,
 } from '../features/lsp/languageServerSelector'
-import Modal from 'react-modal'
 import { closeError } from '../features/globalSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -29,416 +27,560 @@ import {
     faUserCircle,
     faMinus,
     faPlus,
+    faCheck,
+    faChevronDown,
+    faDesktop,
+    faKeyboard,
 } from '@fortawesome/pro-regular-svg-icons'
 
 export function SettingsPopup() {
     const dispatch = useAppDispatch()
     const settings = useAppSelector(ssel.getSettings)
     const isSettingsOpen = useAppSelector(ssel.getSettingsIsOpen)
-    // Use selector instead of local state
     const activeTab = useAppSelector(ssel.getActiveSettingsTab)
     const languageServerNames = useAppSelector(getLanguages)
 
-    const customStyles = {
-        overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10000,
-        },
-        content: {
-            padding: '0',
-            border: '1px solid var(--ui-border)',
-            background: 'var(--black-elevated)',
-            top: 'auto',
-            left: 'auto',
-            right: 'auto',
-            bottom: 'auto',
-            width: '850px',
-            height: '650px',
-            maxWidth: '95vw',
-            maxHeight: '95vh',
-            inset: 'auto',
-            borderRadius: 'var(--radius-xl)',
-            boxShadow: '0 25px 70px rgba(0, 0, 0, 0.8)',
-            overflow: 'hidden',
-        },
-    }
+    if (!isSettingsOpen) return null
 
     return (
-        <Modal
-            isOpen={isSettingsOpen}
-            onRequestClose={() => dispatch(toggleSettings())}
-            style={customStyles}
-            contentLabel="Settings"
-        >
-            <div className="settings-layout font-sans">
-                <div className="settings-sidebar">
-                    <div className="settings-sidebar-header">User Settings</div>
-                    <div
-                        className={cx('settings-sidebar-item', {
-                            active: activeTab === 'General',
-                        })}
-                        onClick={() => dispatch(setSettingsTab('General'))}
-                    >
-                        <FontAwesomeIcon icon={faGear} />
-                        General
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-[900px] h-[650px] bg-black border border-white/10 rounded-xl shadow-2xl flex overflow-hidden font-sans">
+                {/* Sidebar */}
+                <div className="w-64 bg-black border-r border-white/5 flex flex-col">
+                    <div className="p-6">
+                        <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-2">
+                            Settings
+                        </h2>
                     </div>
-                    <div
-                        className={cx('settings-sidebar-item', {
-                            active: activeTab === 'AI',
-                        })}
-                        onClick={() => dispatch(setSettingsTab('AI'))}
-                    >
-                        <FontAwesomeIcon icon={faRobot} />
-                        AI & Models
-                    </div>
-                    <div
-                        className={cx('settings-sidebar-item', {
-                            active: activeTab === 'Languages',
-                        })}
-                        onClick={() => dispatch(setSettingsTab('Languages'))}
-                    >
-                        <FontAwesomeIcon icon={faCode} />
-                        Language Servers
-                    </div>
-                    <div
-                        className={cx('settings-sidebar-item', {
-                            active: activeTab === 'Account',
-                        })}
-                        onClick={() => dispatch(setSettingsTab('Account'))}
-                    >
-                        <FontAwesomeIcon icon={faUserCircle} />
-                        Account
-                    </div>
+                    <nav className="flex-1 px-4 space-y-1">
+                        <SidebarItem
+                            icon={faGear}
+                            label="General"
+                            isActive={activeTab === 'General'}
+                            onClick={() => dispatch(setSettingsTab('General'))}
+                        />
+                        <SidebarItem
+                            icon={faRobot}
+                            label="AI & Models"
+                            isActive={activeTab === 'AI'}
+                            onClick={() => dispatch(setSettingsTab('AI'))}
+                        />
+                        <SidebarItem
+                            icon={faCode}
+                            label="Language Servers"
+                            isActive={activeTab === 'Languages'}
+                            onClick={() =>
+                                dispatch(setSettingsTab('Languages'))
+                            }
+                        />
+                        <SidebarItem
+                            icon={faUserCircle}
+                            label="Account"
+                            isActive={activeTab === 'Account'}
+                            onClick={() => dispatch(setSettingsTab('Account'))}
+                        />
+                    </nav>
                 </div>
-                <div className="settings-content">
-                    {activeTab === 'General' && (
-                        <div className="animate-fadeIn">
-                            <div className="settings-section-title">
-                                Appearance
-                            </div>
 
-                            <div className="settings-group">
-                                <label className="settings-label">
-                                    Color Theme
-                                </label>
-                                <div className="settings-description">
-                                    Select the color theme for the editor and
-                                    UI.
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 mt-2">
-                                    {[
-                                        {
-                                            value: 'codex-dark',
-                                            label: 'CodeX Dark',
-                                            color: '#1e1e1e',
-                                        },
-                                        {
-                                            value: 'monokai',
-                                            label: 'Monokai',
-                                            color: '#272822',
-                                        },
-                                        {
-                                            value: 'dracula',
-                                            label: 'Dracula',
-                                            color: '#282a36',
-                                        },
-                                        {
-                                            value: 'github-dark',
-                                            label: 'GitHub Dark',
-                                            color: '#0d1117',
-                                        },
-                                        {
-                                            value: 'solarized-dark',
-                                            label: 'Solarized Dark',
-                                            color: '#002b36',
-                                        },
-                                        {
-                                            value: 'nord',
-                                            label: 'Nord',
-                                            color: '#2e3440',
-                                        },
-                                        {
-                                            value: 'one-dark',
-                                            label: 'One Dark',
-                                            color: '#282c34',
-                                        },
-                                    ].map((theme) => (
-                                        <button
-                                            key={theme.value}
-                                            onClick={() =>
-                                                dispatch(
-                                                    changeSettings({
-                                                        theme: theme.value,
-                                                    })
-                                                )
-                                            }
-                                            className={`flex items-center gap-2 px-3 py-2 rounded border transition-all ${
-                                                (settings.theme ||
-                                                    'codex-dark') ===
-                                                theme.value
-                                                    ? 'border-accent bg-accent/10'
-                                                    : 'border-ui-border bg-ui-hover hover:border-ui-fg-muted'
-                                            }`}
+                {/* Content */}
+                <div className="flex-1 flex flex-col min-w-0 bg-black">
+                    {/* Header */}
+                    <div className="h-16 border-b border-white/5 flex items-center justify-between px-8 shrink-0">
+                        <h1 className="text-lg font-medium text-white">
+                            {activeTab === 'AI' ? 'AI & Models' : activeTab}
+                        </h1>
+                        <button
+                            onClick={() => dispatch(toggleSettings())}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                            <FontAwesomeIcon icon={faTimes} />
+                        </button>
+                    </div>
+
+                    {/* Scrollable Area */}
+                    <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                        {activeTab === 'General' && (
+                            <div className="space-y-10 max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                {/* Appearance Section */}
+                                <section>
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <FontAwesomeIcon
+                                            icon={faDesktop}
+                                            className="text-blue-400"
+                                        />
+                                        <h3 className="text-sm font-semibold text-white uppercase tracking-wider">
+                                            Appearance
+                                        </h3>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <SettingsGroup
+                                            label="Color Theme"
+                                            description="Select the color theme for the editor and UI."
                                         >
-                                            <div
-                                                className="w-4 h-4 rounded border border-ui-border flex-shrink-0"
-                                                style={{
-                                                    backgroundColor:
-                                                        theme.color,
-                                                }}
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {[
+                                                    {
+                                                        value: 'codex-dark',
+                                                        label: 'CodeX Dark',
+                                                        color: '#000000',
+                                                    },
+                                                    {
+                                                        value: 'monokai',
+                                                        label: 'Monokai',
+                                                        color: '#272822',
+                                                    },
+                                                    {
+                                                        value: 'dracula',
+                                                        label: 'Dracula',
+                                                        color: '#282a36',
+                                                    },
+                                                    {
+                                                        value: 'github-dark',
+                                                        label: 'GitHub Dark',
+                                                        color: '#0d1117',
+                                                    },
+                                                    {
+                                                        value: 'solarized-dark',
+                                                        label: 'Solarized Dark',
+                                                        color: '#002b36',
+                                                    },
+                                                    {
+                                                        value: 'nord',
+                                                        label: 'Nord',
+                                                        color: '#2e3440',
+                                                    },
+                                                    {
+                                                        value: 'one-dark',
+                                                        label: 'One Dark',
+                                                        color: '#282c34',
+                                                    },
+                                                ].map((theme) => (
+                                                    <ThemeCard
+                                                        key={theme.value}
+                                                        label={theme.label}
+                                                        color={theme.color}
+                                                        isActive={
+                                                            (settings.theme ||
+                                                                'codex-dark') ===
+                                                            theme.value
+                                                        }
+                                                        onClick={() =>
+                                                            dispatch(
+                                                                changeSettings({
+                                                                    theme: theme.value,
+                                                                })
+                                                            )
+                                                        }
+                                                    />
+                                                ))}
+                                            </div>
+                                        </SettingsGroup>
+
+                                        <SettingsGroup
+                                            label="Font Family"
+                                            description="Choose the font family for the editor."
+                                        >
+                                            <CustomListbox
+                                                value={
+                                                    settings.fontFamily ||
+                                                    'JetBrains Mono'
+                                                }
+                                                onChange={(val: string) =>
+                                                    dispatch(
+                                                        changeSettings({
+                                                            fontFamily: val,
+                                                        })
+                                                    )
+                                                }
+                                                options={[
+                                                    'JetBrains Mono',
+                                                    'Fira Code',
+                                                    'Source Code Pro',
+                                                    'Menlo',
+                                                    'Monaco',
+                                                    'Consolas',
+                                                ]}
                                             />
-                                            <span className="text-sm text-ui-fg">
-                                                {theme.label}
-                                            </span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                                        </SettingsGroup>
 
-                            <div className="settings-group">
-                                <label className="settings-label">
-                                    Font Family
-                                </label>
-                                <div className="settings-description">
-                                    Choose the font family for the editor.
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 mt-2">
-                                    {[
-                                        'JetBrains Mono',
-                                        'Fira Code',
-                                        'Source Code Pro',
-                                        'Menlo',
-                                        'Monaco',
-                                        'Consolas',
-                                    ].map((font) => (
-                                        <button
-                                            key={font}
-                                            onClick={() =>
-                                                dispatch(
-                                                    changeSettings({
-                                                        fontFamily: font,
-                                                    })
-                                                )
-                                            }
-                                            className={`px-3 py-2 rounded border text-left transition-all ${
-                                                (settings.fontFamily ||
-                                                    'JetBrains Mono') === font
-                                                    ? 'border-accent bg-accent/10'
-                                                    : 'border-ui-border bg-ui-hover hover:border-ui-fg-muted'
-                                            }`}
+                                        <SettingsGroup
+                                            label="Font Size"
+                                            description="Set the font size for the editor and terminal."
                                         >
-                                            <span
-                                                className="text-sm text-ui-fg"
-                                                style={{ fontFamily: font }}
-                                            >
-                                                {font}
-                                            </span>
-                                        </button>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex items-center bg-white/5 rounded-lg border border-white/5 p-1">
+                                                    <button
+                                                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                                                        onClick={() => {
+                                                            const current =
+                                                                parseInt(
+                                                                    settings.fontSize ||
+                                                                        '13'
+                                                                )
+                                                            if (current > 8) {
+                                                                dispatch(
+                                                                    changeSettings(
+                                                                        {
+                                                                            fontSize:
+                                                                                (
+                                                                                    current -
+                                                                                    1
+                                                                                ).toString(),
+                                                                        }
+                                                                    )
+                                                                )
+                                                            }
+                                                        }}
+                                                    >
+                                                        <FontAwesomeIcon
+                                                            icon={faMinus}
+                                                            size="sm"
+                                                        />
+                                                    </button>
+                                                    <div className="w-12 text-center font-mono text-sm text-white">
+                                                        {settings.fontSize ||
+                                                            '13'}
+                                                    </div>
+                                                    <button
+                                                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                                                        onClick={() => {
+                                                            const current =
+                                                                parseInt(
+                                                                    settings.fontSize ||
+                                                                        '13'
+                                                                )
+                                                            if (current < 48) {
+                                                                dispatch(
+                                                                    changeSettings(
+                                                                        {
+                                                                            fontSize:
+                                                                                (
+                                                                                    current +
+                                                                                    1
+                                                                                ).toString(),
+                                                                        }
+                                                                    )
+                                                                )
+                                                            }
+                                                        }}
+                                                    >
+                                                        <FontAwesomeIcon
+                                                            icon={faPlus}
+                                                            size="sm"
+                                                        />
+                                                    </button>
+                                                </div>
+                                                <span className="text-xs text-gray-500">
+                                                    pixels
+                                                </span>
+                                            </div>
+                                        </SettingsGroup>
+                                    </div>
+                                </section>
+
+                                {/* Editor Section */}
+                                <section className="pt-6 border-t border-white/5">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <FontAwesomeIcon
+                                            icon={faKeyboard}
+                                            className="text-emerald-400"
+                                        />
+                                        <h3 className="text-sm font-semibold text-white uppercase tracking-wider">
+                                            Editor
+                                        </h3>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <SettingsGroup
+                                            label="Key Bindings"
+                                            description="Configure keyboard shortcuts for the editor behavior."
+                                        >
+                                            <CustomListbox
+                                                value={
+                                                    settings.keyBindings ||
+                                                    'none'
+                                                }
+                                                onChange={(val: string) =>
+                                                    dispatch(
+                                                        changeSettings({
+                                                            keyBindings: val,
+                                                        })
+                                                    )
+                                                }
+                                                options={[
+                                                    {
+                                                        id: 'none',
+                                                        name: 'Default (CodeX)',
+                                                    },
+                                                    { id: 'vim', name: 'Vim' },
+                                                    {
+                                                        id: 'emacs',
+                                                        name: 'Emacs',
+                                                    },
+                                                ]}
+                                            />
+                                        </SettingsGroup>
+
+                                        <div className="flex items-center justify-between py-2">
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-200">
+                                                    Text Wrapping
+                                                </div>
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    Control whether lines wrap
+                                                    or scroll horizontally.
+                                                </div>
+                                            </div>
+                                            <CustomSwitch
+                                                checked={
+                                                    settings.textWrapping ===
+                                                    'enabled'
+                                                }
+                                                onChange={(checked: boolean) =>
+                                                    dispatch(
+                                                        changeSettings({
+                                                            textWrapping:
+                                                                checked
+                                                                    ? 'enabled'
+                                                                    : 'disabled',
+                                                        })
+                                                    )
+                                                }
+                                            />
+                                        </div>
+
+                                        <SettingsGroup
+                                            label="Tab Size"
+                                            description="The number of spaces a tab is equal to."
+                                        >
+                                            <CustomListbox
+                                                value={settings.tabSize || '4'}
+                                                onChange={(val: string) =>
+                                                    dispatch(
+                                                        changeSettings({
+                                                            tabSize: val,
+                                                        })
+                                                    )
+                                                }
+                                                options={['2', '4', '8']}
+                                                width="w-32"
+                                            />
+                                        </SettingsGroup>
+                                    </div>
+                                </section>
+                            </div>
+                        )}
+
+                        {activeTab === 'AI' && (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <OpenAIPanel
+                                    onSave={() => dispatch(closeError())}
+                                />
+                            </div>
+                        )}
+
+                        {activeTab === 'Languages' && (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <p className="text-sm text-gray-400 mb-8 max-w-lg">
+                                    Install and manage Language Servers to
+                                    enable intelligent features like
+                                    autocompletion, go-to-definition, and
+                                    diagnostics for your favorite languages.
+                                </p>
+                                <div className="grid gap-3">
+                                    {languageServerNames.map((name) => (
+                                        <LanguageServerPanel
+                                            key={name}
+                                            languageName={name}
+                                        />
                                     ))}
                                 </div>
                             </div>
+                        )}
 
-                            <div className="settings-group">
-                                <label className="settings-label">
-                                    Font Size
-                                </label>
-                                <div className="settings-description">
-                                    Set the font size for the editor.
-                                </div>
-                                <div className="flex items-center gap-3 mt-3">
-                                    <button
-                                        className="w-8 h-8 flex items-center justify-center rounded bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border text-ui-fg transition-colors active:scale-95"
-                                        onClick={() => {
-                                            const current = parseInt(
-                                                settings.fontSize || '13'
-                                            )
-                                            if (current > 8) {
-                                                dispatch(
-                                                    changeSettings({
-                                                        fontSize: (
-                                                            current - 1
-                                                        ).toString(),
-                                                    })
-                                                )
-                                            }
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faMinus} />
-                                    </button>
-                                    <span className="text-sm text-ui-fg font-mono w-16 text-center bg-black/20 py-1.5 rounded border border-white/5">
-                                        {settings.fontSize || '13'}px
-                                    </span>
-                                    <button
-                                        className="w-8 h-8 flex items-center justify-center rounded bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border text-ui-fg transition-colors active:scale-95"
-                                        onClick={() => {
-                                            const current = parseInt(
-                                                settings.fontSize || '13'
-                                            )
-                                            if (current < 48) {
-                                                dispatch(
-                                                    changeSettings({
-                                                        fontSize: (
-                                                            current + 1
-                                                        ).toString(),
-                                                    })
-                                                )
-                                            }
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faPlus} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="settings-section-title mt-8">
-                                Editor
-                            </div>
-
-                            <div className="settings-group">
-                                <label className="settings-label">
-                                    Editor: Key Bindings
-                                </label>
-                                <div className="settings-description">
-                                    Configure keyboard shortcuts for the editor.
-                                </div>
-                                <Dropdown
-                                    options={[
-                                        {
-                                            value: 'none',
-                                            label: 'Default (CodeX)',
-                                        },
-                                        { value: 'vim', label: 'Vim' },
-                                        { value: 'emacs', label: 'Emacs' },
-                                    ]}
-                                    onChange={(e) =>
-                                        dispatch(
-                                            changeSettings({
-                                                keyBindings: e.value,
-                                            })
-                                        )
-                                    }
-                                    value={settings.keyBindings}
-                                    className="settings-dropdown"
-                                />
-                            </div>
-
-                            <div className="settings-group">
-                                <label className="settings-label">
-                                    Editor: Text Wrapping
-                                </label>
-                                <div className="settings-description">
-                                    Control whether lines wrap or scroll
-                                    horizontally.
-                                </div>
-                                <Dropdown
-                                    options={['enabled', 'disabled']}
-                                    onChange={(e) =>
-                                        dispatch(
-                                            changeSettings({
-                                                textWrapping: e.value,
-                                            })
-                                        )
-                                    }
-                                    value={settings.textWrapping}
-                                    className="settings-dropdown"
-                                />
-                            </div>
-
-                            <div className="settings-group">
-                                <label className="settings-label">
-                                    Editor: Tab Size
-                                </label>
-                                <div className="settings-description">
-                                    Define the width of tab characters.
-                                </div>
-                                <Dropdown
-                                    options={['2', '4', '8']}
-                                    onChange={(e) =>
-                                        dispatch(
-                                            changeSettings({ tabSize: e.value })
-                                        )
-                                    }
-                                    value={settings.tabSize}
-                                    className="settings-dropdown"
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'AI' && (
-                        <div className="animate-fadeIn">
-                            <div className="settings-section-title">
-                                AI & Models
-                            </div>
-                            <OpenAIPanel
-                                onSave={() => {
-                                    dispatch(closeError())
-                                }}
-                            />
-                        </div>
-                    )}
-
-                    {activeTab === 'Languages' && (
-                        <div className="animate-fadeIn">
-                            <div className="settings-section-title">
-                                Language Servers
-                            </div>
-                            <div className="settings-description">
-                                Install and manage protocol servers for
-                                intelligent language features like
-                                autocompletion and linting.
-                            </div>
-                            <div className="mt-8 space-y-4">
-                                {languageServerNames.map((name) => (
-                                    <LanguageServerPanel
-                                        key={name}
-                                        languageName={name}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    {activeTab === 'Account' && (
-                        <div className="animate-fadeIn">
-                            <div className="settings-section-title">
-                                Account
-                            </div>
-                            <div className="settings-description">
-                                Manage your CodeX account.
-                            </div>
-                            <div className="p-8 text-center text-ui-fg-muted bg-white/5 rounded-lg border border-white/5 mt-8">
-                                <div className="text-3xl mb-4 opacity-50">
+                        {activeTab === 'Account' && (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col items-center justify-center py-20">
+                                <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6 text-gray-500 text-4xl">
                                     <FontAwesomeIcon icon={faUserCircle} />
                                 </div>
-                                <div className="text-lg font-medium mb-2">
-                                    No Account Synced
+                                <h2 className="text-2xl font-semibold text-white mb-2">
+                                    Sign in to CodeX
+                                </h2>
+                                <p className="text-gray-400 text-center max-w-sm mb-8">
+                                    Sync your settings, extensions, and AI
+                                    preferences across all your devices.
+                                </p>
+                                <div className="flex gap-4">
+                                    <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors">
+                                        Sign In
+                                    </button>
+                                    <button className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-lg font-medium transition-colors border border-white/10">
+                                        Create Account
+                                    </button>
                                 </div>
-                                <div className="text-sm opacity-70 mb-6">
-                                    Sign in to sync your settings and
-                                    preferences.
-                                </div>
-                                <button className="primary-button bg-accent hover:bg-accent-hover px-6 py-2">
-                                    Sign In / Sign Up
-                                </button>
                             </div>
-                        </div>
-                    )}
-                </div>
-                <div
-                    className="icon-button absolute top-6 right-8 text-ui-fg-muted hover:text-ui-fg transition-colors"
-                    onClick={() => dispatch(toggleSettings())}
-                >
-                    <FontAwesomeIcon icon={faTimes} className="text-lg" />
+                        )}
+                    </div>
                 </div>
             </div>
-        </Modal>
+        </div>
     )
 }
 
-export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
+// --- Subcomponents ---
+
+function SidebarItem({ icon, label, isActive, onClick }: any) {
+    return (
+        <button
+            onClick={onClick}
+            className={cx(
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+                isActive
+                    ? 'bg-blue-600/10 text-blue-400'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+            )}
+        >
+            <FontAwesomeIcon
+                icon={icon}
+                className={cx(
+                    'transition-colors',
+                    isActive
+                        ? 'text-blue-400'
+                        : 'text-gray-500 group-hover:text-gray-300'
+                )}
+            />
+            {label}
+        </button>
+    )
+}
+
+function SettingsGroup({ label, description, children }: any) {
+    return (
+        <div>
+            <div className="mb-3">
+                <div className="text-sm font-medium text-gray-200 mb-1">
+                    {label}
+                </div>
+                <div className="text-xs text-gray-500">{description}</div>
+            </div>
+            {children}
+        </div>
+    )
+}
+
+function ThemeCard({ label, color, isActive, onClick }: any) {
+    return (
+        <button
+            onClick={onClick}
+            className={cx(
+                'relative flex items-center gap-3 p-3 rounded-lg border text-left transition-all duration-200 group',
+                isActive
+                    ? 'bg-blue-600/10 border-blue-500/50 ring-1 ring-blue-500/20'
+                    : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'
+            )}
+        >
+            <div
+                className="w-10 h-10 rounded-md shadow-sm flex-shrink-0 border border-white/10"
+                style={{ backgroundColor: color }}
+            />
+            <span
+                className={cx(
+                    'text-sm font-medium',
+                    isActive
+                        ? 'text-blue-100'
+                        : 'text-gray-300 group-hover:text-white'
+                )}
+            >
+                {label}
+            </span>
+            {isActive && (
+                <div className="absolute top-2 right-2 text-blue-400">
+                    <FontAwesomeIcon icon={faCheck} size="xs" />
+                </div>
+            )}
+        </button>
+    )
+}
+
+function CustomListbox({ value, onChange, options, width = 'w-full' }: any) {
+    const selected =
+        typeof value === 'object'
+            ? value
+            : options.find((o: any) => o === value || o.id === value) || value
+    const displayValue = typeof selected === 'object' ? selected.name : selected
+
+    return (
+        <Listbox value={value} onChange={onChange}>
+            <div className={`relative ${width}`}>
+                <Listbox.Button className="relative w-full cursor-default rounded-lg bg-black border border-white/10 py-2.5 pl-3 pr-10 text-left text-sm text-gray-200 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-white/20 transition-colors">
+                    <span className="block truncate">{displayValue}</span>
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400">
+                        <FontAwesomeIcon icon={faChevronDown} size="xs" />
+                    </span>
+                </Listbox.Button>
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#1a1a1a] py-1 text-sm shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in zoom-in-95 duration-100">
+                    {options.map((option: any, idx: number) => {
+                        const optValue =
+                            typeof option === 'object' ? option.id : option
+                        const optLabel =
+                            typeof option === 'object' ? option.name : option
+                        return (
+                            <Listbox.Option
+                                key={idx}
+                                className={({ active }) =>
+                                    `relative cursor-pointer select-none py-2 pl-3 pr-4 transition-colors ${
+                                        active
+                                            ? 'bg-blue-600 text-white'
+                                            : 'text-gray-300'
+                                    }`
+                                }
+                                value={optValue}
+                            >
+                                {({ selected }) => (
+                                    <>
+                                        <span
+                                            className={`block truncate ${
+                                                selected
+                                                    ? 'font-medium text-white'
+                                                    : 'font-normal'
+                                            }`}
+                                        >
+                                            {optLabel}
+                                        </span>
+                                        {selected && (
+                                            <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-400"></span>
+                                        )}
+                                    </>
+                                )}
+                            </Listbox.Option>
+                        )
+                    })}
+                </Listbox.Options>
+            </div>
+        </Listbox>
+    )
+}
+
+function CustomSwitch({ checked, onChange }: any) {
+    return (
+        <Switch
+            checked={checked}
+            onChange={onChange}
+            className={`${
+                checked ? 'bg-blue-600' : 'bg-white/10'
+            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-black`}
+        >
+            <span
+                className={`${
+                    checked ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200`}
+            />
+        </Switch>
+    )
+}
+
+function OpenAIPanel({ onSave }: { onSave?: () => void }) {
     const settings = useAppSelector(ssel.getSettings)
     const [localAPIKey, setLocalAPIKey] = useState('')
     const [models, setAvailableModels] = useState<string[]>([])
@@ -456,16 +598,13 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
         }
     }, [settings.openAIKey])
 
-    useEffect(() => {
-        showKeyError(false)
-    }, [localAPIKey])
-
     const handleNewAPIKey = useCallback(async () => {
         const { models, isValidKey } = await ssel.getModels(localAPIKey)
         if (!isValidKey) {
             showKeyError(true)
             setAvailableModels([])
         } else {
+            showKeyError(false)
             setAvailableModels(models)
             dispatch(
                 changeSettings({
@@ -479,81 +618,73 @@ export function OpenAIPanel({ onSave }: { onSave?: () => void }) {
     }, [dispatch, localAPIKey, onSave])
 
     return (
-        <div className="settings-group">
-            <label className="settings-label">OpenAI API Key</label>
-            <div className="settings-description">
-                Enter your OpenAI API key to access advanced AI models.
-            </div>
-            <div className="flex gap-2">
-                <input
-                    className={cx('settings-input', {
-                        error: keyError,
-                    })}
-                    placeholder="sk-..."
-                    onChange={(e) => setLocalAPIKey(e.target.value)}
-                    value={localAPIKey || ''}
-                    spellCheck="false"
-                    type="password"
-                    autoComplete="new-password"
-                />
-                <button
-                    className="secondary-button !bg-white !text-black !border-transparent hover:!bg-gray-200 transition-all font-bold"
-                    onClick={handleNewAPIKey}
-                >
-                    Save
-                </button>
-            </div>
-            {keyError && (
-                <div className="text-red-500 text-[11px] mt-2 font-medium">
-                    Invalid API Key. Please verify and try again.
+        <div className="space-y-8">
+            <SettingsGroup
+                label="OpenAI API Key"
+                description="Enter your OpenAI API key to access advanced AI models."
+            >
+                <div className="flex gap-2">
+                    <input
+                        className={cx(
+                            'flex-1 bg-black border rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors font-mono',
+                            keyError
+                                ? 'border-red-500/50 focus:border-red-500'
+                                : 'border-white/10 focus:border-blue-500'
+                        )}
+                        placeholder="sk-..."
+                        onChange={(e) => setLocalAPIKey(e.target.value)}
+                        value={localAPIKey || ''}
+                        type="password"
+                        autoComplete="new-password"
+                    />
+                    <button
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
+                        onClick={handleNewAPIKey}
+                    >
+                        Save
+                    </button>
                 </div>
-            )}
-            {settings.openAIKey && (
-                <div className="mt-8 p-6 bg-black border border-gray-900 rounded-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs font-semibold uppercase tracking-wider opacity-60">
-                            Enable AI Features
-                        </span>
-                        <Switch
+                {keyError && (
+                    <div className="text-red-400 text-xs mt-2 font-medium flex items-center gap-1">
+                        <FontAwesomeIcon icon={faTimes} /> Invalid API Key
+                    </div>
+                )}
+            </SettingsGroup>
+
+            {settings.openAIKey && !keyError && (
+                <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-white">
+                                AI Features Enabled
+                            </span>
+                        </div>
+                        <CustomSwitch
                             checked={settings.useOpenAIKey}
-                            onChange={(value) =>
-                                dispatch(
-                                    changeSettings({ useOpenAIKey: value })
-                                )
+                            onChange={(val: boolean) =>
+                                dispatch(changeSettings({ useOpenAIKey: val }))
                             }
-                            className={cx(
-                                'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75',
-                                settings.useOpenAIKey
-                                    ? 'bg-white'
-                                    : 'bg-gray-800'
-                            )}
-                        >
-                            <span
-                                aria-hidden="true"
-                                className={cx(
-                                    'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-black shadow-lg ring-0 transition duration-200 ease-in-out',
-                                    settings.useOpenAIKey
-                                        ? 'translate-x-5'
-                                        : 'translate-x-0'
-                                )}
-                            />
-                        </Switch>
+                        />
                     </div>
 
                     {settings.useOpenAIKey && (
-                        <div className="settings-group">
-                            <label className="settings-label">Model</label>
-                            <Dropdown
-                                options={models}
-                                onChange={(e) =>
+                        <SettingsGroup
+                            label="Model"
+                            description="Select the AI model for chat and generation."
+                        >
+                            <CustomListbox
+                                value={
+                                    settings.openAIModel ||
+                                    (models.length > 0 ? models[0] : '')
+                                }
+                                onChange={(val: string) =>
                                     dispatch(
-                                        changeSettings({ openAIModel: e.value })
+                                        changeSettings({ openAIModel: val })
                                     )
                                 }
-                                value={settings.openAIModel}
-                                className="settings-dropdown"
+                                options={models}
                             />
-                        </div>
+                        </SettingsGroup>
                     )}
                 </div>
             )}
@@ -586,35 +717,44 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
     }, [languageName])
 
     return (
-        <div className="flex items-center justify-between p-4 bg-black border border-ui-border rounded-sm mb-3 hover:border-ui-fg-muted/20 transition-colors">
-            <div>
-                <div className="text-sm font-medium">{languageName}</div>
-                <div className="text-[11px] opacity-40 uppercase tracking-tight">
-                    {languageInstalled
-                        ? languageRunning
-                            ? 'Running'
-                            : 'Installed allow-start'
-                        : 'Not Installed'}
+        <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-lg group hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200">
+            <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-md bg-white/5 flex items-center justify-center text-gray-400">
+                    <FontAwesomeIcon icon={faCode} />
+                </div>
+                <div>
+                    <div className="text-sm font-medium text-gray-200">
+                        {languageName}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <div className="text-xs text-gray-500">
+                            {languageInstalled
+                                ? languageRunning
+                                    ? 'Running'
+                                    : 'Installed'
+                                : 'Not Installed'}
+                        </div>
+                    </div>
                 </div>
             </div>
             <div>
                 {!languageInstalled ? (
                     <button
-                        className="px-3 py-1.5 text-[11px] font-medium bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border rounded text-white transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 rounded-md transition-colors"
                         onClick={installServer}
                     >
                         Install
                     </button>
                 ) : languageRunning ? (
                     <button
-                        className="px-3 py-1.5 text-[11px] font-medium bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-md transition-colors"
                         onClick={stopServer}
                     >
                         Stop
                     </button>
                 ) : (
                     <button
-                        className="px-3 py-1.5 text-[11px] font-medium bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border rounded text-white transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 rounded-md transition-colors"
                         onClick={runServer}
                     >
                         Start

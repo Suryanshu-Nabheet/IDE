@@ -18,7 +18,6 @@ import {
 } from '@codemirror/view'
 import { syntaxBundle } from '../../features/extensions/syntax'
 import { indentationMarkers } from '../../features/extensions/indentLines'
-// import { indentationMarkers } from '@replit/codemirror-indentation-markers';
 import { diffExtension } from '../../features/extensions/diff'
 import { hackExtension } from '../../features/extensions/hackDiff'
 import { diagnosticsField, lintGutter } from '../../features/linter/lint'
@@ -81,7 +80,8 @@ const syntaxCompartment = new Compartment(),
     commentCompartment = new Compartment(),
     readOnlyCompartment = new Compartment(),
     themeCompartment = new Compartment(),
-    fontCompartment = new Compartment()
+    fontCompartment = new Compartment(),
+    lineWrappingCompartment = new Compartment()
 
 const OPEN_BRACKETS = ['{', '[', '(']
 const CLOSE_BRACKETS = ['}', ']', ')']
@@ -117,13 +117,6 @@ class TreeHighlighter {
         const cursor = this.tree.cursor()
         do {
             const tagData = getStyleTags(cursor.node)
-            //
-            //     name: cursor.name,
-            //     str: view.state.doc.sliceString(cursor.from, cursor.to),
-            //     tags: tagData?.tags?.map(getTagName),
-            //     tagData
-            // })
-
             if (
                 cursor != null &&
                 ALL_BRACKETS.includes(cursor.name) &&
@@ -167,7 +160,7 @@ const globalExtensions = [
     //         }
     //     ])
     // ),
-    EditorView.lineWrapping,
+    lineWrappingCompartment.of(EditorView.lineWrapping),
     indentationMarkers(),
     newLineText,
     diffExtension,
@@ -518,6 +511,16 @@ export function useExtensions({
             })
         }
     }, [settings.fontFamily, settings.fontSize, editorRef.current, justCreated])
+
+    useEffect(() => {
+        const wrapping =
+            settings.textWrapping === 'disabled' ? [] : EditorView.lineWrapping
+        if (editorRef.current.view) {
+            editorRef.current.view.dispatch({
+                effects: lineWrappingCompartment.reconfigure(wrapping),
+            })
+        }
+    }, [settings.textWrapping, editorRef.current, justCreated])
 
     return globalExtensions
 }

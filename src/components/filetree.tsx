@@ -166,6 +166,8 @@ function File({ fid }: { fid: number }) {
     const file = useAppSelector(getFile(fid))
     const depth = useAppSelector(getDepth(fid, true))
 
+    if (!file || file.name.startsWith('extension://')) return null
+
     const iconElement = getIconElement(file.name)
 
     return (
