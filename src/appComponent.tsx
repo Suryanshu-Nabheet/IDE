@@ -208,17 +208,23 @@ export function App() {
             root.style.setProperty('--sidebar-bg', c.background)
             root.style.setProperty('--activity-bar-bg', c.background)
             root.style.setProperty('--title-bar-background', c.background)
+            root.style.setProperty('--titlebar-fg', c.foreground)
             root.style.setProperty('--tab-bg', c.background)
             root.style.setProperty('--ui-bg', c.background)
             root.style.setProperty('--panel-bg', c.background)
 
             root.style.setProperty('--text', c.foreground)
             root.style.setProperty('--ui-fg', c.foreground)
+            root.style.setProperty(
+                '--ui-fg-muted',
+                `color-mix(in srgb, ${c.foreground}, transparent 50%)`
+            )
 
             root.style.setProperty('--accent', c.keyword)
             root.style.setProperty('--selection', c.selection)
 
             root.style.setProperty('--ui-border', c.lineHighlight)
+            root.style.setProperty('--ui-border-subtle', c.lineHighlight)
             root.style.setProperty('--pane-border', c.lineHighlight)
         }
     }, [settings, availableThemes])

@@ -79,7 +79,7 @@ export const ExtensionsPane = () => {
     return (
         <div
             className="flex flex-col h-full"
-            style={{ backgroundColor: '#000000' }}
+            style={{ backgroundColor: 'var(--sidebar-bg)' }}
         >
             {/* Search Input */}
             <div style={{ padding: '12px 16px' }}>
@@ -92,11 +92,11 @@ export const ExtensionsPane = () => {
                         style={{
                             width: '100%',
                             padding: '6px 10px 6px 28px',
-                            backgroundColor: '#1a1a1a',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            backgroundColor: 'var(--ui-bg)',
+                            border: '1px solid var(--ui-border)',
                             borderRadius: '4px',
                             fontSize: '13px',
-                            color: '#cccccc',
+                            color: 'var(--ui-fg)',
                             outline: 'none',
                         }}
                     />
@@ -109,7 +109,7 @@ export const ExtensionsPane = () => {
                             top: '50%',
                             transform: 'translateY(-50%)',
                             fontSize: '11px',
-                            color: '#858585',
+                            color: 'var(--ui-fg-muted)',
                         }}
                     />
                 </div>
@@ -125,7 +125,7 @@ export const ExtensionsPane = () => {
                                 padding: '8px 16px',
                                 fontSize: '11px',
                                 fontWeight: 600,
-                                color: '#858585',
+                                color: 'var(--ui-fg-muted)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px',
                             }}
@@ -168,7 +168,7 @@ export const ExtensionsPane = () => {
                                                 width: '40px',
                                                 height: '40px',
                                                 borderRadius: '4px',
-                                                backgroundColor: '#1a1a1a',
+                                                backgroundColor: 'var(--ui-bg)',
                                                 flexShrink: 0,
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -216,7 +216,7 @@ export const ExtensionsPane = () => {
                                                         style={{
                                                             fontSize: '13px',
                                                             fontWeight: 500,
-                                                            color: '#cccccc',
+                                                            color: 'var(--ui-fg)',
                                                             overflow: 'hidden',
                                                             textOverflow:
                                                                 'ellipsis',
@@ -230,7 +230,7 @@ export const ExtensionsPane = () => {
                                                     <div
                                                         style={{
                                                             fontSize: '12px',
-                                                            color: '#858585',
+                                                            color: 'var(--ui-fg-muted)',
                                                             overflow: 'hidden',
                                                             textOverflow:
                                                                 'ellipsis',
@@ -249,7 +249,7 @@ export const ExtensionsPane = () => {
                                                             gap: '12px',
                                                             marginTop: '4px',
                                                             fontSize: '11px',
-                                                            color: '#858585',
+                                                            color: 'var(--ui-fg-muted)',
                                                         }}
                                                     >
                                                         <span>
@@ -276,7 +276,7 @@ export const ExtensionsPane = () => {
                                                         padding: '4px 12px',
                                                         fontSize: '11px',
                                                         backgroundColor:
-                                                            '#0e639c',
+                                                            'var(--accent)',
                                                         color: '#ffffff',
                                                         border: 'none',
                                                         borderRadius: '2px',
@@ -286,12 +286,12 @@ export const ExtensionsPane = () => {
                                                             'background-color 0.1s',
                                                     }}
                                                     onMouseEnter={(e) => {
-                                                        e.currentTarget.style.backgroundColor =
-                                                            '#1177bb'
+                                                        e.currentTarget.style.filter =
+                                                            'brightness(1.1)'
                                                     }}
                                                     onMouseLeave={(e) => {
-                                                        e.currentTarget.style.backgroundColor =
-                                                            '#0e639c'
+                                                        e.currentTarget.style.filter =
+                                                            'none'
                                                     }}
                                                 >
                                                     Uninstall
@@ -313,7 +313,7 @@ export const ExtensionsPane = () => {
                                 padding: '8px 16px',
                                 fontSize: '11px',
                                 fontWeight: 600,
-                                color: '#858585',
+                                color: 'var(--ui-fg-muted)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px',
                             }}
@@ -361,7 +361,8 @@ export const ExtensionsPane = () => {
                                                     width: '40px',
                                                     height: '40px',
                                                     borderRadius: '4px',
-                                                    backgroundColor: '#1a1a1a',
+                                                    backgroundColor:
+                                                        'var(--ui-bg)',
                                                     flexShrink: 0,
                                                     display: 'flex',
                                                     alignItems: 'center',
@@ -415,7 +416,7 @@ export const ExtensionsPane = () => {
                                                                 fontSize:
                                                                     '13px',
                                                                 fontWeight: 500,
-                                                                color: '#cccccc',
+                                                                color: 'var(--ui-fg)',
                                                                 overflow:
                                                                     'hidden',
                                                                 textOverflow:
@@ -431,7 +432,7 @@ export const ExtensionsPane = () => {
                                                             style={{
                                                                 fontSize:
                                                                     '12px',
-                                                                color: '#858585',
+                                                                color: 'var(--ui-fg-muted)',
                                                                 overflow:
                                                                     'hidden',
                                                                 textOverflow:
@@ -454,7 +455,7 @@ export const ExtensionsPane = () => {
                                                                     '4px',
                                                                 fontSize:
                                                                     '11px',
-                                                                color: '#858585',
+                                                                color: 'var(--ui-fg-muted)',
                                                             }}
                                                         >
                                                             <span>
@@ -481,7 +482,7 @@ export const ExtensionsPane = () => {
                                                             padding: '4px 12px',
                                                             fontSize: '11px',
                                                             backgroundColor:
-                                                                '#0e639c',
+                                                                'var(--accent)',
                                                             color: '#ffffff',
                                                             border: 'none',
                                                             borderRadius: '2px',
@@ -491,12 +492,12 @@ export const ExtensionsPane = () => {
                                                                 'background-color 0.1s',
                                                         }}
                                                         onMouseEnter={(e) => {
-                                                            e.currentTarget.style.backgroundColor =
-                                                                '#1177bb'
+                                                            e.currentTarget.style.filter =
+                                                                'brightness(1.1)'
                                                         }}
                                                         onMouseLeave={(e) => {
-                                                            e.currentTarget.style.backgroundColor =
-                                                                '#0e639c'
+                                                            e.currentTarget.style.filter =
+                                                                'none'
                                                         }}
                                                     >
                                                         Install
@@ -529,11 +530,16 @@ export const ExtensionsPane = () => {
                                 icon={faSearch}
                                 style={{
                                     fontSize: '32px',
-                                    color: '#858585',
+                                    color: 'var(--ui-fg-muted)',
                                     marginBottom: '12px',
                                 }}
                             />
-                            <p style={{ fontSize: '13px', color: '#858585' }}>
+                            <p
+                                style={{
+                                    fontSize: '13px',
+                                    color: 'var(--ui-fg-muted)',
+                                }}
+                            >
                                 Search for extensions to get started
                             </p>
                         </div>
@@ -552,7 +558,7 @@ export const ExtensionsPane = () => {
                         <FontAwesomeIcon
                             icon={faSpinner}
                             className="animate-spin"
-                            style={{ fontSize: '24px', color: '#0e639c' }}
+                            style={{ fontSize: '24px', color: 'var(--accent)' }}
                         />
                     </div>
                 )}

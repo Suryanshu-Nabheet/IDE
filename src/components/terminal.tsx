@@ -311,7 +311,7 @@ export const BottomTerminal: React.FC = () => {
 
     return (
         <div
-            className="flex flex-col w-full bg-black border-t border-gray-900"
+            className="flex flex-col w-full bg-[var(--background)] border-t border-[var(--pane-border)]"
             style={{ height: height }}
         >
             {/* Dragger */}
@@ -321,7 +321,7 @@ export const BottomTerminal: React.FC = () => {
             />
 
             {/* Header / Tabs Area */}
-            <div className="flex bg-black-soft h-9 border-b border-gray-900 items-center px-4 select-none justify-between">
+            <div className="flex bg-[var(--activity-bar-bg)] h-9 border-b border-[var(--pane-border)] items-center px-4 select-none justify-between">
                 <div className="flex items-center text-[11px] font-bold uppercase tracking-wider text-ui-fg-muted">
                     <FontAwesomeIcon
                         icon={faTerminal}

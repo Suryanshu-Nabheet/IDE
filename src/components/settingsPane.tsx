@@ -43,10 +43,10 @@ export function SettingsPopup() {
     if (!isSettingsOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-[900px] h-[650px] bg-black border border-white/10 rounded-xl shadow-2xl flex overflow-hidden font-sans">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--ui-bg)]/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-[900px] h-[650px] bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-xl shadow-2xl flex overflow-hidden font-sans">
                 {/* Sidebar */}
-                <div className="w-64 bg-black border-r border-white/5 flex flex-col">
+                <div className="w-64 bg-[var(--ui-bg)] border-r border-[var(--ui-border)] flex flex-col">
                     <div className="p-6">
                         <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-2">
                             Settings
@@ -83,10 +83,10 @@ export function SettingsPopup() {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col min-w-0 bg-black">
+                <div className="flex-1 flex flex-col min-w-0 bg-[var(--ui-bg)]">
                     {/* Header */}
-                    <div className="h-16 border-b border-white/5 flex items-center justify-between px-8 shrink-0">
-                        <h1 className="text-lg font-medium text-white">
+                    <div className="h-16 border-b border-[var(--ui-border)] flex items-center justify-between px-8 shrink-0">
+                        <h1 className="text-lg font-medium text-[var(--ui-fg)]">
                             {activeTab === 'AI' ? 'AI & Models' : activeTab}
                         </h1>
                         <button
@@ -209,9 +209,9 @@ export function SettingsPopup() {
                                             description="Set the font size for the editor and terminal."
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="flex items-center bg-white/5 rounded-lg border border-white/5 p-1">
+                                                <div className="flex items-center bg-[var(--ui-fg)]/5 rounded-lg border border-[var(--ui-border)] p-1">
                                                     <button
-                                                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                                                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-[var(--ui-fg)]/10 text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] transition-colors"
                                                         onClick={() => {
                                                             const current =
                                                                 parseInt(
@@ -238,12 +238,12 @@ export function SettingsPopup() {
                                                             size="sm"
                                                         />
                                                     </button>
-                                                    <div className="w-12 text-center font-mono text-sm text-white">
+                                                    <div className="w-12 text-center font-mono text-sm text-[var(--ui-fg)]">
                                                         {settings.fontSize ||
                                                             '13'}
                                                     </div>
                                                     <button
-                                                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                                                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-[var(--ui-fg)]/10 text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] transition-colors"
                                                         onClick={() => {
                                                             const current =
                                                                 parseInt(
@@ -271,7 +271,7 @@ export function SettingsPopup() {
                                                         />
                                                     </button>
                                                 </div>
-                                                <span className="text-xs text-gray-500">
+                                                <span className="text-xs text-[var(--ui-fg-muted)]">
                                                     pixels
                                                 </span>
                                             </div>
@@ -438,7 +438,7 @@ function SidebarItem({ icon, label, isActive, onClick }: any) {
                 'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
                 isActive
                     ? 'bg-blue-600/10 text-blue-400'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                    : 'text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-fg)]/5'
             )}
         >
             <FontAwesomeIcon
@@ -447,7 +447,7 @@ function SidebarItem({ icon, label, isActive, onClick }: any) {
                     'transition-colors',
                     isActive
                         ? 'text-blue-400'
-                        : 'text-gray-500 group-hover:text-gray-300'
+                        : 'text-[var(--ui-fg-muted)] group-hover:text-[var(--ui-fg)]'
                 )}
             />
             {label}
@@ -459,10 +459,12 @@ function SettingsGroup({ label, description, children }: any) {
     return (
         <div>
             <div className="mb-3">
-                <div className="text-sm font-medium text-gray-200 mb-1">
+                <div className="text-sm font-medium text-[var(--ui-fg)] mb-1">
                     {label}
                 </div>
-                <div className="text-xs text-gray-500">{description}</div>
+                <div className="text-xs text-[var(--ui-fg-muted)]">
+                    {description}
+                </div>
             </div>
             {children}
         </div>
@@ -477,11 +479,11 @@ function ThemeCard({ label, color, isActive, onClick }: any) {
                 'relative flex items-center gap-3 p-3 rounded-lg border text-left transition-all duration-200 group',
                 isActive
                     ? 'bg-blue-600/10 border-blue-500/50 ring-1 ring-blue-500/20'
-                    : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'
+                    : 'bg-[var(--ui-fg)]/5 border-[var(--ui-border)] hover:bg-[var(--ui-fg)]/10 hover:border-[var(--ui-fg)]/10'
             )}
         >
             <div
-                className="w-10 h-10 rounded-md shadow-sm flex-shrink-0 border border-white/10"
+                className="w-10 h-10 rounded-md shadow-sm flex-shrink-0 border border-[var(--ui-border)]"
                 style={{ backgroundColor: color }}
             />
             <span
@@ -489,7 +491,7 @@ function ThemeCard({ label, color, isActive, onClick }: any) {
                     'text-sm font-medium',
                     isActive
                         ? 'text-blue-100'
-                        : 'text-gray-300 group-hover:text-white'
+                        : 'text-[var(--ui-fg-muted)] group-hover:text-[var(--ui-fg)]'
                 )}
             >
                 {label}
@@ -513,13 +515,13 @@ function CustomListbox({ value, onChange, options, width = 'w-full' }: any) {
     return (
         <Listbox value={value} onChange={onChange}>
             <div className={`relative ${width}`}>
-                <Listbox.Button className="relative w-full cursor-default rounded-lg bg-black border border-white/10 py-2.5 pl-3 pr-10 text-left text-sm text-gray-200 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-white/20 transition-colors">
+                <Listbox.Button className="relative w-full cursor-default rounded-lg bg-[var(--ui-bg)] border border-[var(--ui-border)] py-2.5 pl-3 pr-10 text-left text-sm text-[var(--ui-fg)] shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-white/20 transition-colors">
                     <span className="block truncate">{displayValue}</span>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400">
                         <FontAwesomeIcon icon={faChevronDown} size="xs" />
                     </span>
                 </Listbox.Button>
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#1a1a1a] py-1 text-sm shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in zoom-in-95 duration-100">
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[var(--ui-bg)] py-1 text-sm shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in zoom-in-95 duration-100">
                     {options.map((option: any, idx: number) => {
                         const optValue =
                             typeof option === 'object' ? option.id : option
@@ -626,10 +628,10 @@ function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                 <div className="flex gap-2">
                     <input
                         className={cx(
-                            'flex-1 bg-black border rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors font-mono',
+                            'flex-1 bg-[var(--ui-bg)] border rounded-lg px-3 py-2.5 text-sm text-[var(--ui-fg)] placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors font-mono',
                             keyError
                                 ? 'border-red-500/50 focus:border-red-500'
-                                : 'border-white/10 focus:border-blue-500'
+                                : 'border-[var(--ui-border)] focus:border-blue-500'
                         )}
                         placeholder="sk-..."
                         onChange={(e) => setLocalAPIKey(e.target.value)}
@@ -717,17 +719,17 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
     }, [languageName])
 
     return (
-        <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-lg group hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200">
+        <div className="flex items-center justify-between p-4 bg-[var(--ui-fg)]/[0.02] border border-[var(--ui-border)] rounded-lg group hover:bg-[var(--ui-fg)]/[0.04] hover:border-[var(--ui-fg)]/10 transition-all duration-200">
             <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-md bg-white/5 flex items-center justify-center text-gray-400">
+                <div className="w-10 h-10 rounded-md bg-[var(--ui-fg)]/5 flex items-center justify-center text-[var(--ui-fg-muted)]">
                     <FontAwesomeIcon icon={faCode} />
                 </div>
                 <div>
-                    <div className="text-sm font-medium text-gray-200">
+                    <div className="text-sm font-medium text-[var(--ui-fg)]">
                         {languageName}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-[var(--ui-fg-muted)]">
                             {languageInstalled
                                 ? languageRunning
                                     ? 'Running'
