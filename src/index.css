@@ -128,7 +128,7 @@ body {
     width: 48px;
     height: 100%;
     background-color: var(--activity-bar-bg);
-    border-right: 1px solid var(--ui-border);
+    border-right: 1px solid var(--ui-border); 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -136,26 +136,7 @@ body {
     flex-shrink: 0;
 }
 
-.activity-bar__item {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: var(--gray-600);
-    cursor: pointer;
-    position: relative;
-    transition: color var(--transition-fast);
-}
 
-.activity-bar__item:hover {
-    color: var(--gray-400);
-}
-
-.activity-bar__item.active {
-    color: var(--gray-100);
-}
 
 /* Signature Anysphere Active indicator */
 .activity-bar__item.active::after {
@@ -568,8 +549,8 @@ body {
     left: 0;
     right: 0;
     height: 22px;
-    background-color: var(--black);
-    color: #ffffff;
+    background-color: var(--activity-bar-bg);
+    color: var(--ui-fg);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -577,7 +558,7 @@ body {
     font-size: 12px;
     flex-shrink: 0;
     z-index: 100;
-    border-top: 1px solid var(--pane-border);
+    border-top: 1px solid var(--pane-border); 
 }
 
 .status-bar__left,
@@ -3675,7 +3656,7 @@ cm-diff-cancel > div {
     overflow: hidden;
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: center; 
     justify-content: center;
 }
 

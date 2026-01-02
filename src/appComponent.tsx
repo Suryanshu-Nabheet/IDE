@@ -208,12 +208,24 @@ export function App() {
             root.style.setProperty('--sidebar-bg', c.background)
             root.style.setProperty('--activity-bar-bg', c.background)
             root.style.setProperty('--title-bar-background', c.background)
+            root.style.setProperty('--title-bar-background', c.background)
             root.style.setProperty('--titlebar-fg', c.foreground)
-            root.style.setProperty('--activity-bar-fg', c.foreground)
-            root.style.setProperty(
-                '--activity-bar-fg-muted',
-                `color-mix(in srgb, ${c.foreground}, transparent 50%)`
-            )
+
+            // Force high contrast for activity bar icons as requested
+            const isDark = theme.type === 'dark'
+            const activeColor = isDark ? '#ffffff' : '#1f1f1f' // White or nearly black
+            const inactiveColor = isDark
+                ? 'rgba(255, 255, 255, 0.4)'
+                : 'rgba(0, 0, 0, 0.4)'
+
+            root.style.setProperty('--activity-bar-fg', activeColor)
+            root.style.setProperty('--activity-bar-fg-muted', inactiveColor)
+
+            // root.style.setProperty('--activity-bar-fg', c.foreground)
+            // root.style.setProperty(
+            //     '--activity-bar-fg-muted',
+            //     `color-mix(in srgb, ${c.foreground}, transparent 50%)`
+            // )
             root.style.setProperty('--tab-bg', c.background)
             root.style.setProperty('--ui-bg', c.background)
             root.style.setProperty('--panel-bg', c.background)
@@ -232,6 +244,21 @@ export function App() {
             root.style.setProperty('--ui-border-subtle', c.lineHighlight)
             root.style.setProperty('--pane-border', c.lineHighlight)
             root.style.setProperty('--sidebar-border', c.lineHighlight)
+
+            // Tab Settings
+            root.style.setProperty('--tab-active-bg', c.background)
+            // Use color-mix for inactive tabs to be slightly different from bg
+            const inactiveMix = theme.type === 'dark' ? 'white' : 'black'
+            root.style.setProperty(
+                '--tab-inactive-bg',
+                `color-mix(in srgb, ${c.background}, ${inactiveMix} 8%)`
+            )
+            root.style.setProperty('--tab-border', c.lineHighlight)
+            root.style.setProperty('--tab-hover-bg', c.lineHighlight)
+            root.style.setProperty(
+                '--tab-inactive-font',
+                `color-mix(in srgb, ${c.foreground}, transparent 40%)`
+            )
         }
     }, [settings, availableThemes])
 

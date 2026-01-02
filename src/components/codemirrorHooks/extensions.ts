@@ -95,7 +95,7 @@ class TreeHighlighter {
         }
     }
 
-    buildDeco(view: EditorView) {
+    buildDeco(_view: EditorView) {
         if (!this.tree.length) return Decoration.none
 
         const builder = new RangeSetBuilder<Decoration>()

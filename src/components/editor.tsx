@@ -19,7 +19,6 @@ import {
     getPageType,
     getPaneIsActive,
     getPendingTransactions,
-    getRelativeFilePath,
     getTab,
 } from '../features/selectors'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
@@ -97,7 +96,6 @@ interface EditorHookProps {
     isRenaming: string | null
     keyListeners: any
     fileName: string
-    relativeFilePath: string
     filePath: string
     fileIndentUnit: string | undefined
     initialState: any
@@ -107,7 +105,6 @@ interface EditorHookProps {
 function useEditorHook({ tabId }: { tabId: number }): EditorHookProps {
     const tab = useAppSelector(getTab(tabId))
     const filePath = useAppSelector(getFilePath(tab.fileId))
-    const relativeFilePath = useAppSelector(getRelativeFilePath(tab.fileId))
     const fileName = useAppSelector(getFileName(tab.fileId))
     const fileIndentUnit = useAppSelector(getFileIndentUnit(tab.fileId))
     const keyListeners = useAppSelector(getKeyListeners)
@@ -137,7 +134,6 @@ function useEditorHook({ tabId }: { tabId: number }): EditorHookProps {
         isRenaming,
         keyListeners,
         fileName,
-        relativeFilePath,
         filePath,
         fileIndentUnit,
         initialState,
@@ -200,7 +196,6 @@ export default function Editor({ tabId }: { tabId: number }) {
         fileName,
         readOnly,
         filePath,
-        relativeFilePath,
         initialState,
         tab,
     } = useEditorHook({ tabId })
@@ -215,7 +210,6 @@ export default function Editor({ tabId }: { tabId: number }) {
     const extensions = useExtensions({
         editorRef,
         filePath,
-        relativeFilePath,
         tab,
         justCreated,
         readOnly: fullReadOnly,
