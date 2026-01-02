@@ -171,14 +171,14 @@ export const loadFoldersAboveFile = createAsyncThunk(
         }
 
         let parentFolderId: number | null = state.files[fileId].parentFolderId
-        do {
-            const folder: Folder = state.folders[parentFolderId!]!
+        while (parentFolderId != null) {
+            const folder: Folder = state.folders[parentFolderId]!
             if (folder.loaded == false)
                 await dispatch(
                     loadFolder({ folderId: parentFolderId, goDeep: false })
                 )
             parentFolderId = folder.parentFolderId
-        } while (parentFolderId != null)
+        }
     }
 )
 

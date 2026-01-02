@@ -18,6 +18,7 @@ import { commentSlice } from '../features/comment/commentSlice'
 import { testSlice } from '../features/tests/testSlice'
 import { fixLSPSlice } from '../features/fixLSP/fixLSPSlice'
 import { codeMirrorSlice } from '../features/codemirror/codemirrorSlice'
+import { extensionsSlice } from '../features/extensions/extensionsSlice'
 
 const reduceReducers = (...args: any) => {
     const initialState = typeof args[0] !== 'function' && args.shift()
@@ -68,6 +69,7 @@ export const fullReducer = combineReducers({
     codeMirrorState: codeMirrorSlice.reducer,
     commentState: commentSlice.reducer,
     fixLSPState: fixLSPSlice.reducer,
+    extensionsState: extensionsSlice.reducer,
     test: testSlice.reducer,
 })
 

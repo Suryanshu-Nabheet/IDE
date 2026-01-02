@@ -150,7 +150,7 @@ export function WelcomeScreen() {
                         <h2 className="welcome-section-title">Recent</h2>
                         <div className="welcome-card-list">
                             {recentProjects.length > 0 ? (
-                                recentProjects.map((path) => (
+                                recentProjects.map((path: string) => (
                                     <button
                                         key={path}
                                         className="welcome-action-button"

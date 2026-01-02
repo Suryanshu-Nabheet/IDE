@@ -2,6 +2,7 @@ import { Action } from '@reduxjs/toolkit'
 import { CustomTransaction } from '../../components/codemirrorHooks/dispatch'
 import { v4 as uuidv4 } from 'uuid'
 import { ExpectedError } from '../../utils'
+import type { RootState } from '../../app/store'
 
 export interface File {
     parentFolderId: number
@@ -308,6 +309,9 @@ export interface Settings {
     useOpenAIKey?: boolean
     openAIModel?: string
     tabSize?: string
+    theme?: string
+    fontFamily?: string
+    fontSize?: string
 }
 
 export interface SettingsState {
@@ -367,16 +371,8 @@ export interface LanguageServerState {
     languageServers: { [key: string]: LanguageServer }
 }
 
-export interface FullState {
-    global: State
-    chatState: ChatState
-    settingsState: SettingsState
-    toolState: ToolState
-    loggingState: LoggingState
-    languageServerState: LanguageServerState
-    commentState: CommentState
-    fixLSPState: FixLSPState
-}
+// Use RootState from store as the source of truth for the full Redux state
+export type FullState = RootState
 
 // INITIAL STATE
 

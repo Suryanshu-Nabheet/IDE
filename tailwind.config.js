@@ -4,6 +4,19 @@ module.exports = {
     theme: {
         extend: {
             colors: {
+                // UI Colors - All use CSS variables with subtle borders
+                'ui-bg': 'var(--ui-bg)',
+                'ui-bg-elevated': 'var(--ui-bg-elevated)',
+                'ui-bg-subtle': 'var(--ui-bg-subtle)',
+                'ui-fg': 'var(--ui-fg)',
+                'ui-fg-muted': 'var(--ui-fg-muted)',
+                'ui-border': 'rgba(255, 255, 255, 0.06)',
+                'ui-border-subtle': 'rgba(255, 255, 255, 0.03)',
+                'ui-hover': 'rgba(255, 255, 255, 0.03)',
+                'accent': 'var(--accent)',
+                'accent-hover': 'var(--accent-hover)',
+                
+                // Oxocarbon colors (legacy)
                 oxo: {
                     base00: '#0a0a0a',
                     base01: '#141414',

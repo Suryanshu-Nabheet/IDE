@@ -106,7 +106,6 @@
         "@reduxjs/toolkit": "^1.9.1",
         "@replit/codemirror-css-color-picker": "^6.0.0",
         "@replit/codemirror-emacs": "^6.0.0",
-
         "@types/node": "^18.11.17",
         "@types/node-fetch": "^2.6.2",
         "@types/react": "^18.0.26",
@@ -139,6 +138,7 @@
         "react-modal": "^3.16.1",
         "react-redux": "^8.0.5",
         "redux": "^4.2.0",
+        "remark-gfm": "^3.0.1",
         "reselect": "^4.1.7",
         "style-mod": "^4.0.2",
         "tar": "^6.1.13",

@@ -441,6 +441,37 @@ export const addExistingFile = createAsyncThunk(
 export const loadFileIfNeeded = createAsyncThunk(
     'files/loadFileIfNeeded',
     async (path: string, { getState, dispatch }) => {
+        if (path.startsWith('extension://')) {
+            const state = (<FullState>getState()).global
+            // Check if we already have this virtual file
+            let fileId: number | null = null
+            for (const id in state.files) {
+                if (state.files[id].name === path) {
+                    fileId = parseInt(id)
+                    break
+                }
+            }
+
+            if (fileId === null) {
+                fileId = nextFileID(state)
+                const file: File = {
+                    parentFolderId: 1, // Root folder
+                    name: path,
+                    renameName: null,
+                    isSelected: false,
+                    saved: true,
+                }
+                dispatch(
+                    fileSlice.actions.addFileToState({
+                        fileid: fileId,
+                        file,
+                        parentFolderId: 1,
+                    })
+                )
+            }
+            return { fileId, contents: '' }
+        }
+
         let fileId: number | null
         fileId = findFileIdFromPath((<FullState>getState()).global, path)
         if (!fileId) {

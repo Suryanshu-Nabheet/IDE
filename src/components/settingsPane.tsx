@@ -27,6 +27,8 @@ import {
     faRobot,
     faCode,
     faUserCircle,
+    faMinus,
+    faPlus,
 } from '@fortawesome/pro-regular-svg-icons'
 
 export function SettingsPopup() {
@@ -115,7 +117,184 @@ export function SettingsPopup() {
                     {activeTab === 'General' && (
                         <div className="animate-fadeIn">
                             <div className="settings-section-title">
-                                General
+                                Appearance
+                            </div>
+
+                            <div className="settings-group">
+                                <label className="settings-label">
+                                    Color Theme
+                                </label>
+                                <div className="settings-description">
+                                    Select the color theme for the editor and
+                                    UI.
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                    {[
+                                        {
+                                            value: 'codex-dark',
+                                            label: 'CodeX Dark',
+                                            color: '#1e1e1e',
+                                        },
+                                        {
+                                            value: 'monokai',
+                                            label: 'Monokai',
+                                            color: '#272822',
+                                        },
+                                        {
+                                            value: 'dracula',
+                                            label: 'Dracula',
+                                            color: '#282a36',
+                                        },
+                                        {
+                                            value: 'github-dark',
+                                            label: 'GitHub Dark',
+                                            color: '#0d1117',
+                                        },
+                                        {
+                                            value: 'solarized-dark',
+                                            label: 'Solarized Dark',
+                                            color: '#002b36',
+                                        },
+                                        {
+                                            value: 'nord',
+                                            label: 'Nord',
+                                            color: '#2e3440',
+                                        },
+                                        {
+                                            value: 'one-dark',
+                                            label: 'One Dark',
+                                            color: '#282c34',
+                                        },
+                                    ].map((theme) => (
+                                        <button
+                                            key={theme.value}
+                                            onClick={() =>
+                                                dispatch(
+                                                    changeSettings({
+                                                        theme: theme.value,
+                                                    })
+                                                )
+                                            }
+                                            className={`flex items-center gap-2 px-3 py-2 rounded border transition-all ${
+                                                (settings.theme ||
+                                                    'codex-dark') ===
+                                                theme.value
+                                                    ? 'border-accent bg-accent/10'
+                                                    : 'border-ui-border bg-ui-hover hover:border-ui-fg-muted'
+                                            }`}
+                                        >
+                                            <div
+                                                className="w-4 h-4 rounded border border-ui-border flex-shrink-0"
+                                                style={{
+                                                    backgroundColor:
+                                                        theme.color,
+                                                }}
+                                            />
+                                            <span className="text-sm text-ui-fg">
+                                                {theme.label}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="settings-group">
+                                <label className="settings-label">
+                                    Font Family
+                                </label>
+                                <div className="settings-description">
+                                    Choose the font family for the editor.
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                    {[
+                                        'JetBrains Mono',
+                                        'Fira Code',
+                                        'Source Code Pro',
+                                        'Menlo',
+                                        'Monaco',
+                                        'Consolas',
+                                    ].map((font) => (
+                                        <button
+                                            key={font}
+                                            onClick={() =>
+                                                dispatch(
+                                                    changeSettings({
+                                                        fontFamily: font,
+                                                    })
+                                                )
+                                            }
+                                            className={`px-3 py-2 rounded border text-left transition-all ${
+                                                (settings.fontFamily ||
+                                                    'JetBrains Mono') === font
+                                                    ? 'border-accent bg-accent/10'
+                                                    : 'border-ui-border bg-ui-hover hover:border-ui-fg-muted'
+                                            }`}
+                                        >
+                                            <span
+                                                className="text-sm text-ui-fg"
+                                                style={{ fontFamily: font }}
+                                            >
+                                                {font}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="settings-group">
+                                <label className="settings-label">
+                                    Font Size
+                                </label>
+                                <div className="settings-description">
+                                    Set the font size for the editor.
+                                </div>
+                                <div className="flex items-center gap-3 mt-3">
+                                    <button
+                                        className="w-8 h-8 flex items-center justify-center rounded bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border text-ui-fg transition-colors active:scale-95"
+                                        onClick={() => {
+                                            const current = parseInt(
+                                                settings.fontSize || '13'
+                                            )
+                                            if (current > 8) {
+                                                dispatch(
+                                                    changeSettings({
+                                                        fontSize: (
+                                                            current - 1
+                                                        ).toString(),
+                                                    })
+                                                )
+                                            }
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faMinus} />
+                                    </button>
+                                    <span className="text-sm text-ui-fg font-mono w-16 text-center bg-black/20 py-1.5 rounded border border-white/5">
+                                        {settings.fontSize || '13'}px
+                                    </span>
+                                    <button
+                                        className="w-8 h-8 flex items-center justify-center rounded bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border text-ui-fg transition-colors active:scale-95"
+                                        onClick={() => {
+                                            const current = parseInt(
+                                                settings.fontSize || '13'
+                                            )
+                                            if (current < 48) {
+                                                dispatch(
+                                                    changeSettings({
+                                                        fontSize: (
+                                                            current + 1
+                                                        ).toString(),
+                                                    })
+                                                )
+                                            }
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faPlus} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="settings-section-title mt-8">
+                                Editor
                             </div>
 
                             <div className="settings-group">
@@ -407,7 +586,7 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
     }, [languageName])
 
     return (
-        <div className="flex items-center justify-between p-4 bg-black border border-gray-900 rounded-sm mb-3 hover:border-gray-700 transition-colors">
+        <div className="flex items-center justify-between p-4 bg-black border border-ui-border rounded-sm mb-3 hover:border-ui-fg-muted/20 transition-colors">
             <div>
                 <div className="text-sm font-medium">{languageName}</div>
                 <div className="text-[11px] opacity-40 uppercase tracking-tight">
@@ -421,7 +600,7 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
             <div>
                 {!languageInstalled ? (
                     <button
-                        className="px-3 py-1.5 text-[11px] font-medium bg-[#1e1e1e] hover:bg-[#2d2d2d] border border-[#333] rounded text-white transition-colors"
+                        className="px-3 py-1.5 text-[11px] font-medium bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border rounded text-white transition-colors"
                         onClick={installServer}
                     >
                         Install
@@ -435,7 +614,7 @@ function LanguageServerPanel({ languageName }: { languageName: string }) {
                     </button>
                 ) : (
                     <button
-                        className="px-3 py-1.5 text-[11px] font-medium bg-[#2d2d2d] hover:bg-[#3d3d3d] border border-[#444] rounded text-white transition-colors"
+                        className="px-3 py-1.5 text-[11px] font-medium bg-ui-bg-subtle hover:bg-ui-hover border border-ui-border rounded text-white transition-colors"
                         onClick={runServer}
                     >
                         Start

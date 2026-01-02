@@ -245,7 +245,7 @@ function SearchComponent() {
     return (
         <div className="search-container flex flex-col h-full bg-transparent">
             <div className="left-pane-header">Search</div>
-            <div className="search-input-wrapper border-b border-ui-border-subtle/50">
+            <div className="search-input-wrapper">
                 <textarea
                     className="search-input"
                     placeholder="Search in files..."

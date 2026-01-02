@@ -55,6 +55,7 @@ import { fixLintExtension } from '../../features/linter/fixLSPExtension'
 import { storePaneIdExtensions } from '../../features/extensions/storePane'
 import { store } from '../../app/store'
 import { triggerFileSearch } from '../../features/tools/toolSlice'
+import { createThemeFromData } from '../../theme/themeManager'
 
 const getTagName = (tag: Tag) => {
     for (const key of Object.keys(tags)) {
@@ -78,7 +79,9 @@ const syntaxCompartment = new Compartment(),
     indentCompartment = new Compartment(),
     lsCompartment = new Compartment(),
     commentCompartment = new Compartment(),
-    readOnlyCompartment = new Compartment()
+    readOnlyCompartment = new Compartment(),
+    themeCompartment = new Compartment(),
+    fontCompartment = new Compartment()
 
 const OPEN_BRACKETS = ['{', '[', '(']
 const CLOSE_BRACKETS = ['}', ']', ')']
@@ -230,6 +233,8 @@ const globalExtensions = [
     indentCompartment.of([]),
     commentCompartment.of([]),
     readOnlyCompartment.of([]),
+    themeCompartment.of([]),
+    fontCompartment.of([]),
 ]
 
 function getSelectedPos(view: EditorView) {
@@ -477,6 +482,42 @@ export function useExtensions({
             })
         }
     }, [settings.tabSize, editorRef.current, justCreated])
+
+    // Apply theme from settings
+    useEffect(() => {
+        const themeName = settings.theme || 'codex-dark'
+        const themeData =
+            store.getState().extensionsState.availableThemes[themeName]
+
+        if (themeData && editorRef.current.view) {
+            const themeExtension = createThemeFromData(themeData)
+            editorRef.current.view.dispatch({
+                effects: themeCompartment.reconfigure(themeExtension),
+            })
+        }
+    }, [settings.theme, editorRef.current, justCreated])
+
+    // Apply font from settings
+    useEffect(() => {
+        const fontFamily = settings.fontFamily || 'JetBrains Mono'
+        const fontSize = settings.fontSize || '13'
+
+        if (editorRef.current.view) {
+            const fontExtension = EditorView.theme({
+                '&': {
+                    fontFamily: `${fontFamily}, monospace`,
+                    fontSize: `${fontSize}px`,
+                },
+                '.cm-scroller': {
+                    fontFamily: `${fontFamily}, monospace`,
+                    fontSize: `${fontSize}px`,
+                },
+            })
+            editorRef.current.view.dispatch({
+                effects: fontCompartment.reconfigure(fontExtension),
+            })
+        }
+    }, [settings.fontFamily, settings.fontSize, editorRef.current, justCreated])
 
     return globalExtensions
 }

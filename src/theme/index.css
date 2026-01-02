@@ -76,8 +76,9 @@
     --ui-bg-subtle: var(--black-subtle);
     --ui-fg: var(--gray-100);
     --ui-fg-muted: var(--gray-400);
-    --ui-border: var(--gray-800);
-    --ui-border-subtle: var(--gray-900);
+    --ui-border: rgba(255, 255, 255, 0.06);
+    --ui-border-subtle: rgba(255, 255, 255, 0.03);
+    --ui-hover: rgba(255, 255, 255, 0.03);
     
     /* ═══════════════════════════════════════════════════════════════════════
        COMPONENT TOKENS
@@ -86,7 +87,7 @@
     /* Title Bar */
     --titlebar-bg: var(--black);
     --titlebar-fg: var(--gray-400);
-    --titlebar-border: var(--gray-800);
+    --titlebar-border: rgba(255, 255, 255, 0.06);
     --titlebar-button-hover: var(--black-subtle);
     
     /* Sidebar */
@@ -96,32 +97,32 @@
     --sidebar-hover: rgba(255, 255, 255, 0.05);
     --sidebar-selected: rgba(255, 255, 255, 0.1);
     --sidebar-selected-accent: var(--blue);
-    --sidebar-border: #1a1a1a;
+    --sidebar-border: rgba(255, 255, 255, 0.06);
     
     /* Activity Bar */
     --activity-bar-bg: var(--black);
     --activity-bar-fg: var(--gray-100);
     --activity-bar-fg-muted: var(--gray-600);
-    --activity-bar-border: var(--gray-800);
+    --activity-bar-border: rgba(255, 255, 255, 0.06);
     
     /* Tabs */
     --tab-bg: var(--black);
     --tab-bg-active: var(--black-soft);
     --tab-fg: var(--gray-400);
     --tab-fg-active: var(--gray-100);
-    --tab-border: var(--gray-800);
+    --tab-border: rgba(255, 255, 255, 0.06);
     --tab-hover: var(--black-subtle);
     
     /* Panels */
     --panel-bg: var(--black-soft);
     --panel-bg-elevated: var(--black-elevated);
     --panel-fg: var(--gray-100);
-    --panel-border: var(--gray-800);
+    --panel-border: rgba(255, 255, 255, 0.06);
     
     /* Inputs */
     --input-bg: var(--gray-900);
     --input-fg: var(--gray-100);
-    --input-border: var(--gray-800);
+    --input-border: rgba(255, 255, 255, 0.06);
     --input-border-focus: var(--accent);
     --input-placeholder: var(--gray-400);
     

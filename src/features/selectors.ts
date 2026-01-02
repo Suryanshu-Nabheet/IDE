@@ -137,9 +137,8 @@ export const getPageType = (tabId: number) =>
         (tabs: State['tabs']): 'multi' | 'editor' => {
             if (tabs[tabId].isMulti) {
                 return 'multi'
-            } else {
-                return 'editor'
             }
+            return 'editor'
         }
     )
 

@@ -1,156 +1,561 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faSpinner } from '@fortawesome/pro-regular-svg-icons'
-
-interface Extension {
-    namespace: string
-    name: string
-    displayName: string
-    description: string
-    version: string
-}
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import {
+    searchExtensions,
+    installExtension,
+    uninstallExtension,
+    setSearchQuery,
+    Extension,
+} from '../features/extensions/extensionsSlice'
+import * as exsel from '../features/extensions/extensionsSelectors'
+import { openFile } from '../features/globalSlice'
 
 export const ExtensionsPane = () => {
-    const [query, setQuery] = useState('')
-    const [results, setResults] = useState<Extension[]>([])
-    const [loading, setLoading] = useState(false)
-    const [installed, setInstalled] = useState<Set<string>>(new Set())
+    const dispatch = useAppDispatch()
+    const installed = useAppSelector(exsel.getInstalledExtensions)
+    const available = useAppSelector(exsel.getAvailableExtensions)
+    const searchQuery = useAppSelector(exsel.getSearchQuery)
+    const isSearching = useAppSelector(exsel.getIsSearching)
 
-    const searchExtensions = async (q: string) => {
-        if (!q) {
-            setResults([])
-            return
-        }
-        setLoading(true)
-        try {
-            // Using OpenVSX public API
-            const response = await fetch(
-                `https://open-vsx.org/api/-/search?query=${q}&size=20`
-            )
-            const data = await response.json()
-            setResults(data.extensions || [])
-        } catch (e) {
-            console.error('Extension search failed', e)
-        } finally {
-            setLoading(false)
+    const handleSearch = (query: string) => {
+        dispatch(setSearchQuery(query))
+        if (query.trim()) {
+            dispatch(searchExtensions(query))
+        } else {
+            dispatch(searchExtensions('theme'))
         }
     }
 
-    const toggleInstall = (id: string) => {
-        const newInstalled = new Set(installed)
-        if (newInstalled.has(id)) {
-            newInstalled.delete(id)
-        } else {
-            newInstalled.add(id)
-        }
-        setInstalled(newInstalled)
+    const handleInstall = (ext: Extension, e: React.MouseEvent) => {
+        e.stopPropagation()
+        dispatch(installExtension(ext))
+    }
+
+    const handleUninstall = (extensionId: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        dispatch(uninstallExtension(extensionId))
+    }
+
+    const isInstalled = (extId: string | undefined) => {
+        if (!extId) return false
+        return !!installed[extId]
+    }
+
+    const getExtId = (ext: Extension) => {
+        return ext.extensionId || ext.namespace + '.' + ext.name || ext.id || ''
+    }
+
+    const openExtensionDetails = (ext: Extension) => {
+        const extId = getExtId(ext)
+
+        // Store extension data in sessionStorage for the detail view
+        sessionStorage.setItem(`extension:${extId}`, JSON.stringify(ext))
+
+        // Open it as a virtual file in the editor
+        dispatch(
+            openFile({
+                filePath: `extension://${extId}`,
+            })
+        )
     }
 
     useEffect(() => {
+        if (available.length === 0 && !searchQuery) {
+            dispatch(searchExtensions('theme'))
+        }
+    }, [])
+
+    useEffect(() => {
         const timeout = setTimeout(() => {
-            if (query) searchExtensions(query)
-            else {
-                // Load some mocked "popular" extensions if empty?
-                // For now just clear
-                setResults([])
+            if (searchQuery.trim()) {
+                dispatch(searchExtensions(searchQuery))
             }
         }, 500)
         return () => clearTimeout(timeout)
-    }, [query])
+    }, [searchQuery, dispatch])
 
     return (
-        <div className="flex flex-col h-full bg-ui-bg">
-            <div className="left-pane-header">Extensions</div>
-            <div className="p-3 border-b border-ui-border">
-                <div className="relative">
+        <div
+            className="flex flex-col h-full"
+            style={{ backgroundColor: '#000000' }}
+        >
+            {/* Search Input */}
+            <div style={{ padding: '12px 16px' }}>
+                <div style={{ position: 'relative' }}>
                     <input
                         type="text"
-                        placeholder="Search Extensions in Marketplace..."
-                        className="w-full bg-black/20 border border-white/10 rounded-md py-1.5 pl-8 pr-3 text-sm focus:border-accent outline-none"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search extensions..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '6px 10px 6px 28px',
+                            backgroundColor: '#1a1a1a',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            borderRadius: '4px',
+                            fontSize: '13px',
+                            color: '#cccccc',
+                            outline: 'none',
+                        }}
                     />
-                    <div className="absolute left-2.5 top-2 opacity-50 text-xs">
-                        <FontAwesomeIcon icon={faSearch} />
-                    </div>
+                    <FontAwesomeIcon
+                        icon={isSearching ? faSpinner : faSearch}
+                        className={isSearching ? 'animate-spin' : ''}
+                        style={{
+                            position: 'absolute',
+                            left: '10px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            fontSize: '11px',
+                            color: '#858585',
+                        }}
+                    />
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2">
-                {loading && (
-                    <div className="flex justify-center py-8 opacity-50">
+            {/* Extensions List */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+                {/* Installed Extensions */}
+                {Object.values(installed).length > 0 && (
+                    <div>
+                        <div
+                            style={{
+                                padding: '8px 16px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                color: '#858585',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                            }}
+                        >
+                            Installed
+                        </div>
+                        {Object.values(installed).map((ext: Extension) => {
+                            const extId = getExtId(ext)
+                            return (
+                                <div
+                                    key={extId}
+                                    onClick={() => openExtensionDetails(ext)}
+                                    className="sidebar-item"
+                                    style={{
+                                        padding: '12px 16px',
+                                        cursor: 'pointer',
+                                        borderBottom:
+                                            '1px solid var(--ui-border-subtle)',
+                                        transition: 'background-color 0.1s',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor =
+                                            'var(--ui-hover)'
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor =
+                                            'transparent'
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            gap: '12px',
+                                        }}
+                                    >
+                                        {/* Icon */}
+                                        <div
+                                            style={{
+                                                width: '40px',
+                                                height: '40px',
+                                                borderRadius: '4px',
+                                                backgroundColor: '#1a1a1a',
+                                                flexShrink: 0,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                overflow: 'hidden',
+                                            }}
+                                        >
+                                            {ext.files?.icon ? (
+                                                <img
+                                                    src={ext.files.icon}
+                                                    alt={ext.displayName}
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{ fontSize: '20px' }}
+                                                >
+                                                    📦
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Content */}
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'flex-start',
+                                                    justifyContent:
+                                                        'space-between',
+                                                    gap: '8px',
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: 0,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontSize: '13px',
+                                                            fontWeight: 500,
+                                                            color: '#cccccc',
+                                                            overflow: 'hidden',
+                                                            textOverflow:
+                                                                'ellipsis',
+                                                            whiteSpace:
+                                                                'nowrap',
+                                                        }}
+                                                    >
+                                                        {ext.displayName ||
+                                                            ext.name}
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            fontSize: '12px',
+                                                            color: '#858585',
+                                                            overflow: 'hidden',
+                                                            textOverflow:
+                                                                'ellipsis',
+                                                            whiteSpace:
+                                                                'nowrap',
+                                                            marginTop: '2px',
+                                                        }}
+                                                    >
+                                                        {ext.description}
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems:
+                                                                'center',
+                                                            gap: '12px',
+                                                            marginTop: '4px',
+                                                            fontSize: '11px',
+                                                            color: '#858585',
+                                                        }}
+                                                    >
+                                                        <span>
+                                                            {ext.namespace}
+                                                        </span>
+                                                        {ext.downloadCount && (
+                                                            <span>
+                                                                {ext.downloadCount.toLocaleString()}{' '}
+                                                                downloads
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Install Button */}
+                                                <button
+                                                    onClick={(e) =>
+                                                        handleUninstall(
+                                                            extId,
+                                                            e
+                                                        )
+                                                    }
+                                                    style={{
+                                                        padding: '4px 12px',
+                                                        fontSize: '11px',
+                                                        backgroundColor:
+                                                            '#0e639c',
+                                                        color: '#ffffff',
+                                                        border: 'none',
+                                                        borderRadius: '2px',
+                                                        cursor: 'pointer',
+                                                        flexShrink: 0,
+                                                        transition:
+                                                            'background-color 0.1s',
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.backgroundColor =
+                                                            '#1177bb'
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.backgroundColor =
+                                                            '#0e639c'
+                                                    }}
+                                                >
+                                                    Uninstall
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
+
+                {/* Available Extensions */}
+                {available.length > 0 && (
+                    <div>
+                        <div
+                            style={{
+                                padding: '8px 16px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                color: '#858585',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                            }}
+                        >
+                            {searchQuery
+                                ? 'Search Results'
+                                : 'Popular Extensions'}
+                        </div>
+                        {available
+                            .filter(
+                                (ext: Extension) => !isInstalled(getExtId(ext))
+                            )
+                            .map((ext: Extension) => {
+                                const extId = getExtId(ext)
+                                return (
+                                    <div
+                                        key={extId}
+                                        onClick={() =>
+                                            openExtensionDetails(ext)
+                                        }
+                                        style={{
+                                            padding: '12px 16px',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.1s',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.backgroundColor =
+                                                '#0a0a0a'
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.backgroundColor =
+                                                'transparent'
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'flex-start',
+                                                gap: '12px',
+                                            }}
+                                        >
+                                            {/* Icon */}
+                                            <div
+                                                style={{
+                                                    width: '40px',
+                                                    height: '40px',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: '#1a1a1a',
+                                                    flexShrink: 0,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    overflow: 'hidden',
+                                                }}
+                                            >
+                                                {ext.files?.icon ? (
+                                                    <img
+                                                        src={ext.files.icon}
+                                                        alt={ext.displayName}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover',
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            fontSize: '20px',
+                                                        }}
+                                                    >
+                                                        📦
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Content */}
+                                            <div
+                                                style={{ flex: 1, minWidth: 0 }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems:
+                                                            'flex-start',
+                                                        justifyContent:
+                                                            'space-between',
+                                                        gap: '8px',
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            flex: 1,
+                                                            minWidth: 0,
+                                                        }}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                fontSize:
+                                                                    '13px',
+                                                                fontWeight: 500,
+                                                                color: '#cccccc',
+                                                                overflow:
+                                                                    'hidden',
+                                                                textOverflow:
+                                                                    'ellipsis',
+                                                                whiteSpace:
+                                                                    'nowrap',
+                                                            }}
+                                                        >
+                                                            {ext.displayName ||
+                                                                ext.name}
+                                                        </div>
+                                                        <div
+                                                            style={{
+                                                                fontSize:
+                                                                    '12px',
+                                                                color: '#858585',
+                                                                overflow:
+                                                                    'hidden',
+                                                                textOverflow:
+                                                                    'ellipsis',
+                                                                whiteSpace:
+                                                                    'nowrap',
+                                                                marginTop:
+                                                                    '2px',
+                                                            }}
+                                                        >
+                                                            {ext.description}
+                                                        </div>
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: '12px',
+                                                                marginTop:
+                                                                    '4px',
+                                                                fontSize:
+                                                                    '11px',
+                                                                color: '#858585',
+                                                            }}
+                                                        >
+                                                            <span>
+                                                                {ext.namespace}
+                                                            </span>
+                                                            {ext.downloadCount && (
+                                                                <span>
+                                                                    {ext.downloadCount.toLocaleString()}{' '}
+                                                                    downloads
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Install Button */}
+                                                    <button
+                                                        onClick={(e) =>
+                                                            handleInstall(
+                                                                ext,
+                                                                e
+                                                            )
+                                                        }
+                                                        style={{
+                                                            padding: '4px 12px',
+                                                            fontSize: '11px',
+                                                            backgroundColor:
+                                                                '#0e639c',
+                                                            color: '#ffffff',
+                                                            border: 'none',
+                                                            borderRadius: '2px',
+                                                            cursor: 'pointer',
+                                                            flexShrink: 0,
+                                                            transition:
+                                                                'background-color 0.1s',
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.backgroundColor =
+                                                                '#1177bb'
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.backgroundColor =
+                                                                '#0e639c'
+                                                        }}
+                                                    >
+                                                        Install
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                    </div>
+                )}
+
+                {/* Empty State */}
+                {!isSearching &&
+                    available.length === 0 &&
+                    Object.values(installed).length === 0 && (
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                                textAlign: 'center',
+                                padding: '24px',
+                            }}
+                        >
+                            <FontAwesomeIcon
+                                icon={faSearch}
+                                style={{
+                                    fontSize: '32px',
+                                    color: '#858585',
+                                    marginBottom: '12px',
+                                }}
+                            />
+                            <p style={{ fontSize: '13px', color: '#858585' }}>
+                                Search for extensions to get started
+                            </p>
+                        </div>
+                    )}
+
+                {/* Loading State */}
+                {isSearching && (
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '32px',
+                        }}
+                    >
                         <FontAwesomeIcon
                             icon={faSpinner}
-                            spin
-                            className="text-xl"
+                            className="animate-spin"
+                            style={{ fontSize: '24px', color: '#0e639c' }}
                         />
                     </div>
                 )}
-
-                {!loading && results.length === 0 && query && (
-                    <div className="text-center opacity-50 text-sm mt-8">
-                        No extensions found.
-                    </div>
-                )}
-
-                {!loading && results.length === 0 && !query && (
-                    <div className="text-center opacity-50 text-sm mt-8">
-                        Search for extensions to install.
-                    </div>
-                )}
-
-                <div className="space-y-2">
-                    {results.map((ext) => {
-                        const id = `${ext.namespace}.${ext.name}`
-                        const isInstalled = installed.has(id)
-                        return (
-                            <div
-                                key={id}
-                                className="flex gap-3 p-2 rounded hover:bg-white/5 group"
-                            >
-                                <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center text-lg font-bold text-ui-fg-muted uppercase shrink-0">
-                                    {ext.name.substring(0, 1)}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex justify-between items-start">
-                                        <div
-                                            className="font-semibold text-sm truncate pr-2"
-                                            title={ext.displayName || ext.name}
-                                        >
-                                            {ext.displayName || ext.name}
-                                        </div>
-                                    </div>
-                                    <div
-                                        className="text-xs opacity-60 truncate mb-2"
-                                        title={ext.description}
-                                    >
-                                        {ext.description}
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <div className="text-[10px] opacity-40">
-                                            {ext.namespace}
-                                        </div>
-                                        <button
-                                            onClick={() => toggleInstall(id)}
-                                            className={`
-                                                px-2 py-0.5 rounded text-[10px] font-medium transition-colors
-                                                ${
-                                                    isInstalled
-                                                        ? 'bg-white/10 text-white/50'
-                                                        : 'bg-accent text-white hover:bg-accent-hover'
-                                                }
-                                            `}
-                                        >
-                                            {isInstalled
-                                                ? 'Installed'
-                                                : 'Install'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
             </div>
         </div>
     )

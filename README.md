@@ -32,14 +32,23 @@
 
 ### 🎨 Elite Aesthetics
 
--   **Oxocarbon Prime** – A bespoke, premium IBM Carbon-inspired monochromatic theme with subtle amber accents
+-   **7 Premium Themes** – Choose from CodeX Dark, Monokai, Dracula, GitHub Dark, Solarized Dark, Nord, and One Dark
+-   **Instant Theme Switching** – Change themes on the fly without restarting
+-   **Customizable Appearance** – Font family, size, and editor preferences
 -   **Micro-Animation Engine** – Every interaction is smooth, intentional, and visually rewarding
 -   **Uncluttered Interface** – Designed for maximum real estate, focusing entirely on your code
+
+### 🔌 Extension Ecosystem
+
+-   **OpenVSX Marketplace** – Access thousands of extensions from the open-source marketplace
+-   **One-Click Installation** – Browse, install, and manage extensions seamlessly
+-   **Extension Management** – View installed extensions, ratings, and details
+-   **Theme Extensions** – Install community themes to personalize your experience
 
 ### 🛠️ Professional Tooling
 
 -   **Multimodal Terminal** – High-performance, integrated multi-tab terminal with full shell support
--   **Unified Sidebars** – Elegant search, file tree, and AI panels that respect your visual focus
+-   **Unified Sidebars** – Elegant search, file tree, extensions, and AI panels that respect your visual focus
 -   **Enterprise-Grade Stability** – Built on a hardened Electron architecture for reliable daily use
 
 ### 🔒 Privacy & Performance
