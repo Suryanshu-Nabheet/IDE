@@ -195,7 +195,7 @@ body {
 .search-input,
 .settings-input {
     width: 100%;
-    background-color: #1a1a1a;
+    background-color: var(--black-elevated);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 4px;
     padding: 8px 12px;
@@ -211,7 +211,7 @@ body {
 .search-input:focus,
 .settings-input:focus {
     border-color: #569cd6;
-    background-color: #000000;
+    background-color: var(--black);
 }
 
 .search-input::placeholder,
@@ -568,7 +568,7 @@ body {
     left: 0;
     right: 0;
     height: 22px;
-    background-color: #161616;
+    background-color: var(--black);
     color: #ffffff;
     display: flex;
     justify-content: space-between;
