@@ -394,14 +394,52 @@ const electronConnector = {
     registerCloseErrors(callback: Callback) {
         ipcRenderer.on('closeErrors', callback)
     },
-    // Git
+    // Git Operations
+    gitInit: (rootPath: string) => ipcRenderer.invoke('git_init', { rootPath }),
     gitClone: (url: string, path: string) =>
         ipcRenderer.invoke('git_clone', { url, path }),
     gitStatus: (rootPath: string) =>
         ipcRenderer.invoke('git_status', { rootPath }),
+    gitCurrentBranch: (rootPath: string) =>
+        ipcRenderer.invoke('git_current_branch', { rootPath }),
+    gitBranches: (rootPath: string) =>
+        ipcRenderer.invoke('git_branches', { rootPath }),
+    gitCreateBranch: (rootPath: string, name: string) =>
+        ipcRenderer.invoke('git_create_branch', { rootPath, name }),
+    gitCheckout: (rootPath: string, branch: string) =>
+        ipcRenderer.invoke('git_checkout', { rootPath, branch }),
+    gitDeleteBranch: (rootPath: string, branch: string) =>
+        ipcRenderer.invoke('git_delete_branch', { rootPath, branch }),
+    gitAdd: (rootPath: string, files: string | string[]) =>
+        ipcRenderer.invoke('git_add', { rootPath, files }),
     gitCommit: (rootPath: string, message: string) =>
         ipcRenderer.invoke('git_commit', { rootPath, message }),
-    gitLog: (rootPath: string) => ipcRenderer.invoke('git_log', { rootPath }),
+    gitPush: (rootPath: string, remote?: string, branch?: string) =>
+        ipcRenderer.invoke('git_push', { rootPath, remote, branch }),
+    gitPull: (rootPath: string, remote?: string, branch?: string) =>
+        ipcRenderer.invoke('git_pull', { rootPath, remote, branch }),
+    gitFetch: (rootPath: string) =>
+        ipcRenderer.invoke('git_fetch', { rootPath }),
+    gitRemotes: (rootPath: string) =>
+        ipcRenderer.invoke('git_remotes', { rootPath }),
+    gitAddRemote: (rootPath: string, name: string, url: string) =>
+        ipcRenderer.invoke('git_add_remote', { rootPath, name, url }),
+    gitRemoveRemote: (rootPath: string, name: string) =>
+        ipcRenderer.invoke('git_remove_remote', { rootPath, name }),
+    gitLog: (rootPath: string, limit?: number) =>
+        ipcRenderer.invoke('git_log', { rootPath, limit }),
+    gitIsRepo: (rootPath: string) =>
+        ipcRenderer.invoke('git_is_repo', { rootPath }),
+    gitConfigGet: (rootPath: string, key: string) =>
+        ipcRenderer.invoke('git_config_get', { rootPath, key }),
+    gitConfigSet: (rootPath: string, key: string, value: string) =>
+        ipcRenderer.invoke('git_config_set', { rootPath, key, value }),
+    gitDiff: (rootPath: string, file?: string) =>
+        ipcRenderer.invoke('git_diff', { rootPath, file }),
+    gitStash: (rootPath: string, message?: string) =>
+        ipcRenderer.invoke('git_stash', { rootPath, message }),
+    gitStashPop: (rootPath: string) =>
+        ipcRenderer.invoke('git_stash_pop', { rootPath }),
 
     // Extensions
     installExtension: (extension: any) =>
