@@ -7,6 +7,7 @@ import * as ct from './features/chat/chatThunks'
 import * as ts from './features/tools/toolSlice'
 import * as csel from './features/chat/chatSelectors'
 import * as tsel from './features/tools/toolSelectors'
+import { initializeExtensions } from './features/extensions/extensionsSlice'
 
 import {
     getFocusedTab,
@@ -112,6 +113,10 @@ export function App() {
             dispatch(gs.initState(null))
         }
     }, [rootPath])
+
+    useEffect(() => {
+        dispatch(initializeExtensions())
+    }, [dispatch])
 
     const screenState =
         Object.keys(folders as object).length <= 1 && !welcomeDismissed

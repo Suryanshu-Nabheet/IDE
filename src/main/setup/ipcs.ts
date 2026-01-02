@@ -598,4 +598,157 @@ export default function setupIpcs() {
     ipcMain.handle('terminal-click-link', (_event, data) => {
         shell.openExternal(data)
     })
+
+    // Extensions Handlers
+    ipcMain.handle(
+        'installExtension',
+        async (_event: IpcMainInvokeEvent, extension: any) => {
+            const AdmZip = require('adm-zip')
+            const fs = require('fs')
+            // Dynamic import for node-fetch (ESM)
+            const fetch = (...args: any[]) =>
+                import('node-fetch').then(({ default: fetch }: any) =>
+                    fetch(...args)
+                )
+
+            const extensionsDir = path.join(
+                app.getPath('userData'),
+                'extensions'
+            )
+            if (!fs.existsSync(extensionsDir)) {
+                fs.mkdirSync(extensionsDir, { recursive: true })
+            }
+
+            const extId =
+                extension.extensionId ||
+                extension.id ||
+                `${extension.namespace}.${extension.name}`
+            const downloadUrl =
+                extension.files?.download || extension.downloadUrl
+
+            if (!downloadUrl) {
+                log.error('No download URL found for extension', extension)
+                throw new Error('No download URL found')
+            }
+
+            const targetDir = path.join(extensionsDir, extId)
+            const tempZipPath = path.join(extensionsDir, `${extId}.vsix`)
+
+            try {
+                // remove existing if any
+                if (fs.existsSync(targetDir)) {
+                    fs.rmSync(targetDir, { recursive: true, force: true })
+                }
+
+                log.info(`Downloading extension ${extId} from ${downloadUrl}`)
+                const response = await fetch(downloadUrl)
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to download extension: ${response.statusText}`
+                    )
+                }
+
+                const arrayBuffer = await response.arrayBuffer()
+                const buffer = Buffer.from(arrayBuffer)
+                fs.writeFileSync(tempZipPath, buffer)
+
+                log.info(`Extracting extension ${extId}`)
+                const zip = new AdmZip(tempZipPath)
+                zip.extractAllTo(targetDir, true)
+
+                // VS Code extensions usually have content inside a 'extension' folder
+                const innerExtDir = path.join(targetDir, 'extension')
+                if (fs.existsSync(innerExtDir)) {
+                    const contents = fs.readdirSync(innerExtDir)
+                    for (const file of contents) {
+                        const src = path.join(innerExtDir, file)
+                        const dest = path.join(targetDir, file)
+                        // If dest exists (edge case), remove it first
+                        if (fs.existsSync(dest)) {
+                            fs.rmSync(dest, { recursive: true, force: true })
+                        }
+                        fs.renameSync(src, dest)
+                    }
+                    fs.rmdirSync(innerExtDir)
+                }
+
+                log.info(`Extension ${extId} installed successfully`)
+                return true
+            } catch (error) {
+                log.error('Failed to install extension', error)
+                // Cleanup
+                if (fs.existsSync(tempZipPath)) {
+                    fs.unlinkSync(tempZipPath)
+                }
+                throw error
+            } finally {
+                if (fs.existsSync(tempZipPath)) {
+                    fs.unlinkSync(tempZipPath)
+                }
+            }
+        }
+    )
+
+    ipcMain.handle(
+        'uninstallExtension',
+        async (_event: IpcMainInvokeEvent, extensionId: string) => {
+            const fs = require('fs')
+            const extensionsDir = path.join(
+                app.getPath('userData'),
+                'extensions'
+            )
+            const targetDir = path.join(extensionsDir, extensionId)
+
+            if (fs.existsSync(targetDir)) {
+                log.info(`Uninstalling extension ${extensionId}`)
+                fs.rmSync(targetDir, { recursive: true, force: true })
+            }
+            return true
+        }
+    )
+
+    ipcMain.handle('getInstalledExtensions', async () => {
+        const fs = require('fs')
+        const extensionsDir = path.join(app.getPath('userData'), 'extensions')
+        if (!fs.existsSync(extensionsDir)) return []
+
+        const subdirs = fs.readdirSync(extensionsDir)
+        const extensions = []
+
+        for (const dir of subdirs) {
+            const extPath = path.join(extensionsDir, dir)
+            const packageJsonPath = path.join(extPath, 'package.json')
+            if (fs.existsSync(packageJsonPath)) {
+                try {
+                    const packageJson = JSON.parse(
+                        fs.readFileSync(packageJsonPath, 'utf8')
+                    )
+                    // Map package.json to Extension interface
+                    extensions.push({
+                        id: dir,
+                        extensionId: dir,
+                        namespace: packageJson.publisher,
+                        name: packageJson.name,
+                        displayName:
+                            packageJson.displayName || packageJson.name,
+                        version: packageJson.version,
+                        description: packageJson.description,
+                        publisher: packageJson.publisher,
+                        files: {
+                            icon: packageJson.icon
+                                ? `file://${path.join(
+                                      extPath,
+                                      packageJson.icon
+                                  )}`
+                                : undefined,
+                        },
+                        ...packageJson,
+                    })
+                } catch (e) {
+                    log.error(`Failed to parse extension ${dir}`, e)
+                }
+            }
+        }
+        return extensions
+    })
 }

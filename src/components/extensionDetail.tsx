@@ -9,14 +9,15 @@ import {
     faBoxOpen,
 } from '@fortawesome/pro-regular-svg-icons'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import {
     installExtension,
     uninstallExtension,
     Extension,
 } from '../features/extensions/extensionsSlice'
 import * as exsel from '../features/extensions/extensionsSelectors'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 
 interface ExtensionDetailProps {
     extension: Extension
@@ -375,14 +376,19 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                 {/* README */}
                                 {readme ? (
                                     <div className="mb-12">
-                                        <ReactMarkdown
-                                            remarkPlugins={[remarkGfm]}
-                                            components={
-                                                MarkdownComponents as any
-                                            }
-                                        >
-                                            {readme}
-                                        </ReactMarkdown>
+                                        <div className="mb-12">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                rehypePlugins={[
+                                                    rehypeRaw as any,
+                                                ]}
+                                                components={
+                                                    MarkdownComponents as any
+                                                }
+                                            >
+                                                {readme}
+                                            </ReactMarkdown>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="text-gray-500 italic mb-12">

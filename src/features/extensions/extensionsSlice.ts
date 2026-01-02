@@ -241,6 +241,25 @@ export const uninstallExtension = createAsyncThunk(
     }
 )
 
+export const initializeExtensions = createAsyncThunk(
+    'extensions/initialize',
+    async (_, { dispatch }) => {
+        // @ts-ignore
+        const extensions = await connector.getInstalledExtensions()
+        dispatch(loadInstalledExtensions(extensions))
+
+        // Check for themes and add them
+        extensions.forEach((ext: any) => {
+            if (ext.contributes && ext.contributes.themes) {
+                // We would need to load the theme file content here.
+                // For now, let's just make sure installed extensions are listed.
+            }
+        })
+
+        return extensions
+    }
+)
+
 export const extensionsSlice = createSlice({
     name: 'extensions',
     initialState: initialExtensionsState,

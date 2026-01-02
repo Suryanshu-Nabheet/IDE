@@ -402,6 +402,13 @@ const electronConnector = {
     gitCommit: (rootPath: string, message: string) =>
         ipcRenderer.invoke('git_commit', { rootPath, message }),
     gitLog: (rootPath: string) => ipcRenderer.invoke('git_log', { rootPath }),
+
+    // Extensions
+    installExtension: (extension: any) =>
+        ipcRenderer.invoke('installExtension', extension),
+    uninstallExtension: (extensionId: string) =>
+        ipcRenderer.invoke('uninstallExtension', extensionId),
+    getInstalledExtensions: () => ipcRenderer.invoke('getInstalledExtensions'),
 }
 
 contextBridge.exposeInMainWorld('connector', electronConnector)
