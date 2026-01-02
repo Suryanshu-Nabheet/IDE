@@ -3649,7 +3649,7 @@ cm-diff-cancel > div {
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.45);
     --hover-bg: rgba(255, 255, 255, 0.04);
-    
+     
     height: 100%;
     width: 100%;
     background-color: #000000;
@@ -3659,7 +3659,7 @@ cm-diff-cancel > div {
     align-items: center; 
     justify-content: center;
 }
-
+ 
 .welcome-container::before {
     content: '';
     position: absolute;

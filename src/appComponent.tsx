@@ -126,7 +126,7 @@ export function App() {
             : 'normal'
 
     const [dragging, setDragging] = useState(false)
-    const [leftSideWidth, setLeftSideWidth] = useState(250)
+    const [leftSideWidth, setLeftSideWidth] = useState(300)
     const [rightSideWidth, setRightSideWidth] = useState(420)
     const [rightDragging, setRightDragging] = useState(false)
 
