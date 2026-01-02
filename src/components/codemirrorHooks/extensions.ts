@@ -49,26 +49,12 @@ import { newLineText } from '../../features/extensions/newLineText'
 import { Tree } from '@lezer/common'
 import { barExtension } from '../../features/extensions/cmdZBar'
 import { updateCommentsEffect } from '../../features/extensions/comments'
-import { Tag, getStyleTags, tags } from '@lezer/highlight'
+
 import { fixLintExtension } from '../../features/linter/fixLSPExtension'
 import { storePaneIdExtensions } from '../../features/extensions/storePane'
 import { store } from '../../app/store'
 import { triggerFileSearch } from '../../features/tools/toolSlice'
 import { createThemeFromData } from '../../theme/themeManager'
-
-const getTagName = (tag: Tag) => {
-    for (const key of Object.keys(tags)) {
-        // Turn key to string
-        const keyString = key.toString() as keyof typeof tags
-        const currentTag = tags[keyString]
-
-        if ('id' in currentTag && 'id' in tag) {
-            if (currentTag.id === tag.id) {
-                return keyString
-            }
-        }
-    }
-}
 
 const syntaxCompartment = new Compartment(),
     keyBindingsCompartment = new Compartment(),
@@ -116,7 +102,7 @@ class TreeHighlighter {
         let level = -1
         const cursor = this.tree.cursor()
         do {
-            const tagData = getStyleTags(cursor.node)
+            // const tagData = getStyleTags(cursor.node)
             if (
                 cursor != null &&
                 ALL_BRACKETS.includes(cursor.name) &&
@@ -186,7 +172,7 @@ const globalExtensions = [
         keymap.of([
             {
                 key: connector.PLATFORM_CM_KEY + '-p',
-                run: (view) => {
+                run: (_view) => {
                     store.dispatch(triggerFileSearch())
                     return true
                 },
@@ -230,28 +216,6 @@ const globalExtensions = [
     fontCompartment.of([]),
 ]
 
-function getSelectedPos(view: EditorView) {
-    const selection = view.state.selection.main
-
-    const startLine = view.state.doc.lineAt(selection.from).number
-    const endLine = view.state.doc.lineAt(selection.to).number
-
-    const startLinePos = view.state.doc.line(startLine).from
-    const endLinePos = view.state.doc.line(endLine).to
-
-    return { startLinePos, endLinePos }
-}
-
-function getSelectedText(view: EditorView) {
-    const selection = view.state.selection.main
-    const { startLinePos, endLinePos } = getSelectedPos(view)
-    const selectedText =
-        selection.from == selection.to
-            ? null
-            : view.state.doc.sliceString(startLinePos, endLinePos)
-    return selectedText
-}
-
 function getCurrentSelection(view: EditorView) {
     const selection = view.state.selection.main
 
@@ -273,14 +237,13 @@ function getCurrentSelection(view: EditorView) {
 export function useExtensions({
     editorRef,
     filePath,
-    relativeFilePath,
+    // relativeFilePath,
     tab,
     justCreated,
     readOnly,
 }: {
     editorRef: React.MutableRefObject<ReactCodeMirrorRef>
     filePath: string
-    relativeFilePath: string
     tab: Tab
     justCreated: boolean
     readOnly: boolean
@@ -295,7 +258,7 @@ export function useExtensions({
         [filePath]
     )
     const lsStatus = useAppSelector(languageServerStatus(languageName))
-    const isGenerating = useAppSelector(csel.getGenerating)
+    // const isGenerating = useAppSelector(csel.getGenerating)
     const commentsInFile = useAppSelector(
         (state) => state.commentState.fileThenNames[filePath]
     )
@@ -353,7 +316,7 @@ export function useExtensions({
                             y: event.clientY,
                         })!
 
-                        const cursorPos = view.state.selection.main.from
+                        // const cursorPos = view.state.selection.main.from
                         // dispatch(cs.activateDiffFromEditor({
                         //     currentFile: filePath,
                         //     precedingCode: getPrecedingLines(view, 20)!,

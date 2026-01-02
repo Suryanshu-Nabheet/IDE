@@ -44,7 +44,7 @@ body {
 }
 
 .cm-content {
-    font-size: 14px;
+    font-size: var(--editor-font-size, 14px);
 }
 
 .command-click:hover > span {
@@ -164,7 +164,7 @@ body {
     left: 0;
     width: 2px;
     height: 24px;
-    background-color: #ffffff; /* White line on the far left */
+    background-color: var(--accent); /* Accent line on the far left */
 }
 
 .left-pane-header {
@@ -178,9 +178,9 @@ body {
     color: var(--gray-500);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    border-bottom: 1px solid var(--gray-900);
+    border-bottom: 1px solid var(--pane-border);
     user-select: none;
-    background-color: var(--black);
+    background-color: var(--sidebar-bg);
     flex-shrink: 0;
     z-index: 10;
 }
@@ -195,8 +195,8 @@ body {
 .search-input,
 .settings-input {
     width: 100%;
-    background-color: var(--black-elevated);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background-color: var(--ui-bg);
+    border: 1px solid var(--ui-border);
     border-radius: 4px;
     padding: 8px 12px;
     color: #dedede;
@@ -232,7 +232,7 @@ body {
 
 .search-result-item {
     transition: background-color 0.15s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--ui-border-subtle);
 }
 
 .search-result-item:hover {
@@ -258,7 +258,7 @@ body {
 }
 
 .activity-bar__item.active {
-    color: #ffffff !important;
+    color: var(--activity-bar-fg) !important;
     background-color: transparent !important;
 }
 

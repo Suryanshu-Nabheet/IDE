@@ -9,7 +9,7 @@ import * as csel from './features/chat/chatSelectors'
 import * as tsel from './features/tools/toolSelectors'
 import * as ssel from './features/settings/settingsSelectors'
 import { initializeExtensions } from './features/extensions/extensionsSlice'
-import { store } from './app/store'
+// import { store } from './app/store'
 
 import {
     getFocusedTab,
@@ -209,6 +209,11 @@ export function App() {
             root.style.setProperty('--activity-bar-bg', c.background)
             root.style.setProperty('--title-bar-background', c.background)
             root.style.setProperty('--titlebar-fg', c.foreground)
+            root.style.setProperty('--activity-bar-fg', c.foreground)
+            root.style.setProperty(
+                '--activity-bar-fg-muted',
+                `color-mix(in srgb, ${c.foreground}, transparent 50%)`
+            )
             root.style.setProperty('--tab-bg', c.background)
             root.style.setProperty('--ui-bg', c.background)
             root.style.setProperty('--panel-bg', c.background)
@@ -226,6 +231,7 @@ export function App() {
             root.style.setProperty('--ui-border', c.lineHighlight)
             root.style.setProperty('--ui-border-subtle', c.lineHighlight)
             root.style.setProperty('--pane-border', c.lineHighlight)
+            root.style.setProperty('--sidebar-border', c.lineHighlight)
         }
     }, [settings, availableThemes])
 

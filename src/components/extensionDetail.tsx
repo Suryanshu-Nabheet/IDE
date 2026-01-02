@@ -138,48 +138,57 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
     const MarkdownComponents = {
         h1: ({ ...props }: any) => (
             <h1
-                className="text-2xl font-bold mb-4 mt-6 text-white border-b border-white/10 pb-2"
+                className="text-2xl font-bold mb-4 mt-6 text-[var(--ui-fg)] border-b border-[var(--ui-border)] pb-2"
                 {...props}
             />
         ),
         h2: ({ ...props }: any) => (
-            <h2 className="text-xl font-bold mb-3 mt-5 text-white" {...props} />
+            <h2
+                className="text-xl font-bold mb-3 mt-5 text-[var(--ui-fg)]"
+                {...props}
+            />
         ),
         h3: ({ ...props }: any) => (
-            <h3 className="text-lg font-bold mb-2 mt-4 text-white" {...props} />
+            <h3
+                className="text-lg font-bold mb-2 mt-4 text-[var(--ui-fg)]"
+                {...props}
+            />
         ),
         p: ({ ...props }: any) => (
-            <p className="mb-4 leading-relaxed text-gray-300" {...props} />
+            <p
+                className="mb-4 leading-relaxed text-[var(--ui-fg-muted)]"
+                {...props}
+            />
         ),
         ul: ({ ...props }: any) => (
             <ul
-                className="list-disc list-inside mb-4 ml-2 space-y-1 text-gray-300"
+                className="list-disc list-inside mb-4 ml-2 space-y-1 text-[var(--ui-fg-muted)]"
                 {...props}
             />
         ),
         ol: ({ ...props }: any) => (
             <ol
-                className="list-decimal list-inside mb-4 ml-2 space-y-1 text-gray-300"
+                className="list-decimal list-inside mb-4 ml-2 space-y-1 text-[var(--ui-fg-muted)]"
                 {...props}
             />
         ),
         li: ({ ...props }: any) => <li className="pl-1" {...props} />,
         a: ({ ...props }: any) => (
             <a
-                className="text-[#0e639c] hover:underline cursor-pointer"
+                className="text-[var(--accent)] hover:underline cursor-pointer"
                 {...props}
             />
         ),
         blockquote: ({ ...props }: any) => (
             <blockquote
-                className="border-l-4 border-[#0e639c] pl-4 italic text-gray-400 mb-4 bg-white/5 py-2 pr-2 rounded-r"
+                className="border-l-4 border-[var(--accent)] pl-4 italic text-[var(--ui-fg-muted)] mb-4 bg-[var(--ui-bg)] py-2 pr-2 rounded-r"
                 {...props}
             />
         ),
         code: ({ inline, className, children, ...props }: any) => {
             return !inline ? (
                 <div className="relative mb-4">
-                    <pre className="bg-[#1a1a1a] p-4 rounded-lg overflow-x-auto border border-white/5 text-sm font-mono text-gray-200">
+                    <pre className="bg-[var(--ui-bg)] p-4 rounded-lg overflow-x-auto border border-[var(--ui-border)] text-sm font-mono text-[var(--ui-fg)]">
                         <code className={className} {...props}>
                             {children}
                         </code>
@@ -187,7 +196,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                 </div>
             ) : (
                 <code
-                    className="bg-white/10 rounded px-1.5 py-0.5 font-mono text-xs text-gray-200"
+                    className="bg-[var(--ui-bg)] rounded px-1.5 py-0.5 font-mono text-xs text-[var(--ui-fg)]"
                     {...props}
                 >
                     {children}
@@ -196,48 +205,51 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
         },
         img: ({ ...props }: any) => (
             <img
-                className="max-w-full rounded-lg border border-white/5 my-4 shadow-md"
+                className="max-w-full rounded-lg border border-[var(--ui-border)] my-4 shadow-md"
                 {...props}
             />
         ),
         table: ({ ...props }: any) => (
-            <div className="overflow-x-auto mb-4 border border-white/10 rounded-lg">
+            <div className="overflow-x-auto mb-4 border border-[var(--ui-border)] rounded-lg">
                 <table
-                    className="min-w-full divide-y divide-white/10"
+                    className="min-w-full divide-y divide-[var(--ui-border)]"
                     {...props}
                 />
             </div>
         ),
         thead: ({ ...props }: any) => (
-            <thead className="bg-white/5" {...props} />
+            <thead className="bg-[var(--ui-bg)]" {...props} />
         ),
         th: ({ ...props }: any) => (
             <th
-                className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                className="px-3 py-2 text-left text-xs font-medium text-[var(--ui-fg-muted)] uppercase tracking-wider"
                 {...props}
             />
         ),
         tbody: ({ ...props }: any) => (
-            <tbody className="divide-y divide-white/5" {...props} />
+            <tbody className="divide-y divide-[var(--ui-border)]" {...props} />
         ),
         tr: ({ ...props }: any) => (
-            <tr className="hover:bg-white/5 transition-colors" {...props} />
+            <tr
+                className="hover:bg-[var(--ui-bg)] transition-colors"
+                {...props}
+            />
         ),
         td: ({ ...props }: any) => (
             <td
-                className="px-3 py-2 text-sm text-gray-300 whitespace-pre-wrap"
+                className="px-3 py-2 text-sm text-[var(--ui-fg-muted)] whitespace-pre-wrap"
                 {...props}
             />
         ),
     }
 
     return (
-        <div className="w-full h-full bg-[#000000] text-[#cccccc] overflow-y-auto font-sans">
+        <div className="w-full h-full bg-[var(--background)] text-[var(--ui-fg)] overflow-y-auto font-sans">
             {/* Header */}
-            <div className="border-b border-white/5 p-8">
+            <div className="border-b border-[var(--ui-border)] p-8">
                 <div className="flex items-start gap-6">
                     {/* Icon */}
-                    <div className="w-32 h-32 rounded-lg bg-[#1a1a1a] border border-white/5 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-lg">
+                    <div className="w-32 h-32 rounded-lg bg-[var(--ui-bg)] border border-[var(--ui-border)] flex-shrink-0 flex items-center justify-center overflow-hidden shadow-lg">
                         {extension.files?.icon ? (
                             <img
                                 src={extension.files.icon}
@@ -247,7 +259,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                         ) : (
                             <FontAwesomeIcon
                                 icon={faBoxOpen}
-                                className="text-5xl text-gray-600"
+                                className="text-5xl text-[var(--ui-fg-muted)]"
                             />
                         )}
                     </div>
@@ -256,10 +268,10 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                     <div className="flex-1">
                         <div className="flex justify-between items-start">
                             <div>
-                                <h1 className="text-3xl font-semibold text-white mb-2">
+                                <h1 className="text-3xl font-semibold text-[var(--ui-fg)] mb-2">
                                     {extension.displayName || extension.name}
                                 </h1>
-                                <div className="text-sm text-gray-500 mb-4 flex items-center gap-2">
+                                <div className="text-sm text-[var(--ui-fg-muted)] mb-4 flex items-center gap-2">
                                     <FontAwesomeIcon
                                         icon={faCheckCircle}
                                         className="text-blue-500"
@@ -269,12 +281,12 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                             </div>
                         </div>
 
-                        <p className="text-base text-gray-300 mb-6 leading-relaxed max-w-3xl">
+                        <p className="text-base text-[var(--ui-fg-muted)] mb-6 leading-relaxed max-w-3xl">
                             {extension.description}
                         </p>
 
                         {/* Stats */}
-                        <div className="flex items-center gap-6 text-sm text-gray-500 mb-6">
+                        <div className="flex items-center gap-6 text-sm text-[var(--ui-fg-muted)] mb-6">
                             {extension.downloadCount !== undefined && (
                                 <div className="flex items-center gap-2">
                                     <FontAwesomeIcon icon={faDownload} />
@@ -313,14 +325,14 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                             {isInstalled ? (
                                 <button
                                     onClick={handleUninstall}
-                                    className="px-6 py-2 text-sm font-medium bg-[#0e639c] text-white rounded hover:bg-[#1177bb] transition-colors shadow-sm"
+                                    className="px-6 py-2 text-sm font-medium bg-[var(--accent)] text-white rounded hover:brightness-110 transition-all shadow-sm"
                                 >
                                     Uninstall
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleInstall}
-                                    className="px-6 py-2 text-sm font-medium bg-[#0e639c] text-white rounded hover:bg-[#1177bb] transition-colors shadow-sm"
+                                    className="px-6 py-2 text-sm font-medium bg-[var(--accent)] text-white rounded hover:brightness-110 transition-all shadow-sm"
                                 >
                                     Install
                                 </button>
@@ -330,7 +342,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                     href={extension.files.download}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-6 py-2 text-sm font-medium bg-white/5 text-gray-300 border border-white/5 rounded hover:bg-white/10 transition-colors inline-flex items-center gap-2"
+                                    className="px-6 py-2 text-sm font-medium bg-[var(--ui-bg)] text-[var(--ui-fg)] border border-[var(--ui-border)] rounded hover:bg-[var(--sidebar-bg)] transition-colors inline-flex items-center gap-2"
                                 >
                                     <FontAwesomeIcon icon={faDownload} />
                                     Download VSIX
@@ -342,7 +354,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
             </div>
 
             {/* Tabs */}
-            <div className="border-b border-white/5 px-8 sticky top-0 bg-[#000000]/95 backdrop-blur z-10">
+            <div className="border-b border-[var(--ui-border)] px-8 sticky top-0 bg-[var(--background)]/95 backdrop-blur z-10">
                 <div className="flex gap-8">
                     {['details', 'changelog', 'dependencies'].map((tab) => (
                         <button
@@ -350,8 +362,8 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                             onClick={() => setActiveTab(tab as any)}
                             className={`py-4 text-sm font-medium capitalize border-b-2 transition-colors ${
                                 activeTab === tab
-                                    ? 'text-white border-[#0e639c]'
-                                    : 'text-gray-500 border-transparent hover:text-gray-300'
+                                    ? 'text-[var(--ui-fg)] border-[var(--accent)]'
+                                    : 'text-[var(--ui-fg-muted)] border-transparent hover:text-[var(--ui-fg)]'
                             }`}
                         >
                             {tab}
@@ -366,7 +378,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                     <div className="flex items-center justify-center py-12">
                         <FontAwesomeIcon
                             icon={faSpinner}
-                            className="animate-spin text-2xl text-[#0e639c]"
+                            className="animate-spin text-2xl text-[var(--accent)]"
                         />
                     </div>
                 ) : (
@@ -391,20 +403,20 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-gray-500 italic mb-12">
+                                    <div className="text-[var(--ui-fg-muted)] italic mb-12">
                                         No README available.
                                     </div>
                                 )}
 
                                 {/* Metadata Sidebar Type Info */}
-                                <div className="grid grid-cols-[200px_1fr] gap-4 text-sm border-t border-white/5 pt-8">
+                                <div className="grid grid-cols-[200px_1fr] gap-4 text-sm border-t border-[var(--ui-border)] pt-8">
                                     {extension.categories &&
                                         extension.categories.length > 0 && (
                                             <>
-                                                <div className="text-gray-500">
+                                                <div className="text-[var(--ui-fg-muted)]">
                                                     Categories
                                                 </div>
-                                                <div className="text-gray-300">
+                                                <div className="text-[var(--ui-fg)]">
                                                     {extension.categories.join(
                                                         ', '
                                                     )}
@@ -414,20 +426,20 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                     {extension.tags &&
                                         extension.tags.length > 0 && (
                                             <>
-                                                <div className="text-gray-500">
+                                                <div className="text-[var(--ui-fg-muted)]">
                                                     Tags
                                                 </div>
-                                                <div className="text-gray-300">
+                                                <div className="text-[var(--ui-fg)]">
                                                     {extension.tags.join(', ')}
                                                 </div>
                                             </>
                                         )}
                                     {extension.publishedDate && (
                                         <>
-                                            <div className="text-gray-500">
+                                            <div className="text-[var(--ui-fg-muted)]">
                                                 Published
                                             </div>
-                                            <div className="text-gray-300">
+                                            <div className="text-[var(--ui-fg)]">
                                                 {formatDate(
                                                     extension.publishedDate
                                                 )}
@@ -436,10 +448,10 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                     )}
                                     {extension.lastUpdated && (
                                         <>
-                                            <div className="text-gray-500">
+                                            <div className="text-[var(--ui-fg-muted)]">
                                                 Last Updated
                                             </div>
-                                            <div className="text-gray-300">
+                                            <div className="text-[var(--ui-fg)]">
                                                 {formatDate(
                                                     extension.lastUpdated
                                                 )}
@@ -448,16 +460,20 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                     )}
                                     {extension.namespace && (
                                         <>
-                                            <div className="text-gray-500">
+                                            <div className="text-[var(--ui-fg-muted)]">
                                                 Publisher
                                             </div>
-                                            <div className="text-gray-300 hover:text-[#0e639c] cursor-pointer transition-colors">
+                                            <div className="text-[var(--ui-fg)] hover:text-[var(--accent)] cursor-pointer transition-colors">
                                                 {extension.namespace}
                                             </div>
                                         </>
                                     )}
-                                    <div className="text-gray-500">License</div>
-                                    <div className="text-gray-300">MIT</div>
+                                    <div className="text-[var(--ui-fg-muted)]">
+                                        License
+                                    </div>
+                                    <div className="text-[var(--ui-fg)]">
+                                        MIT
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -468,7 +484,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                     <div className="flex items-center justify-center py-12">
                                         <FontAwesomeIcon
                                             icon={faSpinner}
-                                            className="animate-spin text-2xl text-[#0e639c]"
+                                            className="animate-spin text-2xl text-[var(--accent)]"
                                         />
                                     </div>
                                 ) : changelog ? (
@@ -483,7 +499,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                         </ReactMarkdown>
                                     </div>
                                 ) : (
-                                    <div className="text-gray-500 italic mb-12">
+                                    <div className="text-[var(--ui-fg-muted)] italic mb-12">
                                         No changelog available.
                                     </div>
                                 )}
@@ -494,7 +510,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                             <div className="animate-in fade-in duration-300">
                                 {dependencies.length > 0 ? (
                                     <div className="space-y-4">
-                                        <p className="text-gray-400 mb-4">
+                                        <p className="text-[var(--ui-fg-muted)] mb-4">
                                             This extension depends on the
                                             following extensions:
                                         </p>
@@ -502,11 +518,11 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                             {dependencies.map((dep) => (
                                                 <li
                                                     key={dep}
-                                                    className="flex items-center gap-2 text-gray-300 bg-white/5 p-3 rounded"
+                                                    className="flex items-center gap-2 text-[var(--ui-fg)] bg-[var(--ui-bg)] p-3 rounded"
                                                 >
                                                     <FontAwesomeIcon
                                                         icon={faBoxOpen}
-                                                        className="text-[#0e639c]"
+                                                        className="text-[var(--accent)]"
                                                     />
                                                     {dep}
                                                 </li>
@@ -514,7 +530,7 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                         </ul>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                                    <div className="flex flex-col items-center justify-center py-12 text-[var(--ui-fg-muted)]">
                                         <FontAwesomeIcon
                                             icon={faCheckCircle}
                                             className="text-4xl mb-4 opacity-50"

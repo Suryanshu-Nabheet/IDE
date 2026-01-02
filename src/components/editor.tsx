@@ -391,14 +391,16 @@ export function Page({ tid }: { tid: number }) {
                 page = <ExtensionDetail key={extId} extension={extension} />
             } catch (e) {
                 page = (
-                    <div style={{ padding: '20px', color: '#cccccc' }}>
+                    <div
+                        style={{ padding: '20px', color: 'var(--ui-fg-muted)' }}
+                    >
                         Error loading extension details
                     </div>
                 )
             }
         } else {
             page = (
-                <div style={{ padding: '20px', color: '#cccccc' }}>
+                <div style={{ padding: '20px', color: 'var(--ui-fg-muted)' }}>
                     Extension not found
                 </div>
             )

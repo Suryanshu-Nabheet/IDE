@@ -41,8 +41,8 @@ const codexEditorTheme = EditorView.theme(
         // Root editor - VS Code Style (Black)
         '&': {
             color: VSCODE_DARK_COLORS.foreground,
-            backgroundColor: VSCODE_DARK_COLORS.background, // User Requested Black
-            fontSize: typography.fontSize.base,
+            backgroundColor: 'var(--background, #000000)',
+            fontSize: 'var(--editor-font-size, 14px)',
             fontFamily: typography.fontFamilyMono,
             height: '100%',
         },
