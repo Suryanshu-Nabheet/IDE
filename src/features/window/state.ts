@@ -146,6 +146,7 @@ export interface State {
     isNotFirstTime: boolean
     terminalOpen: boolean
     recentProjects: string[]
+    fileDiagnostics: { [key: string]: any[] }
 }
 
 export interface DiffSpan {
@@ -475,6 +476,7 @@ export const initialState = {
     isNotFirstTime: true,
     terminalOpen: false,
     recentProjects: [],
+    fileDiagnostics: {},
 } as State
 
 export function nextValue(keys: string[]) {

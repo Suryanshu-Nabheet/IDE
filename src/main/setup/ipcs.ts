@@ -743,6 +743,7 @@ export default function setupIpcs() {
                                 : undefined,
                         },
                         ...packageJson,
+                        path: extPath,
                     })
                 } catch (e) {
                     log.error(`Failed to parse extension ${dir}`, e)

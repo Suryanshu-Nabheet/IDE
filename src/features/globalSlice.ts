@@ -1030,6 +1030,14 @@ const globalSlice = createSlice({
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
+        setFileDiagnostics(
+            stobj: object,
+            action: PayloadAction<{ filePath: string; diagnostics: any[] }>
+        ) {
+            const state = <State>stobj
+            const { filePath, diagnostics } = action.payload
+            state.fileDiagnostics[filePath] = diagnostics
+        },
         insertMultiTabAndSetActive(stobj: object) {
             const state = <State>stobj
             const paneId = getActivePaneID(state)!
@@ -1643,7 +1651,9 @@ export const {
     setRecentProjects,
     closeRateLimit,
     openRateLimit,
+
     cancelRename,
+    setFileDiagnostics,
 } = globalSlice.actions
 
 export default globalSlice.reducer

@@ -3,6 +3,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 export interface Extension {
     id?: string
     extensionId?: string
+    path?: string
     namespace?: string
     name?: string
     displayName?: string
@@ -245,20 +246,109 @@ export const initializeExtensions = createAsyncThunk(
     'extensions/initialize',
     async (_, { dispatch }) => {
         // @ts-ignore
-        const extensions = await connector.getInstalledExtensions()
+        const extensions: Extension[] = await connector.getInstalledExtensions()
         dispatch(loadInstalledExtensions(extensions))
 
+        const delimiter = (window as any).connector?.PLATFORM_DELIMITER || '/'
+
         // Check for themes and add them
-        extensions.forEach((ext: any) => {
-            if (ext.contributes && ext.contributes.themes) {
-                // We would need to load the theme file content here.
-                // For now, let's just make sure installed extensions are listed.
+        for (const ext of extensions) {
+            // @ts-ignore
+            if (ext.contributes && ext.contributes.themes && ext.path) {
+                // @ts-ignore
+                for (const theme of ext.contributes.themes) {
+                    try {
+                        const themePath = [ext.path, theme.path].join(delimiter)
+                        // @ts-ignore
+                        const content = await connector.getFile(themePath)
+                        if (content) {
+                            const themeJson = JSON.parse(content)
+                            const themeData =
+                                mapVSCodeThemeToThemeData(themeJson)
+                            dispatch(
+                                addCustomTheme({
+                                    name: theme.id || theme.label || ext.name,
+                                    theme: themeData,
+                                })
+                            )
+                        }
+                    } catch (e) {
+                        console.error('Failed to load theme:', theme, e)
+                    }
+                }
             }
-        })
+        }
 
         return extensions
     }
 )
+
+function mapVSCodeThemeToThemeData(vscodeTheme: any): ThemeData {
+    const colors = vscodeTheme.colors || {}
+    const tokenColors = vscodeTheme.tokenColors || []
+
+    const findTokenColor = (scope: string) => {
+        for (const token of tokenColors) {
+            if (
+                Array.isArray(token.scope)
+                    ? token.scope.includes(scope)
+                    : token.scope === scope
+            ) {
+                return token.settings.foreground
+            }
+        }
+        return null
+    }
+
+    return {
+        type: vscodeTheme.type === 'light' ? 'light' : 'dark',
+        colors: {
+            background: colors['editor.background'] || '#000000',
+            foreground: colors['editor.foreground'] || '#CCCCCC',
+            cursor: colors['editorCursor.foreground'] || '#FFFFFF',
+            selection: colors['editor.selectionBackground'] || '#264F78',
+            lineHighlight:
+                colors['editor.lineHighlightBackground'] || '#FFFFFF0B',
+            // Simple syntax mapping
+            keyword:
+                findTokenColor('keyword') ||
+                colors['editor.foreground'] ||
+                '#569CD6',
+            string:
+                findTokenColor('string') ||
+                colors['editor.foreground'] ||
+                '#CE9178',
+            number:
+                findTokenColor('constant.numeric') ||
+                colors['editor.foreground'] ||
+                '#B5CEA8',
+            function:
+                findTokenColor('entity.name.function') ||
+                colors['editor.foreground'] ||
+                '#DCDCAA',
+            variable:
+                findTokenColor('variable') ||
+                colors['editor.foreground'] ||
+                '#9CDCFE',
+            type:
+                findTokenColor('entity.name.type') ||
+                colors['editor.foreground'] ||
+                '#4EC9B0',
+            comment:
+                findTokenColor('comment') ||
+                colors['editor.foreground'] ||
+                '#6A9955',
+            tag:
+                findTokenColor('entity.name.tag') ||
+                colors['editor.foreground'] ||
+                '#569CD6',
+            attribute:
+                findTokenColor('entity.other.attribute-name') ||
+                colors['editor.foreground'] ||
+                '#9CDCFE',
+        },
+    }
+}
 
 export const extensionsSlice = createSlice({
     name: 'extensions',

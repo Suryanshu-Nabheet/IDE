@@ -9,6 +9,7 @@ import {
 } from '@fortawesome/pro-regular-svg-icons'
 import { useAppSelector } from '../app/hooks'
 import { getRootPath, getCurrentFileId } from '../features/selectors'
+import { getSettings } from '../features/settings/settingsSelectors'
 
 export const StatusBar = () => {
     const rootPath = useAppSelector(getRootPath)
@@ -28,6 +29,7 @@ export const StatusBar = () => {
         lineEnding: 'LF',
         indentation: 'Spaces: 4',
     })
+    const settings = useAppSelector(getSettings)
 
     // Fetch Git information
     const fetchGitInfo = async () => {
@@ -73,7 +75,7 @@ export const StatusBar = () => {
         let warnings = 0
 
         // Check if we have diagnostics for this file
-        const diagnostics = (state as any).fileDiagnostics?.[filePath] || []
+        const diagnostics = state.fileDiagnostics?.[filePath] || []
         diagnostics.forEach((diag: any) => {
             if (diag.severity === 1) errors++ // Error
             else if (diag.severity === 2) warnings++ // Warning
@@ -141,7 +143,7 @@ export const StatusBar = () => {
                 language,
                 encoding: 'UTF-8',
                 lineEnding: 'LF',
-                indentation: 'Spaces: 4',
+                indentation: `Spaces: ${settings.tabSize || 4}`,
             })
         }
     }, [activeFileId])
