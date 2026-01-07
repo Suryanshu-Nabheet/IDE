@@ -45,6 +45,22 @@ import * as cs from '../chat/chatSlice'
 import * as csel from '../chat/chatSelectors'
 import { setMaxOrigLine } from '../chat/chatSlice'
 
+// Safe accessor for connector (fallback to window.connector if global connector is not available)
+const getConnector = () => {
+    if (typeof connector !== 'undefined') {
+        return connector
+    }
+    if (typeof window !== 'undefined' && (window as any).connector) {
+        return (window as any).connector
+    }
+    // Fallback values if connector is not available
+    return {
+        IS_WINDOWS: false,
+        PLATFORM_META_KEY: '⌘',
+        PLATFORM_CM_KEY: 'Mod',
+    } as any
+}
+
 function chunkEqual(a: Diff.Change, b: Diff.Change) {
     return (
         !!a.added === !!b.added &&
@@ -222,6 +238,7 @@ function chunkLocationToTooltip({
         arrow: false,
         create: (view: EditorView) => {
             const wrap = document.createElement('div')
+            const conn = getConnector()
 
             wrap.setAttribute('aria-hidden', 'true')
             wrap.className = 'cm-accept-reject-subdiff'
@@ -233,10 +250,10 @@ function chunkLocationToTooltip({
             const acceptShortcutSpan = document.createElement('span')
             acceptShortcutSpan.innerHTML =
                 `<span class="${
-                    connector.IS_WINDOWS
+                    conn.IS_WINDOWS
                         ? 'windows-platform-shotcut-span-sm'
                         : 'not-windows-platform-shotcut-span-sm'
-                }">${connector.PLATFORM_META_KEY}</span>` + 'y'
+                }">${conn.PLATFORM_META_KEY}</span>` + 'y'
             acceptShortcutSpan.classList.add('shortcut-span-sm')
             acceptDiv.appendChild(acceptSpan)
             acceptDiv.appendChild(acceptShortcutSpan)
@@ -252,10 +269,10 @@ function chunkLocationToTooltip({
             const rejectShortcutSpan = document.createElement('span')
             rejectShortcutSpan.innerHTML =
                 `<span class="${
-                    connector.IS_WINDOWS
+                    conn.IS_WINDOWS
                         ? 'windows-platform-shotcut-span-sm'
                         : 'not-windows-platform-shotcut-span-sm'
-                }">${connector.PLATFORM_META_KEY}</span>` + 'n'
+                }">${conn.PLATFORM_META_KEY}</span>` + 'n'
             rejectShortcutSpan.classList.add('shortcut-span-sm')
             rejectDiv.appendChild(rejectSpan)
             rejectDiv.appendChild(rejectShortcutSpan)
@@ -765,12 +782,13 @@ function loadingDom(view: EditorView, diffId: string) {
     const cancelText = document.createElement('div')
     cancelText.textContent = 'Cancel'
     const cancelShortcutSpan = document.createElement('span')
+    const conn = getConnector()
     cancelShortcutSpan.innerHTML =
         `<span class="${
-            connector.IS_WINDOWS
+            conn.IS_WINDOWS
                 ? 'windows-platform-shotcut-span'
                 : 'not-windows-platform-shotcut-span'
-        }">${connector.PLATFORM_META_KEY}</span>` + '⌫'
+        }">${conn.PLATFORM_META_KEY}</span>` + '⌫'
     cancelShortcutSpan.classList.add('shortcut-span')
     cancelButton.appendChild(cancelText)
     cancelButton.appendChild(cancelShortcutSpan)
@@ -811,6 +829,7 @@ function acceptRejectDom(
     hitTokenLimit: boolean
 ) {
     const wrap = document.createElement('div')
+    const conn = getConnector()
     wrap.setAttribute('aria-hidden', 'true')
     wrap.className = 'cm-accept-reject'
 
@@ -821,10 +840,10 @@ function acceptRejectDom(
     const acceptShortcutSpan = document.createElement('span')
     acceptShortcutSpan.innerHTML =
         `<span class="${
-            connector.IS_WINDOWS
+            conn.IS_WINDOWS
                 ? 'windows-platform-shotcut-span'
                 : 'not-windows-platform-shotcut-span'
-        }">${connector.PLATFORM_META_KEY}</span>` + '⏎'
+        }">${conn.PLATFORM_META_KEY}</span>` + '⏎'
     acceptShortcutSpan.classList.add('shortcut-span')
     acceptDiv.appendChild(acceptSpan)
     acceptDiv.appendChild(acceptShortcutSpan)
@@ -840,10 +859,10 @@ function acceptRejectDom(
     const rejectShortcutSpan = document.createElement('span')
     rejectShortcutSpan.innerHTML =
         `<span class="${
-            connector.IS_WINDOWS
+            conn.IS_WINDOWS
                 ? 'windows-platform-shotcut-span'
                 : 'not-windows-platform-shotcut-span'
-        }">${connector.PLATFORM_META_KEY}</span>` + '⌫'
+        }">${conn.PLATFORM_META_KEY}</span>` + '⌫'
     rejectShortcutSpan.classList.add('shortcut-span')
     rejectDiv.appendChild(rejectSpan)
     rejectDiv.appendChild(rejectShortcutSpan)
@@ -1621,7 +1640,7 @@ export const diffExtension = [
         keymap.of([
             {
                 // Enter
-                key: connector.PLATFORM_CM_KEY + '-Enter',
+                key: getConnector().PLATFORM_CM_KEY + '-Enter',
                 run: (view) => {
                     const state = view.state
                     // is active diff
@@ -1636,7 +1655,7 @@ export const diffExtension = [
             },
             {
                 // backspacende
-                key: connector.PLATFORM_CM_KEY + '-Backspace',
+                key: getConnector().PLATFORM_CM_KEY + '-Backspace',
                 run: (view) => {
                     const state = view.state
                     const diff = state.field(diffField)
@@ -1682,7 +1701,7 @@ export const diffExtension = [
 
             {
                 // k
-                key: connector.PLATFORM_CM_KEY + '-k',
+                key: getConnector().PLATFORM_CM_KEY + '-k',
                 run: (view) => {
                     const state = view.state
                     // is active diff
@@ -1707,20 +1726,20 @@ export const diffExtension = [
                 },
             },
             {
-                key: connector.PLATFORM_CM_KEY + '-1',
+                key: getConnector().PLATFORM_CM_KEY + '-1',
                 run: (view) => {
                     return changeDiffFocus(view, 'up')
                 },
             },
             {
-                key: connector.PLATFORM_CM_KEY + '-2',
+                key: getConnector().PLATFORM_CM_KEY + '-2',
                 run: (view) => {
                     return changeDiffFocus(view, 'down')
                 },
             },
             {
                 // cmd-y
-                key: connector.PLATFORM_CM_KEY + '-y',
+                key: getConnector().PLATFORM_CM_KEY + '-y',
                 run: (view) => {
                     return maybeAcceptRejectSubDiff({ typeRemoved: 'removed' })(
                         view
@@ -1729,7 +1748,7 @@ export const diffExtension = [
             },
             {
                 // cmd-n
-                key: connector.PLATFORM_CM_KEY + '-n',
+                key: getConnector().PLATFORM_CM_KEY + '-n',
                 run: (view) => {
                     return maybeAcceptRejectSubDiff({ typeRemoved: 'added' })(
                         view
