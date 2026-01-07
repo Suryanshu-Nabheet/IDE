@@ -149,7 +149,7 @@ function dispatchChange(cm: CodeMirror, transaction: any) {
                 if (note.value == 'input') note.value = type
             })
         } catch (e) {
-            console.error(e)
+            // CM adapter error
         }
     } else {
         transaction.userEvent = type

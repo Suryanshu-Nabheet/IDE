@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { Terminal } from 'xterm'
+// @ts-ignore - xterm-addon-fit types issue
 import { FitAddon } from 'xterm-addon-fit'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { SearchAddon } from 'xterm-addon-search'
@@ -7,173 +8,79 @@ import 'xterm/css/xterm.css'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { FullState } from '../features/window/state'
 import * as gs from '../features/globalSlice'
-import * as ssel from '../features/settings/settingsSelectors' // Import settings selectors
+import * as ssel from '../features/settings/settingsSelectors'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faTerminal } from '@fortawesome/free-solid-svg-icons'
+import { faTimes, faChevronUp } from '@fortawesome/free-solid-svg-icons'
 import { throttleCallback } from './componentUtils'
-
-// --- Configuration ---
-
-const THEME = {
-    background: '#000000',
-    foreground: '#d4d4d4',
-    cursor: '#ffffff',
-    selection: '#264f78',
-    black: '#000000',
-    red: '#cd3131',
-    green: '#0dbc79',
-    yellow: '#e5e510',
-    blue: '#2472c8',
-    magenta: '#bc3fbc',
-    cyan: '#11a8cd',
-    white: '#e5e5e5',
-    brightBlack: '#666666',
-    brightRed: '#f14c4c',
-    brightGreen: '#23d18b',
-    brightYellow: '#f5f543',
-    brightBlue: '#3b8eea',
-    brightMagenta: '#d670d6',
-    brightCyan: '#29b8db',
-    brightWhite: '#ffffff',
-}
-
-const FONT_OPTIONS = {
-    fontFamily:
-        "'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace",
-    fontSize: 13,
-    lineHeight: 1.4,
-    cursorBlink: true,
-    cursorStyle: 'block' as const,
-    allowTransparency: false,
-}
-
-// --- Types ---
-
-interface Session {
-    id: string
-    title: string
-    instance: Terminal
-    fitAddon: FitAddon
-}
-
-// --- Sub-Components ---
-
-/**
- * Renders the top tab bar for the terminal
- */
-
-/**
- * Single Terminal Instance Wrapper
- * Handles layout fitting and attaching to DOM
- */
-const TerminalInstance = ({
-    session,
-    isActive,
-}: {
-    session: Session
-    isActive: boolean
-}) => {
-    const containerRef = useRef<HTMLDivElement>(null)
-    const attachedRef = useRef(false)
-
-    // Retry fitting mainly for when tab switches from hidden->visible
-    const fitTerminal = useCallback(() => {
-        if (!session.fitAddon) return
-
-        let attempts = 0
-        const tryFit = () => {
-            try {
-                session.fitAddon.fit()
-                const dims = session.fitAddon.proposeDimensions()
-
-                // If dimensions are valid, sync with backend
-                if (dims && dims.cols > 0 && dims.rows > 0) {
-                    connector.terminalResize(session.id, dims.cols, dims.rows)
-                } else if (isActive && attempts < 10) {
-                    // If 0x0, DOM might not be painted yet. Retry.
-                    attempts++
-                    setTimeout(tryFit, 50)
-                }
-            } catch (e) {
-                console.warn('Fit error', e)
-            }
-        }
-
-        // Initial try
-        requestAnimationFrame(tryFit)
-    }, [session, isActive])
-
-    // Attach xterm to DOM once
-    useEffect(() => {
-        if (containerRef.current && !attachedRef.current) {
-            session.instance.open(containerRef.current)
-            attachedRef.current = true
-            fitTerminal()
-        }
-    }, [session, fitTerminal])
-
-    // Handle ResizeObserver for this specific instance
-    useEffect(() => {
-        if (!containerRef.current || !isActive) return
-
-        const observer = new ResizeObserver(() => {
-            fitTerminal()
-        })
-
-        observer.observe(containerRef.current)
-
-        // Force fit when becoming active
-        fitTerminal()
-        session.instance.focus()
-
-        return () => observer.disconnect()
-    }, [isActive, session, fitTerminal])
-
-    return (
-        <div
-            ref={containerRef}
-            className="absolute inset-0 bg-black"
-            style={{
-                display: isActive ? 'block' : 'none',
-                // Keep dimensions even when hidden (though display:none overrides, this helps transition)
-                minWidth: '100px',
-                minHeight: '100px',
-                zIndex: isActive ? 10 : 0,
-                paddingLeft: '12px',
-                paddingTop: '8px',
-            }}
-        />
-    )
-}
-
-// --- Main Component ---
 
 export const BottomTerminal: React.FC = () => {
     const dispatch = useAppDispatch()
-    const isOpen = useAppSelector(
-        (state: FullState) => state.global.terminalOpen
-    ) // Redux State
+    const isOpen = useAppSelector((state: FullState) => state.global.terminalOpen)
     const settings = useAppSelector(ssel.getSettings)
     const availableThemes = useAppSelector(
         (state: any) => state.extensionsState.availableThemes
-    ) // Access extensions via any to avoid deep type imports for now
+    )
 
-    // Local State
-    const [session, setSession] = useState<Session | null>(null)
+    const terminalRef = useRef<Terminal | null>(null)
+    const fitAddonRef = useRef<FitAddon | null>(null)
+    const containerRef = useRef<HTMLDivElement | null>(null)
+    const terminalIdRef = useRef<string | null>(null)
+    const observerRef = useRef<ResizeObserver | null>(null)
     const [height, setHeight] = useState(300)
+    const [isDragging, setIsDragging] = useState(false)
+    const [isMaximized, setIsMaximized] = useState(false)
+    const dataHandlerRef = useRef<((_: any, payload: { id: string; data: string }) => void) | null>(null)
+    const exitHandlerRef = useRef<((_: any, payload: { id: string; exitCode: number }) => void) | null>(null)
 
-    // Refs
-    const creatingRef = useRef(false) // Lock for async creation
-
-    // --- Actions ---
-
-    const ensureDefaultSession = useCallback(async () => {
-        if (session || creatingRef.current) return
-        creatingRef.current = true
-
+    const fitTerminal = useCallback(() => {
+        if (!fitAddonRef.current || !containerRef.current || !isOpen) return
         try {
-            // 1. Initialize XTerm
-            const term = new Terminal({ theme: THEME, ...FONT_OPTIONS })
+            fitAddonRef.current.fit()
+            const dims = fitAddonRef.current.proposeDimensions()
+            if (dims && dims.cols > 0 && dims.rows > 0 && terminalIdRef.current) {
+                connector.terminalResize(terminalIdRef.current, dims.cols, dims.rows)
+            }
+        } catch (e) {
+            // Silent error handling
+        }
+    }, [isOpen])
+
+    useEffect(() => {
+        if (!isOpen) {
+            if (observerRef.current) {
+                observerRef.current.disconnect()
+                observerRef.current = null
+            }
+            return
+        }
+
+        if (!terminalRef.current && containerRef.current) {
+            const themeName = settings.theme || 'codex-dark'
+            const theme = availableThemes[themeName]
+            const terminalTheme = theme?.colors
+                ? {
+                      background: theme.colors.background || '#0d0d0d',
+                      foreground: theme.colors.foreground || '#d6d6dd',
+                      cursor: theme.colors.cursor || '#d6d6dd',
+                      selection: theme.colors.selection || '#163761',
+                  }
+                : {
+                      background: '#0d0d0d',
+                      foreground: '#d6d6dd',
+                      cursor: '#d6d6dd',
+                      selection: '#163761',
+                  }
+
+            const term = new Terminal({
+                theme: terminalTheme,
+                fontFamily: settings.fontFamily || "'JetBrains Mono', monospace",
+                fontSize: parseInt(settings.fontSize || '13'),
+                lineHeight: 1.4,
+                cursorBlink: true,
+                cursorStyle: 'block',
+                allowTransparency: false,
+            })
+
             const fitAddon = new FitAddon()
             const linkAddon = new WebLinksAddon((e, url) => {
                 e.preventDefault()
@@ -185,69 +92,122 @@ export const BottomTerminal: React.FC = () => {
             term.loadAddon(linkAddon)
             term.loadAddon(searchAddon)
 
-            // 2. Request Backend Session (Default Shell)
-            const { id } = await connector.terminalCreate(80, 24)
+            term.open(containerRef.current)
+            terminalRef.current = term
+            fitAddonRef.current = fitAddon
 
-            // 3. Setup Input Handling
-            term.onData((data) => {
-                connector.terminalInto(id, data)
+            connector.terminalCreate(80, 24).then((result: { id: string }) => {
+                terminalIdRef.current = result.id
+                term.onData((data) => {
+                    connector.terminalInto(result.id, data)
+                })
+                setTimeout(() => {
+                    fitTerminal()
+                    term.focus()
+                }, 100)
+            }).catch(() => {
+                // Silent error handling
             })
-
-            const newSession: Session = {
-                id,
-                title: 'Terminal',
-                instance: term,
-                fitAddon,
-            }
-
-            setSession(newSession)
-        } catch (err) {
-            console.error('Failed to load Terminal:', err)
-            // Retry after delay if failed (backend might not be ready)
+        } else if (terminalRef.current && isOpen) {
             setTimeout(() => {
-                creatingRef.current = false
-                ensureDefaultSession()
-            }, 1000)
-        } finally {
-            creatingRef.current = false
+                fitTerminal()
+                terminalRef.current?.focus()
+            }, 50)
         }
-    }, [session])
+    }, [isOpen, settings, availableThemes, fitTerminal])
 
-    // --- Effects ---
-
-    // 1. Initial Creation & Auto-Recovery
     useEffect(() => {
-        if (isOpen && !session) {
-            ensureDefaultSession()
-        }
-    }, [isOpen, session, ensureDefaultSession])
+        if (!dataHandlerRef.current) {
+            const dataHandler = (_: any, payload: { id: string; data: string }) => {
+                if (terminalRef.current && terminalIdRef.current === payload.id) {
+                    try {
+                        terminalRef.current.write(payload.data)
+                    } catch (e) {
+                        // Silent error handling
+                    }
+                }
+            }
 
-    // 2. Global Event Listener (Singleton)
-    useEffect(() => {
-        const onData = (_: any, { id, data }: { id: string; data: string }) => {
-            if (session && session.id === id) {
-                session.instance.write(data)
+            const exitHandler = (_: any, payload: { id: string; exitCode: number }) => {
+                if (terminalIdRef.current === payload.id) {
+                    try {
+                        if (terminalRef.current) {
+                            terminalRef.current.dispose()
+                            terminalRef.current = null
+                        }
+                        if (fitAddonRef.current) {
+                            fitAddonRef.current = null
+                        }
+                        terminalIdRef.current = null
+                    } catch (e) {
+                        // Silent error handling
+                    }
+                }
+            }
+
+            connector.registerIncData(dataHandler)
+            connector.registerTerminalExited(exitHandler)
+            dataHandlerRef.current = dataHandler
+            exitHandlerRef.current = exitHandler
+
+            return () => {
+                if (dataHandlerRef.current) {
+                    connector.deregisterIncData(dataHandlerRef.current)
+                    dataHandlerRef.current = null
+                }
+                if (exitHandlerRef.current) {
+                    connector.deregisterTerminalExited(exitHandlerRef.current)
+                    exitHandlerRef.current = null
+                }
             }
         }
+    }, [])
 
-        const onExit = (_: any, { id }: { id: string }) => {
-            if (session && session.id === id) {
-                session.instance.dispose()
-                setSession(null)
-                // Effect 1 will trigger re-creation because session is now null
+    useEffect(() => {
+        if (!containerRef.current || !isOpen) {
+            if (observerRef.current) {
+                observerRef.current.disconnect()
+                observerRef.current = null
             }
+            return
         }
 
-        connector.registerIncData(onData)
-        connector.registerTerminalExited(onExit)
+        const observer = new ResizeObserver(() => {
+            fitTerminal()
+        })
+
+        observer.observe(containerRef.current)
+        observerRef.current = observer
+        fitTerminal()
 
         return () => {
-            connector.deregisterIncData(onData)
-            connector.deregisterTerminalExited(onExit)
+            if (observerRef.current) {
+                observerRef.current.disconnect()
+                observerRef.current = null
+            }
         }
-    }, [session])
+    }, [isOpen, fitTerminal])
 
-    // 3. ShortCuts
+    useEffect(() => {
+        if (terminalRef.current) {
+            const fontFamily = settings.fontFamily || "'JetBrains Mono', monospace"
+            const fontSize = parseInt(settings.fontSize || '13')
+            terminalRef.current.options.fontFamily = fontFamily
+            terminalRef.current.options.fontSize = fontSize
+
+            const themeName = settings.theme || 'codex-dark'
+            const theme = availableThemes[themeName]
+            if (theme?.colors) {
+                terminalRef.current.options.theme = {
+                    background: theme.colors.background || '#0d0d0d',
+                    foreground: theme.colors.foreground || '#d6d6dd',
+                    cursor: theme.colors.cursor || '#d6d6dd',
+                    selection: theme.colors.selection || '#163761',
+                }
+            }
+        }
+    }, [settings, availableThemes])
+
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === '`') {
@@ -258,94 +218,84 @@ export const BottomTerminal: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKey)
     }, [dispatch])
 
-    // 4. Sync Settings (Font & Theme)
-    useEffect(() => {
-        if (!session || !session.instance) return
-
-        // Font
-        const fontFamily = settings.fontFamily || "'JetBrains Mono', monospace"
-        const fontSize = parseInt(settings.fontSize || '13')
-
-        session.instance.options.fontFamily = fontFamily
-        session.instance.options.fontSize = fontSize
-
-        // Theme
-        const themeName = settings.theme || 'codex-dark'
-        const theme = availableThemes[themeName]
-
-        if (theme && theme.colors) {
-            session.instance.options.theme = {
-                background: theme.colors.background,
-                foreground: theme.colors.foreground,
-                cursor: theme.colors.cursor,
-                selection: theme.colors.selection,
-                // We rely on default ANSI colors for the rest unless theme defines them,
-                // but background/foreground are the most important for consistency.
-            }
-        }
-    }, [settings, session, availableThemes])
-
-    // --- Dragging Logic ---
-    const [isDragging, setIsDragging] = useState(false)
     useEffect(() => {
         const handleMove = throttleCallback((e: MouseEvent) => {
             if (!isDragging) return
             const newHeight = window.innerHeight - e.clientY
-            setHeight(
-                Math.max(100, Math.min(newHeight, window.innerHeight - 50))
-            )
+            setHeight(Math.max(100, Math.min(newHeight, window.innerHeight - 50)))
         }, 10)
+
         const handleUp = () => setIsDragging(false)
 
         if (isDragging) {
             window.addEventListener('mousemove', handleMove)
             window.addEventListener('mouseup', handleUp)
         }
+
         return () => {
             window.removeEventListener('mousemove', handleMove)
             window.removeEventListener('mouseup', handleUp)
         }
     }, [isDragging])
 
+    useEffect(() => {
+        return () => {
+            if (terminalRef.current) {
+                try {
+                    terminalRef.current.dispose()
+                } catch (e) {
+                    // Silent error handling
+                }
+                terminalRef.current = null
+            }
+            if (terminalIdRef.current) {
+                try {
+                    connector.terminalKill(terminalIdRef.current)
+                } catch (e) {
+                    // Silent error handling
+                }
+                terminalIdRef.current = null
+            }
+            if (observerRef.current) {
+                observerRef.current.disconnect()
+                observerRef.current = null
+            }
+        }
+    }, [])
+
     if (!isOpen) return null
 
+    const maxHeight = isMaximized ? window.innerHeight - 50 : height
+
     return (
-        <div
-            className="flex flex-col w-full bg-[var(--background)] border-t border-[var(--pane-border)]"
-            style={{ height: height }}
-        >
-            {/* Dragger */}
+        <div className="terminal-container" style={{ height: `${maxHeight}px` }}>
             <div
-                className="w-full h-1 bg-transparent hover:bg-accent cursor-row-resize transition-all opacity-0 hover:opacity-100"
+                className="terminal-dragger"
                 onMouseDown={() => setIsDragging(true)}
             />
-
-            {/* Header / Tabs Area */}
-            <div className="flex bg-[var(--activity-bar-bg)] h-9 border-b border-[var(--pane-border)] items-center px-4 select-none justify-between">
-                <div className="flex items-center text-[11px] font-bold uppercase tracking-wider text-ui-fg-muted">
-                    <FontAwesomeIcon
-                        icon={faTerminal}
-                        className="mr-2 text-accent"
-                    />
+            <div className="terminal-header">
+                <div className="terminal-title">
                     <span>Terminal</span>
                 </div>
-                <button
-                    onClick={() => dispatch(gs.closeTerminal())}
-                    className="icon-button text-xs"
-                    title="Close Panel"
-                >
-                    <FontAwesomeIcon icon={faTimes} />
-                </button>
+                <div className="terminal-actions">
+                    <button
+                        className="terminal-action-btn"
+                        onClick={() => setIsMaximized(!isMaximized)}
+                        title={isMaximized ? "Restore" : "Maximize"}
+                    >
+                        <FontAwesomeIcon icon={faChevronUp} />
+                    </button>
+                    <button
+                        className="terminal-action-btn"
+                        onClick={() => dispatch(gs.closeTerminal())}
+                        title="Close Panel"
+                    >
+                        <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                </div>
             </div>
-
-            <div className="flex-1 relative bg-black overflow-hidden">
-                {session ? (
-                    <TerminalInstance session={session} isActive={true} />
-                ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-[#666]">
-                        <p className="mb-2">Initializing Local Terminal...</p>
-                    </div>
-                )}
+            <div className="terminal-content">
+                <div ref={containerRef} className="terminal-instance-wrapper" />
             </div>
         </div>
     )

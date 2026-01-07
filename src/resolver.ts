@@ -21,9 +21,9 @@ function getCompilerSetup(rootDir: string) {
         ts.findConfigFile(rootDir, ts.sys.fileExists, 'tsconfig.jest.json')
 
     if (!tsConfigPath) {
-        console.error(
-            `Cannot locate a tsconfig.spec.json. Please create one at ${rootDir}/tsconfig.spec.json`
-        )
+        // No tsconfig found
+        const errorMessage = 'Cannot locate a tsconfig.spec.json. Please create one at ' + rootDir + '/tsconfig.spec.json'
+        throw new Error(errorMessage)
     }
 
     const readResult = ts.readConfigFile(tsConfigPath, ts.sys.readFile)

@@ -306,9 +306,25 @@ export interface Settings {
     useFour: string
     contextType: string
     textWrapping: string
+    // AI Provider Settings
+    aiProvider?: 'openai' | 'openrouter' | 'gemini' | 'claude'
+    // OpenAI
     openAIKey?: string
     useOpenAIKey?: boolean
     openAIModel?: string
+    // OpenRouter
+    openRouterKey?: string
+    useOpenRouterKey?: boolean
+    openRouterModel?: string
+    // Gemini
+    geminiKey?: string
+    useGeminiKey?: boolean
+    geminiModel?: string
+    // Claude
+    claudeKey?: string
+    useClaudeKey?: boolean
+    claudeModel?: string
+    // General
     tabSize?: string
     theme?: string
     fontFamily?: string

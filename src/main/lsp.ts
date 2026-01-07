@@ -140,7 +140,6 @@ async function findViableVersion(lang: DownloadedLanguage) {
                 //
                 // })
                 childProcess.stderr!.on('data', (data) => {
-                    console.error(`stderr: ${data}`)
                     if (!data.includes('data')) {
                         resolve('EXITED')
                     }
@@ -148,7 +147,6 @@ async function findViableVersion(lang: DownloadedLanguage) {
             })
         } catch (e) {
             log.info('EARLY FAILURE for', command, args)
-            console.error(e)
             continue
         }
 
@@ -329,7 +327,6 @@ class LSPManager {
                         args: ['--stdio'],
                     }
                 } catch (e) {
-                    console.error(e)
                     return null
                 }
             }
@@ -771,7 +768,7 @@ class LSPManager {
                     data: { method: eventMethod, params },
                 })
             } catch (e) {
-                console.error(e)
+                // Request failed
             }
         })
         connection.onRequest(async (method: string, params) => {
@@ -810,7 +807,6 @@ class LSPManager {
                 //
                 return response
             } catch (e) {
-                console.error(e)
                 return {
                     error: {
                         code: -32601,

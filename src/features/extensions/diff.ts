@@ -1381,7 +1381,7 @@ export const setDiff =
                     annotations: Transaction.addToHistory.of(useHistory),
                 })
             } catch (e) {
-                console.error(e)
+                // Diff error
             }
             if (useHistory) {
                 // debugger

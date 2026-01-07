@@ -15,8 +15,7 @@ import { getFilePath, getFocusedTab } from '../selectors'
 import { CommentFunction } from '../window/state'
 import { getNamesAndBodies } from './utils'
 
-// Insanely messy but we use the comments piece to find the functions
-// That we can then pass up to tests
+// Comments system for function detection and test integration
 class UpdateTestDirWidget extends WidgetType {
     constructor() {
         super()

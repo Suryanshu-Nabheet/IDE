@@ -191,7 +191,7 @@ export const updateTestsForFile = createAsyncThunk(
                         )
                     }
                 } catch (e) {
-                    console.error(e)
+                    // Test error
                 }
             }
         } else {

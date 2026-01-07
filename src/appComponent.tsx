@@ -8,8 +8,10 @@ import * as ts from './features/tools/toolSlice'
 import * as csel from './features/chat/chatSelectors'
 import * as tsel from './features/tools/toolSelectors'
 import * as ssel from './features/settings/settingsSelectors'
+import { changeSettings } from './features/settings/settingsSlice'
 import { initializeExtensions } from './features/extensions/extensionsSlice'
-// import { store } from './app/store'
+import { store } from './app/store'
+import { syncThemeFromSettings } from './theme/themeSync'
 
 import {
     getFocusedTab,
@@ -69,8 +71,7 @@ export function App() {
                             )
                         )
                         if (e.key != 'Backspace' && e.key != 'Enter') {
-                            // Bug where I'm not sure why this is needed
-                            e.stopPropagation()
+                        e.stopPropagation()
                         }
                     }
                 } else if (e.key == 'e' && e.shiftKey) {
@@ -178,6 +179,26 @@ export function App() {
         (state) => state.extensionsState.availableThemes
     )
 
+    // Initialize settings with .env fallback
+    useEffect(() => {
+        const initializeSettings = async () => {
+            const currentSettings = store.getState().settingsState?.settings || {}
+            
+            // If no provider is set, get default from .env
+            if (!currentSettings.aiProvider && typeof window !== 'undefined' && (window as any).connector) {
+                try {
+                    const defaultProvider = await (window as any).connector.getDefaultAIProvider()
+                    if (defaultProvider) {
+                        dispatch(changeSettings({ aiProvider: defaultProvider }))
+                    }
+                } catch (error) {
+                    // Ignore errors - .env might not be available
+                }
+            }
+        }
+        initializeSettings()
+    }, [dispatch])
+
     // Global Settings Applicator
     useEffect(() => {
         const root = document.documentElement
@@ -198,68 +219,8 @@ export function App() {
             // root.style.setProperty('--font-size-base', `${settings.fontSize}px`)
         }
 
-        // 2. Theme Settings
-        const themeName = settings.theme || 'codex-dark'
-        const theme = availableThemes[themeName]
-
-        if (theme) {
-            const c = theme.colors
-            root.style.setProperty('--background', c.background)
-            root.style.setProperty('--sidebar-bg', c.background)
-            root.style.setProperty('--activity-bar-bg', c.background)
-            root.style.setProperty('--title-bar-background', c.background)
-            root.style.setProperty('--title-bar-background', c.background)
-            root.style.setProperty('--titlebar-fg', c.foreground)
-
-            // Force high contrast for activity bar icons as requested
-            const isDark = theme.type === 'dark'
-            const activeColor = isDark ? '#ffffff' : '#1f1f1f' // White or nearly black
-            const inactiveColor = isDark
-                ? 'rgba(255, 255, 255, 0.4)'
-                : 'rgba(0, 0, 0, 0.4)'
-
-            root.style.setProperty('--activity-bar-fg', activeColor)
-            root.style.setProperty('--activity-bar-fg-muted', inactiveColor)
-
-            // root.style.setProperty('--activity-bar-fg', c.foreground)
-            // root.style.setProperty(
-            //     '--activity-bar-fg-muted',
-            //     `color-mix(in srgb, ${c.foreground}, transparent 50%)`
-            // )
-            root.style.setProperty('--tab-bg', c.background)
-            root.style.setProperty('--ui-bg', c.background)
-            root.style.setProperty('--panel-bg', c.background)
-
-            root.style.setProperty('--text', c.foreground)
-            root.style.setProperty('--ui-fg', c.foreground)
-            root.style.setProperty(
-                '--ui-fg-muted',
-                `color-mix(in srgb, ${c.foreground}, transparent 50%)`
-            )
-
-            root.style.setProperty('--accent', c.keyword)
-            root.style.setProperty('--selection', c.selection)
-
-            root.style.setProperty('--ui-border', c.lineHighlight)
-            root.style.setProperty('--ui-border-subtle', c.lineHighlight)
-            root.style.setProperty('--pane-border', c.lineHighlight)
-            root.style.setProperty('--sidebar-border', c.lineHighlight)
-
-            // Tab Settings
-            root.style.setProperty('--tab-active-bg', c.background)
-            // Use color-mix for inactive tabs to be slightly different from bg
-            const inactiveMix = theme.type === 'dark' ? 'white' : 'black'
-            root.style.setProperty(
-                '--tab-inactive-bg',
-                `color-mix(in srgb, ${c.background}, ${inactiveMix} 8%)`
-            )
-            root.style.setProperty('--tab-border', c.lineHighlight)
-            root.style.setProperty('--tab-hover-bg', c.lineHighlight)
-            root.style.setProperty(
-                '--tab-inactive-font',
-                `color-mix(in srgb, ${c.foreground}, transparent 40%)`
-            )
-        }
+        // 2. Theme Settings - Centralized Theme Sync System
+        syncThemeFromSettings(settings, availableThemes)
     }, [settings, availableThemes])
 
     return (

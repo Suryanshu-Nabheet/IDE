@@ -75,9 +75,9 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                     fetch(data.files.changelog)
                         .then((res) => res.text())
                         .then((text) => setChangelog(text))
-                        .catch((err) =>
-                            console.error('Failed to fetch changelog', err)
-                        )
+                        .catch(() => {
+                            // Failed to fetch changelog
+                        })
                         .finally(() => setFetchingChangelog(false))
                 }
 
@@ -95,12 +95,12 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                                 setDependencies([])
                             }
                         })
-                        .catch((err) =>
-                            console.error('Failed to fetch manifest', err)
-                        )
+                        .catch(() => {
+                            // Failed to fetch manifest
+                        })
                 }
             } catch (error) {
-                console.error('Failed to fetch extension details:', error)
+                // Failed to fetch extension details
             } finally {
                 setLoading(false)
             }

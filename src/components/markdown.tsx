@@ -33,7 +33,8 @@ import { diffExtension } from '../features/extensions/diff'
 import * as cs from '../features/chat/chatSlice'
 import * as ct from '../features/chat/chatThunks'
 
-import { codexTheme } from '../theme/codexTheme'
+import { getCodexTheme } from '../theme/codexTheme'
+import { getSettings } from '../features/settings/settingsSelectors'
 import { vim } from './codemirror-vim'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopy } from '@fortawesome/sharp-solid-svg-icons'
@@ -96,10 +97,18 @@ export function CodeBlock({
     const ref = useRef<HTMLDivElement>(null)
     const viewRef = useRef<EditorView | null>(null)
     const [blockStarted, setBlockStarted] = useState(false)
+    const settings = useAppSelector(getSettings)
 
+    // Recreate CodeMirror view when theme changes or component mounts
     useEffect(() => {
         const startBlock = async () => {
-            if (ref.current) {
+            if (ref.current && className != '') {
+                // Clean up previous view if it exists (especially on theme change)
+                if (viewRef.current) {
+                    viewRef.current.destroy()
+                    viewRef.current = null
+                }
+                
                 // Find the language mode from the Codemirror language data
                 const langPackage = languages.find(
                     (lang) => lang.name.toLowerCase() == language.toLowerCase()
@@ -115,7 +124,6 @@ export function CodeBlock({
                     (children as string).trimEnd()
                 )
                 const state = EditorState.create({
-                    // doc: (children as string).trim(),
                     doc: toset,
                     extensions: [
                         diffExtension,
@@ -137,7 +145,7 @@ export function CodeBlock({
                             : [],
                         await syntaxBundle(`text.${language}`),
                         extension,
-                        codexTheme,
+                        getCodexTheme(), // Get fresh theme from theme system
                         EditorView.lineWrapping,
                     ],
                 })
@@ -148,38 +156,29 @@ export function CodeBlock({
                     parent: ref.current,
                 })
                 viewRef.current = view
-
-                // Dont think this is used, but idk
-                // if (setDiffArgs != null) {
-                //     setDiff(
-                //         {
-                //             origText: view.state.doc,
-                //             diffId: '1',
-                //             ...setDiffArgs,
-                //         },
-                //         true
-                //     )(view)
-                // }
-
-                // Return a cleanup function to destroy the view
-                return () => view.destroy()
+                setBlockStarted(true)
+                setCodeButton(true)
+            } else if (children !== '' && !blockStarted && className === '') {
+                setCodeButton(false)
+                // append a code span to div ref
+                const codeSpan = document.createElement('span')
+                codeSpan.className = 'code__span'
+                codeSpan.innerText = removeBeginningAndEndingLineBreaks(
+                    children as string
+                )
+                ref.current?.appendChild(codeSpan)
             }
         }
-        if (className != '' && viewRef.current == null) {
-            setCodeButton(true)
-            startBlock()
-            setBlockStarted(true)
-        } else if (children !== '' && !blockStarted) {
-            setCodeButton(false)
-            // append a code span to div ref
-            const codeSpan = document.createElement('span')
-            codeSpan.className = 'code__span'
-            codeSpan.innerText = removeBeginningAndEndingLineBreaks(
-                children as string
-            )
-            ref.current?.appendChild(codeSpan)
+        
+        startBlock()
+        
+        return () => {
+            if (viewRef.current) {
+                viewRef.current.destroy()
+                viewRef.current = null
+            }
         }
-    }, [className, setDiffArgs])
+    }, [className, setDiffArgs, settings.theme, children, language, isEditable, startLine])
 
     useEffect(() => {
         if (viewRef.current) {
@@ -467,7 +466,6 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
     } else if (getMsgType == 'chat_edit') {
         placeholder = 'Instructions for editing the current file...'
     } else {
-        // TODO - this case should not exist
         placeholder = 'Chat about the current file/selection...'
     }
 

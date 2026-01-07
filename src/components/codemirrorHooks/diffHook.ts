@@ -140,7 +140,7 @@ export function useSetDiff({
                 }
             }
         } catch (e) {
-            console.error(e)
+            // Diff hook error
         }
     }, [lastBotMessage])
 }

@@ -377,7 +377,7 @@ export function customDispatch(view: EditorView, tr: Transaction) {
             view.update([transaction])
         }
     } catch (e) {
-        console.error(e)
+        // Dispatch error
     }
     // runningaverage.push(end-start);
     // if (runningaverage.length > 10) {

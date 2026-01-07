@@ -291,7 +291,6 @@ export class CodebaseIndexer {
                 return []
             }
             let files: string[] = []
-            // TODO: Handle symlinks. (Right now we'll ignore them.)
             for (const { isDir, fileName, size } of folderContents) {
                 const itemPath = path.join(folderPath, fileName)
                 if (!isDir) {

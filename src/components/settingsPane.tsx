@@ -12,7 +12,7 @@ import {
     stopLanguageServer,
 } from '../features/lsp/languageServerSlice'
 import { Switch, Listbox } from '@headlessui/react'
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import React, { useCallback, useState, useMemo } from 'react'
 import {
     getLanguages,
     languageServerStatus,
@@ -374,7 +374,7 @@ export function SettingsPopup() {
 
                         {activeTab === 'AI' && (
                             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <OpenAIPanel
+                                <AIProvidersPanel
                                     onSave={() => dispatch(closeError())}
                                 />
                             </div>
@@ -582,48 +582,221 @@ function CustomSwitch({ checked, onChange }: any) {
     )
 }
 
-function OpenAIPanel({ onSave }: { onSave?: () => void }) {
+// Comprehensive AI Providers Panel
+function AIProvidersPanel({ onSave }: { onSave?: () => void }) {
     const settings = useAppSelector(ssel.getSettings)
-    const [localAPIKey, setLocalAPIKey] = useState('')
-    const [models, setAvailableModels] = useState<string[]>([])
-    const [keyError, showKeyError] = useState(false)
     const dispatch = useAppDispatch()
-
-    useEffect(() => {
-        if (settings.openAIKey && settings.openAIKey != localAPIKey) {
-            setLocalAPIKey(settings.openAIKey)
-            ssel.getModels(settings.openAIKey).then(({ models }) => {
-                if (models) {
-                    setAvailableModels(models)
-                }
-            })
-        }
-    }, [settings.openAIKey])
-
-    const handleNewAPIKey = useCallback(async () => {
-        const { models, isValidKey } = await ssel.getModels(localAPIKey)
-        if (!isValidKey) {
-            showKeyError(true)
-            setAvailableModels([])
-        } else {
-            showKeyError(false)
-            setAvailableModels(models)
-            dispatch(
-                changeSettings({
-                    openAIKey: localAPIKey,
-                    useOpenAIKey: true,
-                    openAIModel: models.at(0) ?? null,
-                })
-            )
-            if (onSave) onSave()
-        }
-    }, [dispatch, localAPIKey, onSave])
+    const [selectedProvider, setSelectedProvider] = useState<
+        'openai' | 'openrouter' | 'gemini' | 'claude'
+    >(settings.aiProvider || 'openai')
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 max-w-3xl">
+            {/* Provider Selection */}
             <SettingsGroup
-                label="OpenAI API Key"
-                description="Enter your OpenAI API key to access advanced AI models."
+                label="AI Provider"
+                description="Choose which AI provider to use for coding assistance, chat, and generation."
+            >
+                <div className="grid grid-cols-2 gap-3">
+                    {[
+                        { id: 'openai', name: 'OpenAI', color: '#10a37f' },
+                        { id: 'openrouter', name: 'OpenRouter', color: '#6366f1' },
+                        { id: 'gemini', name: 'Google Gemini', color: '#4285f4' },
+                        { id: 'claude', name: 'Anthropic Claude', color: '#d97706' },
+                    ].map((provider) => (
+                        <button
+                            key={provider.id}
+                            onClick={() => {
+                                setSelectedProvider(provider.id as any)
+                                dispatch(
+                                    changeSettings({
+                                        aiProvider: provider.id as any,
+                                    })
+                                )
+                            }}
+                            className={cx(
+                                'p-4 rounded-lg border text-left transition-all',
+                                selectedProvider === provider.id
+                                    ? 'bg-blue-600/10 border-blue-500/50 ring-1 ring-blue-500/20'
+                                    : 'bg-[var(--ui-fg)]/5 border-[var(--ui-border)] hover:bg-[var(--ui-fg)]/10'
+                            )}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div
+                                    className="w-3 h-3 rounded-full"
+                                    style={{ backgroundColor: provider.color }}
+                                />
+                                <span className="text-sm font-medium text-[var(--ui-fg)]">
+                                    {provider.name}
+                                </span>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </SettingsGroup>
+
+            {/* Provider-specific settings */}
+            {selectedProvider === 'openai' && (
+                <ProviderPanel
+                    provider="openai"
+                    apiKey={settings.openAIKey || ''}
+                    enabled={settings.useOpenAIKey || false}
+                    model={settings.openAIModel || 'gpt-4-turbo-preview'}
+                    defaultModels={[
+                        'gpt-4-turbo-preview',
+                        'gpt-4',
+                        'gpt-3.5-turbo',
+                        'gpt-4o',
+                        'gpt-4o-mini',
+                    ]}
+                    onSave={(key, enabled, model) => {
+                        dispatch(
+                            changeSettings({
+                                openAIKey: key,
+                                useOpenAIKey: enabled,
+                                openAIModel: model,
+                                aiProvider: 'openai',
+                            })
+                        )
+                        if (onSave) onSave()
+                    }}
+                />
+            )}
+
+            {selectedProvider === 'openrouter' && (
+                <ProviderPanel
+                    provider="openrouter"
+                    apiKey={settings.openRouterKey || ''}
+                    enabled={settings.useOpenRouterKey || false}
+                    model={settings.openRouterModel || 'openai/gpt-4-turbo'}
+                    defaultModels={[
+                        'openai/gpt-4-turbo',
+                        'openai/gpt-4',
+                        'anthropic/claude-3-opus',
+                        'anthropic/claude-3-sonnet',
+                        'google/gemini-pro',
+                        'meta-llama/llama-3-70b-instruct',
+                    ]}
+                    onSave={(key, enabled, model) => {
+                        dispatch(
+                            changeSettings({
+                                openRouterKey: key,
+                                useOpenRouterKey: enabled,
+                                openRouterModel: model,
+                                aiProvider: 'openrouter',
+                            })
+                        )
+                        if (onSave) onSave()
+                    }}
+                />
+            )}
+
+            {selectedProvider === 'gemini' && (
+                <ProviderPanel
+                    provider="gemini"
+                    apiKey={settings.geminiKey || ''}
+                    enabled={settings.useGeminiKey || false}
+                    model={settings.geminiModel || 'gemini-pro'}
+                    defaultModels={[
+                        'gemini-pro',
+                        'gemini-pro-vision',
+                        'gemini-1.5-pro',
+                        'gemini-1.5-flash',
+                    ]}
+                    onSave={(key, enabled, model) => {
+                        dispatch(
+                            changeSettings({
+                                geminiKey: key,
+                                useGeminiKey: enabled,
+                                geminiModel: model,
+                                aiProvider: 'gemini',
+                            })
+                        )
+                        if (onSave) onSave()
+                    }}
+                />
+            )}
+
+            {selectedProvider === 'claude' && (
+                <ProviderPanel
+                    provider="claude"
+                    apiKey={settings.claudeKey || ''}
+                    enabled={settings.useClaudeKey || false}
+                    model={settings.claudeModel || 'claude-3-opus-20240229'}
+                    defaultModels={[
+                        'claude-3-opus-20240229',
+                        'claude-3-sonnet-20240229',
+                        'claude-3-haiku-20240307',
+                        'claude-3-5-sonnet-20241022',
+                    ]}
+                    onSave={(key, enabled, model) => {
+                        dispatch(
+                            changeSettings({
+                                claudeKey: key,
+                                useClaudeKey: enabled,
+                                claudeModel: model,
+                                aiProvider: 'claude',
+                            })
+                        )
+                        if (onSave) onSave()
+                    }}
+                />
+            )}
+        </div>
+    )
+}
+
+// Reusable Provider Panel Component
+function ProviderPanel({
+    provider,
+    apiKey: initialApiKey,
+    enabled: initialEnabled,
+    model: initialModel,
+    defaultModels,
+    onSave,
+}: {
+    provider: 'openai' | 'openrouter' | 'gemini' | 'claude'
+    apiKey: string
+    enabled: boolean
+    model: string
+    defaultModels: string[]
+    onSave: (key: string, enabled: boolean, model: string) => void
+}) {
+    const [localAPIKey, setLocalAPIKey] = useState(initialApiKey)
+    const [enabled, setEnabled] = useState(initialEnabled)
+    const [model, setModel] = useState(initialModel || defaultModels[0])
+    const [keyError, setKeyError] = useState(false)
+
+    const providerNames = {
+        openai: 'OpenAI',
+        openrouter: 'OpenRouter',
+        gemini: 'Google Gemini',
+        claude: 'Anthropic Claude',
+    }
+
+    const placeholderText = {
+        openai: 'sk-...',
+        openrouter: 'sk-or-...',
+        gemini: 'AIza...',
+        claude: 'sk-ant-...',
+    }
+
+
+    const handleSave = useCallback(() => {
+        // Basic validation
+        if (!localAPIKey.trim()) {
+            setKeyError(true)
+            return
+        }
+        setKeyError(false)
+        onSave(localAPIKey, enabled, model)
+    }, [localAPIKey, enabled, model, onSave])
+
+    return (
+        <div className="space-y-6 p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+            <SettingsGroup
+                label={`${providerNames[provider]} API Key`}
+                description={`Enter your ${providerNames[provider]} API key to enable AI features.`}
             >
                 <div className="flex gap-2">
                     <input
@@ -633,15 +806,18 @@ function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                                 ? 'border-red-500/50 focus:border-red-500'
                                 : 'border-[var(--ui-border)] focus:border-blue-500'
                         )}
-                        placeholder="sk-..."
-                        onChange={(e) => setLocalAPIKey(e.target.value)}
-                        value={localAPIKey || ''}
+                        placeholder={placeholderText[provider]}
+                        onChange={(e) => {
+                            setLocalAPIKey(e.target.value)
+                            setKeyError(false)
+                        }}
+                        value={localAPIKey}
                         type="password"
                         autoComplete="new-password"
                     />
                     <button
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
-                        onClick={handleNewAPIKey}
+                        onClick={handleSave}
                     >
                         Save
                     </button>
@@ -653,42 +829,36 @@ function OpenAIPanel({ onSave }: { onSave?: () => void }) {
                 )}
             </SettingsGroup>
 
-            {settings.openAIKey && !keyError && (
-                <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-white">
-                                AI Features Enabled
-                            </span>
+            {localAPIKey && !keyError && (
+                <>
+                    <div className="flex items-center justify-between py-2">
+                        <div>
+                            <div className="text-sm font-medium text-[var(--ui-fg)]">
+                                Enable {providerNames[provider]}
+                            </div>
+                            <div className="text-xs text-[var(--ui-fg-muted)] mt-1">
+                                Use {providerNames[provider]} for AI features
+                            </div>
                         </div>
                         <CustomSwitch
-                            checked={settings.useOpenAIKey}
-                            onChange={(val: boolean) =>
-                                dispatch(changeSettings({ useOpenAIKey: val }))
-                            }
+                            checked={enabled}
+                            onChange={setEnabled}
                         />
                     </div>
 
-                    {settings.useOpenAIKey && (
+                    {enabled && (
                         <SettingsGroup
                             label="Model"
-                            description="Select the AI model for chat and generation."
+                            description={`Select the ${providerNames[provider]} model to use.`}
                         >
                             <CustomListbox
-                                value={
-                                    settings.openAIModel ||
-                                    (models.length > 0 ? models[0] : '')
-                                }
-                                onChange={(val: string) =>
-                                    dispatch(
-                                        changeSettings({ openAIModel: val })
-                                    )
-                                }
-                                options={models}
+                                value={model}
+                                onChange={setModel}
+                                options={defaultModels}
                             />
                         </SettingsGroup>
                     )}
-                </div>
+                </>
             )}
         </div>
     )

@@ -57,7 +57,7 @@ import * as LSP from 'vscode-languageserver-protocol'
 import { LanguageSupport, syntaxTree } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
 
-import { codexTheme } from '../../theme/codexTheme'
+import { getCodexTheme } from '../../theme/codexTheme'
 
 import { store } from '../../app/store'
 
@@ -75,11 +75,7 @@ const addToken = StateEffect.define<SemanticToken>({
         to: change.mapPos(token.to),
     }),
 })
-// interface SemanticEdit {
-//   start: number;
-//   deleteCount: number;
-//   tokens: SemanticToken[];
-// }
+
 export const semanticTokenField = StateField.define<DecorationSet>({
     create() {
         return Decoration.none
@@ -117,11 +113,9 @@ export const semanticTokenField = StateField.define<DecorationSet>({
     provide: (f) => EditorView.decorations.from(f),
 })
 
-// TODO - remove this when done testing autocomplete
 import _ from 'lodash'
 import { computeAndRenderTest, renderNewTest } from '../tests/testSlice'
 
-const darkTransparentVscode = codexTheme
 
 const changesDelay = 100
 
@@ -145,10 +139,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
         from?: number
         to?: number
         wordCompleted: boolean
-        // previousWord: string,
         future: Promise<LSP.CompletionList | null>
-        // future: Promise<LSP.CompletionItem[] | LSP.CompletionList | null>
-        // result: null | LSP.CompletionItem[] | LSP.CompletionList
         result: null | LSP.CompletionList
     } | null = null
 
@@ -186,7 +177,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
     }, 200)
 
     // Update the plugin when the document changes
-    update({ docChanged, view }: ViewUpdate) {
+    update({ docChanged, view: _view }: ViewUpdate) {
         if (!docChanged) return
         if (this.changesTimeout) clearTimeout(this.changesTimeout)
 
@@ -201,7 +192,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
     // Destroy the plugin and detach from the client
     destroy() {
         this.client.detachPlugin(this)
-        //this.client.closeDocument({documentPath: this.getDocUri()})
     }
 
     // Initialize the document with the server
@@ -226,13 +216,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
             return null
         }
 
-        // check if we're focused on the codemirror view
-        // const activeElementParent = document.activeElement?.parentElement?.parentElement;
-        //
-        // if (activeElementParent !== view.dom) {
-        //     return null;
-        // }
-
         const documentPath = view.state.facet(docPathFacet)
 
         const result = await this.client.textDocumentHover({
@@ -243,7 +226,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
         if (!result) return null
 
         // Extract the contents and the range from the result
-        const { contents, range } = result
+        const { contents, range: _range } = result
 
         // Convert the position and range to offsets
         const pos = posToOffset(view.state.doc, { line, character })!
@@ -337,7 +320,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                             const indented = toInsert
                                 .trim()
                                 .split('\n')
-                                .map((line, i) => {
+                                .map((line, _i) => {
                                     return lineIndentation + line
                                 })
                                 .join('\n')
@@ -415,7 +398,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
         return {
             pos: start,
             end,
-            create: (view) => ({ dom: outerDom }),
+            create: (_view) => ({ dom: outerDom }),
             above: true,
         }
     }
@@ -529,7 +512,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
             return null
 
         const path = this.getDocPath()
-        // let previousWord = context.tokenBefore([])!.text
         let result
 
         // Future to determine if this has been interrupted
@@ -566,9 +548,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
             this.previousCompletions != null &&
             this.previousCompletions.path === path &&
             this.previousCompletions.line === line &&
-            this.previousCompletions.from === from // &&
-            // this.previousCompletions.
-            // (this.previousCompletions.to && this.previousCompletions.to <= context.pos)
+            this.previousCompletions.from === from
         ) {
             const maybeFinishedResult = await maybeResult(
                 this.previousCompletions.future
@@ -581,9 +561,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                 if (!this.previousCompletions.wordCompleted) {
                     stillWaitFutureResult = true
                 }
-                // if (this.previousCompletions.to == context.pos) {
-                //     stillWaitFutureResult = true
-                // }
             }
         }
 
@@ -591,7 +568,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
             const resultFuture =
                 new Promise<// LSP.CompletionList | LSP.CompletionItem[] | null
                 LSP.CompletionList | null>((resolve, reject) => {
-                    ;(async () => {
+                    (async () => {
                         const text = this.getDocText()
                         this.client.sendChange({
                             documentPath: this.getDocPath(),
@@ -615,8 +592,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
 
                         if (!awaitedResult) return null
                         if (!Array.isArray(awaitedResult)) {
-                            // && !awaitedResult.isIncomplete) {
-                            // resolve([]);
                             resolve(awaitedResult)
                         } else {
                             resolve(null)
@@ -632,8 +607,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                     line,
                     from,
                     wordCompleted: false,
-                    // to: from && (from + 1), // Think this does the right thing
-                    // previousWord,
                     future: resultFuture,
                     result: null,
                 }
@@ -668,10 +641,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
 
         if (items.length == 0) return null
 
-        // Map the items to the completion interface
-        // let textEdited = 0
-
-        // let options = items.filter((item => !item.insertTextFormat || item.insertTextFormat == 1))
         let options = items.map((item) => {
             const {
                 detail,
@@ -705,14 +674,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                     }[] = []
                     try {
                         if (textEdit) {
-                            // textEdited += 1
-                            // const ughTs = textEdit as any;
-                            // const range = ughTs.range || ughTs.insert;
-                            // const { newText } = textEdit;
-                            // const { start, end } = range;
-                            // const from = view.state.doc.lineAt(start.line).from + start.character;
-                            // const to = view.state.doc.lineAt(end.line).from + end.character;
-
                             const completionItemResolve =
                                 await this.client.completionItemResolve(item)
 
@@ -736,7 +697,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                             }
                         }
                     } catch (e) {
-                        console.error(e)
+                        // LSP plugin error
                     }
                     const changes = [{ from, to, insert: pickText }].concat(
                         changesText
@@ -843,7 +804,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                 //   break
             }
         } catch (error) {
-            console.error(error)
+            // LSP notification error
         }
     }
 
@@ -937,7 +898,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                 }
             }
 
-            const start = performance.now()
+            const _start = performance.now()
             const diagnostics = await Promise.all(
                 diagnosticsWithActionParams.map(
                     async ({ diagnostic, codeActionParams }) => {
@@ -1011,26 +972,6 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
                 }
                 return 0
             })
-        // .map((diagnostic) => {
-        //     if (diagnostic.severity !== 'error') return diagnostic
-        //     const aiQuickFix: Action = {
-        //         name: 'Fix all with AI',
-        //         payload: [
-        //             {
-        //                 type: 'fixLSP',
-        //             },
-        //         ],
-        //     }
-        //     return {
-        //         ...diagnostic,
-        //         actions: [
-        //             ...(diagnostic.actions == null
-        //                 ? []
-        //                 : diagnostic.actions),
-        //             aiQuickFix,
-        //         ],
-        //     }
-        // })
 
         // Update the view with the diagnostics
         // Get existing diagnostics
@@ -1097,16 +1038,16 @@ async function createCodeMirrorView(
         )
     }
 
-    const view = new EditorView({
+    const _view = new EditorView({
         doc: (code.textContent ?? '').trim(),
 
         extensions: [
             syntax ?? [],
             EditorView.editable.of(false),
-            darkTransparentVscode,
+            getCodexTheme(),
             EditorView.lineWrapping,
             EditorView.domEventHandlers({
-                click: (event, view) => {
+                click: (event, _view) => {
                     const target = event.target as HTMLElement
                     if (target.tagName === 'A') {
                         window.open(target.getAttribute('href') ?? '', '_blank')
@@ -1132,7 +1073,7 @@ async function prettifyDom(dom: HTMLElement) {
     const codes = dom.querySelectorAll('pre > code')
     let syntax = null
     let newElement = null
-    let payload
+    let _payload
     for (let i = 0; i < codes.length; i++) {
         // Replace the code element with a codemirror view
         if (i == 0) {
@@ -1293,7 +1234,6 @@ export function languageServer(options: LanguageServerPluginOptions) {
                             })
                         }
                     },
-                    // TODO - figure out mouse position and listen for click
                     // onkeypress: (event, view) => {
                     //     if (event.key == 'Meta') {
                     //         view.dispatch({

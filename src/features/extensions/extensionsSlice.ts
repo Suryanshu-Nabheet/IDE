@@ -66,20 +66,20 @@ const defaultThemes: { [key: string]: ThemeData } = {
     'codex-dark': {
         type: 'dark',
         colors: {
-            background: '#000000',
-            foreground: '#CCCCCC',
-            cursor: '#FFFFFF',
-            selection: '#264F78',
-            lineHighlight: '#FFFFFF0B',
-            keyword: '#569CD6',
-            string: '#CE9178',
-            number: '#B5CEA8',
-            function: '#DCDCAA',
-            variable: '#9CDCFE',
-            type: '#4EC9B0',
-            comment: '#6A9955',
-            tag: '#569CD6',
-            attribute: '#9CDCFE',
+            background: '#1e1e1e', // VS Code / Cursor IDE Dark
+            foreground: '#d4d4d4', // VS Code / Cursor IDE
+            cursor: '#d4d4d4', // VS Code / Cursor IDE
+            selection: '#264f78', // VS Code / Cursor IDE
+            lineHighlight: '#2a2d2e', // VS Code / Cursor IDE
+            keyword: '#569cd6', // VS Code Dark+
+            string: '#ce9178', // VS Code Dark+
+            number: '#b5cea8', // VS Code Dark+
+            function: '#dcdcaa', // VS Code Dark+
+            variable: '#9cdcfe', // VS Code Dark+
+            type: '#4ec9b0', // VS Code Dark+
+            comment: '#6a9955', // VS Code Dark+
+            tag: '#569cd6', // VS Code Dark+
+            attribute: '#92c5f7', // VS Code Dark+
         },
     },
     monokai: {
@@ -218,7 +218,7 @@ export const searchExtensions = createAsyncThunk(
             const data = await response.json()
             return (data.extensions || []) as Extension[]
         } catch (error) {
-            console.error('Extension search failed:', error)
+            // Extension search failed - return empty array
             return []
         }
     }
@@ -263,8 +263,7 @@ export const initializeExtensions = createAsyncThunk(
                         const content = await connector.getFile(themePath)
                         if (content) {
                             const themeJson = JSON.parse(content)
-                            const themeData =
-                                mapVSCodeThemeToThemeData(themeJson)
+                            const themeData = mapThemeToThemeData(themeJson)
                             dispatch(
                                 addCustomTheme({
                                     name: theme.id || theme.label || ext.name,
@@ -273,7 +272,7 @@ export const initializeExtensions = createAsyncThunk(
                             )
                         }
                     } catch (e) {
-                        console.error('Failed to load theme:', theme, e)
+                        // Failed to load theme - skip
                     }
                 }
             }
@@ -283,69 +282,26 @@ export const initializeExtensions = createAsyncThunk(
     }
 )
 
-function mapVSCodeThemeToThemeData(vscodeTheme: any): ThemeData {
-    const colors = vscodeTheme.colors || {}
-    const tokenColors = vscodeTheme.tokenColors || []
-
-    const findTokenColor = (scope: string) => {
-        for (const token of tokenColors) {
-            if (
-                Array.isArray(token.scope)
-                    ? token.scope.includes(scope)
-                    : token.scope === scope
-            ) {
-                return token.settings.foreground
-            }
-        }
-        return null
-    }
+function mapThemeToThemeData(theme: any): ThemeData {
+    const colors = theme.colors || {}
 
     return {
-        type: vscodeTheme.type === 'light' ? 'light' : 'dark',
+        type: theme.type === 'light' ? 'light' : 'dark',
         colors: {
-            background: colors['editor.background'] || '#000000',
-            foreground: colors['editor.foreground'] || '#CCCCCC',
-            cursor: colors['editorCursor.foreground'] || '#FFFFFF',
-            selection: colors['editor.selectionBackground'] || '#264F78',
-            lineHighlight:
-                colors['editor.lineHighlightBackground'] || '#FFFFFF0B',
-            // Simple syntax mapping
-            keyword:
-                findTokenColor('keyword') ||
-                colors['editor.foreground'] ||
-                '#569CD6',
-            string:
-                findTokenColor('string') ||
-                colors['editor.foreground'] ||
-                '#CE9178',
-            number:
-                findTokenColor('constant.numeric') ||
-                colors['editor.foreground'] ||
-                '#B5CEA8',
-            function:
-                findTokenColor('entity.name.function') ||
-                colors['editor.foreground'] ||
-                '#DCDCAA',
-            variable:
-                findTokenColor('variable') ||
-                colors['editor.foreground'] ||
-                '#9CDCFE',
-            type:
-                findTokenColor('entity.name.type') ||
-                colors['editor.foreground'] ||
-                '#4EC9B0',
-            comment:
-                findTokenColor('comment') ||
-                colors['editor.foreground'] ||
-                '#6A9955',
-            tag:
-                findTokenColor('entity.name.tag') ||
-                colors['editor.foreground'] ||
-                '#569CD6',
-            attribute:
-                findTokenColor('entity.other.attribute-name') ||
-                colors['editor.foreground'] ||
-                '#9CDCFE',
+            background: colors['editor.background'] || '#181818',
+            foreground: colors['editor.foreground'] || '#d6d6dd',
+            cursor: colors['editorCursor.foreground'] || '#d6d6dd',
+            selection: colors['editor.selectionBackground'] || '#163761',
+            lineHighlight: colors['editor.lineHighlightBackground'] || '#212121',
+            keyword: '#83d6c5',
+            string: '#e394dc',
+            number: '#d6d6dd',
+            function: '#ebc88d',
+            variable: '#aa9bf5',
+            type: '#87c3ff',
+            comment: '#474747',
+            tag: '#fad075',
+            attribute: '#aaa0fa',
         },
     }
 }

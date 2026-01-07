@@ -595,7 +595,7 @@ export function CommandResult({
                 {command.shortcut?.map((key, index) => (
                     <div
                         key={index}
-                        className="shortcut__block bg-[var(--oxo-base02)] rounded p-0.5 text-center text-xs text-[var(--text)] mr-1 inline-block min-w-[20px]"
+                        className="shortcut__block bg-[var(--ui-bg-elevated)] border border-[var(--ui-border)] rounded p-0.5 text-center text-xs text-[var(--ui-fg-muted)] mr-1 inline-block min-w-[20px]"
                     >
                         {key}
                     </div>
@@ -670,7 +670,7 @@ export function AICommandResult({
                 {command.shortcut?.map((key, index) => (
                     <div
                         key={index}
-                        className="shortcut__block bg-[var(--oxo-base02)] rounded p-0.5 text-center text-xs text-[var(--text)] mr-1 inline-block min-w-[20px]"
+                        className="shortcut__block bg-[var(--ui-bg-elevated)] border border-[var(--ui-border)] rounded p-0.5 text-center text-xs text-[var(--ui-fg-muted)] mr-1 inline-block min-w-[20px]"
                     >
                         {key}
                     </div>

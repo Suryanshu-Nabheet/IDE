@@ -3,263 +3,249 @@ import { Extension } from '@codemirror/state'
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags as t } from '@lezer/highlight'
 import { CODEX_THEME } from './tokens'
+import { store } from '../app/store'
 
 const { typography } = CODEX_THEME
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ANYSPHERE DARK - PERFECT DEVELOPER THEME
-// Purple/Pink/Green/Blue/Yellow on Pure Black
-// ═══════════════════════════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════════════════════════════════
-// VS CODE DARK MODERN (PURE BLACK)
-// ═══════════════════════════════════════════════════════════════════════════
-
-const VSCODE_DARK_COLORS = {
-    // Base Colors
-    background: '#000000', // Pure Black
-    foreground: '#CCCCCC', // Standard VSCode Light Gray
-    cursor: '#FFFFFF',
-    selection: '#264F78', // VSCode Dark Blue Selection
-    lineHighlight: '#FFFFFF0B', // Very subtle
-
-    // Syntax Colors (VS Code Default)
-    blue: '#569CD6', // Keywords, Storage
-    green: '#6A9955', // Comments
-    greenBright: '#B5CEA8', // Numbers
-    cyan: '#9CDCFE', // Variables, Parameters
-    cyanBright: '#4EC9B0', // Types, Interfaces
-    orange: '#CE9178', // Strings
-    yellow: '#DCDCAA', // Functions
-    pink: '#C586C0', // Control Flow
-    white: '#D4D4D4', // Punctuation, Default
-    red: '#F44747', // Errors
+/**
+ * Anysphere Theme - Exact colors from Zed theme JSON
+ * This is the ONLY theme - no variations
+ */
+const ANYSPHERE_THEME = {
+    // Editor colors
+    background: '#181818',
+    foreground: '#d6d6dd',
+    cursor: '#d6d6dd',
+    selection: '#163761',
+    lineHighlight: '#212121',
+    gutterBg: '#181818',
+    gutterFg: '#535353',
+    gutterFgActive: '#d6d6dd',
+    wrapGuide: '#383838',
+    bracketMatch: '#163761',
+    
+    // Syntax colors - exact from JSON
+    keyword: '#83d6c5',
+    constant: '#83d6c5',
+    function: '#ebc88d',
+    variable: '#aa9bf5',
+    variableSpecial: '#E1DAE8',
+    type: '#87c3ff',
+    string: '#e394dc',
+    stringEscape: '#CC7832',
+    stringRegex: '#DA2877',
+    stringSpecial: '#CC7832',
+    number: '#d6d6dd',
+    boolean: '#fad075',
+    comment: '#474747',
+    tag: '#fad075',
+    attribute: '#aaa0fa',
+    property: '#d6d6dd',
+    operator: '#d6d6dd',
+    punctuation: '#d6d6dd',
+    textLiteral: '#B5BD68',
+    text: '#fad075',
+    
+    // UI colors
+    border: '#383838',
+    uiBgElevated: '#1d1d1d',
 }
 
-const codexEditorTheme = EditorView.theme(
-    {
-        // Root editor - VS Code Style (Black)
-        '&': {
-            color: VSCODE_DARK_COLORS.foreground,
-            backgroundColor: 'var(--background, #000000)',
-            fontSize: 'var(--editor-font-size, 14px)',
-            fontFamily: typography.fontFamilyMono,
-            height: '100%',
-        },
+/**
+ * Get theme colors from the theme system - ensures CodeMirror syncs with IDE theme
+ * Background colors come from theme, syntax colors are ALWAYS Anysphere
+ * Safe to call even if store isn't initialized yet (uses CSS variables as fallback)
+ */
+function getThemeColors() {
+    // Try to get from store, but handle case when store isn't ready yet
+    let bg = ANYSPHERE_THEME.background
+    let fg = ANYSPHERE_THEME.foreground
+    let cursor = ANYSPHERE_THEME.cursor
+    let selection = ANYSPHERE_THEME.selection
+    let lineHighlight = ANYSPHERE_THEME.lineHighlight
+    
+    try {
+        const state = store.getState()
+        const settings = state.settingsState.settings
+        const themeName = settings.theme || 'codex-dark'
+        const availableThemes = state.extensionsState.availableThemes
+        const theme = availableThemes[themeName]
+        
+        if (theme?.colors) {
+            bg = theme.colors.background || ANYSPHERE_THEME.background
+            fg = theme.colors.foreground || ANYSPHERE_THEME.foreground
+            cursor = theme.colors.cursor || ANYSPHERE_THEME.cursor
+            selection = theme.colors.selection || ANYSPHERE_THEME.selection
+            lineHighlight = theme.colors.lineHighlight || ANYSPHERE_THEME.lineHighlight
+        }
+    } catch (e) {
+        // Store not ready yet - use CSS variables or defaults
+        if (typeof document !== 'undefined') {
+            const root = document.documentElement
+            const style = getComputedStyle(root)
+            bg = style.getPropertyValue('--editor-bg').trim() || ANYSPHERE_THEME.background
+            fg = style.getPropertyValue('--editor-fg').trim() || ANYSPHERE_THEME.foreground
+            cursor = style.getPropertyValue('--editor-cursor').trim() || ANYSPHERE_THEME.cursor
+            selection = style.getPropertyValue('--editor-selection').trim() || ANYSPHERE_THEME.selection
+            lineHighlight = style.getPropertyValue('--editor-line-highlight').trim() || ANYSPHERE_THEME.lineHighlight
+        }
+    }
+    
+    return {
+        background: bg,
+        foreground: fg,
+        cursor: cursor,
+        selection: selection,
+        lineHighlight: lineHighlight,
+        // ALWAYS use Anysphere syntax colors
+        keyword: ANYSPHERE_THEME.keyword,
+        string: ANYSPHERE_THEME.string,
+        number: ANYSPHERE_THEME.number,
+        function: ANYSPHERE_THEME.function,
+        variable: ANYSPHERE_THEME.variable,
+        type: ANYSPHERE_THEME.type,
+        comment: ANYSPHERE_THEME.comment,
+        tag: ANYSPHERE_THEME.tag,
+        attribute: ANYSPHERE_THEME.attribute,
+        property: ANYSPHERE_THEME.property,
+        operator: ANYSPHERE_THEME.operator,
+        punctuation: ANYSPHERE_THEME.punctuation,
+        constant: ANYSPHERE_THEME.constant,
+        bracketMatch: selection,
+        gutterFg: ANYSPHERE_THEME.gutterFg,
+        gutterFgActive: ANYSPHERE_THEME.gutterFgActive,
+        uiBgElevated: ANYSPHERE_THEME.uiBgElevated,
+        border: ANYSPHERE_THEME.border,
+    }
+}
 
-        // Content area
-        '.cm-content': {
-            caretColor: VSCODE_DARK_COLORS.cursor,
-            padding: '4px 0',
-            fontFamily: typography.fontFamilyMono,
-            lineHeight: '1.5', // VS Code default is slightly tighter
-            fontVariantLigatures: typography.ligatures ? 'normal' : 'none',
+/**
+ * CodeMirror theme - Anysphere Theme
+ * This function MUST be called fresh each time - it reads from store/theme system
+ */
+export function getCodexTheme(): Extension {
+    const colors = getThemeColors()
+    
+    const editorTheme = EditorView.theme(
+        {
+            '&': {
+                color: colors.foreground,
+                backgroundColor: colors.background,
+                fontSize: 'var(--editor-font-size, 14px)',
+                fontFamily: typography.fontFamilyMono,
+                height: '100%',
+            },
+            '.cm-content': {
+                color: colors.foreground,
+                caretColor: colors.cursor,
+                padding: '4px 0',
+                fontFamily: typography.fontFamilyMono,
+                lineHeight: '1.5',
+                fontVariantLigatures: typography.ligatures ? 'normal' : 'none',
+            },
+            '.cm-cursor, .cm-dropCursor': {
+                borderLeftColor: colors.cursor,
+                borderLeftWidth: '2px',
+                borderLeftStyle: 'solid',
+            },
+            '.cm-selectionBackground, ::selection': {
+                backgroundColor: colors.selection + ' !important',
+            },
+            '&.cm-focused .cm-selectionBackground': {
+                backgroundColor: colors.selection + ' !important',
+            },
+            '.cm-activeLine': {
+                backgroundColor: colors.lineHighlight,
+            },
+            '.cm-selectionMatch': {
+                backgroundColor: colors.bracketMatch,
+            },
+            '&.cm-focused .cm-matchingBracket': {
+                backgroundColor: colors.bracketMatch,
+                outline: 'none',
+            },
+            '&.cm-focused .cm-nonmatchingBracket': {
+                backgroundColor: 'rgba(241, 76, 76, 0.3)',
+            },
+            '.cm-gutters': {
+                backgroundColor: colors.background,
+                color: colors.gutterFg,
+                border: 'none',
+                paddingRight: '16px',
+                fontFamily: typography.fontFamilyMono,
+            },
+            '.cm-activeLineGutter': {
+                backgroundColor: 'transparent',
+                color: colors.gutterFgActive,
+                fontWeight: '500',
+            },
+            '.cm-lineNumbers .cm-gutterElement': {
+                padding: '0 12px 0 16px',
+                minWidth: '48px',
+                fontSize: typography.fontSize.sm,
+                textAlign: 'right',
+            },
+            '&.cm-focused': {
+                outline: 'none',
+            },
+            '.cm-panels': {
+                backgroundColor: colors.background,
+                color: colors.foreground,
+            },
+            '.cm-tooltip': {
+                backgroundColor: colors.uiBgElevated,
+                border: `1px solid ${colors.border}`,
+                color: colors.foreground,
+                borderRadius: '4px',
+                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.4)',
+            },
+            '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
+                backgroundColor: colors.selection,
+                color: colors.foreground,
+            },
+            '.cm-panel': {
+                backgroundColor: colors.background,
+            },
+            '.cm-scroller': {
+                fontFamily: typography.fontFamilyMono,
+            },
         },
+        { dark: true }
+    )
 
-        // Cursor
-        '.cm-cursor, .cm-dropCursor': {
-            borderLeftColor: VSCODE_DARK_COLORS.cursor,
-            borderLeftWidth: '2px',
-            borderLeftStyle: 'solid',
-        },
+    // ALWAYS use Anysphere syntax colors - exact from JSON
+    const highlightStyle = HighlightStyle.define([
+        { tag: [t.keyword, t.modifier, t.definitionKeyword, t.controlKeyword, t.moduleKeyword], color: ANYSPHERE_THEME.keyword },
+        { tag: [t.constant(t.variableName)], color: ANYSPHERE_THEME.constant },
+        { tag: [t.function(t.variableName), t.macroName], color: ANYSPHERE_THEME.function },
+        { tag: [t.variableName, t.definition(t.variableName)], color: ANYSPHERE_THEME.variable },
+        { tag: [t.special(t.variableName)], color: ANYSPHERE_THEME.variableSpecial },
+        { tag: [t.typeName, t.className, t.namespace], color: ANYSPHERE_THEME.type },
+        { tag: [t.string, t.special(t.string)], color: ANYSPHERE_THEME.string },
+        { tag: [t.escape], color: ANYSPHERE_THEME.stringEscape },
+        { tag: [t.regexp], color: ANYSPHERE_THEME.stringRegex },
+        { tag: [t.number], color: ANYSPHERE_THEME.number },
+        { tag: [t.bool, t.null, t.atom], color: ANYSPHERE_THEME.boolean },
+        { tag: [t.comment, t.lineComment, t.blockComment, t.docComment], color: ANYSPHERE_THEME.comment, fontStyle: 'italic' },
+        { tag: [t.tagName], color: ANYSPHERE_THEME.tag },
+        { tag: [t.attributeName], color: ANYSPHERE_THEME.attribute, fontStyle: 'italic' },
+        { tag: [t.propertyName], color: ANYSPHERE_THEME.property },
+        { tag: [t.punctuation, t.operator, t.bracket, t.separator], color: ANYSPHERE_THEME.punctuation },
+        { tag: [t.literal], color: ANYSPHERE_THEME.textLiteral },
+        { tag: [t.content], color: ANYSPHERE_THEME.text },
+        { tag: [t.heading], color: ANYSPHERE_THEME.type, fontWeight: 'bold' },
+    ])
 
-        // Selection
-        '.cm-selectionBackground, ::selection': {
-            backgroundColor: VSCODE_DARK_COLORS.selection + ' !important',
-        },
-        '&.cm-focused .cm-selectionBackground': {
-            backgroundColor: VSCODE_DARK_COLORS.selection + ' !important',
-        },
+    return [editorTheme, syntaxHighlighting(highlightStyle)]
+}
 
-        // Active line
-        '.cm-activeLine': {
-            backgroundColor: VSCODE_DARK_COLORS.lineHighlight,
-        },
-
-        // Selection match
-        '.cm-selectionMatch': {
-            backgroundColor: '#3a3d41', // VS Code match highlight
-            border: '1px solid #3a3d41',
-        },
-
-        // Matching brackets
-        '&.cm-focused .cm-matchingBracket': {
-            backgroundColor: 'transparent',
-            outline: '1px solid #888888',
-        },
-
-        '&.cm-focused .cm-nonmatchingBracket': {
-            backgroundColor: 'rgba(255, 0, 0, 0.3)',
-        },
-
-        // Gutters
-        '.cm-gutters': {
-            backgroundColor: VSCODE_DARK_COLORS.background,
-            color: '#858585', // VS Code Line Numbers
-            border: 'none',
-            paddingRight: '16px',
-            fontFamily: typography.fontFamilyMono,
-        },
-
-        // Active line gutter
-        '.cm-activeLineGutter': {
-            backgroundColor: 'transparent',
-            color: '#FFFFFF',
-            fontWeight: '500',
-        },
-
-        // Line numbers
-        '.cm-lineNumbers .cm-gutterElement': {
-            padding: '0 12px 0 16px',
-            minWidth: '48px',
-            fontSize: typography.fontSize.sm,
-            textAlign: 'right',
-        },
-
-        // Focus outline
-        '&.cm-focused': {
-            outline: 'none',
-        },
-
-        // Panels
-        '.cm-panels': {
-            backgroundColor: VSCODE_DARK_COLORS.background,
-            color: VSCODE_DARK_COLORS.foreground,
-        },
-
-        // Tooltips
-        '.cm-tooltip': {
-            backgroundColor: '#252526', // VS Code Menu BG
-            border: '1px solid #454545',
-            color: '#CCCCCC',
-            borderRadius: '4px',
-            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.4)',
-        },
-
-        // Autocomplete
-        '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
-            backgroundColor: '#04395E', // VS Code List Hover
-            color: '#FFFFFF',
-        },
-
-        '.cm-panel': {
-            backgroundColor: VSCODE_DARK_COLORS.background,
-        },
-
-        '.cm-scroller': {
-            fontFamily: typography.fontFamilyMono,
-        },
+// Legacy export for compatibility - returns minimal theme to avoid circular dependency
+// Always use getCodexTheme() instead for reactive themes
+export const codexTheme: Extension = EditorView.theme({
+    '&': {
+        backgroundColor: ANYSPHERE_THEME.background,
+        color: ANYSPHERE_THEME.foreground,
     },
-    { dark: true }
-)
-
-// ═══════════════════════════════════════════════════════════════════════════
-// PERFECT SYNTAX HIGHLIGHTING
-// Purple → Main (className, "use client")
-// Pink → String content
-// Light Green → import/export/interface
-// Blue → Component tags (AlertCircle, motion.div)
-// Yellow → HTML tags (div, span)
-// White → Normal content
-// ═══════════════════════════════════════════════════════════════════════════
-
-const codexHighlightStyle = HighlightStyle.define([
-    // VS CODE: Keywords (Blue)
-    {
-        tag: [
-            t.keyword,
-            t.modifier,
-            t.definitionKeyword,
-            t.standard(t.tagName),
-        ],
-        color: VSCODE_DARK_COLORS.blue,
-    },
-
-    // VS CODE: Control Flow (Pink)
-    {
-        tag: [t.controlKeyword, t.moduleKeyword],
-        color: VSCODE_DARK_COLORS.pink,
-    },
-
-    // VS CODE: Functions (Yellow)
-    {
-        tag: [t.function(t.variableName), t.macroName],
-        color: VSCODE_DARK_COLORS.yellow,
-    },
-
-    // VS CODE: Variables & Parameters (Light Blue / White)
-    {
-        tag: [t.variableName, t.propertyName],
-        color: VSCODE_DARK_COLORS.cyan,
-    },
-    {
-        tag: [t.definition(t.variableName)],
-        color: VSCODE_DARK_COLORS.cyan,
-    },
-
-    // VS CODE: Types & Classes (Teal/Green)
-    {
-        tag: [t.typeName, t.className, t.namespace],
-        color: VSCODE_DARK_COLORS.cyanBright,
-    },
-
-    // VS CODE: Strings (Orange)
-    {
-        tag: [t.string, t.special(t.string), t.regexp],
-        color: VSCODE_DARK_COLORS.orange,
-    },
-
-    // VS CODE: Numbers & Booleans (Light Green)
-    {
-        tag: [t.number, t.bool, t.null, t.atom],
-        color: VSCODE_DARK_COLORS.greenBright,
-    },
-
-    // VS CODE: Comments (Green)
-    {
-        tag: [t.comment, t.lineComment, t.blockComment],
-        color: VSCODE_DARK_COLORS.green,
-    },
-
-    // VS CODE: HTML/JSX Tags (Blue)
-    {
-        tag: [t.tagName],
-        color: VSCODE_DARK_COLORS.blue,
-    },
-
-    // VS CODE: Attributes (Light Blue)
-    {
-        tag: [t.attributeName],
-        color: VSCODE_DARK_COLORS.cyan,
-    },
-
-    // VS CODE: Default Text / Punctuation (Light Gray/White)
-    {
-        tag: [t.punctuation, t.operator, t.bracket, t.separator],
-        color: VSCODE_DARK_COLORS.white,
-    },
-
-    // VS CODE: Escape (Yellow-Orange)
-    {
-        tag: [t.escape],
-        color: '#D7BA7D',
-    },
-
-    // Markdown / Headings
-    {
-        tag: [t.heading],
-        color: VSCODE_DARK_COLORS.blue,
-        fontWeight: 'bold',
-    },
-])
-
-// ═══════════════════════════════════════════════════════════════════════════
-// EXPORT PERFECT THEME
-// ═══════════════════════════════════════════════════════════════════════════
-
-export const codexTheme: Extension = [
-    codexEditorTheme,
-    syntaxHighlighting(codexHighlightStyle),
-]
+}, { dark: true })
 
 export default codexTheme

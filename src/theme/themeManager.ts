@@ -4,6 +4,31 @@ import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags as t } from '@lezer/highlight'
 import { ThemeData } from '../features/extensions/extensionsSlice'
 
+/**
+ * Anysphere Theme Syntax Colors - exact from JSON
+ */
+const ANYSPHERE_SYNTAX = {
+    keyword: '#83d6c5',
+    constant: '#83d6c5',
+    function: '#ebc88d',
+    variable: '#aa9bf5',
+    variableSpecial: '#E1DAE8',
+    type: '#87c3ff',
+    string: '#e394dc',
+    stringEscape: '#CC7832',
+    stringRegex: '#DA2877',
+    number: '#d6d6dd',
+    boolean: '#fad075',
+    comment: '#474747',
+    tag: '#fad075',
+    attribute: '#aaa0fa',
+    property: '#d6d6dd',
+    operator: '#d6d6dd',
+    punctuation: '#d6d6dd',
+    textLiteral: '#B5BD68',
+    text: '#fad075',
+} as const
+
 export function createThemeFromData(themeData: ThemeData): Extension {
     const { colors } = themeData
 
@@ -128,92 +153,101 @@ export function createThemeFromData(themeData: ThemeData): Extension {
         { dark: themeData.type === 'dark' }
     )
 
+    // ALWAYS use Anysphere syntax colors - no theme variations
     const highlightStyle = HighlightStyle.define([
-        // Keywords
+        // Keywords - Anysphere: #83d6c5
         {
-            tag: [
-                t.keyword,
-                t.modifier,
-                t.definitionKeyword,
-                t.standard(t.tagName),
-            ],
-            color: colors.keyword,
+            tag: [t.keyword, t.modifier, t.definitionKeyword, t.controlKeyword, t.moduleKeyword],
+            color: ANYSPHERE_SYNTAX.keyword,
         },
-
-        // Control Flow
+        // Constants - Anysphere: #83d6c5
         {
-            tag: [t.controlKeyword, t.moduleKeyword],
-            color: colors.keyword,
+            tag: [t.constant(t.variableName)],
+            color: ANYSPHERE_SYNTAX.constant,
         },
-
-        // Functions
+        // Functions - Anysphere: #ebc88d
         {
             tag: [t.function(t.variableName), t.macroName],
-            color: colors.function,
+            color: ANYSPHERE_SYNTAX.function,
         },
-
-        // Variables & Parameters
+        // Variables - Anysphere: #aa9bf5
         {
-            tag: [t.variableName, t.propertyName],
-            color: colors.variable,
+            tag: [t.variableName, t.definition(t.variableName)],
+            color: ANYSPHERE_SYNTAX.variable,
         },
         {
-            tag: [t.definition(t.variableName)],
-            color: colors.variable,
+            tag: [t.special(t.variableName)],
+            color: ANYSPHERE_SYNTAX.variableSpecial,
         },
-
-        // Types & Classes
+        // Types - Anysphere: #87c3ff
         {
             tag: [t.typeName, t.className, t.namespace],
-            color: colors.type,
+            color: ANYSPHERE_SYNTAX.type,
         },
-
-        // Strings
+        // Strings - Anysphere: #e394dc
         {
-            tag: [t.string, t.special(t.string), t.regexp],
-            color: colors.string,
+            tag: [t.string, t.special(t.string)],
+            color: ANYSPHERE_SYNTAX.string,
         },
-
-        // Numbers & Booleans
-        {
-            tag: [t.number, t.bool, t.null, t.atom],
-            color: colors.number,
-        },
-
-        // Comments
-        {
-            tag: [t.comment, t.lineComment, t.blockComment],
-            color: colors.comment,
-        },
-
-        // HTML/JSX Tags
-        {
-            tag: [t.tagName],
-            color: colors.tag,
-        },
-
-        // Attributes
-        {
-            tag: [t.attributeName],
-            color: colors.attribute,
-        },
-
-        // Default Text / Punctuation
-        {
-            tag: [t.punctuation, t.operator, t.bracket, t.separator],
-            color: colors.foreground,
-        },
-
-        // Escape
         {
             tag: [t.escape],
-            color: colors.string,
+            color: ANYSPHERE_SYNTAX.stringEscape,
         },
-
+        {
+            tag: [t.regexp],
+            color: ANYSPHERE_SYNTAX.stringRegex,
+        },
+        // Numbers - Anysphere: #d6d6dd
+        {
+            tag: [t.number],
+            color: ANYSPHERE_SYNTAX.number,
+        },
+        // Booleans - Anysphere: #fad075
+        {
+            tag: [t.bool, t.null, t.atom],
+            color: ANYSPHERE_SYNTAX.boolean,
+        },
+        // Comments - Anysphere: #474747 (italic)
+        {
+            tag: [t.comment, t.lineComment, t.blockComment, t.docComment],
+            color: ANYSPHERE_SYNTAX.comment,
+            fontStyle: 'italic',
+        },
+        // Tags - Anysphere: #fad075
+        {
+            tag: [t.tagName],
+            color: ANYSPHERE_SYNTAX.tag,
+        },
+        // Attributes - Anysphere: #aaa0fa (italic)
+        {
+            tag: [t.attributeName],
+            color: ANYSPHERE_SYNTAX.attribute,
+            fontStyle: 'italic',
+        },
+        // Properties - Anysphere: #d6d6dd
+        {
+            tag: [t.propertyName],
+            color: ANYSPHERE_SYNTAX.property,
+        },
+        // Operators & Punctuation - Anysphere: #d6d6dd
+        {
+            tag: [t.punctuation, t.operator, t.bracket, t.separator],
+            color: ANYSPHERE_SYNTAX.punctuation,
+        },
+        // Text Literals - Anysphere: #B5BD68
+        {
+            tag: [t.literal],
+            color: ANYSPHERE_SYNTAX.textLiteral,
+        },
+        // Text - Anysphere: #fad075
+        {
+            tag: [t.content],
+            color: ANYSPHERE_SYNTAX.text,
+        },
         // Markdown / Headings
         {
             tag: [t.heading],
-            color: colors.keyword,
+            color: ANYSPHERE_SYNTAX.type,
             fontWeight: 'bold',
         },
     ])

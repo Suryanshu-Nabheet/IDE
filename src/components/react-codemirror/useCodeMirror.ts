@@ -132,17 +132,6 @@ export function useCodeMirror(props: UseCodeMirror) {
     if (onUpdate && typeof onUpdate === 'function') {
         getExtensions.push(EditorView.updateListener.of(onUpdate))
     }
-    // getExtensions.unshift(Prec.highest(keymap.of([
-    //     {
-    //         key: connector.PLATFORM_CM_KEY + '-Backspace',
-    //         run: (view) => {
-    //
-    //             // return true
-    //             return true
-    //         }
-
-    //     }
-    // ])))
     getExtensions = getExtensions.concat(extensions)
 
     useEffect(() => {

@@ -26,10 +26,27 @@ export const startCompletion = createAsyncThunk(
         const pos = initialEditorState!.selection.ranges[0].anchor
 
         const path = API_ROOT + API_ENDPOINT
+        const settings = state.settingsState.settings
+        const aiProvider = settings.aiProvider || 'openai'
+        
+        // Get API key with .env fallback
+        let apiKey: string | null = null
+        if (aiProvider === 'openai' && settings.useOpenAIKey && settings.openAIKey) {
+            apiKey = settings.openAIKey
+        } else if (typeof window !== 'undefined' && (window as any).connector) {
+            try {
+                apiKey = await (window as any).connector.getEnvAPIKey(aiProvider) || null
+            } catch (error) {
+                // Ignore errors
+            }
+        }
+        
         const data = {
             file,
             content,
             pos: pos,
+            apiKey: apiKey, // Include API key for backend
+            provider: aiProvider,
         }
 
         dispatch(generationSlice.actions.pending(tabId))

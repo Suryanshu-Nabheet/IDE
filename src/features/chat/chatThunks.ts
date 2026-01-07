@@ -111,7 +111,7 @@ export async function getPayload({
     forContinue?: boolean
     forDiagnostics?: boolean
     diagnosticLineNumber?: number
-}) {
+}): Promise<any> {
     dispatch(setGenerating(true))
 
     const state = getState() as FullState
@@ -229,12 +229,79 @@ export async function getPayload({
 
     dispatch(updateLastUserMessageMsgType(null))
 
-    let oaiKey: string | undefined | null =
-        state.settingsState.settings.openAIKey
-    const openAIModel = state.settingsState.settings.openAIModel
-    const useOpenAI = state.settingsState.settings.useOpenAIKey
-    if (oaiKey == null || oaiKey === '' || !useOpenAI) {
-        oaiKey = null
+    // Get API key with .env fallback
+    // Priority: User Settings > .env file > null
+    const settings = state.settingsState.settings
+    const aiProvider = settings.aiProvider || 'openai'
+    
+    let oaiKey: string | undefined | null = null
+    let openAIModel: string | undefined = undefined
+    
+    // Get API key based on provider
+    if (aiProvider === 'openai') {
+        if (settings.useOpenAIKey && settings.openAIKey) {
+            oaiKey = settings.openAIKey
+            openAIModel = settings.openAIModel
+        } else if (typeof window !== 'undefined' && (window as any).connector) {
+            try {
+                const envKey = await (window as any).connector.getEnvAPIKey('openai')
+                if (envKey) {
+                    oaiKey = envKey
+                    openAIModel = settings.openAIModel || 'gpt-4-turbo-preview'
+                    // Using OpenAI API key from .env file
+                }
+            } catch (error) {
+                // Ignore errors
+            }
+        }
+    } else if (aiProvider === 'openrouter') {
+        if (settings.useOpenRouterKey && settings.openRouterKey) {
+            oaiKey = settings.openRouterKey
+            openAIModel = settings.openRouterModel
+        } else if (typeof window !== 'undefined' && (window as any).connector) {
+            try {
+                const envKey = await (window as any).connector.getEnvAPIKey('openrouter')
+                if (envKey) {
+                    oaiKey = envKey
+                    openAIModel = settings.openRouterModel || 'openai/gpt-4-turbo'
+                    // Using OpenRouter API key from .env file
+                }
+            } catch (error) {
+                // Ignore errors
+            }
+        }
+    } else if (aiProvider === 'gemini') {
+        if (settings.useGeminiKey && settings.geminiKey) {
+            oaiKey = settings.geminiKey
+            openAIModel = settings.geminiModel
+        } else if (typeof window !== 'undefined' && (window as any).connector) {
+            try {
+                const envKey = await (window as any).connector.getEnvAPIKey('gemini')
+                if (envKey) {
+                    oaiKey = envKey
+                    openAIModel = settings.geminiModel || 'gemini-pro'
+                    // Using Gemini API key from .env file
+                }
+            } catch (error) {
+                // Ignore errors
+            }
+        }
+    } else if (aiProvider === 'claude') {
+        if (settings.useClaudeKey && settings.claudeKey) {
+            oaiKey = settings.claudeKey
+            openAIModel = settings.claudeModel
+        } else if (typeof window !== 'undefined' && (window as any).connector) {
+            try {
+                const envKey = await (window as any).connector.getEnvAPIKey('claude')
+                if (envKey) {
+                    oaiKey = envKey
+                    openAIModel = settings.claudeModel || 'claude-3-opus-20240229'
+                    // Using Claude API key from .env file
+                }
+            } catch (error) {
+                // Ignore errors
+            }
+        }
     }
     const userRequest = {
         message: lastUserMessage.message,
@@ -281,6 +348,7 @@ export async function getPayload({
         rootPath: state.global.rootPath,
         apiKey: oaiKey,
         customModel: openAIModel,
+        provider: aiProvider, // Send provider info to backend
     }
 
     return data
@@ -730,6 +798,7 @@ export const streamResponse = createAsyncThunk(
                         })
                     )
                 } else if (value.trim() == 'gotoEdit') {
+                    const state = <FullState>getState()
                     const generationString =
                         state.chatState.botMessages[
                             state.chatState.botMessages.length - 1
@@ -747,13 +816,9 @@ export const streamResponse = createAsyncThunk(
                             (value) => value.filePath == relevantFilePath
                         )
                     ) {
-                        console.error(
-                            'Got multi-file edits which are not yet supported',
-                            generationJson
-                        )
-                        throw new Error(
-                            `Filepaths do not all match - ${relevantFilePath}`
-                        )
+                        // Multi-file edits not yet supported
+                        const errorMsg = 'Filepaths do not all match - ' + relevantFilePath
+                        throw new Error(errorMsg)
                     }
 
                     checkSend()
@@ -770,7 +835,12 @@ export const streamResponse = createAsyncThunk(
 
                     const tabId = thunkResult.payload
                     const transactionFunction: CustomTransaction[] =
-                        generationJson.map((change) => ({
+                        generationJson.map((change: {
+                            filePath: string
+                            startLine: number
+                            endLine: number
+                            text: string
+                        }) => ({
                             type: 'insert',
                             from: {
                                 line: change.startLine,

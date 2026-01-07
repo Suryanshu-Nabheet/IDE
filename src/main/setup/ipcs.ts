@@ -34,13 +34,48 @@ export default function setupIpcs() {
         }
     )
 
-    ipcMain.handle('initSettings', (_event: IpcMainInvokeEvent) => {
+    ipcMain.handle('initSettings', async (_event: IpcMainInvokeEvent) => {
         if (store.has('settings')) {
             log.info('found settings')
-            return store.get('settings')
+            const userSettings = store.get('settings') as Settings
+            
+            // If no AI provider is set, get default from .env
+            if (!userSettings.aiProvider) {
+                const { getDefaultAIProvider } = require('./env')
+                const defaultProvider = getDefaultAIProvider()
+                if (defaultProvider) {
+                    userSettings.aiProvider = defaultProvider
+                    store.set('settings', userSettings)
+                }
+            }
+            
+            return userSettings
         } else {
-            return {}
+            // Initialize with .env defaults
+            const { getDefaultAIProvider } = require('./env')
+            const defaultProvider = getDefaultAIProvider()
+            const initialSettings: Partial<Settings> = {}
+            if (defaultProvider) {
+                initialSettings.aiProvider = defaultProvider
+            }
+            return initialSettings
         }
+    })
+
+    // Get API key from environment variables
+    ipcMain.handle(
+        'getEnvAPIKey',
+        (_event: IpcMainInvokeEvent, provider: string) => {
+            const { getEnvAPIKey } = require('./env')
+            const envKey = getEnvAPIKey(provider as any)
+            return envKey
+        }
+    )
+
+    // Get default AI provider from environment
+    ipcMain.handle('getDefaultAIProvider', () => {
+        const { getDefaultAIProvider } = require('./env')
+        return getDefaultAIProvider()
     })
 
     ipcMain.handle('get_platform', function (_event: any) {
@@ -126,7 +161,7 @@ export default function setupIpcs() {
                 await addToFilesFolders(folderName, 0)
                 return { files, folders }
             } catch (e) {
-                console.error('Error in get_folder', e)
+                // Error loading folder
                 return { files, folders }
             }
         }

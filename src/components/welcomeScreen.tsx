@@ -53,8 +53,7 @@ export function WelcomeScreen() {
                     <h1 className="welcome-title">CodeX</h1>
                     <div className="welcome-title-line"></div>
                     <p className="welcome-motto">
-                        Press <kbd>⌘</kbd> <kbd>K</kbd> to unlock the power of
-                        CodeX AI
+                        Press <kbd>⌘ K</kbd> to unlock the power of CodeX AI
                     </p>
                 </header>
 
@@ -192,8 +191,7 @@ export function WelcomeScreen() {
 
                 <footer className="welcome-footer">
                     <div className="welcome-author">
-                        V{version?.toString().toUpperCase() || '0.0.11'} &mdash;
-                        BUILT BY <span>SURYANSHU NABHEET</span>
+                        CodeX v{version || '1.0.0'} · Made by Suryanshu Nabheet
                     </div>
                 </footer>
             </div>

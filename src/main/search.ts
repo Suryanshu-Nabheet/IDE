@@ -98,7 +98,6 @@ const searchWithGrep = async (arg: any) => {
     }
 
     if (!arg.rootPath) {
-        console.error('Root path is missing for grep search')
         return []
     }
 
@@ -178,12 +177,11 @@ const searchWithGrep = async (arg: any) => {
             resolve(code)
         })
         childProcess.on('error', (_err) => {
-            console.error('Grep process error:', _err)
             resolve(1)
         })
         if (childProcess.stderr) {
-            childProcess.stderr.on('data', (data) => {
-                console.error('Grep stderr:', data.toString())
+            childProcess.stderr.on('data', (_data) => {
+                // Grep stderr - silent
             })
         }
     })
@@ -246,7 +244,7 @@ const searchFilesName = async (
             })
             .filter(Boolean)
     } catch (error) {
-        console.error('Search files failed', error)
+        // Search files failed
         return []
     }
 }

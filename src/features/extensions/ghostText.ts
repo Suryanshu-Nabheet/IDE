@@ -1,5 +1,4 @@
-// Copilot ghost text removed - CodeX is offline-first
-// This file exists only to prevent import errors
+// Ghost text functionality - CodeX IDE
 
 export const completionDecoration = null
 export const getClient = () => null

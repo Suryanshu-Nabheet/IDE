@@ -20,7 +20,6 @@ import setupTerminal from './setup/terminal'
 import { setupStoreHandlers, store } from './storeHandler'
 import { setupTestIndexer } from './testIndexer'
 
-// TODO: Remove this
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 setupEnv()

@@ -205,7 +205,7 @@ export const StatusBar = () => {
 
             <div className="status-bar__center">
                 <span style={{ fontSize: '10px', opacity: 0.5 }}>
-                    © 2026 CodeX IDE - Built By Suryanshu Nabheet
+                    © 2026 CodeX - Built By Suryanshu Nabheet
                 </span>
             </div>
 

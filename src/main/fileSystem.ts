@@ -28,7 +28,6 @@ class SSHClient {
 
         // Handle any errors from the ssh process
         this.sshProcess.on('error', (err) => {
-            console.error(`SSH process error: ${err.message}`)
             this.callback(err)
             if (this.callback != null) this.callback = null
             out = ''

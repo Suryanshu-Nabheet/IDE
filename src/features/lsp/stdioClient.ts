@@ -389,9 +389,7 @@ export class LanguageServerClient {
         )
 
         if (!initResult || !initResult.capabilities) {
-            console.warn(
-                'LSP initialization failed or returned no capabilities'
-            )
+            // LSP initialization failed
             this.ready = false
             return
         }
@@ -668,7 +666,7 @@ export class LanguageServerClient {
         try {
             this.textDocumentDidChange(documentChange)
         } catch (e) {
-            console.error(e)
+            // Document change error
         }
     }
 

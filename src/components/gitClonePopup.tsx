@@ -14,6 +14,7 @@ const customStyles = {
         justifyContent: 'center',
         zIndex: 10000,
     },
+    
     content: {
         padding: '0',
         top: '150px',

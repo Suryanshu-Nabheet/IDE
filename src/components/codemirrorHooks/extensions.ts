@@ -39,7 +39,6 @@ import { languageServerStatus } from '../../features/lsp/languageServerSelector'
 import { getLanguageFromFilename } from '../../features/extensions/utils'
 import { scrollbarPlugin } from '../../features/extensions/minimap'
 import { cursorTooltip } from '../../features/extensions/selectionTooltip'
-// import { activeGutter } from '../../features/extensions/activeLineGutter'
 
 import { indentSelection } from '@codemirror/commands'
 import { emacs } from '@replit/codemirror-emacs'
@@ -162,10 +161,6 @@ const globalExtensions = [
     // history({
     //     joinToEvent: (tr: Transaction, isAdjacent: boolean) => {
     //         return true
-    //     },
-    // }),
-    //Prec.high(activeGutter),
-    // TODO - remove
 
     // regexpLinter,
     Prec.highest(
@@ -212,7 +207,7 @@ const globalExtensions = [
     indentCompartment.of([]),
     commentCompartment.of([]),
     readOnlyCompartment.of([]),
-    themeCompartment.of([]),
+    themeCompartment.of([]), // Will be configured by useEffect
     fontCompartment.of([]),
 ]
 
@@ -338,7 +333,7 @@ export function useExtensions({
                             },
                         })
 
-                        //remove seelction
+                        // Remove selection
                         view.dispatch({
                             selection: { anchor: pos },
                         })
@@ -439,19 +434,29 @@ export function useExtensions({
         }
     }, [settings.tabSize, editorRef.current, justCreated])
 
-    // Apply theme from settings
+    // Apply theme from settings - must update when theme changes
     useEffect(() => {
-        const themeName = settings.theme || 'codex-dark'
-        const themeData =
-            store.getState().extensionsState.availableThemes[themeName]
-
-        if (themeData && editorRef.current.view) {
-            const themeExtension = createThemeFromData(themeData)
-            editorRef.current.view.dispatch({
-                effects: themeCompartment.reconfigure(themeExtension),
-            })
+        const view = editorRef.current?.view
+        if (!view) return
+        
+        // Get fresh theme data from store to ensure we have latest
+        const state = store.getState()
+        const themes = state.extensionsState.availableThemes
+        const currentThemeName = settings.theme || 'codex-dark'
+        const themeData = themes[currentThemeName]
+        
+        if (themeData && themeData.colors) {
+            try {
+                const themeExtension = createThemeFromData(themeData)
+                // Apply immediately
+                view.dispatch({
+                    effects: themeCompartment.reconfigure(themeExtension),
+                })
+            } catch (error) {
+                // Theme application failed - silent fail
+            }
         }
-    }, [settings.theme, editorRef.current, justCreated])
+    }, [settings.theme, justCreated]) // Update when settings.theme changes
 
     // Apply font from settings
     useEffect(() => {

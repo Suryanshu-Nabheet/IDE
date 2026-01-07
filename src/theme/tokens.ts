@@ -1,53 +1,67 @@
 export const BASE_TOKENS = {
-    // Anysphere Dark Palette (Authoritative)
+    // Dark Brown Background with ANYSPHERE DARK Font Colors
     anysphere: {
-        // UI Backgrounds
-        editorBg: '#000000', // Pure Black
-        sidebarBg: '#000000', // Pure Black
-        panelBg: '#000000',
-        activityBarBg: '#000000',
-        titleBarBg: '#000000',
+        // UI Backgrounds - Dark Brown
+        editorBg: '#1e1e1e', // Editor background - warm dark brown
+        sidebarBg: '#1e1e1e', // Sidebar background - warm dark brown
+        panelBg: '#181818', // Panel background - ANYSPHERE DARK exact
+        activityBarBg: '#1e1e1e', // Activity bar - warm dark brown
+        titleBarBg: '#1e1e1e', // Title bar - warm dark brown
+        elevatedSurfaceBg: '#1d1d1d', // Elevated surface - ANYSPHERE DARK exact
 
-        // Tabs
-        tabActiveBg: '#000000',
-        tabInactiveBg: 'transparent',
-        tabHoverBg: '#111111',
-        tabBorder: '#1C2333', // Border / Divider
+        // Tabs - Dark Brown Background with ANYSPHERE DARK Font Colors
+        tabActiveBg: '#1e1e1e', // Active tab background - ANYSPHERE DARK exact
+        tabInactiveBg: '#1e1e1e', // Inactive tabs - warm dark brown
+        tabHoverBg: '#2a282a', // Tab hover - ANYSPHERE DARK exact
+        tabBorder: '#383838', // Border / Divider - ANYSPHERE DARK exact
 
-        // Text
-        fgPrimary: '#E6EAF2',
-        fgSecondary: '#9AA4BF',
-        fgMuted: '#5F6B85',
-        fgDisabled: '#3F475A',
+        // Text - Anysphere Dark
+        fgPrimary: '#d6d6dd', // Primary text
+        fgSecondary: '#d6d6dd', // Secondary text
+        fgMuted: '#d6d6dd', // Muted text
+        fgDisabled: '#535353', // Disabled text
 
-        // Editor Elements
-        cursor: '#82AAFF',
-        selection: 'rgba(130, 170, 255, 0.18)',
-        activeLine: 'rgba(255, 255, 255, 0.03)',
-        lineHighlight: 'rgba(255, 255, 255, 0.03)',
-        indentGuide: 'rgba(255, 255, 255, 0.05)',
-        bracketMatch: 'rgba(130, 170, 255, 0.25)',
+        // Editor Elements - Anysphere Dark
+        cursor: '#d6d6dd',
+        selection: '#163761', // Element selected
+        activeLine: '#212121', // Active line background
+        lineHighlight: '#212121',
+        indentGuide: '#383838',
+        bracketMatch: '#163761', // Document highlight bracket
 
-        // Syntax Highlighting (Mapped to ANYSPHERE_COLORS in codexTheme.ts)
-        keyword: '#C792EA',
-        string: '#ECC48D',
-        number: '#F78C6C',
-        function: '#82AAFF',
-        variable: '#E6EAF2',
-        type: '#FFCB6B',
-        comment: '#5F6B85',
-        tag: '#89DDFF',
-        attribute: '#C3E88D',
+        // Syntax Highlighting - Anysphere Dark (Exact Match)
+        keyword: '#83d6c5', // Keywords
+        string: '#e394dc', // Strings
+        stringEscape: '#CC7832', // String escapes
+        stringRegex: '#DA2877', // Regex
+        stringSpecial: '#CC7832', // Special strings
+        number: '#d6d6dd', // Numbers
+        boolean: '#fad075', // Booleans
+        function: '#ebc88d', // Functions
+        variable: '#aa9bf5', // Variables
+        variableSpecial: '#E1DAE8', // Special variables
+        type: '#87c3ff', // Types
+        comment: '#474747', // Comments
+        tag: '#fad075', // Tags
+        attribute: '#aaa0fa', // Attributes
+        constant: '#83d6c5', // Constants
+        textLiteral: '#B5BD68', // Text literals
+        text: '#fad075', // Text
+        operator: '#d6d6dd', // Operators
+        punctuation: '#d6d6dd', // Punctuation
+        property: '#d6d6dd', // Properties
 
-        // Accents & State
-        border: '#1C2333',
-        hover: '#151B2E',
-        focus: 'rgba(130, 170, 255, 0.15)',
-        error: '#FF5370',
-        success: '#C3E88D',
-        warning: '#FFCB6B',
-        activeFileBg: 'rgba(130, 170, 255, 0.12)',
-        activeFileText: '#FFFFFF',
+        // Accents & State - Anysphere Dark
+        border: '#383838', // Borders
+        hover: '#2a282a', // Element hover
+        focus: '#d6d6dd00', // Focus border (transparent)
+        error: '#f14c4c', // Error color
+        success: '#15ac91', // Success color
+        warning: '#ea7620', // Warning color
+        info: '#228df2', // Info color
+        activeFileBg: '#163761', // Element selected
+        activeFileText: '#d6d6dd', // Active file text
+        elementBackground: '#228df2', // Element background (accent)
     },
 } as const
 
@@ -88,7 +102,7 @@ export const SEMANTIC_TOKENS = {
         variable: BASE_TOKENS.anysphere.variable,
         type: BASE_TOKENS.anysphere.type,
 
-        // Legacy/Fallback
+        // Fallback
         selector: BASE_TOKENS.anysphere.tag,
         regex: BASE_TOKENS.anysphere.keyword,
         escape: BASE_TOKENS.anysphere.number,
@@ -117,31 +131,31 @@ export const SEMANTIC_TOKENS = {
         borderSubtle: BASE_TOKENS.anysphere.border,
     },
 
-    // Terminal
+    // Terminal - Cursor IDE Dark Brown
     terminal: {
-        background: BASE_TOKENS.anysphere.panelBg,
+        background: '#1e1e1e', // Terminal background - warm dark brown
         foreground: BASE_TOKENS.anysphere.fgPrimary,
         cursor: BASE_TOKENS.anysphere.cursor,
         selection: BASE_TOKENS.anysphere.selection,
 
-        // ANSI (Mapping to Anysphere Palette approximations where feasible or standards)
+        // ANSI Colors - Cursor IDE Dark Brown
         black: '#000000',
-        red: BASE_TOKENS.anysphere.error,
-        green: BASE_TOKENS.anysphere.success,
-        yellow: BASE_TOKENS.anysphere.warning,
-        blue: '#82AAFF',
-        magenta: '#C792EA',
-        cyan: '#89DDFF',
-        white: BASE_TOKENS.anysphere.fgPrimary,
+        red: '#cd3131',
+        green: '#0dbc79',
+        yellow: '#e5e510',
+        blue: '#2472c8',
+        magenta: '#bc3fbc',
+        cyan: '#11a8cd',
+        white: '#e5e5e5',
 
-        brightBlack: BASE_TOKENS.anysphere.fgMuted,
-        brightRed: '#FF5370',
-        brightGreen: '#C3E88D',
-        brightYellow: '#FFCB6B',
-        brightBlue: '#82AAFF',
-        brightMagenta: '#C792EA',
-        brightCyan: '#89DDFF',
-        brightWhite: '#FFFFFF',
+        brightBlack: '#666666',
+        brightRed: '#f14c4c',
+        brightGreen: '#23d18b',
+        brightYellow: '#f5f543',
+        brightBlue: '#3b8eea',
+        brightMagenta: '#d670d6',
+        brightCyan: '#29b8db',
+        brightWhite: '#ffffff',
     },
 } as const
 
@@ -190,36 +204,36 @@ export const COMPONENT_TOKENS = {
         border: BASE_TOKENS.anysphere.border,
     },
 
-    // Inputs
+    // Inputs - Cursor IDE Dark Brown
     input: {
-        background: '#0B0E14',
+        background: '#252525', // Elevated surface
         foreground: BASE_TOKENS.anysphere.fgPrimary,
         border: BASE_TOKENS.anysphere.border,
-        borderFocus: BASE_TOKENS.anysphere.focus, // Blue glow
+        borderFocus: BASE_TOKENS.anysphere.focus, // Soft blue glow
         placeholder: BASE_TOKENS.anysphere.fgDisabled,
     },
 
-    // Buttons
+    // Buttons - Cursor IDE Dark Brown
     button: {
-        primary: '#3794ff',
-        primaryHover: '#006ab1',
-        primaryActive: '#004f85',
+        primary: '#569cd6', // Soft blue
+        primaryHover: '#4a8bc2',
+        primaryActive: '#3d7aae',
 
         success: BASE_TOKENS.anysphere.success,
-        successHover: '#a3d995',
+        successHover: '#9ae09a',
 
         danger: BASE_TOKENS.anysphere.error,
-        dangerHover: '#d93636',
+        dangerHover: '#ff6b6b',
 
-        secondary: '#3c3c3c',
-        secondaryHover: '#4d4d4d',
+        secondary: '#3a3a3a', // Warm brown
+        secondaryHover: '#4a4a4a',
     },
 
-    // Scrollbar
+    // Scrollbar - Cursor IDE Dark Brown
     scrollbar: {
         background: 'transparent',
-        thumb: 'rgba(80, 80, 80, 0.5)',
-        thumbHover: 'rgba(100, 100, 100, 0.8)',
+        thumb: 'rgba(138, 138, 138, 0.4)', // Muted brown
+        thumbHover: 'rgba(138, 138, 138, 0.6)',
     },
 
     // Tooltips
