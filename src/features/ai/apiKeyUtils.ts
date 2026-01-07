@@ -68,16 +68,17 @@ export async function getActiveProviderAPIKey(
     let model = ''
     switch (provider) {
         case 'openai':
-            model = settings.openAIModel || 'gpt-4-turbo-preview'
+            model = settings.openAIModel || 'gpt-4o'
             break
         case 'openrouter':
-            model = settings.openRouterModel || 'openai/gpt-4-turbo'
+            model = settings.openRouterModel || 'openai/gpt-4o'
             break
         case 'gemini':
-            model = settings.geminiModel || 'gemini-pro'
+            model = settings.geminiModel || 'gemini-1.5-pro'
             break
         case 'claude':
-            model = settings.claudeModel || 'claude-3-opus-20240229'
+            // Claude 3.5 Sonnet is the best coding model
+            model = settings.claudeModel || 'claude-3.5-sonnet-20241022'
             break
     }
 

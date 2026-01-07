@@ -14,6 +14,7 @@ import {
     triggerFileSearch,
     untriggerCommandPalette,
 } from '../features/tools/toolSlice'
+import * as ts from '../features/tools/toolSlice'
 import { toggleSettings } from '../features/settings/settingsSlice'
 import { commandPaletteTriggeredSelector } from '../features/tools/toolSelectors'
 import { Combobox } from '@headlessui/react'
@@ -110,7 +111,7 @@ const aiCommands: { [key in AICommandIds]: AICommand } = {
         description: 'Ask a question about the current file or anything',
         shortcut: [commandKey + 'L'],
         action: (dispatch: any) => {
-            dispatch(pressAICommand('l'))
+            dispatch(ts.triggerAICommandPalette())
         },
     },
     freeform_select: {
@@ -122,7 +123,7 @@ const aiCommands: { [key in AICommandIds]: AICommand } = {
         description: 'Ask a question about the current file',
         shortcut: [commandKey + 'L'],
         action: (dispatch: any) => {
-            dispatch(pressAICommand('l'))
+            dispatch(ts.triggerAICommandPalette())
         },
     },
 }
@@ -425,11 +426,22 @@ export function InnerCommandPalette({
                 e.preventDefault()
                 // click on the selected item
                 if (filteredResults[selectedIndex]) {
+                    const selectedCommand = allCommands[filteredResults[selectedIndex].id]
+                    
+                    // If it's a chat command and user has typed something, transition to chat sidebar
+                    if ((selectedCommand.id === 'freeform' || selectedCommand.id === 'freeform_select') && query.trim()) {
+                        dispatch(ts.triggerAICommandPalette())
+                        // Store query to be used in chat sidebar
+                        if (typeof window !== 'undefined') {
+                            (window as any).__codexChatQuery = query.trim()
+                        }
+                        closeTrigger()
+                        setQuery('')
+                        return
+                    }
+                    
                     closeTrigger()
-                    allCommands[filteredResults[selectedIndex].id].action(
-                        dispatch
-                    )
-
+                    selectedCommand.action(dispatch)
                     setQuery('')
                 }
             }
