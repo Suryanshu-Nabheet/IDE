@@ -452,6 +452,7 @@ const electronConnector = {
     getEnvAPIKey: (provider: string) =>
         ipcRenderer.invoke('getEnvAPIKey', provider),
     getDefaultAIProvider: () => ipcRenderer.invoke('getDefaultAIProvider'),
+    getEnvKeyStatus: () => ipcRenderer.invoke('getEnvKeyStatus'),
 }
 
 contextBridge.exposeInMainWorld('connector', electronConnector)

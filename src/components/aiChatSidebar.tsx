@@ -6,14 +6,17 @@ import {
     faXmark,
     faSparkles,
     faCircleUser,
-    faChevronDown,
-    faCheck,
+    faGear,
+    faArrowRight,
 } from '@fortawesome/pro-regular-svg-icons'
 import * as ts from '../features/tools/toolSlice'
-import { Listbox } from '@headlessui/react'
 import { getActiveProviderAPIKey } from '../features/ai/apiKeyUtils'
-import { streamAIResponse, DEFAULT_MODELS, AIProvider } from '../features/ai/providers'
+import { streamAIResponse, AIProvider } from '../features/ai/providers'
 import * as ssel from '../features/settings/settingsSelectors'
+import {
+    toggleSettings,
+    setSettingsTab,
+} from '../features/settings/settingsSlice'
 import cx from 'classnames'
 
 interface Message {
@@ -21,19 +24,6 @@ interface Message {
     role: 'user' | 'assistant'
     content: string
     timestamp: Date
-}
-
-interface ModelOption {
-    value: string
-    label: string
-    provider: AIProvider
-    isFree?: boolean
-}
-
-interface ProviderGroup {
-    provider: AIProvider
-    name: string
-    models: ModelOption[]
 }
 
 export function AIChatSidebar() {
@@ -45,13 +35,28 @@ export function AIChatSidebar() {
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState('')
     const [isGenerating, setIsGenerating] = useState(false)
-    const [selectedModel, setSelectedModel] = useState<string>('auto')
     const [streamingContent, setStreamingContent] = useState('')
-    const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
+    const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
+        null
+    )
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const abortControllerRef = useRef<AbortController | null>(null)
     const handleSendRef = useRef<(() => Promise<void>) | null>(null)
+
+    // Check if AI is configured
+    const isAIConfigured = useMemo(() => {
+        const provider = settings.aiProvider
+        if (provider === 'openai')
+            return !!(settings.useOpenAIKey && settings.openAIKey)
+        if (provider === 'openrouter')
+            return !!(settings.useOpenRouterKey && settings.openRouterKey)
+        if (provider === 'gemini')
+            return !!(settings.useGeminiKey && settings.geminiKey)
+        if (provider === 'claude')
+            return !!(settings.useClaudeKey && settings.claudeKey)
+        return false
+    }, [settings])
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -65,26 +70,30 @@ export function AIChatSidebar() {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto'
             textareaRef.current.style.height =
-                Math.min(textareaRef.current.scrollHeight, 300) + 'px'
+                Math.min(textareaRef.current.scrollHeight, 200) + 'px'
         }
     }, [input])
 
-    // Listen for query from Command+K and focus textarea
+    // Listen for query from Command+K
     useEffect(() => {
         if (aiSidebarOpen && textareaRef.current) {
-            // Check if there's a query from Command+K
-            if (typeof window !== 'undefined' && (window as any).__codexChatQuery) {
+            if (
+                typeof window !== 'undefined' &&
+                (window as any).__codexChatQuery
+            ) {
                 const query = (window as any).__codexChatQuery
                 delete (window as any).__codexChatQuery
-                // Set input and auto-send
                 setInput(query)
                 setTimeout(() => {
-                    if (query.trim() && !isGenerating && handleSendRef.current) {
+                    if (
+                        query.trim() &&
+                        !isGenerating &&
+                        handleSendRef.current
+                    ) {
                         handleSendRef.current()
                     }
                 }, 300)
             } else {
-                // Just focus the textarea when sidebar opens
                 setTimeout(() => {
                     textareaRef.current?.focus()
                 }, 100)
@@ -92,84 +101,37 @@ export function AIChatSidebar() {
         }
     }, [aiSidebarOpen])
 
-    // Organize models by provider sections
-    const providerGroups = useMemo((): ProviderGroup[] => {
-        const groups: ProviderGroup[] = []
-        
-        // Add Auto option as first group
-        const currentProvider = settings.aiProvider || 'openai'
-        groups.push({
-            provider: currentProvider as AIProvider,
-            name: 'Default',
-            models: [{
-                value: 'auto',
-                label: `Auto (${getProviderDisplayName(currentProvider)})`,
-                provider: currentProvider as AIProvider,
-            }],
-        })
-
-        // Group all providers with their models
-        const providers: AIProvider[] = ['openai', 'claude', 'gemini', 'openrouter']
-        
-        providers.forEach((provider) => {
-            const models = DEFAULT_MODELS[provider] || []
-            const modelOptions: ModelOption[] = []
-
-            models.forEach((model) => {
-                const isFree = model.includes(':free')
-                const cleanModel = model.replace(':free', '')
-                const displayName = formatModelName(cleanModel, provider)
-                
-                modelOptions.push({
-                    value: model,
-                    label: displayName,
-                    provider,
-                    isFree,
-                })
-            })
-
-            if (modelOptions.length > 0) {
-                groups.push({
-                    provider,
-                    name: getProviderDisplayName(provider),
-                    models: modelOptions,
-                })
-            }
-        })
-
-        return groups
-    }, [settings.aiProvider])
-
-    // Get the actual model to use for API call
-    const getModelToUse = async (): Promise<{ model: string; provider: AIProvider; apiKey: string }> => {
+    const getModelToUse = async (): Promise<{
+        model: string
+        provider: AIProvider
+        apiKey: string
+    }> => {
         const providerInfo = await getActiveProviderAPIKey(settings)
-        if (!providerInfo) {
-            throw new Error('No API key configured. Please set up an API key in Settings or .env file.')
+
+        if (process.env.NODE_ENV === 'development') {
+            console.log('[AI Chat] Provider info:', providerInfo)
         }
 
-        if (selectedModel === 'auto') {
+        if (!providerInfo) {
+            throw new Error('No API key configured.')
+        }
+
+        const currentProvider = settings.aiProvider || 'openai'
+        if (currentProvider === 'openrouter') {
+            if (process.env.NODE_ENV === 'development') {
+                console.log(
+                    '[AI Chat] Using OpenRouter with model:',
+                    providerInfo.model
+                )
+            }
             return {
                 model: providerInfo.model,
-                provider: providerInfo.provider as AIProvider,
-                apiKey: providerInfo.apiKey!,
-            }
-        }
-
-        // User selected a specific model
-        const currentProvider = settings.aiProvider || 'openai'
-
-        // If using OpenRouter, we can use any OpenRouter model (including cross-provider models)
-        if (currentProvider === 'openrouter') {
-            // Keep the :free suffix if present, OpenRouter handles it
-            return {
-                model: selectedModel,
                 provider: 'openrouter',
                 apiKey: providerInfo.apiKey!,
             }
         }
 
-        // For direct providers (OpenAI, Gemini, Claude), remove :free suffix and use model directly
-        const selectedModelClean = selectedModel.replace(':free', '')
+        const selectedModelClean = providerInfo.model.replace(':free', '')
         return {
             model: selectedModelClean,
             provider: currentProvider as AIProvider,
@@ -179,6 +141,12 @@ export function AIChatSidebar() {
 
     const handleSend = async () => {
         if (!input.trim() || isGenerating) return
+
+        if (!isAIConfigured) {
+            dispatch(setSettingsTab('AI'))
+            dispatch(toggleSettings())
+            return
+        }
 
         const userMessage: Message = {
             id: Date.now().toString(),
@@ -193,7 +161,6 @@ export function AIChatSidebar() {
         setIsGenerating(true)
         setStreamingContent('')
 
-        // Abort any previous request
         if (abortControllerRef.current) {
             abortControllerRef.current.abort()
         }
@@ -202,7 +169,6 @@ export function AIChatSidebar() {
         try {
             const { model, provider, apiKey } = await getModelToUse()
 
-            // Prepare messages for API
             const apiMessages = [
                 ...messages.map((m) => ({
                     role: m.role as 'user' | 'assistant' | 'system',
@@ -211,7 +177,6 @@ export function AIChatSidebar() {
                 { role: 'user' as const, content: userInput },
             ]
 
-            // Create assistant message placeholder
             const assistantMessageId = Date.now().toString() + '_assistant'
             setStreamingMessageId(assistantMessageId)
             setMessages((prev) => [
@@ -224,7 +189,6 @@ export function AIChatSidebar() {
                 },
             ])
 
-            // Stream response
             let fullContent = ''
             const providerConfig = {
                 provider,
@@ -233,7 +197,10 @@ export function AIChatSidebar() {
                 defaultModel: model,
             }
 
-            for await (const chunk of streamAIResponse(providerConfig, apiMessages)) {
+            for await (const chunk of streamAIResponse(
+                providerConfig,
+                apiMessages
+            )) {
                 if (abortControllerRef.current?.signal.aborted) {
                     break
                 }
@@ -241,11 +208,9 @@ export function AIChatSidebar() {
                 setStreamingContent(fullContent)
             }
 
-            // Clear streaming state FIRST to prevent duplicate rendering
             setStreamingContent('')
             setStreamingMessageId(null)
-            
-            // Then update the assistant message with final content (only once)
+
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.id === assistantMessageId
@@ -254,8 +219,7 @@ export function AIChatSidebar() {
                 )
             )
         } catch (error: any) {
-            const errorMessage =
-                error.message || 'Failed to get response. Please check your API key and try again.'
+            const errorMessage = error.message || 'Failed to get response.'
             setMessages((prev) => [
                 ...prev,
                 {
@@ -280,225 +244,228 @@ export function AIChatSidebar() {
         }
     }
 
-    // Update handleSendRef when handleSend changes
     useEffect(() => {
         handleSendRef.current = handleSend
     }, [handleSend])
 
-    const selectedModelOption = useMemo(() => {
-        for (const group of providerGroups) {
-            const model = group.models.find((m) => m.value === selectedModel)
-            if (model) return model
-        }
-        return providerGroups[0]?.models[0]
-    }, [selectedModel, providerGroups])
+    // --- RENDER ---
 
-    const getProviderIcon = (_provider: AIProvider) => {
-        // Return icon component for provider
-        return <FontAwesomeIcon icon={faSparkles} />
+    if (!isAIConfigured) {
+        return (
+            <div className="h-full flex flex-col bg-[var(--sidebar-bg)] border-l border-[var(--ui-border)]">
+                {/* Header - Matching topbar height (35px) */}
+                <div className="h-[35px] min-h-[35px] flex items-center justify-between px-4 border-b border-[var(--ui-border)] bg-[var(--sidebar-bg)]">
+                    <div className="flex items-center gap-2">
+                        <FontAwesomeIcon
+                            icon={faSparkles}
+                            className="text-[var(--accent)] text-xs"
+                        />
+                        <span className="text-[11px] font-semibold text-[var(--ui-fg)] tracking-wide uppercase">
+                            CodeX AI
+                        </span>
+                    </div>
+                    <button
+                        onClick={() => dispatch(ts.untriggerAICommandPalette())}
+                        className="w-6 h-6 flex items-center justify-center rounded text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)] transition-colors"
+                    >
+                        <FontAwesomeIcon icon={faXmark} className="text-xs" />
+                    </button>
+                </div>
+
+                {/* Empty State */}
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                    <div className="w-16 h-16 rounded-lg bg-[var(--ui-bg-elevated)] flex items-center justify-center mb-5 border border-[var(--ui-border)]">
+                        <FontAwesomeIcon
+                            icon={faGear}
+                            className="text-2xl text-[var(--accent)]"
+                        />
+                    </div>
+                    <h3 className="text-base font-semibold text-[var(--ui-fg)] mb-2">
+                        Setup AI Engine
+                    </h3>
+                    <p className="text-xs text-[var(--ui-fg-muted)] mb-6 leading-relaxed max-w-[240px]">
+                        Connect your preferred AI provider to unlock intelligent
+                        code generation and chat features.
+                    </p>
+                    <button
+                        onClick={() => {
+                            dispatch(setSettingsTab('AI'))
+                            dispatch(toggleSettings())
+                        }}
+                        className="group flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-medium rounded-lg transition-all"
+                    >
+                        Configure Now
+                        <FontAwesomeIcon
+                            icon={faArrowRight}
+                            className="text-xs group-hover:translate-x-0.5 transition-transform"
+                        />
+                    </button>
+                </div>
+            </div>
+        )
     }
 
     return (
-        <div className="ai-sidebar">
-            {/* Header */}
-            <div className="ai-sidebar__header">
-                <div className="ai-sidebar__header-left">
-                    <FontAwesomeIcon icon={faSparkles} />
-                    <span>CodeX AI</span>
+        <div className="h-full flex flex-col bg-[var(--sidebar-bg)] border-l border-[var(--ui-border)]">
+            {/* Header - Matching topbar height (35px) */}
+            <div className="h-[35px] min-h-[35px] flex items-center justify-between px-4 border-b border-[var(--ui-border)] bg-[var(--sidebar-bg)]">
+                <div className="flex items-center gap-2">
+                    <FontAwesomeIcon
+                        icon={faSparkles}
+                        className="text-[var(--accent)] text-xs"
+                    />
+                    <span className="text-[11px] font-semibold text-[var(--ui-fg)] tracking-wide uppercase">
+                        CodeX AI
+                    </span>
                 </div>
                 <button
                     onClick={() => dispatch(ts.untriggerAICommandPalette())}
-                    className="ai-sidebar__close-btn"
-                    aria-label="Close AI Assistant"
+                    className="w-6 h-6 flex items-center justify-center rounded text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)] transition-colors"
                 >
-                    <FontAwesomeIcon icon={faXmark} />
+                    <FontAwesomeIcon icon={faXmark} className="text-xs" />
                 </button>
             </div>
 
-            {/* Messages */}
-            <div className="ai-sidebar__messages ai-chat-messages">
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
                 {messages.length === 0 && (
-                    <div className="ai-sidebar__empty">
-                        <div className="ai-sidebar__empty-icon">
-                            <FontAwesomeIcon icon={faSparkles} />
+                    <div className="h-full flex flex-col items-center justify-center text-center opacity-50 pb-16">
+                        <div className="w-12 h-12 rounded-lg bg-[var(--ui-bg-elevated)] flex items-center justify-center mb-3 border border-[var(--ui-border)]">
+                            <FontAwesomeIcon
+                                icon={faSparkles}
+                                className="text-lg text-[var(--ui-fg-muted)]"
+                            />
                         </div>
-                        <div className="ai-sidebar__empty-text">
-                            <p className="ai-sidebar__empty-title">
-                                What can I do for you?
-                            </p>
-                            <p className="ai-sidebar__empty-subtitle">
-                                Ask me anything about your code
-                            </p>
-                        </div>
+                        <h4 className="text-sm font-medium text-[var(--ui-fg)] mb-1">
+                            Ready to assist
+                        </h4>
+                        <p className="text-xs text-[var(--ui-fg-muted)]">
+                            Ask me anything about your code
+                        </p>
                     </div>
                 )}
 
                 {messages.map((message) => {
-                    // Only show streaming content if this is the active streaming message AND message has no content yet
-                    const isStreaming = message.id === streamingMessageId && streamingContent && !message.content
-                    const displayContent = isStreaming ? streamingContent : (message.content || '')
-                    
-                    // Don't render empty assistant messages (they're placeholders that haven't started streaming)
-                    if (message.role === 'assistant' && !displayContent && !isStreaming) {
+                    const isStreaming =
+                        message.id === streamingMessageId &&
+                        streamingContent &&
+                        !message.content
+                    const displayContent = isStreaming
+                        ? streamingContent
+                        : message.content || ''
+
+                    if (
+                        message.role === 'assistant' &&
+                        !displayContent &&
+                        !isStreaming
+                    )
                         return null
-                    }
-                    
+
                     return (
-                        <div key={message.id} className="ai-message">
-                            <div className="ai-message__avatar">
+                        <div
+                            key={message.id}
+                            className={cx(
+                                'flex gap-3 animate-in fade-in slide-in-from-bottom-1 duration-200',
+                                message.role === 'user'
+                                    ? 'flex-row-reverse'
+                                    : 'flex-row'
+                            )}
+                        >
+                            {/* Avatar */}
+                            <div
+                                className={cx(
+                                    'w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5',
+                                    message.role === 'user'
+                                        ? 'bg-[var(--ui-bg-elevated)] text-[var(--ui-fg-muted)] border border-[var(--ui-border)]'
+                                        : 'bg-[var(--accent)] text-white'
+                                )}
+                            >
                                 <FontAwesomeIcon
                                     icon={
                                         message.role === 'user'
                                             ? faCircleUser
                                             : faSparkles
                                     }
+                                    className="text-xs"
                                 />
                             </div>
-                            <div className="ai-message__content-wrapper">
-                                <div className="ai-message__content">
-                                    {displayContent}
-                                </div>
-                                <div className="ai-message__timestamp">
-                                    {message.timestamp.toLocaleTimeString([], {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })}
-                                </div>
+
+                            {/* Message Content */}
+                            <div
+                                className={cx(
+                                    'flex-1 min-w-0 text-[13px] leading-relaxed break-words',
+                                    message.role === 'user'
+                                        ? 'bg-[var(--ui-bg-elevated)] text-[var(--ui-fg)] px-3 py-2 rounded-lg border border-[var(--ui-border)]'
+                                        : 'text-[var(--ui-fg)] pt-0.5'
+                                )}
+                            >
+                                {message.role === 'assistant' ? (
+                                    <pre className="whitespace-pre-wrap font-sans text-[var(--ui-fg)] leading-relaxed">
+                                        {displayContent}
+                                    </pre>
+                                ) : (
+                                    displayContent
+                                )}
                             </div>
                         </div>
                     )
                 })}
 
                 {isGenerating && !streamingContent && (
-                    <div className="ai-message">
-                        <div className="ai-message__avatar">
-                            <FontAwesomeIcon icon={faSparkles} />
+                    <div className="flex gap-3">
+                        <div className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center shrink-0">
+                            <FontAwesomeIcon
+                                icon={faSparkles}
+                                className="text-white text-xs"
+                            />
                         </div>
-                        <div className="typing-indicator-codex">
-                            <span></span>
-                            <span></span>
-                            <span></span>
+                        <div className="flex items-center gap-1 h-7">
+                            <div className="w-1 h-1 bg-[var(--ui-fg-muted)] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                            <div className="w-1 h-1 bg-[var(--ui-fg-muted)] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                            <div className="w-1 h-1 bg-[var(--ui-fg-muted)] rounded-full animate-bounce" />
                         </div>
                     </div>
                 )}
+
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input with Model Selection - Reference Design */}
-            <div className="ai-sidebar__input-wrapper">
-                <div className="ai-sidebar__input-container">
-                    <div className="ai-sidebar__textarea-wrapper">
-                        <textarea
-                            ref={textareaRef}
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder="What can I do for you?"
-                            className="ai-sidebar__textarea"
-                            disabled={isGenerating}
-                        />
-                    </div>
+            {/* Input Area */}
+            <div className="p-3 bg-[var(--sidebar-bg)] border-t border-[var(--ui-border)]">
+                <div className="relative bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg focus-within:border-[var(--accent)] transition-colors">
+                    <textarea
+                        ref={textareaRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Ask a question..."
+                        rows={1}
+                        className="w-full bg-transparent text-[var(--input-fg)] placeholder-[var(--input-placeholder)] text-[13px] px-3 py-2.5 focus:outline-none resize-none min-h-[38px] max-h-[150px]"
+                        disabled={isGenerating}
+                    />
 
-                    <div className="ai-sidebar__input-footer">
-                        <div className="ai-sidebar__input-controls">
-                            {/* Model Selector */}
-                            <Listbox value={selectedModel} onChange={setSelectedModel}>
-                                <div className="relative" style={{ zIndex: 10002 }}>
-                                    <Listbox.Button className="ai-sidebar__model-select-btn">
-                                        <span className="ai-sidebar__model-select-content">
-                                            {getProviderIcon(selectedModelOption?.provider || 'openai')}
-                                            <span className="ai-sidebar__model-select-text">
-                                                {selectedModelOption?.label || 'Select Model'}
-                                            </span>
-                                            <FontAwesomeIcon icon={faChevronDown} size="xs" className="ai-sidebar__model-select-chevron" />
-                                        </span>
-                                    </Listbox.Button>
-                                    <Listbox.Options className="ai-sidebar__model-dropdown">
-                                        {providerGroups.map((group) => (
-                                            <div key={group.provider} className="ai-sidebar__provider-group">
-                                                <div className="ai-sidebar__provider-group-label">
-                                                    {group.name}
-                                                </div>
-                                                {group.models.map((model) => (
-                                                    <Listbox.Option
-                                                        key={model.value}
-                                                        value={model.value}
-                                                        className={({ active }) =>
-                                                            cx('ai-sidebar__model-option', {
-                                                                'ai-sidebar__model-option--active': active,
-                                                            })
-                                                        }
-                                                    >
-                                                        {({ selected }) => (
-                                                            <div className="ai-sidebar__model-option-content">
-                                                                <div className="ai-sidebar__model-option-left">
-                                                                    {getProviderIcon(model.provider)}
-                                                                    <span>{model.label}</span>
-                                                                </div>
-                                                                {selected && (
-                                                                    <FontAwesomeIcon icon={faCheck} className="ai-sidebar__model-check" />
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </Listbox.Option>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </Listbox.Options>
-                                </div>
-                            </Listbox>
-
-                            <div className="ai-sidebar__input-divider" />
-
-                            {/* Send Button */}
-                            <button
-                                onClick={handleSend}
-                                disabled={!input.trim() || isGenerating}
-                                className="ai-sidebar__send-btn-inline"
-                                aria-label="Send message"
-                            >
-                                <FontAwesomeIcon 
-                                    icon={faPaperPlaneTop} 
-                                    className={cx('ai-sidebar__send-icon', {
-                                        'ai-sidebar__send-icon--disabled': !input.trim() || isGenerating,
-                                    })}
-                                />
-                            </button>
+                    <div className="px-2 pb-2 flex justify-between items-center">
+                        <div className="text-[9px] text-[var(--ui-fg-muted)] font-semibold px-1.5 py-0.5 rounded bg-[var(--ui-bg-elevated)] uppercase tracking-wider">
+                            {settings.aiProvider ? settings.aiProvider : 'AI'}
                         </div>
+                        <button
+                            onClick={handleSend}
+                            disabled={!input.trim() || isGenerating}
+                            className={cx(
+                                'w-7 h-7 flex items-center justify-center rounded-md transition-all',
+                                !input.trim() || isGenerating
+                                    ? 'text-[var(--ui-fg-muted)] opacity-30 cursor-not-allowed'
+                                    : 'bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] active:scale-95'
+                            )}
+                        >
+                            <FontAwesomeIcon
+                                icon={faPaperPlaneTop}
+                                className="text-xs"
+                            />
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     )
-}
-
-// Helper functions
-function getProviderDisplayName(provider: string): string {
-    const names: Record<string, string> = {
-        openai: 'OpenAI',
-        openrouter: 'OpenRouter',
-        gemini: 'Gemini',
-        claude: 'Claude',
-    }
-    return names[provider] || 'AI'
-}
-
-function formatModelName(model: string, provider: string): string {
-    // Remove provider prefix for cleaner display
-    if (provider === 'openrouter') {
-        // Format: "anthropic/claude-3.5-sonnet" -> "Claude 3.5 Sonnet"
-        const parts = model.split('/')
-        if (parts.length > 1) {
-            const modelName = parts[1]
-            return modelName
-                .replace(/-/g, ' ')
-                .replace(/\b\w/g, (l) => l.toUpperCase())
-        }
-    }
-    
-    // For direct providers, format the model name
-    return model
-        .replace(/-/g, ' ')
-        .replace(/\b\w/g, (l) => l.toUpperCase())
-        .replace(/\d+(\w+)/g, (m) => m.toUpperCase())
 }

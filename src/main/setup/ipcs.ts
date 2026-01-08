@@ -38,44 +38,27 @@ export default function setupIpcs() {
         if (store.has('settings')) {
             log.info('found settings')
             const userSettings = store.get('settings') as Settings
-            
-            // If no AI provider is set, get default from .env
-            if (!userSettings.aiProvider) {
-                const { getDefaultAIProvider } = require('./env')
-                const defaultProvider = getDefaultAIProvider()
-                if (defaultProvider) {
-                    userSettings.aiProvider = defaultProvider
-                    store.set('settings', userSettings)
-                }
-            }
-            
             return userSettings
         } else {
-            // Initialize with .env defaults
-            const { getDefaultAIProvider } = require('./env')
-            const defaultProvider = getDefaultAIProvider()
-            const initialSettings: Partial<Settings> = {}
-            if (defaultProvider) {
-                initialSettings.aiProvider = defaultProvider
-            }
-            return initialSettings
+            // Initialize with empty settings
+            return {}
         }
     })
 
-    // Get API key from environment variables
     ipcMain.handle(
         'getEnvAPIKey',
-        (_event: IpcMainInvokeEvent, provider: string) => {
-            const { getEnvAPIKey } = require('./env')
-            const envKey = getEnvAPIKey(provider as any)
-            return envKey
+        (_event: IpcMainInvokeEvent, _provider: string) => {
+            return null
         }
     )
 
-    // Get default AI provider from environment
     ipcMain.handle('getDefaultAIProvider', () => {
-        const { getDefaultAIProvider } = require('./env')
-        return getDefaultAIProvider()
+        return null
+    })
+
+    // Get status of environment keys (Legacy/Removed)
+    ipcMain.handle('getEnvKeyStatus', () => {
+        return {}
     })
 
     ipcMain.handle('get_platform', function (_event: any) {

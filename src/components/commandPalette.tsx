@@ -373,38 +373,42 @@ export function InnerCommandPalette({
         }
     }, [openingTrigger])
 
-    // effect for when becomes unfocused
+    // Handle clicking outside to close
     useEffect(() => {
-        if (
-            showing &&
-            comboRef.current &&
-            comboBtn.current &&
-            fullComboRef.current
-        ) {
-            comboRef.current.focus()
-            const handleBlur = (event: any) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) {
-                    // This is here in order to prevent the command palette from
-                    // immediately closing when the user clicks on a command
-                    setTimeout(() => {
-                        setShowing(false)
-                        closeTrigger()
-                        setQuery('')
-                    }, 100)
-                    // setShowing(false)
+        if (showing && fullComboRef.current) {
+            // Focus the input after a short delay
+            setTimeout(() => {
+                comboRef.current?.focus()
+            }, 50)
+
+            // Click the hidden combo button if options not showing
+            if (comboBtn.current && !comboOptionsRef.current) {
+                comboBtn.current.click()
+            }
+
+            // Handle clicks outside the palette
+            const handleClickOutside = (event: MouseEvent) => {
+                if (
+                    fullComboRef.current &&
+                    !fullComboRef.current.contains(event.target as Node)
+                ) {
+                    setShowing(false)
+                    closeTrigger()
+                    setQuery('')
                 }
             }
-            // click the hidden combo button
-            // check if the combo button
-            // Check comboOptionsRef
-            if (!comboOptionsRef.current) comboBtn.current.click()
 
-            comboRef.current.addEventListener('blur', handleBlur)
+            // Add listener after a short delay to prevent immediate closing
+            const timeoutId = setTimeout(() => {
+                document.addEventListener('mousedown', handleClickOutside)
+            }, 100)
+
             return () => {
-                comboRef.current?.removeEventListener('blur', handleBlur)
+                clearTimeout(timeoutId)
+                document.removeEventListener('mousedown', handleClickOutside)
             }
         }
-    }, [showing, comboRef.current, comboBtn.current])
+    }, [showing, closeTrigger])
 
     useEffect(() => {
         const dataTestId = `command-item-${selectedIndex}`
@@ -424,22 +428,29 @@ export function InnerCommandPalette({
             const lastIndex = filteredResults.length - 1
             if (e.key === 'Enter') {
                 e.preventDefault()
-                // click on the selected item
                 if (filteredResults[selectedIndex]) {
-                    const selectedCommand = allCommands[filteredResults[selectedIndex].id]
-                    
-                    // If it's a chat command and user has typed something, transition to chat sidebar
-                    if ((selectedCommand.id === 'freeform' || selectedCommand.id === 'freeform_select') && query.trim()) {
-                        dispatch(ts.triggerAICommandPalette())
-                        // Store query to be used in chat sidebar
+                    const selectedCommand =
+                        allCommands[filteredResults[selectedIndex].id]
+
+                    // If it's a chat command and user has typed something, open AI sidebar with query
+                    if (
+                        (selectedCommand.id === 'freeform' ||
+                            selectedCommand.id === 'freeform_select') &&
+                        query.trim()
+                    ) {
+                        // Store query for AI sidebar to pick up
                         if (typeof window !== 'undefined') {
                             (window as any).__codexChatQuery = query.trim()
                         }
+                        // Open AI sidebar
+                        dispatch(ts.triggerAICommandPalette())
+                        // Close command palette
                         closeTrigger()
                         setQuery('')
                         return
                     }
-                    
+
+                    // For all other commands, execute normally
                     closeTrigger()
                     selectedCommand.action(dispatch)
                     setQuery('')
@@ -462,9 +473,10 @@ export function InnerCommandPalette({
             } else if (e.key === 'Escape') {
                 e.preventDefault()
                 closeTrigger()
+                setQuery('')
             }
         },
-        [selectedIndex, filteredResults, dispatch, setQuery]
+        [selectedIndex, filteredResults, dispatch, query, closeTrigger]
     )
 
     //

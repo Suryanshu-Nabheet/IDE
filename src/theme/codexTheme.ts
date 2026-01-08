@@ -128,90 +128,90 @@ export function getCodexTheme(): Extension {
     
     const editorTheme = EditorView.theme(
         {
-            '&': {
+        '&': {
                 color: colors.foreground,
                 backgroundColor: colors.background,
-                fontSize: 'var(--editor-font-size, 14px)',
-                fontFamily: typography.fontFamilyMono,
-                height: '100%',
-            },
-            '.cm-content': {
+            fontSize: 'var(--editor-font-size, 14px)',
+            fontFamily: typography.fontFamilyMono,
+            height: '100%',
+        },
+        '.cm-content': {
                 color: colors.foreground,
                 caretColor: colors.cursor,
-                padding: '4px 0',
-                fontFamily: typography.fontFamilyMono,
+            padding: '4px 0',
+            fontFamily: typography.fontFamilyMono,
                 lineHeight: '1.5',
-                fontVariantLigatures: typography.ligatures ? 'normal' : 'none',
-            },
-            '.cm-cursor, .cm-dropCursor': {
+            fontVariantLigatures: typography.ligatures ? 'normal' : 'none',
+        },
+        '.cm-cursor, .cm-dropCursor': {
                 borderLeftColor: colors.cursor,
-                borderLeftWidth: '2px',
-                borderLeftStyle: 'solid',
-            },
-            '.cm-selectionBackground, ::selection': {
+            borderLeftWidth: '2px',
+            borderLeftStyle: 'solid',
+        },
+        '.cm-selectionBackground, ::selection': {
                 backgroundColor: colors.selection + ' !important',
-            },
-            '&.cm-focused .cm-selectionBackground': {
+        },
+        '&.cm-focused .cm-selectionBackground': {
                 backgroundColor: colors.selection + ' !important',
-            },
-            '.cm-activeLine': {
+        },
+        '.cm-activeLine': {
                 backgroundColor: colors.lineHighlight,
-            },
-            '.cm-selectionMatch': {
+        },
+        '.cm-selectionMatch': {
                 backgroundColor: colors.bracketMatch,
-            },
-            '&.cm-focused .cm-matchingBracket': {
+        },
+        '&.cm-focused .cm-matchingBracket': {
                 backgroundColor: colors.bracketMatch,
                 outline: 'none',
-            },
-            '&.cm-focused .cm-nonmatchingBracket': {
+        },
+        '&.cm-focused .cm-nonmatchingBracket': {
                 backgroundColor: 'rgba(241, 76, 76, 0.3)',
-            },
-            '.cm-gutters': {
+        },
+        '.cm-gutters': {
                 backgroundColor: colors.background,
                 color: colors.gutterFg,
-                border: 'none',
-                paddingRight: '16px',
-                fontFamily: typography.fontFamilyMono,
-            },
-            '.cm-activeLineGutter': {
-                backgroundColor: 'transparent',
+            border: 'none',
+            paddingRight: '16px',
+            fontFamily: typography.fontFamilyMono,
+        },
+        '.cm-activeLineGutter': {
+            backgroundColor: 'transparent',
                 color: colors.gutterFgActive,
-                fontWeight: '500',
-            },
-            '.cm-lineNumbers .cm-gutterElement': {
-                padding: '0 12px 0 16px',
-                minWidth: '48px',
-                fontSize: typography.fontSize.sm,
-                textAlign: 'right',
-            },
-            '&.cm-focused': {
-                outline: 'none',
-            },
-            '.cm-panels': {
+            fontWeight: '500',
+        },
+        '.cm-lineNumbers .cm-gutterElement': {
+            padding: '0 12px 0 16px',
+            minWidth: '48px',
+            fontSize: typography.fontSize.sm,
+            textAlign: 'right',
+        },
+        '&.cm-focused': {
+            outline: 'none',
+        },
+        '.cm-panels': {
                 backgroundColor: colors.background,
                 color: colors.foreground,
-            },
-            '.cm-tooltip': {
+        },
+        '.cm-tooltip': {
                 backgroundColor: colors.uiBgElevated,
                 border: `1px solid ${colors.border}`,
                 color: colors.foreground,
-                borderRadius: '4px',
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.4)',
-            },
-            '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
+            borderRadius: '4px',
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.4)',
+        },
+        '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
                 backgroundColor: colors.selection,
                 color: colors.foreground,
-            },
-            '.cm-panel': {
-                backgroundColor: colors.background,
-            },
-            '.cm-scroller': {
-                fontFamily: typography.fontFamilyMono,
-            },
         },
-        { dark: true }
-    )
+        '.cm-panel': {
+                backgroundColor: colors.background,
+        },
+        '.cm-scroller': {
+            fontFamily: typography.fontFamilyMono,
+        },
+    },
+    { dark: true }
+)
 
     // ALWAYS use Anysphere syntax colors - exact from JSON
     const highlightStyle = HighlightStyle.define([
@@ -234,7 +234,7 @@ export function getCodexTheme(): Extension {
         { tag: [t.literal], color: ANYSPHERE_THEME.textLiteral },
         { tag: [t.content], color: ANYSPHERE_THEME.text },
         { tag: [t.heading], color: ANYSPHERE_THEME.type, fontWeight: 'bold' },
-    ])
+])
 
     return [editorTheme, syntaxHighlighting(highlightStyle)]
 }

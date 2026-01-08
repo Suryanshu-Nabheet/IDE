@@ -87,18 +87,8 @@ export const DEFAULT_MODELS: Record<AIProvider, string[]> = {
         'huggingface/zephyr-7b-beta:free',
         'openchat/openchat-7b:free',
         'undi95/toppy-m-7b:free',
-        'gryphe/mythomax-l2-13b:free',
-        'undi95/remm-slerp-l2-13b:free',
-        'undi95/toppy-m-7b:free',
-        'openrouter/cinematika-7b:free',
-        'mistralai/mistral-7b-instruct:free',
-        'openchat/openchat-7b:free',
-        'teknium/openhermes-2.5:free',
-        'undi95/toppy-m-7b:free',
-        // GPT OSS and other free models
+        'goliath/120b:free',
         'openai/gpt-oss-20b:free',
-        'openai/gpt-oss-13b:free',
-        'openai/gpt-oss-7b:free',
         'openrouter/auto',
     ],
     gemini: [
@@ -124,20 +114,12 @@ export const DEFAULT_MODELS: Record<AIProvider, string[]> = {
 }
 
 /**
- * Get API key from environment variables (for main process)
- * This is a placeholder - actual implementation should use IPC
- */
-function _getEnvAPIKeySync(_provider: AIProvider): string | null {
-    // In renderer process, we'll use IPC to get env vars
-    // For now, return null and let IPC handle it
-    return null
-}
-
-/**
  * Get the active AI provider configuration
  * Priority: User Settings > .env file > null
  */
-export function getActiveProvider(settings: AISettings): AIProviderConfig | null {
+export function getActiveProvider(
+    settings: AISettings
+): AIProviderConfig | null {
     const provider = settings.provider
 
     switch (provider) {
@@ -148,10 +130,10 @@ export function getActiveProvider(settings: AISettings): AIProviderConfig | null
                     provider: 'openai',
                     apiKey: settings.openai.apiKey,
                     enabled: true,
-                    defaultModel: settings.openai.model || DEFAULT_MODELS.openai[0],
+                    defaultModel:
+                        settings.openai.model || DEFAULT_MODELS.openai[0],
                 }
             }
-            // Fallback to .env - will be handled by IPC
             break
         case 'openrouter':
             if (settings.openrouter?.enabled && settings.openrouter?.apiKey) {
@@ -159,7 +141,9 @@ export function getActiveProvider(settings: AISettings): AIProviderConfig | null
                     provider: 'openrouter',
                     apiKey: settings.openrouter.apiKey,
                     enabled: true,
-                    defaultModel: settings.openrouter.model || DEFAULT_MODELS.openrouter[0],
+                    defaultModel:
+                        settings.openrouter.model ||
+                        DEFAULT_MODELS.openrouter[0],
                 }
             }
             break
@@ -169,7 +153,8 @@ export function getActiveProvider(settings: AISettings): AIProviderConfig | null
                     provider: 'gemini',
                     apiKey: settings.gemini.apiKey,
                     enabled: true,
-                    defaultModel: settings.gemini.model || DEFAULT_MODELS.gemini[0],
+                    defaultModel:
+                        settings.gemini.model || DEFAULT_MODELS.gemini[0],
                 }
             }
             break
@@ -179,7 +164,8 @@ export function getActiveProvider(settings: AISettings): AIProviderConfig | null
                     provider: 'claude',
                     apiKey: settings.claude.apiKey,
                     enabled: true,
-                    defaultModel: settings.claude.model || DEFAULT_MODELS.claude[0],
+                    defaultModel:
+                        settings.claude.model || DEFAULT_MODELS.claude[0],
                 }
             }
             break
@@ -199,23 +185,14 @@ export async function getActiveProviderWithEnv(
 
     switch (provider) {
         case 'openai': {
-            // User's own key takes priority
+            // User's own key ONLY
             if (settings.openai?.enabled && settings.openai?.apiKey) {
                 return {
                     provider: 'openai',
                     apiKey: settings.openai.apiKey,
                     enabled: true,
-                    defaultModel: settings.openai.model || DEFAULT_MODELS.openai[0],
-                }
-            }
-            // Try .env fallback
-            const openaiEnvKey = await getEnvKey('openai')
-            if (openaiEnvKey) {
-                return {
-                    provider: 'openai',
-                    apiKey: openaiEnvKey,
-                    enabled: true,
-                    defaultModel: settings.openai?.model || DEFAULT_MODELS.openai[0],
+                    defaultModel:
+                        settings.openai.model || DEFAULT_MODELS.openai[0],
                 }
             }
             break
@@ -226,56 +203,47 @@ export async function getActiveProviderWithEnv(
                     provider: 'openrouter',
                     apiKey: settings.openrouter.apiKey,
                     enabled: true,
-                    defaultModel: settings.openrouter.model || DEFAULT_MODELS.openrouter[0],
+                    defaultModel:
+                        settings.openrouter.model ||
+                        DEFAULT_MODELS.openrouter[0],
                 }
             }
+            // Company allows OpenRouter via .env
             const openrouterEnvKey = await getEnvKey('openrouter')
             if (openrouterEnvKey) {
                 return {
                     provider: 'openrouter',
                     apiKey: openrouterEnvKey,
                     enabled: true,
-                    defaultModel: settings.openrouter?.model || DEFAULT_MODELS.openrouter[0],
+                    defaultModel:
+                        settings.openrouter?.model ||
+                        DEFAULT_MODELS.openrouter[0],
                 }
             }
             break
         }
         case 'gemini': {
+            // User's own key ONLY
             if (settings.gemini?.enabled && settings.gemini?.apiKey) {
                 return {
                     provider: 'gemini',
                     apiKey: settings.gemini.apiKey,
                     enabled: true,
-                    defaultModel: settings.gemini.model || DEFAULT_MODELS.gemini[0],
-                }
-            }
-            const geminiEnvKey = await getEnvKey('gemini')
-            if (geminiEnvKey) {
-                return {
-                    provider: 'gemini',
-                    apiKey: geminiEnvKey,
-                    enabled: true,
-                    defaultModel: settings.gemini?.model || DEFAULT_MODELS.gemini[0],
+                    defaultModel:
+                        settings.gemini.model || DEFAULT_MODELS.gemini[0],
                 }
             }
             break
         }
         case 'claude': {
+            // User's own key ONLY
             if (settings.claude?.enabled && settings.claude?.apiKey) {
                 return {
                     provider: 'claude',
                     apiKey: settings.claude.apiKey,
                     enabled: true,
-                    defaultModel: settings.claude.model || DEFAULT_MODELS.claude[0],
-                }
-            }
-            const claudeEnvKey = await getEnvKey('claude')
-            if (claudeEnvKey) {
-                return {
-                    provider: 'claude',
-                    apiKey: claudeEnvKey,
-                    enabled: true,
-                    defaultModel: settings.claude?.model || DEFAULT_MODELS.claude[0],
+                    defaultModel:
+                        settings.claude.model || DEFAULT_MODELS.claude[0],
                 }
             }
             break
@@ -378,32 +346,81 @@ async function* streamOpenRouter(
     messages: Array<{ role: string; content: string }>,
     options?: { temperature?: number; maxTokens?: number }
 ): AsyncGenerator<string, void, unknown> {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-            'HTTP-Referer': window.location.origin,
-            'X-Title': 'CodeX',
-        },
-        body: JSON.stringify({
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[OpenRouter] Sending request:', {
             model,
-            messages,
-            stream: true,
-            temperature: options?.temperature ?? 0.7,
-            max_tokens: options?.maxTokens,
-        }),
-    })
+            messageCount: messages.length,
+        })
+    }
+
+    const response = await fetch(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+                'HTTP-Referer': window.location.origin,
+                'X-Title': 'CodeX',
+            },
+            body: JSON.stringify({
+                model,
+                messages,
+                stream: true,
+                temperature: options?.temperature ?? 0.7,
+                max_tokens: options?.maxTokens,
+            }),
+        }
+    )
 
     if (!response.ok) {
-        throw new Error(`OpenRouter API error: ${response.statusText}`)
+        const errorText = await response.text()
+        if (process.env.NODE_ENV === 'development') {
+            console.error('[OpenRouter] API Error:', response.status, errorText)
+        }
+
+        // Parse error for user-friendly message
+        let userMessage = 'Unable to connect to AI service. Please try again.'
+        try {
+            const errorJson = JSON.parse(errorText)
+            if (errorJson.error?.message) {
+                const msg = errorJson.error.message
+                if (msg.includes('data policy') || msg.includes('Free model')) {
+                    userMessage =
+                        'This model requires a paid plan. Please select a different model or upgrade your OpenRouter account.'
+                } else if (
+                    msg.includes('Invalid API key') ||
+                    msg.includes('Unauthorized')
+                ) {
+                    userMessage =
+                        'Invalid API key. Please check your OpenRouter API key in settings.'
+                } else if (msg.includes('rate limit')) {
+                    userMessage =
+                        'Rate limit exceeded. Please wait a moment and try again.'
+                } else {
+                    userMessage = msg
+                }
+            }
+        } catch (e) {
+            // Use default message
+        }
+
+        throw new Error(userMessage)
     }
 
     const reader = response.body?.getReader()
     const decoder = new TextDecoder()
 
-    if (!reader) return
+    if (!reader) {
+        if (process.env.NODE_ENV === 'development') {
+            console.error('[OpenRouter] No reader available')
+        }
+        throw new Error('Unable to receive AI response. Please try again.')
+    }
 
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[OpenRouter] Starting stream...')
+    }
     let buffer = ''
     while (true) {
         const { done, value } = await reader.read()
@@ -429,6 +446,10 @@ async function* streamOpenRouter(
                 }
             }
         }
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[OpenRouter] Stream complete')
     }
 }
 
@@ -572,4 +593,3 @@ async function* streamClaude(
         }
     }
 }
-

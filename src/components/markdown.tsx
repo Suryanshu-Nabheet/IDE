@@ -157,17 +157,17 @@ export function CodeBlock({
                 })
                 viewRef.current = view
                 setBlockStarted(true)
-                setCodeButton(true)
+            setCodeButton(true)
             } else if (children !== '' && !blockStarted && className === '') {
-                setCodeButton(false)
-                // append a code span to div ref
-                const codeSpan = document.createElement('span')
-                codeSpan.className = 'code__span'
-                codeSpan.innerText = removeBeginningAndEndingLineBreaks(
-                    children as string
-                )
-                ref.current?.appendChild(codeSpan)
-            }
+            setCodeButton(false)
+            // append a code span to div ref
+            const codeSpan = document.createElement('span')
+            codeSpan.className = 'code__span'
+            codeSpan.innerText = removeBeginningAndEndingLineBreaks(
+                children as string
+            )
+            ref.current?.appendChild(codeSpan)
+        }
         }
         
         startBlock()

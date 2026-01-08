@@ -61,6 +61,7 @@ import {
     lintState,
     setActiveLint,
 } from '../linter/lint'
+import { getActiveProviderAPIKey } from '../ai/apiKeyUtils'
 
 function getMatchingLines(doc: Text, ...lines: string[]): number[][] {
     const matchingLineNumbers = Array(lines.length).fill([])
@@ -229,80 +230,15 @@ export async function getPayload({
 
     dispatch(updateLastUserMessageMsgType(null))
 
-    // Get API key with .env fallback
-    // Priority: User Settings > .env file > null
+    // Get API key with .env fallback using centralized utility
     const settings = state.settingsState.settings
-    const aiProvider = settings.aiProvider || 'openai'
-    
-    let oaiKey: string | undefined | null = null
-    let openAIModel: string | undefined = undefined
-    
-    // Get API key based on provider
-    if (aiProvider === 'openai') {
-        if (settings.useOpenAIKey && settings.openAIKey) {
-            oaiKey = settings.openAIKey
-            openAIModel = settings.openAIModel
-        } else if (typeof window !== 'undefined' && (window as any).connector) {
-            try {
-                const envKey = await (window as any).connector.getEnvAPIKey('openai')
-                if (envKey) {
-                    oaiKey = envKey
-                    openAIModel = settings.openAIModel || 'gpt-4-turbo-preview'
-                    // Using OpenAI API key from .env file
-                }
-            } catch (error) {
-                // Ignore errors
-            }
-        }
-    } else if (aiProvider === 'openrouter') {
-        if (settings.useOpenRouterKey && settings.openRouterKey) {
-            oaiKey = settings.openRouterKey
-            openAIModel = settings.openRouterModel
-        } else if (typeof window !== 'undefined' && (window as any).connector) {
-            try {
-                const envKey = await (window as any).connector.getEnvAPIKey('openrouter')
-                if (envKey) {
-                    oaiKey = envKey
-                    openAIModel = settings.openRouterModel || 'openai/gpt-4-turbo'
-                    // Using OpenRouter API key from .env file
-                }
-            } catch (error) {
-                // Ignore errors
-            }
-        }
-    } else if (aiProvider === 'gemini') {
-        if (settings.useGeminiKey && settings.geminiKey) {
-            oaiKey = settings.geminiKey
-            openAIModel = settings.geminiModel
-        } else if (typeof window !== 'undefined' && (window as any).connector) {
-            try {
-                const envKey = await (window as any).connector.getEnvAPIKey('gemini')
-                if (envKey) {
-                    oaiKey = envKey
-                    openAIModel = settings.geminiModel || 'gemini-pro'
-                    // Using Gemini API key from .env file
-                }
-            } catch (error) {
-                // Ignore errors
-            }
-        }
-    } else if (aiProvider === 'claude') {
-        if (settings.useClaudeKey && settings.claudeKey) {
-            oaiKey = settings.claudeKey
-            openAIModel = settings.claudeModel
-        } else if (typeof window !== 'undefined' && (window as any).connector) {
-            try {
-                const envKey = await (window as any).connector.getEnvAPIKey('claude')
-                if (envKey) {
-                    oaiKey = envKey
-                    openAIModel = settings.claudeModel || 'claude-3-opus-20240229'
-                    // Using Claude API key from .env file
-                }
-            } catch (error) {
-                // Ignore errors
-            }
-        }
-    }
+    const providerConfig = await getActiveProviderAPIKey(settings)
+
+    // If we have a valid config, use it. Otherwise fall back to settings defaults (which will likely fail if no key)
+    const oaiKey = providerConfig?.apiKey || null
+    const openAIModel = providerConfig?.model
+    const aiProvider =
+        providerConfig?.provider || settings.aiProvider || 'openai'
     const userRequest = {
         message: lastUserMessage.message,
         currentRootPath: rootPath,
@@ -817,7 +753,8 @@ export const streamResponse = createAsyncThunk(
                         )
                     ) {
                         // Multi-file edits not yet supported
-                        const errorMsg = 'Filepaths do not all match - ' + relevantFilePath
+                        const errorMsg =
+                            'Filepaths do not all match - ' + relevantFilePath
                         throw new Error(errorMsg)
                     }
 
@@ -835,23 +772,25 @@ export const streamResponse = createAsyncThunk(
 
                     const tabId = thunkResult.payload
                     const transactionFunction: CustomTransaction[] =
-                        generationJson.map((change: {
-                            filePath: string
-                            startLine: number
-                            endLine: number
-                            text: string
-                        }) => ({
-                            type: 'insert',
-                            from: {
-                                line: change.startLine,
-                                col: 0,
-                            },
-                            to: {
-                                line: change.endLine,
-                                col: 0,
-                            },
-                            text: change.text,
-                        }))
+                        generationJson.map(
+                            (change: {
+                                filePath: string
+                                startLine: number
+                                endLine: number
+                                text: string
+                            }) => ({
+                                type: 'insert',
+                                from: {
+                                    line: change.startLine,
+                                    col: 0,
+                                },
+                                to: {
+                                    line: change.endLine,
+                                    col: 0,
+                                },
+                                text: change.text,
+                            })
+                        )
 
                     checkSend()
                     dispatch(

@@ -1,19 +1,18 @@
 /**
- * Utility functions for getting API keys with .env fallback
- * Priority: User Settings > .env file > null
+ * Utility functions for getting API keys
+ * Policy: Strictly User Settings. No .env fallback.
  */
 
 import { Settings } from '../window/state'
 
 /**
- * Get API key for a provider with .env fallback
- * This is called from renderer process, so it uses IPC
+ * Get API key for a provider.
+ * Strictly uses User Settings.
  */
 export async function getAPIKeyWithEnvFallback(
     provider: 'openai' | 'openrouter' | 'gemini' | 'claude',
     settings: Settings
 ): Promise<string | null> {
-    // Check user settings first
     switch (provider) {
         case 'openai':
             if (settings.useOpenAIKey && settings.openAIKey) {
@@ -37,17 +36,6 @@ export async function getAPIKeyWithEnvFallback(
             break
     }
 
-    // Fallback to .env via IPC
-    if (typeof window !== 'undefined' && (window as any).connector) {
-        try {
-            const envKey = await (window as any).connector.getEnvAPIKey(provider)
-            return envKey
-        } catch (error) {
-            // Error getting .env key
-            return null
-        }
-    }
-
     return null
 }
 
@@ -59,7 +47,7 @@ export async function getActiveProviderAPIKey(
 ): Promise<{ provider: string; apiKey: string | null; model: string } | null> {
     const provider = settings.aiProvider || 'openai'
 
-    const apiKey = await getAPIKeyWithEnvFallback(provider, settings)
+    const apiKey = await getAPIKeyWithEnvFallback(provider as any, settings)
 
     if (!apiKey) {
         return null
@@ -77,7 +65,6 @@ export async function getActiveProviderAPIKey(
             model = settings.geminiModel || 'gemini-1.5-pro'
             break
         case 'claude':
-            // Claude 3.5 Sonnet is the best coding model
             model = settings.claudeModel || 'claude-3.5-sonnet-20241022'
             break
     }
@@ -88,4 +75,3 @@ export async function getActiveProviderAPIKey(
         model,
     }
 }
-

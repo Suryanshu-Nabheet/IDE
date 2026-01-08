@@ -66,20 +66,20 @@ const defaultThemes: { [key: string]: ThemeData } = {
     'codex-dark': {
         type: 'dark',
         colors: {
-            background: '#1e1e1e', // VS Code / Cursor IDE Dark
-            foreground: '#d4d4d4', // VS Code / Cursor IDE
-            cursor: '#d4d4d4', // VS Code / Cursor IDE
-            selection: '#264f78', // VS Code / Cursor IDE
-            lineHighlight: '#2a2d2e', // VS Code / Cursor IDE
-            keyword: '#569cd6', // VS Code Dark+
-            string: '#ce9178', // VS Code Dark+
-            number: '#b5cea8', // VS Code Dark+
-            function: '#dcdcaa', // VS Code Dark+
-            variable: '#9cdcfe', // VS Code Dark+
-            type: '#4ec9b0', // VS Code Dark+
-            comment: '#6a9955', // VS Code Dark+
-            tag: '#569cd6', // VS Code Dark+
-            attribute: '#92c5f7', // VS Code Dark+
+            background: '#000000', // Pure Black - Premium Dark
+            foreground: '#e5e5e5', // Bright text for contrast
+            cursor: '#3b82f6', // Blue accent cursor
+            selection: '#1e3a5f', // Darker blue selection
+            lineHighlight: '#0a0a0a', // Subtle line highlight
+            keyword: '#3b82f6', // Blue keywords
+            string: '#ce9178', // Warm string color
+            number: '#b5cea8', // Green numbers
+            function: '#dcdcaa', // Yellow functions
+            variable: '#9cdcfe', // Light blue variables
+            type: '#4ec9b0', // Teal types
+            comment: '#6a9955', // Green comments
+            tag: '#569cd6', // Blue tags
+            attribute: '#92c5f7', // Light blue attributes
         },
     },
     monokai: {
@@ -292,7 +292,8 @@ function mapThemeToThemeData(theme: any): ThemeData {
             foreground: colors['editor.foreground'] || '#d6d6dd',
             cursor: colors['editorCursor.foreground'] || '#d6d6dd',
             selection: colors['editor.selectionBackground'] || '#163761',
-            lineHighlight: colors['editor.lineHighlightBackground'] || '#212121',
+            lineHighlight:
+                colors['editor.lineHighlightBackground'] || '#212121',
             keyword: '#83d6c5',
             string: '#e394dc',
             number: '#d6d6dd',

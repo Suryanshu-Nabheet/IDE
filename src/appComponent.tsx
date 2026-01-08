@@ -14,7 +14,6 @@ import { store } from './app/store'
 import { syncThemeFromSettings } from './theme/themeSync'
 
 import {
-    getFocusedTab,
     getFolders,
     getPaneStateBySplits,
     getRootPath,
@@ -34,6 +33,7 @@ import { GitClonePopup } from './components/gitClonePopup'
 import { ActivityBar } from './components/activityBar'
 import { StatusBar } from './components/statusBar'
 import { AIChatSidebar } from './components/aiChatSidebar'
+import CommandPalettes from './components/commandPalette'
 
 export function App() {
     const dispatch = useAppDispatch()
@@ -51,46 +51,76 @@ export function App() {
     const titleHeight = TITLEBAR_HEIGHT + 'px'
     const windowHeight = `calc(100vh - ${TITLEBAR_HEIGHT}px - ${STATUS_BAR_HEIGHT}px)`
 
+    const commandPaletteOpen = useAppSelector(
+        tsel.commandPaletteTriggeredSelector
+    )
     const commandBarOpen = useAppSelector(csel.getIsCommandBarOpen)
-    const currentActiveTab = useAppSelector(getFocusedTab)
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
-            const AI_KEYS = ['k', 'l', 'Backspace', 'Enter']
-            //
             const isControl = connector.PLATFORM_CM_KEY === 'Ctrl'
-            if ((isControl && e.ctrlKey) || (!isControl && e.metaKey)) {
-                if (AI_KEYS.includes(e.key)) {
-                    if (e.shiftKey && e.key == 'Enter') {
-                        dispatch(ct.pressAICommand('Shift-Enter'))
+            const isCmdOrCtrl =
+                (isControl && e.ctrlKey) || (!isControl && e.metaKey)
+
+            if (isCmdOrCtrl) {
+                // Cmd+K - Open Command Palette
+                if (e.key === 'k') {
+                    if (!commandPaletteOpen) {
+                        e.preventDefault()
                         e.stopPropagation()
-                    } else {
-                        dispatch(
-                            ct.pressAICommand(
-                                e.key as 'k' | 'l' | 'Backspace' | 'Enter'
-                            )
-                        )
-                        if (e.key != 'Backspace' && e.key != 'Enter') {
-                        e.stopPropagation()
-                        }
+                        dispatch(ts.triggerCommandPalette())
                     }
-                } else if (e.key == 'e' && e.shiftKey) {
-                    dispatch(ct.pressAICommand('singleLSP'))
+                    return
+                }
+
+                // Cmd+L - Open AI Chat Sidebar
+                if (e.key === 'l') {
+                    e.preventDefault()
                     e.stopPropagation()
-                } else if (e.key == 'h') {
+                    dispatch(ts.triggerAICommandPalette())
+                    return
+                }
+
+                // Cmd+H - Open Settings
+                if (e.key === 'h') {
+                    e.preventDefault()
+                    e.stopPropagation()
                     dispatch(ct.pressAICommand('history'))
-                    e.stopPropagation()
+                    return
                 }
-            }
 
-            // if meta key is pressed, focus can be anywhere
-            if (e.metaKey) {
+                // Cmd+B - Toggle Sidebar
                 if (e.key === 'b') {
+                    e.preventDefault()
+                    e.stopPropagation()
                     dispatch(ts.toggleLeftSide())
+                    return
+                }
+
+                // Cmd+Shift+E - Single LSP
+                if (e.key === 'e' && e.shiftKey) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    dispatch(ct.pressAICommand('singleLSP'))
+                    return
+                }
+
+                // Cmd+Shift+Enter - AI Command
+                if (e.key === 'Enter' && e.shiftKey) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    dispatch(ct.pressAICommand('Shift-Enter'))
+                    return
+                }
+
+                // Cmd+Enter or Cmd+Backspace - Pass through to chat
+                if (e.key === 'Enter' || e.key === 'Backspace') {
+                    dispatch(ct.pressAICommand(e.key as 'Backspace' | 'Enter'))
+                    return
                 }
             }
 
-            // if the escape key
+            // Escape key - Close popups
             if (e.key === 'Escape') {
                 dispatch(cs.setChatOpen(false))
                 if (commandBarOpen) {
@@ -98,7 +128,7 @@ export function App() {
                 }
             }
         },
-        [dispatch, currentActiveTab, commandBarOpen]
+        [dispatch, commandBarOpen, commandPaletteOpen]
     )
 
     useEffect(() => {
@@ -182,14 +212,23 @@ export function App() {
     // Initialize settings with .env fallback
     useEffect(() => {
         const initializeSettings = async () => {
-            const currentSettings = store.getState().settingsState?.settings || {}
-            
+            const currentSettings =
+                store.getState().settingsState?.settings || {}
+
             // If no provider is set, get default from .env
-            if (!currentSettings.aiProvider && typeof window !== 'undefined' && (window as any).connector) {
+            if (
+                !currentSettings.aiProvider &&
+                typeof window !== 'undefined' &&
+                (window as any).connector
+            ) {
                 try {
-                    const defaultProvider = await (window as any).connector.getDefaultAIProvider()
+                    const defaultProvider = await (
+                        window as any
+                    ).connector.getDefaultAIProvider()
                     if (defaultProvider) {
-                        dispatch(changeSettings({ aiProvider: defaultProvider }))
+                        dispatch(
+                            changeSettings({ aiProvider: defaultProvider })
+                        )
                     }
                 } catch (error) {
                     // Ignore errors - .env might not be available
@@ -275,6 +314,7 @@ export function App() {
                             </>
                         )}
 
+                        <CommandPalettes />
                         <ChatPopup />
                         <ErrorPopup />
                         <SettingsPopup />

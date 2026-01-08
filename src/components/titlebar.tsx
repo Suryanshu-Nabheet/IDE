@@ -9,7 +9,6 @@ import * as gsel from '../features/selectors'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { useEffect, useState } from 'react'
 import SearchFiles from './searchFiles'
-import CommandPalette from './commandPalette'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faCog,
@@ -317,7 +316,6 @@ export function TitleBar({
                     gap: '4px',
                 }}
             >
-                <CommandPalette />
                 {useButtons && (
                     <div
                         className="titlebar__buttons"
