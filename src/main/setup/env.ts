@@ -31,8 +31,6 @@ function loadEnvFile() {
                 if (key && valueParts.length > 0) {
                     const keyName = key.trim()
 
-                    // No longer whitelisting AI keys from .env.
-                    // .env is now purely for other system configs if needed.
                     const ALLOWED_KEYS: string[] = []
 
                     if (!ALLOWED_KEYS.includes(keyName)) {
