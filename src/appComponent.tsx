@@ -273,13 +273,13 @@ export function App() {
                 {screenState === 'welcome' && <WelcomeScreen />}
                 {screenState === 'normal' && (
                     <>
-                        <ActivityBar />
                         <div
                             className={`app__lefttopwrapper ${
                                 leftSideExpanded ? 'flex' : 'hidden'
                             }`}
                             style={{ width: leftSideWidth + 'px' }}
                         >
+                            <ActivityBar />
                             <LeftSide />
                         </div>
                         <div

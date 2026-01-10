@@ -123,27 +123,40 @@ body {
     overflow: hidden;
 }
 
-/* Activity Bar */
+/* Activity Bar - Top Bar Layout */
 .activity-bar {
-    width: 48px;
-    height: 100%;
-    background-color: var(--activity-bar-bg);
-    border-right: 1px solid var(--ui-border);
+    width: 100%;
+    height: 48px;
+    background-color: var(--sidebar-bg);
+    border-bottom: 1px solid var(--sidebar-border);
+    border-right: none;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 0 12px;
+    flex-shrink: 0;
+    z-index: 20;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.activity-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.activity-bar__top,
+.activity-bar__bottom {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
     flex-shrink: 0;
 }
 
-/* Signature Anysphere Active indicator */
+/* Signature Anysphere Active indicator - Removed for Top Bar */
 .activity-bar__item.active::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    width: 2px;
-    height: 24px;
-    background-color: var(--accent); /* Accent line on the far left */
+    display: none;
 }
 
 .left-pane-header {
@@ -219,8 +232,8 @@ body {
 }
 
 .activity-bar__item {
-    width: 100%;
-    height: 48px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -228,20 +241,22 @@ body {
     color: var(--activity-bar-fg-muted);
     transition: all var(--transition-fast);
     position: relative;
-    font-size: 20px;
+    font-size: 16px;
+    border-radius: var(--radius-md);
 }
 
 .activity-bar__item:hover {
     color: var(--activity-bar-fg);
+    background-color: var(--ui-hover);
 }
 
 .activity-bar__item.active {
-    color: var(--activity-bar-fg) !important;
-    background-color: transparent !important;
+    color: var(--accent) !important;
+    background-color: var(--ui-bg-elevated) !important;
 }
 
 .activity-bar__item.active svg {
-    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+    filter: none;
 }
 
 /* ============================================
@@ -681,7 +696,11 @@ body {
     max-height: 400px;
     overflow-y: auto;
     min-width: 240px;
-    background: linear-gradient(to bottom, var(--ui-bg-elevated), var(--ui-bg-subtle));
+    background: linear-gradient(
+        to bottom,
+        var(--ui-bg-elevated),
+        var(--ui-bg-subtle)
+    );
     border: 1px solid var(--ui-border);
     border-radius: var(--radius-md);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -3873,8 +3892,7 @@ cm-diff-cancel > div {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: 
-        radial-gradient(
+    background: radial-gradient(
             circle at 20% 30%,
             color-mix(in srgb, var(--accent) 6%, transparent) 0%,
             transparent 50%
@@ -3934,7 +3952,6 @@ cm-diff-cancel > div {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-block;
 }
-
 
 .welcome-title-line {
     width: 200px;
