@@ -1134,10 +1134,7 @@ export const pressAICommand = createAsyncThunk(
                                     globState,
                                     fileId!
                                 )!,
-                                precedingCode: getPrecedingLines(
-                                    editorView,
-                                    20
-                                )!,
+                                precedingCode: getPrecedingLines(editorView)!,
                                 procedingCode: getProcedingLines(editorView)!,
                                 currentSelection: getSelectedText(editorView)!,
                                 pos: selection.from,
@@ -1178,7 +1175,7 @@ export const pressAICommand = createAsyncThunk(
                     dispatch(
                         activateDiffFromEditor({
                             currentFile: getPathForFileId(globState, fileId!)!,
-                            precedingCode: getPrecedingLines(editorView, 20)!,
+                            precedingCode: getPrecedingLines(editorView)!,
                             procedingCode: getProcedingLines(editorView),
                             currentSelection: getSelectedText(editorView)!,
                             pos: selection.from,

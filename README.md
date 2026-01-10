@@ -22,15 +22,15 @@
 
 ---
 
-## ✨ Features
+## Features
 
-### 🧠 Intelligence First
+### Intelligence First
 
 -   **Native AI Assistance** – Seamlessly integrated AI for code generation, debugging, and complex refactoring
 -   **Deep Language Intelligence** – Powered by advanced Language Server Protocol (LSP) for precise completions and navigation
 -   **Context-Aware Chat** – Chat with your codebase directly within the editor
 
-### 🎨 Elite Aesthetics
+### Elite Aesthetics
 
 -   **7 Premium Themes** – Choose from CodeX Dark, Monokai, Dracula, GitHub Dark, Solarized Dark, Nord, and One Dark
 -   **Instant Theme Switching** – Change themes on the fly without restarting
@@ -38,27 +38,27 @@
 -   **Micro-Animation Engine** – Every interaction is smooth, intentional, and visually rewarding
 -   **Uncluttered Interface** – Designed for maximum real estate, focusing entirely on your code
 
-### 🔌 Extension Ecosystem
+### Extension Ecosystem
 
 -   **OpenVSX Marketplace** – Access thousands of extensions from the open-source marketplace
 -   **One-Click Installation** – Browse, install, and manage extensions seamlessly
 -   **Extension Management** – View installed extensions, ratings, and details
 -   **Theme Extensions** – Install community themes to personalize your experience
 
-### 🛠️ Professional Tooling
+### Professional Tooling
 
 -   **Multimodal Terminal** – High-performance, integrated multi-tab terminal with full shell support
 -   **Unified Sidebars** – Elegant search, file tree, extensions, and AI panels that respect your visual focus
 -   **Enterprise-Grade Stability** – Built on a hardened Electron architecture for reliable daily use
 
-### 🔒 Privacy & Performance
+### Privacy & Performance
 
 -   **Offline-First** – Your core workflow resides on your machine. No mandatory cloud dependencies
 -   **Ultra-Fast Performance** – Optimized file indexing and rendering for projects of any size
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -83,7 +83,7 @@ npm start
 
 ---
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
 | Action              | Shortcut               |
 | :------------------ | :--------------------- |
@@ -96,7 +96,7 @@ npm start
 
 ---
 
-## 🏗️ Technical Architecture
+## Technical Architecture
 
 CodeX is built on a modern, high-performance stack:
 
@@ -108,7 +108,7 @@ CodeX is built on a modern, high-performance stack:
 
 ---
 
-## 🌍 Language Support
+## Language Support
 
 CodeX provides full intelligence for:
 
@@ -119,19 +119,19 @@ CodeX provides full intelligence for:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We believe in the power of open-source excellence. To contribute to CodeX, please review our [Contributing Guidelines](CONTRIBUTING.md).
 
 ---
 
-## 📜 License
+## License
 
 CodeX is released under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👨‍💻 Developed By
+## Developed By
 
 **Suryanshu Nabheet**  
 _Lead Architect & Designer_

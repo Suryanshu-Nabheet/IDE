@@ -246,7 +246,21 @@ class LSPManager {
                     )
                     this.store.delete(language)
                 } else {
-                    return languageInfo.downloadedInfo
+                    // Start of 'python' validation fix
+                    if (cmd === 'python' && process.platform !== 'win32') {
+                        try {
+                            cp.execSync('python --version', { stdio: 'ignore' })
+                            return languageInfo.downloadedInfo
+                        } catch (e) {
+                            log.warn(
+                                'Stored python command not found, reinstalling...'
+                            )
+                            this.store.delete(language)
+                        }
+                    } else {
+                        return languageInfo.downloadedInfo
+                    }
+                    // End of validation fix
                 }
             }
         }
@@ -278,32 +292,32 @@ class LSPManager {
                 log.info('installing python')
                 try {
                     await promisify(cp.exec)(
-                        'pip install --user -U "python-lsp-server[all]"',
+                        'pip3 install --user -U "python-lsp-server[all]"',
                         {
                             env: process.env,
                         }
                     )
-                    log.info('Success in first try')
+                    log.info('Success with pip3')
                 } catch (e) {
-                    log.error('first error installing python', e)
+                    log.error('error installing python with pip3', e)
                     try {
                         await promisify(cp.exec)(
-                            'pip3 install --user -U "python-lsp-server[all]"',
+                            'pip install --user -U "python-lsp-server[all]"',
                             {
                                 env: process.env,
                             }
                         )
-                        log.info('Success with pip3')
-                    } catch (e) {
-                        log.error('error installing python', e)
+                        log.info('Success with pip')
+                    } catch (e2) {
+                        log.error('error installing python', e2)
                     }
                 }
                 const candidateLang = {
-                    command: 'python',
+                    command: 'python3',
                     args: ['-m', 'pylsp'],
                     fallbacks: [
                         {
-                            command: 'python3',
+                            command: 'python',
                             args: ['-m', 'pylsp'],
                         },
                         {

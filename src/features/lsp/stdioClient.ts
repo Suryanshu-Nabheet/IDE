@@ -421,7 +421,11 @@ export class LanguageServerClient {
         method: K,
         params: LSPRequestMap[K][0]
     ): Promise<LSPRequestMap[K][1]> {
-        const payload = { language: this.connectionName!, method, params }
+        if (!this.ready || !this.connectionName) {
+            // Avoid sending requests if not ready or closed
+            return Promise.resolve(null as any)
+        }
+        const payload = { language: this.connectionName, method, params }
         // @ts-ignore
         return await connector.sendRequestLS(payload)
     }
@@ -431,10 +435,11 @@ export class LanguageServerClient {
         method: K,
         params: LSPNotifyMap[K]
     ): Promise<void> {
-        const payload = { language: this.connectionName!, method, params }
+        if (!this.ready || !this.connectionName) return
+
         // @ts-ignore
         return await connector.sendNotificationLS({
-            language: this.connectionName!,
+            language: this.connectionName,
             method,
             params,
         })

@@ -3,7 +3,12 @@
  * Supports OpenAI, OpenRouter, Google Gemini, and Anthropic Claude
  */
 
-export type AIProvider = 'openai' | 'openrouter' | 'gemini' | 'claude'
+export type AIProvider =
+    | 'openai'
+    | 'openrouter'
+    | 'gemini'
+    | 'claude'
+    | 'ollama'
 
 export interface AIModel {
     id: string
@@ -18,6 +23,7 @@ export interface AIProviderConfig {
     apiKey: string
     enabled: boolean
     defaultModel?: string
+    baseUrl?: string
     models?: AIModel[]
 }
 
@@ -43,74 +49,26 @@ export interface AISettings {
         enabled: boolean
         model: string
     }
+    ollama?: {
+        baseUrl: string
+        enabled: boolean
+        model: string
+    }
 }
+
+import { OPENAI_MODELS } from './providers/openai'
+import { OPENROUTER_MODELS } from './providers/openrouter'
+import { GEMINI_MODELS } from './providers/gemini'
+import { CLAUDE_MODELS } from './providers/claude'
+import { OLLAMA_MODELS } from './providers/ollama'
 
 // Comprehensive model lists for each provider
 export const DEFAULT_MODELS: Record<AIProvider, string[]> = {
-    openai: [
-        'gpt-4o',
-        'gpt-4o-mini',
-        'gpt-4-turbo',
-        'gpt-4-turbo-preview',
-        'gpt-4',
-        'gpt-4-32k',
-        'gpt-3.5-turbo',
-        'gpt-3.5-turbo-16k',
-    ],
-    openrouter: [
-        // Premium Models
-        'openai/gpt-4o',
-        'openai/gpt-4o-mini',
-        'openai/gpt-4-turbo',
-        'openai/gpt-4',
-        'openai/gpt-3.5-turbo',
-        'anthropic/claude-3.5-sonnet',
-        'anthropic/claude-3-opus',
-        'anthropic/claude-3-sonnet',
-        'anthropic/claude-3-haiku',
-        'google/gemini-pro-1.5',
-        'google/gemini-pro',
-        'google/gemini-flash-1.5',
-        'meta-llama/llama-3.1-405b-instruct',
-        'meta-llama/llama-3.1-70b-instruct',
-        'meta-llama/llama-3-70b-instruct',
-        'meta-llama/llama-3-8b-instruct',
-        // Free Models
-        'gryphe/mythomist-7b:free',
-        'mistralai/mistral-7b-instruct:free',
-        'google/gemini-flash-1.5:free',
-        'google/gemini-pro:free',
-        'meta-llama/llama-3.2-3b-instruct:free',
-        'meta-llama/llama-3.1-8b-instruct:free',
-        'qwen/qwen-2.5-7b-instruct:free',
-        'qwen/qwen-2-7b-instruct:free',
-        'huggingface/zephyr-7b-beta:free',
-        'openchat/openchat-7b:free',
-        'undi95/toppy-m-7b:free',
-        'goliath/120b:free',
-        'openai/gpt-oss-20b:free',
-        'openrouter/auto',
-    ],
-    gemini: [
-        'gemini-2.0-flash-exp',
-        'gemini-1.5-pro-latest',
-        'gemini-1.5-flash-latest',
-        'gemini-1.5-pro',
-        'gemini-1.5-flash',
-        'gemini-pro',
-        'gemini-pro-vision',
-        'gemini-ultra',
-    ],
-    claude: [
-        'claude-3.5-sonnet-20241022',
-        'claude-3.5-haiku-20241022',
-        'claude-3-opus-20240229',
-        'claude-3-sonnet-20240229',
-        'claude-3-haiku-20240307',
-        'claude-2.1',
-        'claude-2.0',
-        'claude-instant-1.2',
-    ],
+    openai: OPENAI_MODELS,
+    openrouter: OPENROUTER_MODELS,
+    gemini: GEMINI_MODELS,
+    claude: CLAUDE_MODELS,
+    ollama: OLLAMA_MODELS,
 }
 
 /**
@@ -169,6 +127,27 @@ export function getActiveProvider(
                 }
             }
             break
+        case 'ollama':
+            // Ollama doesn't strictly need an API key for localhost, but we assume it's enabled if selected
+            return {
+                provider: 'ollama',
+                apiKey: 'ollama', // Dummy key
+                enabled: true,
+                baseUrl: settings.ollama?.baseUrl || 'http://localhost:11434',
+                defaultModel:
+                    settings.ollama?.model || DEFAULT_MODELS.ollama[0],
+            }
+    }
+
+    // Default Fallback to Ollama if nothing else allows us to be "AI Native"
+    if (settings.ollama?.enabled !== false) {
+        return {
+            provider: 'ollama',
+            apiKey: 'ollama',
+            enabled: true,
+            baseUrl: settings.ollama?.baseUrl || 'http://localhost:11434',
+            defaultModel: settings.ollama?.model || DEFAULT_MODELS.ollama[0],
+        }
     }
 
     return null
@@ -248,9 +227,26 @@ export async function getActiveProviderWithEnv(
             }
             break
         }
+        case 'ollama': {
+            return {
+                provider: 'ollama',
+                apiKey: 'ollama',
+                enabled: true,
+                baseUrl: settings.ollama?.baseUrl || 'http://localhost:11434',
+                defaultModel:
+                    settings.ollama?.model || DEFAULT_MODELS.ollama[0],
+            }
+        }
     }
 
-    return null
+    // Fallback to Ollama if no other provider is configured
+    return {
+        provider: 'ollama',
+        apiKey: 'ollama',
+        enabled: true,
+        baseUrl: settings.ollama?.baseUrl || 'http://localhost:11434',
+        defaultModel: settings.ollama?.model || DEFAULT_MODELS.ollama[0],
+    }
 }
 
 /**
@@ -264,7 +260,7 @@ export async function* streamAIResponse(
         maxTokens?: number
     }
 ): AsyncGenerator<string, void, unknown> {
-    const { provider: providerType, apiKey, defaultModel } = provider
+    const { provider: providerType, apiKey, defaultModel, baseUrl } = provider
 
     switch (providerType) {
         case 'openai':
@@ -278,6 +274,14 @@ export async function* streamAIResponse(
             break
         case 'claude':
             yield* streamClaude(apiKey, defaultModel!, messages, options)
+            break
+        case 'ollama':
+            yield* streamOllama(
+                baseUrl || 'http://localhost:11434',
+                defaultModel!,
+                messages,
+                options
+            )
             break
     }
 }
@@ -337,6 +341,82 @@ async function* streamOpenAI(
                 }
             }
         }
+    }
+}
+
+async function* streamOllama(
+    baseUrl: string,
+    model: string,
+    messages: Array<{ role: string; content: string }>,
+    options?: { temperature?: number; maxTokens?: number }
+): AsyncGenerator<string, void, unknown> {
+    // Ensure base URL doesn't have trailing slash
+    const cleanUrl = baseUrl.replace(/\/$/, '')
+
+    try {
+        const response = await fetch(`${cleanUrl}/v1/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Ollama doesn't require an API key usually, but sending 'ollama' is fine
+            },
+            body: JSON.stringify({
+                model,
+                messages,
+                stream: true,
+                temperature: options?.temperature ?? 0.7,
+                max_tokens: options?.maxTokens,
+            }),
+        })
+
+        if (!response.ok) {
+            // Check if it's a connection error or model not found
+            if (response.status === 404) {
+                throw new Error(
+                    `Ollama model '${model}' not found. Please run: ollama pull ${model}`
+                )
+            }
+            throw new Error(`Ollama API error: ${response.statusText}`)
+        }
+
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+
+        if (!reader) return
+
+        let buffer = ''
+        while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n')
+            buffer = lines.pop() || ''
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6)
+                    if (data === '[DONE]') return
+
+                    try {
+                        const parsed = JSON.parse(data)
+                        const content = parsed.choices?.[0]?.delta?.content
+                        if (content) {
+                            yield content
+                        }
+                    } catch (e) {
+                        // Ignore parse errors
+                    }
+                }
+            }
+        }
+    } catch (error: any) {
+        if (error.message.includes('Failed to fetch')) {
+            throw new Error(
+                'Could not connect to Ollama. Is it running at ' + baseUrl + '?'
+            )
+        }
+        throw error
     }
 }
 

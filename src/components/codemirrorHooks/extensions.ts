@@ -52,8 +52,12 @@ import { updateCommentsEffect } from '../../features/extensions/comments'
 import { fixLintExtension } from '../../features/linter/fixLSPExtension'
 import { storePaneIdExtensions } from '../../features/extensions/storePane'
 import { store } from '../../app/store'
-import { triggerFileSearch } from '../../features/tools/toolSlice'
+import {
+    triggerFileSearch,
+    triggerInlineAI,
+} from '../../features/tools/toolSlice'
 import { createThemeFromData } from '../../theme/themeManager'
+import { ghostTextExtension } from '../../features/extensions/ghostText'
 
 const syntaxCompartment = new Compartment(),
     keyBindingsCompartment = new Compartment(),
@@ -172,6 +176,13 @@ const globalExtensions = [
                     return true
                 },
             },
+            {
+                key: connector.PLATFORM_CM_KEY + '-k',
+                run: (_view) => {
+                    store.dispatch(triggerInlineAI())
+                    return true
+                },
+            },
         ])
     ),
     Prec.high(
@@ -209,6 +220,7 @@ const globalExtensions = [
     readOnlyCompartment.of([]),
     themeCompartment.of([]), // Will be configured by useEffect
     fontCompartment.of([]),
+    ghostTextExtension,
 ]
 
 function getCurrentSelection(view: EditorView) {
@@ -438,13 +450,13 @@ export function useExtensions({
     useEffect(() => {
         const view = editorRef.current?.view
         if (!view) return
-        
+
         // Get fresh theme data from store to ensure we have latest
         const state = store.getState()
         const themes = state.extensionsState.availableThemes
         const currentThemeName = settings.theme || 'codex-dark'
         const themeData = themes[currentThemeName]
-        
+
         if (themeData && themeData.colors) {
             try {
                 const themeExtension = createThemeFromData(themeData)

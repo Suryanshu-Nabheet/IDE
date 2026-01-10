@@ -5,12 +5,18 @@
 
 import { Settings } from '../window/state'
 
+import { OPENAI_MODELS } from './providers/openai'
+import { OPENROUTER_MODELS } from './providers/openrouter'
+import { GEMINI_MODELS } from './providers/gemini'
+import { CLAUDE_MODELS } from './providers/claude'
+import { OLLAMA_MODELS } from './providers/ollama'
+
 /**
  * Get API key for a provider.
  * Strictly uses User Settings.
  */
 export async function getAPIKeyWithEnvFallback(
-    provider: 'openai' | 'openrouter' | 'gemini' | 'claude',
+    provider: 'openai' | 'openrouter' | 'gemini' | 'claude' | 'ollama',
     settings: Settings
 ): Promise<string | null> {
     switch (provider) {
@@ -34,6 +40,8 @@ export async function getAPIKeyWithEnvFallback(
                 return settings.claudeKey
             }
             break
+        case 'ollama':
+            return 'ollama' // Dummy key
     }
 
     return null
@@ -45,7 +53,7 @@ export async function getAPIKeyWithEnvFallback(
 export async function getActiveProviderAPIKey(
     settings: Settings
 ): Promise<{ provider: string; apiKey: string | null; model: string } | null> {
-    const provider = settings.aiProvider || 'openai'
+    const provider = settings.aiProvider || 'ollama' // Default to Ollama
 
     const apiKey = await getAPIKeyWithEnvFallback(provider as any, settings)
 
@@ -56,16 +64,19 @@ export async function getActiveProviderAPIKey(
     let model = ''
     switch (provider) {
         case 'openai':
-            model = settings.openAIModel || 'gpt-4o'
+            model = settings.openAIModel || OPENAI_MODELS[0]
             break
         case 'openrouter':
-            model = settings.openRouterModel || 'openai/gpt-4o'
+            model = settings.openRouterModel || OPENROUTER_MODELS[0]
             break
         case 'gemini':
-            model = settings.geminiModel || 'gemini-1.5-pro'
+            model = settings.geminiModel || GEMINI_MODELS[0]
             break
         case 'claude':
-            model = settings.claudeModel || 'claude-3.5-sonnet-20241022'
+            model = settings.claudeModel || CLAUDE_MODELS[0]
+            break
+        case 'ollama':
+            model = settings.ollamaModel || OLLAMA_MODELS[0]
             break
     }
 

@@ -236,6 +236,14 @@ export interface BotMessage {
     hitTokenLimit?: boolean
     maxOrigLine?: number
     useDiagnostics?: boolean | number
+    toolCalls?: Array<{
+        id: string
+        name: string
+        arguments: Record<string, any>
+        result?: string
+        success?: boolean
+        isExecuting?: boolean
+    }>
 }
 
 export interface CodeBlock {
@@ -307,7 +315,7 @@ export interface Settings {
     contextType: string
     textWrapping: string
     // AI Provider Settings
-    aiProvider?: 'openai' | 'openrouter' | 'gemini' | 'claude'
+    aiProvider?: 'openai' | 'openrouter' | 'gemini' | 'claude' | 'ollama'
     // OpenAI
     openAIKey?: string
     useOpenAIKey?: boolean
@@ -324,6 +332,9 @@ export interface Settings {
     claudeKey?: string
     useClaudeKey?: boolean
     claudeModel?: string
+    // Ollama
+    ollamaModel?: string
+    ollamaBaseUrl?: string
     // General
     tabSize?: string
     theme?: string
@@ -369,6 +380,7 @@ export interface ToolState {
     fileSearchTriggered: boolean
     commandPaletteTriggered: boolean
     aiCommandPaletteTriggered: boolean
+    inlineAITriggered: boolean
     leftSideExpanded: boolean
     welcomeDismissed: boolean
 }

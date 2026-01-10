@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import cx from 'classnames'
 import * as ssel from '../features/settings/settingsSelectors'
-import { DEFAULT_MODELS } from '../features/ai/providers'
+import { DEFAULT_MODELS, AIProvider } from '../features/ai/providers'
 import {
     changeSettings,
     toggleSettings,
@@ -13,7 +13,7 @@ import {
     stopLanguageServer,
 } from '../features/lsp/languageServerSlice'
 import { Switch, Listbox } from '@headlessui/react'
-import React, { useCallback, useState, useMemo } from 'react'
+import React, { useCallback, useState, useMemo, useEffect } from 'react'
 import {
     getLanguages,
     languageServerStatus,
@@ -78,6 +78,13 @@ const OpenRouterLogo = () => (
         className="w-full h-full"
     >
         <path d="M16.804 1.957l7.22 4.105v.087L16.73 10.21l.017-2.117-.821-.03c-1.059-.028-1.611.002-2.268.11-1.064.175-2.038.577-3.147 1.352L8.345 11.03c-.284.195-.495.336-.68.455l-.515.322-.397.234.385.23.53.338c.476.314 1.17.796 2.701 1.866 1.11.775 2.083 1.177 3.147 1.352l.3.045c.694.091 1.375.094 2.825.033l.022-2.159 7.22 4.105v.087L16.589 22l.014-1.862-.635.022c-1.386.042-2.137.002-3.138-.162-1.694-.28-3.26-.926-4.881-2.059l-2.158-1.5a21.997 21.997 0 00-.755-.498l-.467-.28a55.927 55.927 0 00-.76-.43C2.908 14.73.563 14.116 0 14.116V9.888l.14.004c.564-.007 2.91-.622 3.809-1.124l1.016-.58.438-.274c.428-.28 1.072-.726 2.686-1.853 1.621-1.133 3.186-1.78 4.881-2.059 1.152-.19 1.974-.213 3.814-.138l.02-1.907z" />
+    </svg>
+)
+
+const OllamaLogo = () => (
+    <svg width="45" height="45" viewBox="0 0 60 60" xmlns="www.w3.org">
+        <circle cx="30" cy="30" r="30" fill="#ccc" />
+        <path d="M25.2 14.9c2.7-1.5 6.4-2 9.7 0 .7-8.8 9.7-11 8.4 4.6 5 3.8 4.1 10.8 2.2 13 2.2 4.1 1.6 8-.2 11.3a13 13 0 0 1 .9 7.1c-.3 1.6-2.7 1.2-2.6-.4.3-2 0-4.1-1-6.2-.2-.4-.2-1. [ Content omitted for brevity. Full code available in the cited document. ] z" />
     </svg>
 )
 
@@ -351,9 +358,9 @@ function AISettings({ onSave }: { onSave?: () => void }) {
     const settings = useAppSelector(ssel.getSettings)
     const dispatch = useAppDispatch()
 
-    const [selectedProvider, setSelectedProvider] = useState<
-        'openai' | 'openrouter' | 'gemini' | 'claude'
-    >(settings.aiProvider || 'openai')
+    const [selectedProvider, setSelectedProvider] = useState<any>(
+        settings.aiProvider || 'ollama'
+    )
 
     const isConfigured = (id: string) => {
         if (id === 'openai')
@@ -364,10 +371,12 @@ function AISettings({ onSave }: { onSave?: () => void }) {
             return !!(settings.useGeminiKey && settings.geminiKey)
         if (id === 'claude')
             return !!(settings.useClaudeKey && settings.claudeKey)
+        if (id === 'ollama') return true // Always configured (local)
         return false
     }
 
     const providers = [
+        { id: 'ollama', name: 'Ollama', logo: OllamaLogo },
         { id: 'openai', name: 'OpenAI', logo: OpenAILogo },
         { id: 'openrouter', name: 'OpenRouter', logo: OpenRouterLogo },
         { id: 'gemini', name: 'Google Gemini', logo: GeminiLogo },
@@ -437,53 +446,191 @@ function AISettings({ onSave }: { onSave?: () => void }) {
             {/* Configuration */}
             <Section
                 title="Configuration"
-                description="Enter your API credentials"
+                description={
+                    selectedProvider === 'ollama'
+                        ? 'Setup your local Ollama instance'
+                        : 'Enter your API credentials'
+                }
             >
-                {selectedProvider === 'openai' && (
-                    <ConfigPanel
-                        provider="openai"
-                        settingKeyCore="openAI"
-                        providerName="OpenAI"
+                {selectedProvider === 'ollama' ? (
+                    <OllamaConfigPanel
                         settings={settings}
-                        defaultModels={DEFAULT_MODELS.openai}
                         dispatch={dispatch}
                         onSave={onSave}
                     />
-                )}
-                {selectedProvider === 'openrouter' && (
+                ) : (
                     <ConfigPanel
-                        provider="openrouter"
-                        settingKeyCore="openRouter"
-                        providerName="OpenRouter"
+                        provider={selectedProvider}
+                        settingKeyCore={
+                            selectedProvider === 'openrouter'
+                                ? 'openRouter'
+                                : selectedProvider
+                        }
+                        providerName={
+                            providers.find((p) => p.id === selectedProvider)
+                                ?.name
+                        }
                         settings={settings}
-                        defaultModels={DEFAULT_MODELS.openrouter}
-                        dispatch={dispatch}
-                        onSave={onSave}
-                    />
-                )}
-                {selectedProvider === 'gemini' && (
-                    <ConfigPanel
-                        provider="gemini"
-                        settingKeyCore="gemini"
-                        providerName="Google Gemini"
-                        settings={settings}
-                        defaultModels={DEFAULT_MODELS.gemini}
-                        dispatch={dispatch}
-                        onSave={onSave}
-                    />
-                )}
-                {selectedProvider === 'claude' && (
-                    <ConfigPanel
-                        provider="claude"
-                        settingKeyCore="claude"
-                        providerName="Anthropic Claude"
-                        settings={settings}
-                        defaultModels={DEFAULT_MODELS.claude}
+                        defaultModels={
+                            DEFAULT_MODELS[selectedProvider as AIProvider] || []
+                        }
                         dispatch={dispatch}
                         onSave={onSave}
                     />
                 )}
             </Section>
+        </div>
+    )
+}
+
+function OllamaConfigPanel({ settings, dispatch, onSave }: any) {
+    const [baseUrl, setBaseUrl] = useState(
+        settings.ollamaBaseUrl || 'http://localhost:11434'
+    )
+    const [selectedModel, setSelectedModel] = useState(
+        settings.ollamaModel || ''
+    )
+    const [availableModels, setAvailableModels] = useState<string[]>([])
+    const [isFetching, setIsFetching] = useState(false)
+    const [fetchError, setFetchError] = useState('')
+
+    const handleFetchModels = useCallback(async () => {
+        setIsFetching(true)
+        setFetchError('')
+        try {
+            const cleanUrl = baseUrl.replace(/\/$/, '')
+            const res = await fetch(`${cleanUrl}/api/tags`)
+            if (!res.ok) throw new Error('Failed to fetch models')
+            const data = await res.json()
+            const models = data.models.map((m: any) => m.name) || []
+            setAvailableModels(models)
+
+            // Auto-select first model if current selection is invalid or empty
+            if (models.length > 0) {
+                if (!selectedModel || !models.includes(selectedModel)) {
+                    setSelectedModel(models[0])
+                    // Also dispatch immediately so it's saved
+                    dispatch(
+                        changeSettings({
+                            aiProvider: 'ollama',
+                            ollamaBaseUrl: baseUrl, // ensure base url is saved
+                            ollamaModel: models[0],
+                        })
+                    )
+                }
+            }
+        } catch (e) {
+            setFetchError('Could not connect to Ollama. Is it running?')
+            setAvailableModels([])
+        } finally {
+            setIsFetching(false)
+        }
+    }, [baseUrl, selectedModel, dispatch])
+
+    // Auto-fetch on mount
+    useEffect(() => {
+        handleFetchModels()
+    }, []) // Empty dependency array to run only once on mount
+
+    const handleSave = () => {
+        dispatch(
+            changeSettings({
+                aiProvider: 'ollama',
+                ollamaBaseUrl: baseUrl,
+                ollamaModel: selectedModel,
+            })
+        )
+        if (onSave) onSave()
+    }
+
+    return (
+        <div className="grid grid-cols-1 gap-6">
+            <div>
+                <label className="block text-xs font-medium text-[var(--ui-fg)] mb-2">
+                    Ollama Base URL
+                </label>
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={baseUrl}
+                        onChange={(e) => setBaseUrl(e.target.value)}
+                        onBlur={handleFetchModels} // Refetch when URL changes/blurs
+                        className="flex-1 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg px-4 py-2.5 text-sm text-[var(--input-fg)] font-mono placeholder-[var(--input-placeholder)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                        placeholder="http://localhost:11434"
+                    />
+                    {/* Status Indicator instead of button */}
+                    <div className="flex items-center justify-center px-4 border border-[var(--ui-border)] rounded-lg bg-[var(--ui-bg-elevated)] min-w-[100px]">
+                        {isFetching ? (
+                            <span className="text-xs text-[var(--ui-fg-muted)] animate-pulse">
+                                Connecting...
+                            </span>
+                        ) : availableModels.length > 0 ? (
+                            <span className="text-xs text-green-500 font-medium">
+                                Connected
+                            </span>
+                        ) : (
+                            <span className="text-xs text-[var(--ui-fg-muted)]">
+                                Offline
+                            </span>
+                        )}
+                    </div>
+                </div>
+                {fetchError && (
+                    <p className="text-xs text-red-500 mt-2">{fetchError}</p>
+                )}
+            </div>
+
+            <div>
+                <label className="block text-xs font-medium text-[var(--ui-fg)] mb-2">
+                    Selected Model
+                </label>
+                <div className="relative">
+                    {availableModels.length > 0 ? (
+                        <Select
+                            value={selectedModel}
+                            onChange={(val: string) => {
+                                setSelectedModel(val)
+                                dispatch(changeSettings({ ollamaModel: val }))
+                            }}
+                            options={availableModels}
+                            fullWidth
+                        />
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                            <div className="text-xs text-[var(--ui-fg-muted)] italic p-2 border border-[var(--ui-border)] rounded bg-[var(--ui-bg-subtle)] flex items-center justify-between">
+                                <span>
+                                    {fetchError
+                                        ? 'No models found (connection failed)'
+                                        : 'Scanning for models...'}
+                                </span>
+                                {fetchError && (
+                                    <button
+                                        onClick={handleFetchModels}
+                                        className="text-[var(--accent)] hover:underline ml-2 font-medium"
+                                    >
+                                        Retry
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+                {availableModels.length > 0 && (
+                    <p className="text-[10px] text-[var(--ui-fg-muted)] mt-1.5 opacity-70">
+                        Showing {availableModels.length} models installed
+                        locally.
+                    </p>
+                )}
+            </div>
+
+            <div className="pt-2">
+                <button
+                    onClick={handleSave}
+                    className="w-full py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-medium rounded-lg transition-all"
+                >
+                    Save & Activate Ollama
+                </button>
+            </div>
         </div>
     )
 }

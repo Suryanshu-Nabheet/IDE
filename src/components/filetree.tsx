@@ -28,6 +28,7 @@ import {
     faTerminal as faTerminalIcon,
     faDatabase,
     faCircle as faCircleSolid,
+    faRotateRight,
 } from '@fortawesome/free-solid-svg-icons'
 import * as gs from '../features/globalSlice'
 
@@ -349,6 +350,8 @@ export function FileTree() {
     const rootFolder = useAppSelector(getFolder(rootFolderId))
     const isOpen = useAppSelector(getFolderOpen(rootFolderId))
     const fileChildren = useAppSelector(getNotDeletedFiles(rootFolderId))
+    const [outlineOpen, setOutlineOpen] = React.useState(false)
+    const [timelineOpen, setTimelineOpen] = React.useState(false)
 
     useEffect(() => {
         if (rootFolderId) {
@@ -377,69 +380,95 @@ export function FileTree() {
         >
             {/* Sticky project header */}
             <div
-                className="filetree__project-header"
+                className="filetree__project-header relative"
                 style={{
-                    height: '35px',
-                    minHeight: '35px',
-                    padding: '0 12px',
+                    height: '42px',
+                    minHeight: '42px',
+                    padding: '0 8px 0 12px',
                     display: 'flex',
                     alignItems: 'center',
-                    cursor: 'pointer',
+                    justifyContent: 'space-between',
                     fontSize: '11px',
                     fontWeight: 700,
                     backgroundColor: 'var(--sidebar-bg)',
-                    borderBottom: '1px solid var(--pane-border)',
+                    borderTop: '1px solid var(--pane-border)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.8px',
                     color: 'var(--ui-fg)',
                     flexShrink: 0,
-                    zIndex: 5,
-                }}
-                onClick={toggleOpen}
-                onContextMenu={() => {
-                    dispatch(
-                        gs.setFolderOpen({
-                            folderId: rootFolderId,
-                            isOpen: true,
-                        })
-                    )
-                    dispatch(gs.rightClickFolder(rootFolderId))
+                    zIndex: 20,
                 }}
             >
-                <FontAwesomeIcon
-                    icon={isOpen ? faChevronDown : faChevronRight}
-                    style={{
-                        fontSize: '9px',
-                        opacity: 0.7,
-                        marginRight: '8px',
-                    }}
-                />
-                <div className="folder__name truncate" style={{ flexGrow: 1 }}>
-                    {rootFolder.name}
+                {/* Left: Project Name */}
+                <div
+                    className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
+                    onClick={toggleOpen}
+                >
+                    <FontAwesomeIcon
+                        icon={isOpen ? faChevronDown : faChevronRight}
+                        style={{
+                            fontSize: '9px',
+                            opacity: 0.7,
+                        }}
+                    />
+                    <div className="truncate font-bold text-[11px]">
+                        {rootFolder.name}
+                    </div>
                 </div>
-                <div className="folder__hoverbuttons">
-                    <div
-                        className="folder__hoverbutton"
+
+                {/* Right: Action Buttons */}
+                <div className="flex items-center gap-0.5">
+                    <button
+                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--ui-hover)] text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] transition-colors"
                         onClick={(e) => {
                             e.stopPropagation()
                             dispatch(
                                 gs.newFile({ parentFolderId: rootFolderId })
                             )
                         }}
+                        title="New File"
+                        type="button"
                     >
-                        <FontAwesomeIcon icon={faFileCirclePlus} />
-                    </div>
-                    <div
-                        className="folder__hoverbutton"
+                        <FontAwesomeIcon
+                            icon={faFileCirclePlus}
+                            className="text-xs"
+                        />
+                    </button>
+                    <button
+                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--ui-hover)] text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] transition-colors"
                         onClick={(e) => {
                             e.stopPropagation()
                             dispatch(
                                 gs.newFolder({ parentFolderId: rootFolderId })
                             )
                         }}
+                        title="New Folder"
+                        type="button"
                     >
-                        <FontAwesomeIcon icon={faFolderPlus} />
-                    </div>
+                        <FontAwesomeIcon
+                            icon={faFolderPlus}
+                            className="text-xs"
+                        />
+                    </button>
+                    <button
+                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--ui-hover)] text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            dispatch(
+                                gs.loadFolder({
+                                    folderId: rootFolderId,
+                                    goDeep: true,
+                                })
+                            )
+                        }}
+                        title="Refresh Explorer"
+                        type="button"
+                    >
+                        <FontAwesomeIcon
+                            icon={faRotateRight}
+                            className="text-xs"
+                        />
+                    </button>
                 </div>
             </div>
 
@@ -458,6 +487,47 @@ export function FileTree() {
                         })}
                     </>
                 )}
+            </div>
+
+            {/* Outline & Timeline Sections */}
+            <div className="flex flex-col border-t border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]">
+                {/* Outline Section */}
+                <div>
+                    <div
+                        className="h-[42px] min-h-[42px] flex items-center px-4 text-[11px] font-bold text-[var(--ui-fg)] opacity-70 cursor-pointer hover:opacity-100 hover:bg-[var(--ui-hover)] transition-all"
+                        onClick={() => setOutlineOpen(!outlineOpen)}
+                    >
+                        <FontAwesomeIcon
+                            icon={outlineOpen ? faChevronDown : faChevronRight}
+                            className="mr-2 text-[9px]"
+                        />
+                        OUTLINE
+                    </div>
+                    {outlineOpen && (
+                        <div className="px-4 py-2 text-xs text-[var(--ui-fg-muted)]">
+                            <div className="italic">No outline available</div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Timeline Section */}
+                <div>
+                    <div
+                        className="h-[42px] min-h-[42px] flex items-center px-4 text-[11px] font-bold text-[var(--ui-fg)] opacity-70 cursor-pointer hover:opacity-100 hover:bg-[var(--ui-hover)] transition-all"
+                        onClick={() => setTimelineOpen(!timelineOpen)}
+                    >
+                        <FontAwesomeIcon
+                            icon={timelineOpen ? faChevronDown : faChevronRight}
+                            className="mr-2 text-[9px]"
+                        />
+                        TIMELINE
+                    </div>
+                    {timelineOpen && (
+                        <div className="px-4 py-2 text-xs text-[var(--ui-fg-muted)]">
+                            <div className="italic">No timeline data</div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

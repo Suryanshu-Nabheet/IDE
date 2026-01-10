@@ -7,17 +7,17 @@ const initialState: ToolState = {
     fileSearchTriggered: false,
     commandPaletteTriggered: false,
     aiCommandPaletteTriggered: false,
+    inlineAITriggered: false,
     leftSideExpanded: true,
     welcomeDismissed: false,
 }
+
 const untriggerAll = (state: ToolState) => {
     state.fileSearchTriggered = false
     state.commandPaletteTriggered = false
-    // leftSideExpanded: true
     state.aiCommandPaletteTriggered = false
+    state.inlineAITriggered = false
 }
-
-// Thunks removed
 
 export const toolSlice = createSlice({
     name: 'toolState',
@@ -70,6 +70,14 @@ export const toolSlice = createSlice({
         untriggerCommandPalette: (state: ToolState) => {
             untriggerAll(state)
         },
+        triggerInlineAI: (state: ToolState) => {
+            const newVal = !state.inlineAITriggered
+            untriggerAll(state)
+            state.inlineAITriggered = newVal
+        },
+        untriggerInlineAI: (state: ToolState) => {
+            untriggerAll(state)
+        },
         collapseLeftSide: (state: ToolState) => {
             state.leftSideExpanded = false
         },
@@ -97,6 +105,8 @@ export const {
     untriggerCommandPalette,
     triggerAICommandPalette,
     untriggerAICommandPalette,
+    triggerInlineAI,
+    untriggerInlineAI,
     collapseLeftSide,
     expandLeftSide,
     toggleLeftSide,

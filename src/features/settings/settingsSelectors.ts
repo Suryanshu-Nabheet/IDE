@@ -1,7 +1,9 @@
 import { FullState, SettingsState } from '../window/state'
 import { createSelector } from 'reselect'
 
-const availableServerModels = ['gpt-4', 'gpt-3.5-turbo']
+import { OPENAI_MODELS } from '../ai/providers/openai'
+
+const availableServerModels = OPENAI_MODELS
 
 export const getSettingsIsOpen = createSelector(
     (state: FullState) => state.settingsState,

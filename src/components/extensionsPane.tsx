@@ -165,8 +165,8 @@ export const ExtensionsPane = () => {
                                         {/* Icon */}
                                         <div
                                             style={{
-                                                width: '40px',
-                                                height: '40px',
+                                                width: '42px',
+                                                height: '42px',
                                                 borderRadius: '4px',
                                                 backgroundColor: 'var(--ui-bg)',
                                                 flexShrink: 0,
@@ -358,8 +358,8 @@ export const ExtensionsPane = () => {
                                             {/* Icon */}
                                             <div
                                                 style={{
-                                                    width: '40px',
-                                                    height: '40px',
+                                                    width: '42px',
+                                                    height: '42px',
                                                     borderRadius: '4px',
                                                     backgroundColor:
                                                         'var(--ui-bg)',

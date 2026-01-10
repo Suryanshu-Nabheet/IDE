@@ -179,7 +179,7 @@ export function Pane({ paneId }: { paneId: number }) {
                     dispatch(selectPane(paneId))
                 }}
             >
-                <TabBar tabIds={pane.tabIds} />
+                {pane.tabIds.length > 0 && <TabBar tabIds={pane.tabIds} />}
                 {activeTabId && <Page tid={activeTabId} />}
             </div>
         </div>

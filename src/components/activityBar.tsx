@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import {
     getLeftTab,
@@ -12,24 +12,21 @@ import {
     collapseLeftSide,
     expandLeftSide,
 } from '../features/tools/toolSlice'
-import {
-    toggleSettings,
-    setSettingsTab,
-} from '../features/settings/settingsSlice'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faFiles,
     faMagnifyingGlass,
-    faGear,
-    faUserCircle,
     faCodeBranch,
     faPuzzlePiece,
 } from '@fortawesome/pro-regular-svg-icons'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
 export const ActivityBar = () => {
     const dispatch = useAppDispatch()
     const activeTab = useAppSelector(getLeftTab)
     const isExpanded = useAppSelector(getLeftSideExpanded)
+    const [showMore, setShowMore] = useState(false)
 
     const handleTabClick = (
         tab: 'filetree' | 'search' | 'git' | 'extensions'
@@ -47,65 +44,122 @@ export const ActivityBar = () => {
                 dispatch(openExtensions())
             }
             dispatch(expandLeftSide())
+            setShowMore(false)
         }
     }
 
+    const navItems = [
+        { id: 'filetree', icon: faFiles, title: 'Explorer' },
+        { id: 'search', icon: faMagnifyingGlass, title: 'Search' },
+        { id: 'git', icon: faCodeBranch, title: 'Source Control' },
+        { id: 'extensions', icon: faPuzzlePiece, title: 'Extensions' },
+    ]
+
     return (
-        <div className="activity-bar">
-            <div className="activity-bar__top">
-                <div
-                    className={`activity-bar__item ${
-                        activeTab === 'filetree' && isExpanded ? 'active' : ''
-                    }`}
-                    onClick={() => handleTabClick('filetree')}
-                    title="Explorer"
+        <div className="w-full h-[42px] min-h-[42px] bg-[var(--sidebar-bg)] flex items-center justify-center relative flex-shrink-0 z-[100]">
+            {/* Centered Button Container */}
+            <div className="flex items-center gap-1">
+                {navItems.map((item) => (
+                    <button
+                        key={item.id}
+                        className={`
+                            w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200
+                            ${
+                                activeTab === item.id && isExpanded
+                                    ? 'bg-[var(--ui-bg-elevated)] text-[var(--accent)] shadow-sm'
+                                    : 'text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)]'
+                            }
+                        `}
+                        onClick={() => handleTabClick(item.id as any)}
+                        title={item.title}
+                        type="button"
+                    >
+                        <FontAwesomeIcon
+                            icon={item.icon}
+                            className="text-[15px]"
+                        />
+                    </button>
+                ))}
+
+                {/* Divider */}
+                <div className="w-[1px] h-5 bg-[var(--ui-border)] mx-1.5 opacity-30" />
+
+                {/* More Menu Toggle */}
+                <button
+                    className={`
+                        w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200
+                        ${
+                            showMore
+                                ? 'bg-[var(--ui-bg-elevated)] text-[var(--accent)]'
+                                : 'text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)]'
+                        }
+                    `}
+                    onClick={() => setShowMore(!showMore)}
+                    title="More Views"
+                    type="button"
                 >
-                    <FontAwesomeIcon icon={faFiles} />
-                </div>
-                <div
-                    className={`activity-bar__item ${
-                        activeTab === 'search' && isExpanded ? 'active' : ''
-                    }`}
-                    onClick={() => handleTabClick('search')}
-                    title="Search"
-                >
-                    <FontAwesomeIcon icon={faMagnifyingGlass} />
-                </div>
-                <div
-                    className={`activity-bar__item ${
-                        activeTab === 'git' && isExpanded ? 'active' : ''
-                    }`}
-                    onClick={() => handleTabClick('git')}
-                    title="Source Control"
-                >
-                    <FontAwesomeIcon icon={faCodeBranch} />
-                </div>
-                <div
-                    className={`activity-bar__item ${
-                        activeTab === 'extensions' && isExpanded ? 'active' : ''
-                    }`}
-                    onClick={() => handleTabClick('extensions')}
-                    title="Extensions"
-                >
-                    <FontAwesomeIcon icon={faPuzzlePiece} />
-                </div>
+                    <FontAwesomeIcon
+                        icon={faChevronDown}
+                        className="text-[11px]"
+                    />
+                </button>
             </div>
-            <div className="activity-bar__bottom">
-                <div
-                    className="activity-bar__item"
-                    title="Accounts"
-                    onClick={() => dispatch(setSettingsTab('Account'))}
-                >
-                    <FontAwesomeIcon icon={faUserCircle} />
-                </div>
-                <div
-                    className="activity-bar__item"
-                    title="Settings"
-                    onClick={() => dispatch(toggleSettings())}
-                >
-                    <FontAwesomeIcon icon={faGear} />
-                </div>
-            </div>
+
+            {/* Dropdown Menu - High z-index to prevent being hidden */}
+            {showMore && (
+                <>
+                    {/* Backdrop to close menu */}
+                    <div
+                        className="fixed inset-0"
+                        style={{ zIndex: 9998 }}
+                        onClick={() => setShowMore(false)}
+                    />
+
+                    {/* Menu - Matches sidebar width exactly */}
+                    <div
+                        className="absolute w-56 bg-[var(--sidebar-bg)] border border-[var(--ui-border)] rounded-lg shadow-2xl flex flex-col"
+                        style={{
+                            top: '46px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            zIndex: 9999,
+                            background: 'rgba(20, 20, 20, 0.98)',
+                            backdropFilter: 'blur(12px)',
+                        }}
+                    >
+                        <button
+                            className="px-4 py-3 hover:bg-[var(--ui-hover)] text-xs text-[var(--ui-fg)] flex items-center justify-between transition-colors text-left opacity-50 cursor-not-allowed first:rounded-t-lg"
+                            onClick={(e) => {
+                                e.preventDefault()
+                                setShowMore(false)
+                            }}
+                            type="button"
+                            title="Coming soon"
+                            disabled
+                        >
+                            <span>Run and Debug</span>
+                            <span className="text-[9px] text-[var(--ui-fg-muted)]">
+                                Soon
+                            </span>
+                        </button>
+                        <button
+                            className="px-4 py-3 hover:bg-[var(--ui-hover)] text-xs text-[var(--ui-fg)] flex items-center justify-between transition-colors text-left opacity-50 cursor-not-allowed last:rounded-b-lg"
+                            onClick={(e) => {
+                                e.preventDefault()
+                                setShowMore(false)
+                            }}
+                            type="button"
+                            title="Coming soon"
+                            disabled
+                        >
+                            <span>Remote Explorer</span>
+                            <span className="text-[9px] text-[var(--ui-fg-muted)]">
+                                Soon
+                            </span>
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     )
 }

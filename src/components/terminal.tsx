@@ -10,12 +10,19 @@ import { FullState } from '../features/window/state'
 import * as gs from '../features/globalSlice'
 import * as ssel from '../features/settings/settingsSelectors'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import {
+    faTimes,
+    faChevronUp,
+    faMagic,
+} from '@fortawesome/free-solid-svg-icons'
 import { throttleCallback } from './componentUtils'
+import { TerminalAISuggestion } from './terminalAISuggestion'
 
 export const BottomTerminal: React.FC = () => {
     const dispatch = useAppDispatch()
-    const isOpen = useAppSelector((state: FullState) => state.global.terminalOpen)
+    const isOpen = useAppSelector(
+        (state: FullState) => state.global.terminalOpen
+    )
     const settings = useAppSelector(ssel.getSettings)
     const availableThemes = useAppSelector(
         (state: any) => state.extensionsState.availableThemes
@@ -29,16 +36,30 @@ export const BottomTerminal: React.FC = () => {
     const [height, setHeight] = useState(300)
     const [isDragging, setIsDragging] = useState(false)
     const [isMaximized, setIsMaximized] = useState(false)
-    const dataHandlerRef = useRef<((_: any, payload: { id: string; data: string }) => void) | null>(null)
-    const exitHandlerRef = useRef<((_: any, payload: { id: string; exitCode: number }) => void) | null>(null)
+    const [showAISuggestion, setShowAISuggestion] = useState(false)
+    const dataHandlerRef = useRef<
+        ((_: any, payload: { id: string; data: string }) => void) | null
+    >(null)
+    const exitHandlerRef = useRef<
+        ((_: any, payload: { id: string; exitCode: number }) => void) | null
+    >(null)
 
     const fitTerminal = useCallback(() => {
         if (!fitAddonRef.current || !containerRef.current || !isOpen) return
         try {
             fitAddonRef.current.fit()
             const dims = fitAddonRef.current.proposeDimensions()
-            if (dims && dims.cols > 0 && dims.rows > 0 && terminalIdRef.current) {
-                connector.terminalResize(terminalIdRef.current, dims.cols, dims.rows)
+            if (
+                dims &&
+                dims.cols > 0 &&
+                dims.rows > 0 &&
+                terminalIdRef.current
+            ) {
+                connector.terminalResize(
+                    terminalIdRef.current,
+                    dims.cols,
+                    dims.rows
+                )
             }
         } catch (e) {
             // Silent error handling
@@ -73,7 +94,8 @@ export const BottomTerminal: React.FC = () => {
 
             const term = new Terminal({
                 theme: terminalTheme,
-                fontFamily: settings.fontFamily || "'JetBrains Mono', monospace",
+                fontFamily:
+                    settings.fontFamily || "'JetBrains Mono', monospace",
                 fontSize: parseInt(settings.fontSize || '13'),
                 lineHeight: 1.4,
                 cursorBlink: true,
@@ -96,18 +118,21 @@ export const BottomTerminal: React.FC = () => {
             terminalRef.current = term
             fitAddonRef.current = fitAddon
 
-            connector.terminalCreate(80, 24).then((result: { id: string }) => {
-                terminalIdRef.current = result.id
-                term.onData((data) => {
-                    connector.terminalInto(result.id, data)
+            connector
+                .terminalCreate(80, 24)
+                .then((result: { id: string }) => {
+                    terminalIdRef.current = result.id
+                    term.onData((data) => {
+                        connector.terminalInto(result.id, data)
+                    })
+                    setTimeout(() => {
+                        fitTerminal()
+                        term.focus()
+                    }, 100)
                 })
-                setTimeout(() => {
-                    fitTerminal()
-                    term.focus()
-                }, 100)
-            }).catch(() => {
-                // Silent error handling
-            })
+                .catch(() => {
+                    // Silent error handling
+                })
         } else if (terminalRef.current && isOpen) {
             setTimeout(() => {
                 fitTerminal()
@@ -118,8 +143,14 @@ export const BottomTerminal: React.FC = () => {
 
     useEffect(() => {
         if (!dataHandlerRef.current) {
-            const dataHandler = (_: any, payload: { id: string; data: string }) => {
-                if (terminalRef.current && terminalIdRef.current === payload.id) {
+            const dataHandler = (
+                _: any,
+                payload: { id: string; data: string }
+            ) => {
+                if (
+                    terminalRef.current &&
+                    terminalIdRef.current === payload.id
+                ) {
                     try {
                         terminalRef.current.write(payload.data)
                     } catch (e) {
@@ -128,7 +159,10 @@ export const BottomTerminal: React.FC = () => {
                 }
             }
 
-            const exitHandler = (_: any, payload: { id: string; exitCode: number }) => {
+            const exitHandler = (
+                _: any,
+                payload: { id: string; exitCode: number }
+            ) => {
                 if (terminalIdRef.current === payload.id) {
                     try {
                         if (terminalRef.current) {
@@ -190,7 +224,8 @@ export const BottomTerminal: React.FC = () => {
 
     useEffect(() => {
         if (terminalRef.current) {
-            const fontFamily = settings.fontFamily || "'JetBrains Mono', monospace"
+            const fontFamily =
+                settings.fontFamily || "'JetBrains Mono', monospace"
             const fontSize = parseInt(settings.fontSize || '13')
             terminalRef.current.options.fontFamily = fontFamily
             terminalRef.current.options.fontSize = fontSize
@@ -222,7 +257,9 @@ export const BottomTerminal: React.FC = () => {
         const handleMove = throttleCallback((e: MouseEvent) => {
             if (!isDragging) return
             const newHeight = window.innerHeight - e.clientY
-            setHeight(Math.max(100, Math.min(newHeight, window.innerHeight - 50)))
+            setHeight(
+                Math.max(100, Math.min(newHeight, window.innerHeight - 50))
+            )
         }, 10)
 
         const handleUp = () => setIsDragging(false)
@@ -268,7 +305,10 @@ export const BottomTerminal: React.FC = () => {
     const maxHeight = isMaximized ? window.innerHeight - 50 : height
 
     return (
-        <div className="terminal-container" style={{ height: `${maxHeight}px` }}>
+        <div
+            className="terminal-container"
+            style={{ height: `${maxHeight}px` }}
+        >
             <div
                 className="terminal-dragger"
                 onMouseDown={() => setIsDragging(true)}
@@ -280,8 +320,15 @@ export const BottomTerminal: React.FC = () => {
                 <div className="terminal-actions">
                     <button
                         className="terminal-action-btn"
+                        onClick={() => setShowAISuggestion(!showAISuggestion)}
+                        title="AI Command"
+                    >
+                        <FontAwesomeIcon icon={faMagic} />
+                    </button>
+                    <button
+                        className="terminal-action-btn"
                         onClick={() => setIsMaximized(!isMaximized)}
-                        title={isMaximized ? "Restore" : "Maximize"}
+                        title={isMaximized ? 'Restore' : 'Maximize'}
                     >
                         <FontAwesomeIcon icon={faChevronUp} />
                     </button>
@@ -297,6 +344,20 @@ export const BottomTerminal: React.FC = () => {
             <div className="terminal-content">
                 <div ref={containerRef} className="terminal-instance-wrapper" />
             </div>
+            {showAISuggestion && (
+                <TerminalAISuggestion
+                    onClose={() => setShowAISuggestion(false)}
+                    onRunCommand={(cmd) => {
+                        if (terminalIdRef.current) {
+                            connector.terminalInto(
+                                terminalIdRef.current,
+                                cmd + '\r'
+                            )
+                            setTimeout(() => terminalRef.current?.focus(), 100)
+                        }
+                    }}
+                />
+            )}
         </div>
     )
 }

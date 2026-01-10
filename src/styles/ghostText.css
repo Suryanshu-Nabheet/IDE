@@ -1,0 +1,6 @@
+.cm-ghost-text {
+    opacity: 0.5;
+    font-style: italic;
+    pointer-events: none;
+    color: var(--ui-fg-muted, #888);
+}

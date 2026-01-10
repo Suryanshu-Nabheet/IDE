@@ -160,8 +160,8 @@ body {
 }
 
 .left-pane-header {
-    height: 35px;
-    min-height: 35px;
+    height: 42px;
+    min-height: 42px;
     display: flex;
     align-items: center;
     padding: 0 16px;
@@ -170,7 +170,7 @@ body {
     color: var(--ui-fg-muted);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    border-bottom: 1px solid var(--pane-border);
+    border-bottom: 1px solid var(--ui-border);
     user-select: none;
     background-color: var(--sidebar-bg);
     flex-shrink: 0;
@@ -314,6 +314,11 @@ body {
     min-height: 0;
     overflow: hidden;
     backdrop-filter: blur(20px);
+    position: relative;
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .app__righttopwrapper {
@@ -375,8 +380,8 @@ body {
 }
 
 .ai-sidebar__header {
-    height: 40px;
-    min-height: 40px;
+    height: 42px;
+    min-height: 42px;
     padding: 0 16px;
     display: flex;
     align-items: center;
@@ -388,6 +393,7 @@ body {
     color: var(--ui-fg);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    flex-shrink: 0;
 }
 
 .ai-sidebar__header-left {
@@ -422,13 +428,28 @@ body {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 16px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 24px;
     min-height: 0;
     position: relative;
     z-index: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ui-border) transparent;
+}
+
+.ai-sidebar__messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ai-sidebar__messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ai-sidebar__messages::-webkit-scrollbar-thumb {
+    background-color: var(--ui-border);
+    border-radius: 10px;
 }
 
 .ai-sidebar__empty {
@@ -501,8 +522,8 @@ body {
 }
 
 .ai-message__content {
-    padding: 12px 14px;
-    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    border-radius: 12px;
     background-color: var(--ui-bg-elevated);
     border: 1px solid var(--ui-border);
     color: var(--ui-fg);
@@ -510,6 +531,7 @@ body {
     line-height: 1.6;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .ai-message__timestamp {
@@ -1337,14 +1359,16 @@ li.rta__item--selected mark {
    TAB BAR - PURE BLACK THEME
    ============================================ */
 .window__tabbarcontainer {
-    height: 35px;
+    height: 42px;
+    min-height: 42px;
     background-color: var(--ui-bg);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--ui-border);
     display: flex;
     align-items: center;
     width: 100%;
     position: relative;
     z-index: 10;
+    flex-shrink: 0;
 }
 
 .tabbar {
@@ -1367,7 +1391,7 @@ li.rta__item--selected mark {
     display: flex;
     align-items: center;
     padding: 0 10px 0 12px;
-    height: 35px;
+    height: 42px;
     min-width: 120px;
     max-width: 220px;
     background-color: var(--tab-inactive-bg);
@@ -1430,7 +1454,7 @@ li.rta__item--selected mark {
     white-space: nowrap;
     min-width: 0;
     font-size: 13px;
-    line-height: 35px;
+    line-height: 42px;
     margin-right: 4px;
     font-weight: 400;
 }
@@ -4452,3 +4476,4 @@ select:focus {
     outline: none !important;
     box-shadow: none !important;
 }
+@import './styles/ghostText.css';

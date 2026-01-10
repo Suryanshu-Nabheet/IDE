@@ -522,6 +522,58 @@ export const chatSlice = createSlice({
             //     chatState.commandBarText = ''
             // }
         },
+        // ============================================
+        // AI TOOL CALLING SUPPORT
+        // ============================================
+        addToolCallToMessage(
+            chatState: ChatState,
+            action: PayloadAction<{
+                conversationId: string
+                toolCall: {
+                    id: string
+                    name: string
+                    arguments: Record<string, any>
+                }
+            }>
+        ) {
+            const lastBotMessage = getLastBotMessage(
+                chatState,
+                action.payload.conversationId
+            )
+            if (lastBotMessage) {
+                if (!lastBotMessage.toolCalls) {
+                    lastBotMessage.toolCalls = []
+                }
+                lastBotMessage.toolCalls.push({
+                    ...action.payload.toolCall,
+                    isExecuting: true,
+                })
+            }
+        },
+        updateToolCallResult(
+            chatState: ChatState,
+            action: PayloadAction<{
+                conversationId: string
+                toolCallId: string
+                result: string
+                success: boolean
+            }>
+        ) {
+            const lastBotMessage = getLastBotMessage(
+                chatState,
+                action.payload.conversationId
+            )
+            if (lastBotMessage?.toolCalls) {
+                const toolCall = lastBotMessage.toolCalls.find(
+                    (tc) => tc.id === action.payload.toolCallId
+                )
+                if (toolCall) {
+                    toolCall.result = action.payload.result
+                    toolCall.success = action.payload.success
+                    toolCall.isExecuting = false
+                }
+            }
+        },
     },
 })
 
@@ -558,6 +610,7 @@ export const {
     doSetChatState,
     setHitTokenLimit,
     _submitCommandBar: dummySubmitCommandBar,
-    // Bad - I added tech debt and will fix later
     setMaxOrigLine,
+    addToolCallToMessage,
+    updateToolCallResult,
 } = chatSlice.actions

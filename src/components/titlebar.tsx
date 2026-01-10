@@ -19,6 +19,7 @@ import {
     faSquare,
     faSquareTerminal,
     faTimes,
+    faUserCircle,
 } from '@fortawesome/pro-regular-svg-icons'
 
 function Menu({
@@ -322,7 +323,7 @@ export function TitleBar({
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '2px',
+                            gap: '6px',
                         }}
                         onDoubleClick={(e) => {
                             e.stopPropagation()
@@ -395,6 +396,16 @@ export function TitleBar({
                             title="Settings (⌘,)"
                         >
                             <FontAwesomeIcon icon={faCog} />
+                        </div>
+
+                        <div
+                            className="titlebar__right_button"
+                            onClick={() => {
+                                dispatch(ss.setSettingsTab('Account'))
+                            }}
+                            title="Account"
+                        >
+                            <FontAwesomeIcon icon={faUserCircle} />
                         </div>
                     </div>
                 )}
