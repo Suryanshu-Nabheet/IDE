@@ -195,19 +195,13 @@ export function SettingsPopup() {
 
 // --- General Settings ---
 function GeneralSettings({ settings, dispatch }: any) {
-    const availableThemes = useAppSelector(
-        (state) => state.extensionsState.availableThemes
-    )
-
-    // Convert availableThemes object to array for rendering
-    const themesList = Object.keys(availableThemes).map((key) => ({
-        value: key,
-        label: key
-            .split('-')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' '),
-        theme: availableThemes[key],
-    }))
+    const curatedThemes = [
+        { value: 'codex-dark', label: 'CodeX Dark', color: '#000000' },
+        { value: 'github-dark', label: 'GitHub Dark', color: '#0d1117' },
+        { value: 'dracula', label: 'Dracula', color: '#282a36' },
+        { value: 'one-dark', label: 'One Dark', color: '#282c34' },
+        { value: 'solarized-dark', label: 'Solarized Dark', color: '#002b36' },
+    ]
 
     return (
         <div className="space-y-10 max-w-3xl">
@@ -216,12 +210,12 @@ function GeneralSettings({ settings, dispatch }: any) {
                 title="Color Theme"
                 description="Choose your editor color scheme"
             >
-                <div className="grid grid-cols-4 gap-3">
-                    {themesList.slice(0, 8).map((theme) => (
+                <div className="grid grid-cols-5 gap-3">
+                    {curatedThemes.map((theme) => (
                         <ThemeCard
                             key={theme.value}
                             label={theme.label}
-                            color={theme.theme.colors.background}
+                            color={theme.color}
                             isActive={
                                 (settings.theme || 'codex-dark') === theme.value
                             }
@@ -231,29 +225,6 @@ function GeneralSettings({ settings, dispatch }: any) {
                         />
                     ))}
                 </div>
-                {themesList.length > 8 && (
-                    <div className="mt-3">
-                        <select
-                            value={settings.theme || 'codex-dark'}
-                            onChange={(e) =>
-                                dispatch(
-                                    changeSettings({ theme: e.target.value })
-                                )
-                            }
-                            className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg px-4 py-2.5 text-sm text-[var(--input-fg)] focus:outline-none focus:border-[var(--accent)] transition-colors"
-                        >
-                            {themesList.map((theme) => (
-                                <option key={theme.value} value={theme.value}>
-                                    {theme.label}
-                                </option>
-                            ))}
-                        </select>
-                        <p className="text-xs text-[var(--ui-fg-muted)] mt-2">
-                            {themesList.length} themes available (
-                            {themesList.length - 4} from extensions)
-                        </p>
-                    </div>
-                )}
             </Section>
 
             {/* Editor */}
@@ -418,8 +389,8 @@ function AISettings({ onSave }: { onSave?: () => void }) {
                                 className={cx(
                                     'flex-1 relative flex flex-col items-center gap-3 p-5 rounded-lg border transition-all',
                                     isActive
-                                        ? 'bg-[var(--sidebar-selected)] border-[var(--accent)] shadow-sm'
-                                        : 'bg-[var(--ui-bg-elevated)] border-[var(--ui-border)] hover:bg-[var(--ui-hover)] hover:border-[var(--ui-border)]'
+                                        ? 'bg-[var(--ui-bg-elevated)] border-[var(--accent)]'
+                                        : 'bg-black/20 border-transparent opacity-40 hover:opacity-60'
                                 )}
                             >
                                 {/* Logo */}
@@ -427,31 +398,28 @@ function AISettings({ onSave }: { onSave?: () => void }) {
                                     className={cx(
                                         'w-12 h-12 rounded-lg flex items-center justify-center p-2.5 transition-colors',
                                         isActive
-                                            ? 'bg-[var(--accent)] text-white'
-                                            : 'bg-[var(--ui-bg-subtle)] text-[var(--ui-fg-muted)]'
+                                            ? 'bg-[var(--accent)]/10 text-[var(--accent)]'
+                                            : 'bg-transparent text-[var(--ui-fg-muted)]'
                                     )}
                                 >
                                     <LogoComponent />
                                 </div>
 
                                 {/* Name */}
-                                <span className="text-sm font-medium text-[var(--ui-fg)] text-center">
+                                <span
+                                    className={cx(
+                                        'text-sm font-medium text-center',
+                                        isActive
+                                            ? 'text-[var(--ui-fg)]'
+                                            : 'text-[var(--ui-fg-muted)]'
+                                    )}
+                                >
                                     {p.name}
                                 </span>
 
-                                {/* Status Indicator */}
-                                {configured && (
+                                {/* Status Indicator - only show on active */}
+                                {configured && isActive && (
                                     <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-green-500" />
-                                )}
-
-                                {/* Active Checkmark */}
-                                {isActive && (
-                                    <div className="absolute bottom-3 right-3 text-[var(--accent)]">
-                                        <FontAwesomeIcon
-                                            icon={faCheck}
-                                            className="text-xs"
-                                        />
-                                    </div>
                                 )}
                             </button>
                         )

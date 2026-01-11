@@ -440,7 +440,7 @@ export function InnerCommandPalette({
                     ) {
                         // Store query for AI sidebar to pick up
                         if (typeof window !== 'undefined') {
-                            (window as any).__codexChatQuery = query.trim()
+                            ;(window as any).__codexChatQuery = query.trim()
                         }
                         // Open AI sidebar
                         dispatch(ts.triggerAICommandPalette())

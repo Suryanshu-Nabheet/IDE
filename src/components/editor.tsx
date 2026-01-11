@@ -39,7 +39,6 @@ import {
 import { getSettings } from '../features/settings/settingsSelectors'
 import { useExtensions } from './codemirrorHooks/extensions'
 import { useSetDiff } from './codemirrorHooks/diffHook'
-import { ExtensionDetail } from './extensionDetail'
 import { InlineAIEdit } from './inlineAIEdit'
 
 export function getPrecedingLines(view: EditorView) {
@@ -349,42 +348,10 @@ export default function Editor({ tabId }: { tabId: number }) {
 
 export function Page({ tid }: { tid: number }) {
     const pageType = useAppSelector(getPageType(tid))
-    const tab = useAppSelector(getTab(tid))
-    const filePath = useAppSelector((state) => {
-        if (tab && tab.fileId !== null) {
-            return getFilePath(tab.fileId)(state)
-        }
-        return ''
-    })
 
     let page
 
-    // Check if this is an extension detail page
-    if (filePath.includes('extension://')) {
-        const extId = filePath.split('extension://')[1]
-        const extData = sessionStorage.getItem(`extension:${extId}`)
-
-        if (extData) {
-            try {
-                const extension = JSON.parse(extData)
-                page = <ExtensionDetail key={extId} extension={extension} />
-            } catch (e) {
-                page = (
-                    <div
-                        style={{ padding: '20px', color: 'var(--ui-fg-muted)' }}
-                    >
-                        Error loading extension details
-                    </div>
-                )
-            }
-        } else {
-            page = (
-                <div style={{ padding: '20px', color: 'var(--ui-fg-muted)' }}>
-                    Extension not found
-                </div>
-            )
-        }
-    } else if (pageType == 'editor') {
+    if (pageType == 'editor') {
         page = <Editor tabId={tid} />
     } else {
         throw new Error(`Invalid page type ${pageType}`)

@@ -2,114 +2,18 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { FileTree, getIconElement } from './filetree'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-    faArrowRightLong,
     faChevronDown,
     faChevronRight,
 } from '@fortawesome/sharp-solid-svg-icons'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { getLeftTab, getLeftTabActive } from '../features/tools/toolSelectors'
 import { leftTabInactive } from '../features/tools/toolSlice'
-import {
-    sendFeedbackMessage,
-    toggleFeedback,
-    updateFeedbackMessage,
-} from '../features/logging/loggingSlice'
-import {
-    getFeedbackMessage,
-    getIsOpen,
-} from '../features/logging/loggingSelectors'
 import { openFile } from '../features/globalSlice'
 import { getRootPath } from '../features/selectors'
 import _ from 'lodash'
-import Modal from 'react-modal'
 
 export function FeedbackArea() {
-    const dispatch = useAppDispatch()
-    const feedbackMessage = useAppSelector(getFeedbackMessage)
-    const isOpen = useAppSelector(getIsOpen)
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const handleTextareaChange = (e: {
-        target: { value: React.SetStateAction<string> }
-    }) => {
-        // Set the query state to the textarea value
-        dispatch(updateFeedbackMessage(e.target.value.toString()))
-        // Adjust the textarea height based on the scroll height
-        textareaRef.current!.style.height = 'auto'
-        textareaRef.current!.style.height =
-            textareaRef.current!.scrollHeight + 'px'
-    }
-    const placeholders = [
-        'Least favorite thing about CodeX...',
-        'Favorite thing about CodeX is...',
-        'What would you like to see in CodeX?',
-        'What should we fix about CodeX?',
-    ]
-    const randomPlaceholder =
-        placeholders[Math.floor(Math.random() * placeholders.length)]
-
-    const customStyles = {
-        overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'flex-end',
-            zIndex: 10000,
-        },
-        content: {
-            padding: '0',
-            top: '40px',
-            right: '40px',
-            left: 'auto',
-            bottom: 'auto',
-            background: 'var(--black-elevated)',
-            border: '1px solid var(--ui-border)',
-            width: '400px',
-            height: 'auto',
-            maxHeight: '80vh',
-            borderRadius: 'var(--radius-xl)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-        },
-    }
-
-    return (
-        <>
-            <Modal
-                isOpen={isOpen}
-                onRequestClose={() => {
-                    dispatch(toggleFeedback(null))
-                }}
-                style={customStyles}
-            >
-                <div className="feedbackarea">
-                    <textarea
-                        className="search-textarea w-full"
-                        autoFocus={true}
-                        value={feedbackMessage}
-                        placeholder={
-                            'Tell us anything! E.g. ' + randomPlaceholder
-                        }
-                        onChange={handleTextareaChange}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                dispatch(sendFeedbackMessage(null))
-                                e.preventDefault()
-                                return
-                            }
-                        }}
-                        ref={textareaRef}
-                    />
-                    <div
-                        className="feedbackarea_button"
-                        onClick={() => {
-                            dispatch(sendFeedbackMessage(null))
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faArrowRightLong} />
-                    </div>
-                </div>
-            </Modal>
-        </>
-    )
+    return null
 }
 
 import { GitPane } from './gitPane'

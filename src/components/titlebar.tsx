@@ -2,7 +2,6 @@ import * as gs from '../features/globalSlice'
 import * as gt from '../features/globalThunks'
 import * as cs from '../features/chat/chatSlice'
 import * as ss from '../features/settings/settingsSlice'
-import * as ls from '../features/logging/loggingSlice'
 import * as ts from '../features/tools/toolSlice'
 import * as csel from '../features/chat/chatSelectors'
 import * as gsel from '../features/selectors'
@@ -12,14 +11,12 @@ import SearchFiles from './searchFiles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faCog,
-    faHandWave,
     faMinus,
     faSparkles,
     faSidebar,
     faSquare,
     faSquareTerminal,
     faTimes,
-    faUserCircle,
 } from '@fortawesome/pro-regular-svg-icons'
 
 function Menu({
@@ -381,31 +378,11 @@ export function TitleBar({
                         <div
                             className="titlebar__right_button"
                             onClick={() => {
-                                dispatch(ls.toggleFeedback(null))
-                            }}
-                            title="Send Feedback"
-                        >
-                            <FontAwesomeIcon icon={faHandWave} />
-                        </div>
-
-                        <div
-                            className="titlebar__right_button"
-                            onClick={() => {
                                 dispatch(ss.toggleSettings())
                             }}
                             title="Settings (⌘,)"
                         >
                             <FontAwesomeIcon icon={faCog} />
-                        </div>
-
-                        <div
-                            className="titlebar__right_button"
-                            onClick={() => {
-                                dispatch(ss.setSettingsTab('Account'))
-                            }}
-                            title="Account"
-                        >
-                            <FontAwesomeIcon icon={faUserCircle} />
                         </div>
                     </div>
                 )}

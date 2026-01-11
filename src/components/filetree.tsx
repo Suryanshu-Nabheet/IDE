@@ -350,8 +350,6 @@ export function FileTree() {
     const rootFolder = useAppSelector(getFolder(rootFolderId))
     const isOpen = useAppSelector(getFolderOpen(rootFolderId))
     const fileChildren = useAppSelector(getNotDeletedFiles(rootFolderId))
-    const [outlineOpen, setOutlineOpen] = React.useState(false)
-    const [timelineOpen, setTimelineOpen] = React.useState(false)
 
     useEffect(() => {
         if (rootFolderId) {
@@ -487,47 +485,6 @@ export function FileTree() {
                         })}
                     </>
                 )}
-            </div>
-
-            {/* Outline & Timeline Sections */}
-            <div className="flex flex-col border-t border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]">
-                {/* Outline Section */}
-                <div>
-                    <div
-                        className="h-[42px] min-h-[42px] flex items-center px-4 text-[11px] font-bold text-[var(--ui-fg)] opacity-70 cursor-pointer hover:opacity-100 hover:bg-[var(--ui-hover)] transition-all"
-                        onClick={() => setOutlineOpen(!outlineOpen)}
-                    >
-                        <FontAwesomeIcon
-                            icon={outlineOpen ? faChevronDown : faChevronRight}
-                            className="mr-2 text-[9px]"
-                        />
-                        OUTLINE
-                    </div>
-                    {outlineOpen && (
-                        <div className="px-4 py-2 text-xs text-[var(--ui-fg-muted)]">
-                            <div className="italic">No outline available</div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Timeline Section */}
-                <div>
-                    <div
-                        className="h-[42px] min-h-[42px] flex items-center px-4 text-[11px] font-bold text-[var(--ui-fg)] opacity-70 cursor-pointer hover:opacity-100 hover:bg-[var(--ui-hover)] transition-all"
-                        onClick={() => setTimelineOpen(!timelineOpen)}
-                    >
-                        <FontAwesomeIcon
-                            icon={timelineOpen ? faChevronDown : faChevronRight}
-                            className="mr-2 text-[9px]"
-                        />
-                        TIMELINE
-                    </div>
-                    {timelineOpen && (
-                        <div className="px-4 py-2 text-xs text-[var(--ui-fg-muted)]">
-                            <div className="italic">No timeline data</div>
-                        </div>
-                    )}
-                </div>
             </div>
         </div>
     )
