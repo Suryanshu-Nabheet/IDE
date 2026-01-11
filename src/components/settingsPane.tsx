@@ -195,6 +195,20 @@ export function SettingsPopup() {
 
 // --- General Settings ---
 function GeneralSettings({ settings, dispatch }: any) {
+    const availableThemes = useAppSelector(
+        (state) => state.extensionsState.availableThemes
+    )
+
+    // Convert availableThemes object to array for rendering
+    const themesList = Object.keys(availableThemes).map((key) => ({
+        value: key,
+        label: key
+            .split('-')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' '),
+        theme: availableThemes[key],
+    }))
+
     return (
         <div className="space-y-10 max-w-3xl">
             {/* Theme */}
@@ -203,32 +217,11 @@ function GeneralSettings({ settings, dispatch }: any) {
                 description="Choose your editor color scheme"
             >
                 <div className="grid grid-cols-4 gap-3">
-                    {[
-                        {
-                            value: 'codex-dark',
-                            label: 'CodeX Dark',
-                            color: '#000',
-                        },
-                        {
-                            value: 'monokai',
-                            label: 'Monokai',
-                            color: '#272822',
-                        },
-                        {
-                            value: 'dracula',
-                            label: 'Dracula',
-                            color: '#282a36',
-                        },
-                        {
-                            value: 'github-dark',
-                            label: 'GitHub Dark',
-                            color: '#0d1117',
-                        },
-                    ].map((theme) => (
+                    {themesList.slice(0, 8).map((theme) => (
                         <ThemeCard
                             key={theme.value}
                             label={theme.label}
-                            color={theme.color}
+                            color={theme.theme.colors.background}
                             isActive={
                                 (settings.theme || 'codex-dark') === theme.value
                             }
@@ -238,6 +231,29 @@ function GeneralSettings({ settings, dispatch }: any) {
                         />
                     ))}
                 </div>
+                {themesList.length > 8 && (
+                    <div className="mt-3">
+                        <select
+                            value={settings.theme || 'codex-dark'}
+                            onChange={(e) =>
+                                dispatch(
+                                    changeSettings({ theme: e.target.value })
+                                )
+                            }
+                            className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg px-4 py-2.5 text-sm text-[var(--input-fg)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                        >
+                            {themesList.map((theme) => (
+                                <option key={theme.value} value={theme.value}>
+                                    {theme.label}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-[var(--ui-fg-muted)] mt-2">
+                            {themesList.length} themes available (
+                            {themesList.length - 4} from extensions)
+                        </p>
+                    </div>
+                )}
             </Section>
 
             {/* Editor */}

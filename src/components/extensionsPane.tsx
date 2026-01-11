@@ -4,6 +4,7 @@ import { faSearch, faSpinner } from '@fortawesome/pro-regular-svg-icons'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import {
     searchExtensions,
+    fetchPopularExtensions,
     installExtension,
     uninstallExtension,
     setSearchQuery,
@@ -19,23 +20,48 @@ export const ExtensionsPane = () => {
     const searchQuery = useAppSelector(exsel.getSearchQuery)
     const isSearching = useAppSelector(exsel.getIsSearching)
 
+    const [installingExtId, setInstallingExtId] = React.useState<string | null>(
+        null
+    )
+    const [uninstallingExtId, setUninstallingExtId] = React.useState<
+        string | null
+    >(null)
+
     const handleSearch = (query: string) => {
         dispatch(setSearchQuery(query))
         if (query.trim()) {
             dispatch(searchExtensions(query))
         } else {
-            dispatch(searchExtensions('theme'))
+            dispatch(fetchPopularExtensions())
         }
     }
 
-    const handleInstall = (ext: Extension, e: React.MouseEvent) => {
+    const handleInstall = async (ext: Extension, e: React.MouseEvent) => {
         e.stopPropagation()
-        dispatch(installExtension(ext))
+        const extId = getExtId(ext)
+        setInstallingExtId(extId)
+        try {
+            await dispatch(installExtension(ext)).unwrap()
+        } catch (error) {
+            console.error('Install failed:', error)
+        } finally {
+            setInstallingExtId(null)
+        }
     }
 
-    const handleUninstall = (extensionId: string, e: React.MouseEvent) => {
+    const handleUninstall = async (
+        extensionId: string,
+        e: React.MouseEvent
+    ) => {
         e.stopPropagation()
-        dispatch(uninstallExtension(extensionId))
+        setUninstallingExtId(extensionId)
+        try {
+            await dispatch(uninstallExtension(extensionId)).unwrap()
+        } catch (error) {
+            console.error('Uninstall failed:', error)
+        } finally {
+            setUninstallingExtId(null)
+        }
     }
 
     const isInstalled = (extId: string | undefined) => {
@@ -63,7 +89,7 @@ export const ExtensionsPane = () => {
 
     useEffect(() => {
         if (available.length === 0 && !searchQuery) {
-            dispatch(searchExtensions('theme'))
+            dispatch(fetchPopularExtensions())
         }
     }, [])
 
@@ -261,16 +287,44 @@ export const ExtensionsPane = () => {
                                                                 downloads
                                                             </span>
                                                         )}
+                                                        {ext.averageRating !==
+                                                            undefined &&
+                                                            ext.averageRating >
+                                                                0 && (
+                                                                <span
+                                                                    style={{
+                                                                        display:
+                                                                            'flex',
+                                                                        alignItems:
+                                                                            'center',
+                                                                        gap: '4px',
+                                                                    }}
+                                                                >
+                                                                    ⭐{' '}
+                                                                    {ext.averageRating.toFixed(
+                                                                        1
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        {ext.version && (
+                                                            <span>
+                                                                v{ext.version}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
 
-                                                {/* Install Button */}
+                                                {/* Uninstall Button */}
                                                 <button
                                                     onClick={(e) =>
                                                         handleUninstall(
                                                             extId,
                                                             e
                                                         )
+                                                    }
+                                                    disabled={
+                                                        uninstallingExtId ===
+                                                        extId
                                                     }
                                                     style={{
                                                         padding: '4px 12px',
@@ -280,21 +334,50 @@ export const ExtensionsPane = () => {
                                                         color: '#ffffff',
                                                         border: 'none',
                                                         borderRadius: '2px',
-                                                        cursor: 'pointer',
+                                                        cursor:
+                                                            uninstallingExtId ===
+                                                            extId
+                                                                ? 'wait'
+                                                                : 'pointer',
                                                         flexShrink: 0,
                                                         transition:
                                                             'background-color 0.1s',
+                                                        opacity:
+                                                            uninstallingExtId ===
+                                                            extId
+                                                                ? 0.6
+                                                                : 1,
                                                     }}
                                                     onMouseEnter={(e) => {
-                                                        e.currentTarget.style.filter =
-                                                            'brightness(1.1)'
+                                                        if (
+                                                            uninstallingExtId !==
+                                                            extId
+                                                        ) {
+                                                            e.currentTarget.style.filter =
+                                                                'brightness(1.1)'
+                                                        }
                                                     }}
                                                     onMouseLeave={(e) => {
                                                         e.currentTarget.style.filter =
                                                             'none'
                                                     }}
                                                 >
-                                                    Uninstall
+                                                    {uninstallingExtId ===
+                                                    extId ? (
+                                                        <>
+                                                            <FontAwesomeIcon
+                                                                icon={faSpinner}
+                                                                className="animate-spin"
+                                                                style={{
+                                                                    marginRight:
+                                                                        '4px',
+                                                                }}
+                                                            />
+                                                            Uninstalling...
+                                                        </>
+                                                    ) : (
+                                                        'Uninstall'
+                                                    )}
                                                 </button>
                                             </div>
                                         </div>
@@ -467,7 +550,81 @@ export const ExtensionsPane = () => {
                                                                     downloads
                                                                 </span>
                                                             )}
+                                                            {ext.averageRating !==
+                                                                undefined &&
+                                                                ext.averageRating >
+                                                                    0 && (
+                                                                    <span
+                                                                        style={{
+                                                                            display:
+                                                                                'flex',
+                                                                            alignItems:
+                                                                                'center',
+                                                                            gap: '4px',
+                                                                        }}
+                                                                    >
+                                                                        ⭐{' '}
+                                                                        {ext.averageRating.toFixed(
+                                                                            1
+                                                                        )}
+                                                                    </span>
+                                                                )}
+                                                            {ext.version && (
+                                                                <span>
+                                                                    v
+                                                                    {
+                                                                        ext.version
+                                                                    }
+                                                                </span>
+                                                            )}
                                                         </div>
+                                                        {ext.categories &&
+                                                            ext.categories
+                                                                .length > 0 && (
+                                                                <div
+                                                                    style={{
+                                                                        display:
+                                                                            'flex',
+                                                                        gap: '4px',
+                                                                        marginTop:
+                                                                            '4px',
+                                                                        flexWrap:
+                                                                            'wrap',
+                                                                    }}
+                                                                >
+                                                                    {ext.categories
+                                                                        .slice(
+                                                                            0,
+                                                                            2
+                                                                        )
+                                                                        .map(
+                                                                            (
+                                                                                cat
+                                                                            ) => (
+                                                                                <span
+                                                                                    key={
+                                                                                        cat
+                                                                                    }
+                                                                                    style={{
+                                                                                        fontSize:
+                                                                                            '10px',
+                                                                                        padding:
+                                                                                            '2px 6px',
+                                                                                        backgroundColor:
+                                                                                            'var(--ui-bg)',
+                                                                                        borderRadius:
+                                                                                            '2px',
+                                                                                        color: 'var(--accent)',
+                                                                                    }}
+                                                                                >
+                                                                                    {
+                                                                                        cat
+                                                                                    }
+                                                                                </span>
+                                                                            )
+                                                                        )}
+                                                                </div>
+                                                            )}
                                                     </div>
 
                                                     {/* Install Button */}
@@ -478,6 +635,10 @@ export const ExtensionsPane = () => {
                                                                 e
                                                             )
                                                         }
+                                                        disabled={
+                                                            installingExtId ===
+                                                            getExtId(ext)
+                                                        }
                                                         style={{
                                                             padding: '4px 12px',
                                                             fontSize: '11px',
@@ -486,21 +647,52 @@ export const ExtensionsPane = () => {
                                                             color: '#ffffff',
                                                             border: 'none',
                                                             borderRadius: '2px',
-                                                            cursor: 'pointer',
+                                                            cursor:
+                                                                installingExtId ===
+                                                                getExtId(ext)
+                                                                    ? 'wait'
+                                                                    : 'pointer',
                                                             flexShrink: 0,
                                                             transition:
                                                                 'background-color 0.1s',
+                                                            opacity:
+                                                                installingExtId ===
+                                                                getExtId(ext)
+                                                                    ? 0.6
+                                                                    : 1,
                                                         }}
                                                         onMouseEnter={(e) => {
-                                                            e.currentTarget.style.filter =
-                                                                'brightness(1.1)'
+                                                            if (
+                                                                installingExtId !==
+                                                                getExtId(ext)
+                                                            ) {
+                                                                e.currentTarget.style.filter =
+                                                                    'brightness(1.1)'
+                                                            }
                                                         }}
                                                         onMouseLeave={(e) => {
                                                             e.currentTarget.style.filter =
                                                                 'none'
                                                         }}
                                                     >
-                                                        Install
+                                                        {installingExtId ===
+                                                        getExtId(ext) ? (
+                                                            <>
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faSpinner
+                                                                    }
+                                                                    className="animate-spin"
+                                                                    style={{
+                                                                        marginRight:
+                                                                            '4px',
+                                                                    }}
+                                                                />
+                                                                Installing...
+                                                            </>
+                                                        ) : (
+                                                            'Install'
+                                                        )}
                                                     </button>
                                                 </div>
                                             </div>

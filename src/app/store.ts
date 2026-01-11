@@ -77,6 +77,16 @@ export const store = configureStore({
     reducer: fullReducer,
 })
 
+// Expose store globally for extensions
+if (typeof window !== 'undefined') {
+    ;(window as any).__REDUX_STORE__ = store
+
+    // Request notification permissions for extension notifications
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission()
+    }
+}
+
 export function setupStore(preloadedState?: PreloadedState<RootState>) {
     return configureStore({
         reducer: fullReducer,

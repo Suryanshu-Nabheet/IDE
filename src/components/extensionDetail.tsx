@@ -33,6 +33,8 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
     // Since we use key={extId} in the parent, this component remounts on change.
     const [extension, setExtension] = useState(initialExtension)
     const [loading, setLoading] = useState(false)
+    const [installing, setInstalling] = useState(false)
+    const [uninstalling, setUninstalling] = useState(false)
     const [activeTab, setActiveTab] = useState<
         'details' | 'changelog' | 'dependencies'
     >('details')
@@ -109,12 +111,26 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
         fetchExtensionData()
     }, [extension.namespace, extension.name])
 
-    const handleInstall = () => {
-        dispatch(installExtension(extension))
+    const handleInstall = async () => {
+        setInstalling(true)
+        try {
+            await dispatch(installExtension(extension)).unwrap()
+        } catch (error) {
+            console.error('Install failed:', error)
+        } finally {
+            setInstalling(false)
+        }
     }
 
-    const handleUninstall = () => {
-        dispatch(uninstallExtension(extId))
+    const handleUninstall = async () => {
+        setUninstalling(true)
+        try {
+            await dispatch(uninstallExtension(extId)).unwrap()
+        } catch (error) {
+            console.error('Uninstall failed:', error)
+        } finally {
+            setUninstalling(false)
+        }
     }
 
     const formatNumber = (num: number | undefined) => {
@@ -325,16 +341,38 @@ export const ExtensionDetail: React.FC<ExtensionDetailProps> = ({
                             {isInstalled ? (
                                 <button
                                     onClick={handleUninstall}
-                                    className="px-6 py-2 text-sm font-medium bg-[var(--accent)] text-white rounded hover:brightness-110 transition-all shadow-sm"
+                                    disabled={uninstalling}
+                                    className="px-6 py-2 text-sm font-medium bg-[var(--accent)] text-white rounded hover:brightness-110 transition-all shadow-sm disabled:opacity-60 disabled:cursor-wait"
                                 >
-                                    Uninstall
+                                    {uninstalling ? (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faSpinner}
+                                                className="animate-spin mr-2"
+                                            />
+                                            Uninstalling...
+                                        </>
+                                    ) : (
+                                        'Uninstall'
+                                    )}
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleInstall}
-                                    className="px-6 py-2 text-sm font-medium bg-[var(--accent)] text-white rounded hover:brightness-110 transition-all shadow-sm"
+                                    disabled={installing}
+                                    className="px-6 py-2 text-sm font-medium bg-[var(--accent)] text-white rounded hover:brightness-110 transition-all shadow-sm disabled:opacity-60 disabled:cursor-wait"
                                 >
-                                    Install
+                                    {installing ? (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faSpinner}
+                                                className="animate-spin mr-2"
+                                            />
+                                            Installing...
+                                        </>
+                                    ) : (
+                                        'Install'
+                                    )}
                                 </button>
                             )}
                             {extension.files?.download && (

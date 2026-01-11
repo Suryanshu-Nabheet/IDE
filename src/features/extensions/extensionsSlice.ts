@@ -1,4 +1,5 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import * as extensionsAPI from './extensionsAPI'
 
 export interface Extension {
     id?: string
@@ -27,6 +28,25 @@ export interface Extension {
         readme?: string
         license?: string
         changelog?: string
+    }
+    contributes?: {
+        themes?: Array<{
+            id?: string
+            label?: string
+            path: string
+            uiTheme?: string
+        }>
+        iconThemes?: Array<{
+            id?: string
+            label?: string
+            path: string
+        }>
+        commands?: Array<{
+            command: string
+            title: string
+            category?: string
+        }>
+        [key: string]: any
     }
     isTheme?: boolean
     themeData?: ThemeData
@@ -207,76 +227,173 @@ export const initialExtensionsState: ExtensionsState = {
     availableThemes: defaultThemes,
 }
 
+// Fetch popular/featured extensions
+export const fetchPopularExtensions = createAsyncThunk(
+    'extensions/fetchPopular',
+    async () => {
+        return await extensionsAPI.getPopularExtensions(50)
+    }
+)
+
 export const searchExtensions = createAsyncThunk(
     'extensions/search',
     async (query: string) => {
         if (!query) return []
-        try {
-            const response = await fetch(
-                `https://open-vsx.org/api/-/search?query=${query}&size=50`
-            )
-            const data = await response.json()
-            return (data.extensions || []) as Extension[]
-        } catch (error) {
-            // Extension search failed - return empty array
-            return []
-        }
+        return await extensionsAPI.searchExtensions({
+            query,
+            size: 50,
+            sortBy: 'relevance',
+        })
     }
 )
 
 export const installExtension = createAsyncThunk(
     'extensions/install',
-    async (extension: Extension) => {
-        // @ts-ignore
-        await connector.installExtension(extension)
-        return extension
+    async (extension: Extension, { dispatch, rejectWithValue }) => {
+        try {
+            console.log(
+                'Installing extension:',
+                extension.displayName || extension.name
+            )
+            // @ts-ignore
+            await connector.installExtension(extension)
+            console.log(
+                'Extension installed successfully:',
+                extension.displayName || extension.name
+            )
+
+            // Reload installed extensions to pick up the new one
+            dispatch(initializeExtensions())
+
+            return extension
+        } catch (error: any) {
+            console.error('Failed to install extension:', error)
+            return rejectWithValue(
+                error.message || 'Failed to install extension'
+            )
+        }
     }
 )
 
 export const uninstallExtension = createAsyncThunk(
     'extensions/uninstall',
-    async (extensionId: string) => {
-        // @ts-ignore
-        await connector.uninstallExtension(extensionId)
-        return extensionId
+    async (extensionId: string, { dispatch, rejectWithValue }) => {
+        try {
+            console.log('Uninstalling extension:', extensionId)
+            // @ts-ignore
+            await connector.uninstallExtension(extensionId)
+            console.log('Extension uninstalled successfully:', extensionId)
+
+            // Reload installed extensions
+            dispatch(initializeExtensions())
+
+            return extensionId
+        } catch (error: any) {
+            console.error('Failed to uninstall extension:', error)
+            return rejectWithValue(
+                error.message || 'Failed to uninstall extension'
+            )
+        }
     }
 )
 
 export const initializeExtensions = createAsyncThunk(
     'extensions/initialize',
     async (_, { dispatch }) => {
+        console.log('🔄 Initializing extensions...')
         // @ts-ignore
         const extensions: Extension[] = await connector.getInstalledExtensions()
+        console.log(
+            `📦 Found ${extensions.length} installed extensions:`,
+            extensions.map((e) => e.name)
+        )
         dispatch(loadInstalledExtensions(extensions))
 
         const delimiter = (window as any).connector?.PLATFORM_DELIMITER || '/'
 
+        // Import activation manager
+        const { extensionActivationManager } = await import(
+            './extensionActivation'
+        )
+
         // Check for themes and add them
+        let themesFound = 0
+        let extensionsActivated = 0
+
         for (const ext of extensions) {
+            // Activate the extension
+            try {
+                const activated =
+                    await extensionActivationManager.activateExtension(ext)
+                if (activated) {
+                    extensionsActivated++
+                }
+            } catch (error) {
+                console.error(
+                    `Failed to activate extension ${ext.name}:`,
+                    error
+                )
+            }
+
+            // Load themes
             // @ts-ignore
             if (ext.contributes && ext.contributes.themes && ext.path) {
+                console.log(
+                    `🎨 Extension "${ext.name}" has themes:`,
+                    ext.contributes.themes
+                )
                 // @ts-ignore
                 for (const theme of ext.contributes.themes) {
                     try {
                         const themePath = [ext.path, theme.path].join(delimiter)
+                        console.log(`  Loading theme from: ${themePath}`)
                         // @ts-ignore
                         const content = await connector.getFile(themePath)
                         if (content) {
                             const themeJson = JSON.parse(content)
                             const themeData = mapThemeToThemeData(themeJson)
+                            const themeName =
+                                theme.id ||
+                                theme.label ||
+                                ext.name ||
+                                'unknown-theme'
+                            console.log(
+                                `  ✅ Successfully loaded theme: ${themeName}`
+                            )
                             dispatch(
                                 addCustomTheme({
-                                    name: theme.id || theme.label || ext.name,
+                                    name: themeName,
                                     theme: themeData,
                                 })
                             )
+                            themesFound++
+                        } else {
+                            console.warn(
+                                `  ⚠️ No content found for theme at ${themePath}`
+                            )
                         }
                     } catch (e) {
-                        // Failed to load theme - skip
+                        console.error(
+                            `  ❌ Failed to load theme from ${ext.name}:`,
+                            e
+                        )
                     }
                 }
             }
+
+            // Detect icon themes
+            // @ts-ignore
+            if (ext.contributes && ext.contributes.iconThemes) {
+                console.log(
+                    `🎨 Extension "${ext.name}" has icon themes:`,
+                    ext.contributes.iconThemes
+                )
+            }
         }
+        console.log(`✨ Loaded ${themesFound} themes from extensions`)
+        console.log(
+            `🔌 Activated ${extensionsActivated}/${extensions.length} extensions`
+        )
 
         return extensions
     }
@@ -335,6 +452,16 @@ export const extensionsSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(fetchPopularExtensions.pending, (state) => {
+                state.isSearching = true
+            })
+            .addCase(fetchPopularExtensions.fulfilled, (state, action) => {
+                state.available = action.payload
+                state.isSearching = false
+            })
+            .addCase(fetchPopularExtensions.rejected, (state) => {
+                state.isSearching = false
+            })
             .addCase(searchExtensions.pending, (state) => {
                 state.isSearching = true
             })
