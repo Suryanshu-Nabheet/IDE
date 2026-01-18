@@ -59,6 +59,22 @@ import {
 import { createThemeFromData } from '../../theme/themeManager'
 import { ghostTextExtension } from '../../features/extensions/ghostText'
 
+// Safe accessor for connector (fallback to window.connector if global connector is not available)
+const getConnector = () => {
+    if (typeof connector !== 'undefined') {
+        return connector
+    }
+    if (typeof window !== 'undefined' && (window as any).connector) {
+        return (window as any).connector
+    }
+    // Fallback values if connector is not available
+    return {
+        IS_WINDOWS: false,
+        PLATFORM_META_KEY: '⌘',
+        PLATFORM_CM_KEY: 'Mod',
+    } as any
+}
+
 const syntaxCompartment = new Compartment(),
     keyBindingsCompartment = new Compartment(),
     domCompartment = new Compartment(),
@@ -170,14 +186,14 @@ const globalExtensions = [
     Prec.highest(
         keymap.of([
             {
-                key: connector.PLATFORM_CM_KEY + '-p',
+                key: getConnector().PLATFORM_CM_KEY + '-p',
                 run: (_view) => {
                     store.dispatch(triggerFileSearch())
                     return true
                 },
             },
             {
-                key: connector.PLATFORM_CM_KEY + '-k',
+                key: getConnector().PLATFORM_CM_KEY + '-k',
                 run: (_view) => {
                     store.dispatch(triggerInlineAI())
                     return true
@@ -196,7 +212,7 @@ const globalExtensions = [
     Prec.highest(
         keymap.of([
             {
-                key: connector.PLATFORM_CM_KEY + '-t',
+                key: getConnector().PLATFORM_CM_KEY + '-t',
                 run: (view) => {
                     indentSelection({
                         state: view.state,
@@ -335,7 +351,7 @@ export function useExtensions({
                         // Open the menu
                         const selection = getCurrentSelection(view)
 
-                        connector.rightMenuAtToken({
+                        getConnector().rightMenuAtToken({
                             offset: pos,
                             path: filePath,
                             includeAddToPrompt: commandBarOpen || chatOpen,
