@@ -2,17 +2,12 @@ import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import * as gs from '../features/globalSlice'
 import { dismissWelcome } from '../features/tools/toolSlice'
-import { toggleSettings } from '../features/settings/settingsSlice'
 import { getRecentProjects, getVersion } from '../features/selectors'
 import posthog from 'posthog-js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-    faFilePlus,
     faFolderOpen,
     faCodeBranch,
-    faCog,
-    faKeyboard,
-    faClock,
     faTerminal,
 } from '@fortawesome/pro-regular-svg-icons'
 import { getNameFromPath } from '../features/window/fileUtils'
@@ -28,10 +23,7 @@ export function WelcomeScreen() {
 
     const handleAction = (action: string, payload?: any) => {
         posthog.capture('Welcome Action', { action })
-        if (action === 'new_file') {
-            dispatch(gs.newFile({ parentFolderId: null }))
-            dispatch(dismissWelcome())
-        } else if (action === 'open_folder') {
+        if (action === 'open_folder') {
             dispatch(dismissWelcome())
             dispatch(gs.openFolder(null))
         } else if (action === 'clone_repo') {
@@ -47,156 +39,116 @@ export function WelcomeScreen() {
     }
 
     return (
-        <div className="welcome-container">
-            <div className="welcome-content">
-                <header className="welcome-header">
-                    <h1 className="welcome-title">CodeX</h1>
-                    <div className="welcome-title-line"></div>
-                    <p className="welcome-motto">
-                        Press <kbd>⌘ K</kbd> to unlock the power of CodeX AI
-                    </p>
+        <div className="flex h-screen w-full flex-col items-center justify-center bg-[#09090b] text-[#e4e4e7] font-sans selection:bg-blue-500/30">
+            <div className="w-full max-w-[500px] px-8">
+                {/* Header */}
+                <header className="mb-10 text-center">
+                    <h1 className="welcome-title text-6xl mb-4">CodeX</h1>
                 </header>
 
-                <main className="welcome-grid">
-                    <section className="welcome-section">
-                        <h2 className="welcome-section-title">Start</h2>
-                        <div className="welcome-card-list">
-                            <button
-                                className="welcome-action-button"
-                                onClick={() => handleAction('new_file')}
-                            >
-                                <span className="welcome-action-icon">
-                                    <FontAwesomeIcon icon={faFilePlus} />
-                                </span>
-                                <span className="welcome-action-text">
-                                    New File
-                                </span>
-                            </button>
-                            <button
-                                className="welcome-action-button"
-                                onClick={() => handleAction('open_folder')}
-                            >
-                                <span className="welcome-action-icon">
-                                    <FontAwesomeIcon icon={faFolderOpen} />
-                                </span>
-                                <span className="welcome-action-text">
-                                    Open Workspace
-                                </span>
-                            </button>
-                            <button
-                                className="welcome-action-button"
-                                onClick={() => handleAction('clone_repo')}
-                            >
-                                <span className="welcome-action-icon">
-                                    <FontAwesomeIcon icon={faCodeBranch} />
-                                </span>
-                                <span className="welcome-action-text">
-                                    Clone Repository
-                                </span>
-                            </button>
-                            <button
-                                className="welcome-action-button"
-                                onClick={() => handleAction('connect_ssh')}
-                            >
-                                <span className="welcome-action-icon">
-                                    <FontAwesomeIcon icon={faTerminal} />
-                                </span>
-                                <span className="welcome-action-text">
-                                    Connect via SSH
-                                </span>
-                            </button>
-                        </div>
+                {/* Actions Grid */}
+                <div className="grid grid-cols-3 gap-3 mb-8">
+                    <button
+                        className="group flex h-[70px] flex-col items-start justify-between rounded-lg border border-[#27272a] bg-[#18181b] p-3 transition-all hover:border-[#3f3f46] hover:bg-[#27272a] active:scale-[0.98]"
+                        onClick={() => handleAction('open_folder')}
+                    >
+                        <FontAwesomeIcon
+                            icon={faFolderOpen}
+                            className="text-lg text-[#a1a1aa] transition-colors group-hover:text-white"
+                        />
+                        <span className="text-[13px] font-medium text-[#e4e4e7]">
+                            Open project
+                        </span>
+                    </button>
+                    <button
+                        className="group flex h-[70px] flex-col items-start justify-between rounded-lg border border-[#27272a] bg-[#18181b] p-3 transition-all hover:border-[#3f3f46] hover:bg-[#27272a] active:scale-[0.98]"
+                        onClick={() => handleAction('clone_repo')}
+                    >
+                        <FontAwesomeIcon
+                            icon={faCodeBranch}
+                            className="text-lg text-[#a1a1aa] transition-colors group-hover:text-white"
+                        />
+                        <span className="text-[13px] font-medium text-[#e4e4e7]">
+                            Clone repo
+                        </span>
+                    </button>
+                    <button
+                        className="group flex h-[70px] flex-col items-start justify-between rounded-lg border border-[#27272a] bg-[#18181b] p-3 transition-all hover:border-[#3f3f46] hover:bg-[#27272a] active:scale-[0.98]"
+                        onClick={() => handleAction('connect_ssh')}
+                    >
+                        <FontAwesomeIcon
+                            icon={faTerminal}
+                            className="text-lg text-[#a1a1aa] transition-colors group-hover:text-white"
+                        />
+                        <span className="text-[13px] font-medium text-[#e4e4e7]">
+                            SSH Remote
+                        </span>
+                    </button>
+                </div>
 
-                        <h2
-                            className="welcome-section-title"
-                            style={{ marginTop: '2.5rem' }}
-                        >
-                            Configuration
+                {/* Recent Projects */}
+                <div className="mb-8">
+                    <div className="mb-3 flex items-end justify-between px-1">
+                        <h2 className="text-[13px] font-medium text-[#a1a1aa]">
+                            Recent projects
                         </h2>
-                        <div className="welcome-card-list">
-                            <button
-                                className="welcome-action-button"
-                                onClick={() => {
-                                    dispatch(dismissWelcome())
-                                    dispatch(toggleSettings())
-                                }}
-                            >
-                                <span className="welcome-action-icon">
-                                    <FontAwesomeIcon icon={faKeyboard} />
-                                </span>
-                                <span className="welcome-action-text">
-                                    Key Bindings
-                                </span>
-                            </button>
-                            <button
-                                className="welcome-action-button"
-                                onClick={() => {
-                                    dispatch(dismissWelcome())
-                                    dispatch(toggleSettings())
-                                }}
-                            >
-                                <span className="welcome-action-icon">
-                                    <FontAwesomeIcon icon={faCog} />
-                                </span>
-                                <span className="welcome-action-text">
-                                    Global Settings
-                                </span>
-                            </button>
-                        </div>
-                    </section>
-
-                    <section className="welcome-section">
-                        <h2 className="welcome-section-title">Recent</h2>
-                        <div className="welcome-card-list">
-                            {recentProjects.length > 0 ? (
-                                recentProjects.map((path: string) => (
-                                    <button
-                                        key={path}
-                                        className="welcome-action-button"
-                                        onClick={() =>
-                                            handleAction('open_recent', path)
-                                        }
-                                    >
-                                        <span className="welcome-action-icon">
-                                            <FontAwesomeIcon icon={faClock} />
-                                        </span>
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                            }}
-                                        >
-                                            <span className="welcome-action-text">
-                                                {getNameFromPath(path)}
-                                            </span>
-                                            <span
-                                                className="welcome-recent-item-path"
-                                                title={path}
-                                            >
-                                                {path.length > 45
-                                                    ? '...' + path.slice(-42)
-                                                    : path}
-                                            </span>
-                                        </div>
-                                    </button>
-                                ))
-                            ) : (
-                                <div className="welcome-empty-state">
-                                    No recent projects found
-                                </div>
-                            )}
-                        </div>
-                    </section>
-                </main>
-
-                <footer className="welcome-footer">
-                    <div className="welcome-author">
-                        CodeX v{version || '1.0.0'} · Made by Suryanshu Nabheet
                     </div>
-                </footer>
+
+                    <div className="flex flex-col space-y-0.5">
+                        {recentProjects.length > 0 ? (
+                            recentProjects.slice(0, 5).map((path: string) => (
+                                <button
+                                    key={path}
+                                    className="group flex w-full items-center justify-between rounded px-2 py-1.5 text-left transition-colors hover:bg-[#27272a]"
+                                    onClick={() =>
+                                        handleAction('open_recent', path)
+                                    }
+                                >
+                                    <span className="truncate text-[13px] font-medium text-[#d4d4d8] group-hover:text-white">
+                                        {getNameFromPath(path)}
+                                    </span>
+                                    <span className="ml-4 max-w-[40%] truncate text-right text-[11px] text-[#52525b] group-hover:text-[#71717a]">
+                                        {formatPath(path)}
+                                    </span>
+                                </button>
+                            ))
+                        ) : (
+                            <div className="py-2 pl-1 text-[13px] italic text-[#52525b]">
+                                No recent projects
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
+
+            {/* Footer */}
+            <footer className="absolute bottom-4 flex gap-4 text-[10px] text-[#52525b]">
+                <span>CodeX v{version || '1.0.0'}</span>
+            </footer>
         </div>
     )
+}
+
+function formatPath(path: string) {
+    // Attempt to make path look cleaner
+    // @ts-ignore
+    try {
+        const home =
+            // @ts-ignore
+            connector?.PLATFORM_DELIMITER === '\\' ? 'C:\\Users\\' : '/Users/' // Heuristic
+        if (path.includes(home)) {
+            // This is just a visual helper, real logic should use homeDir from connector if available
+            // but for UI polish, replacing common home patterns helps
+        }
+
+        // Simple shortener
+        if (path.length > 45) {
+            return '...' + path.slice(-42)
+        }
+        return path
+    } catch (e) {
+        return path
+    }
 }
 
 export default WelcomeScreen

@@ -4,12 +4,8 @@ import {
     ipcRenderer,
     webFrame,
 } from 'electron'
-import {
-    LSPNotifyMap,
-    LSPRequestMap,
-    Language,
-} from './features/lsp/stdioClient'
-import { Settings } from './features/window/state'
+import { LSPNotifyMap, LSPRequestMap, Language } from './features/lsp/lspTypes'
+import type { Settings } from './features/window/state'
 import { getPlatformInfo } from './utils'
 
 // import { clientPreloads } from './features/stdioClient';
