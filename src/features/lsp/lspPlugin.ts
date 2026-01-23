@@ -57,7 +57,7 @@ import * as LSP from 'vscode-languageserver-protocol'
 import { LanguageSupport, syntaxTree } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
 
-import { getCodexTheme } from '../../theme/codexTheme'
+import { getCodexTheme } from '../../theme'
 
 import { store } from '../../app/store'
 
@@ -115,7 +115,6 @@ export const semanticTokenField = StateField.define<DecorationSet>({
 
 import _ from 'lodash'
 import { computeAndRenderTest, renderNewTest } from '../tests/testSlice'
-
 
 const changesDelay = 100
 
@@ -568,7 +567,7 @@ export class LanguageServerPlugin implements LanguageServerPluginInterface {
             const resultFuture =
                 new Promise<// LSP.CompletionList | LSP.CompletionItem[] | null
                 LSP.CompletionList | null>((resolve, reject) => {
-                    (async () => {
+                    ;(async () => {
                         const text = this.getDocText()
                         this.client.sendChange({
                             documentPath: this.getDocPath(),

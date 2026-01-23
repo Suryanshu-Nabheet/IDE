@@ -3,7 +3,7 @@ import { EditorView, ViewUpdate } from '@codemirror/view'
 import { vimStateField } from './codemirror-vim/index'
 import { historyField } from '@codemirror/commands'
 import { EditorState } from '@codemirror/state'
-import { getCodexTheme } from '../theme/codexTheme'
+import { getCodexTheme } from '../theme'
 
 import CodeMirror, { ReactCodeMirrorRef } from './react-codemirror/index'
 import { throttleCallback } from './componentUtils'

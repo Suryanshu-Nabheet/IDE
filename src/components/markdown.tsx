@@ -33,7 +33,7 @@ import { diffExtension } from '../features/extensions/diff'
 import * as cs from '../features/chat/chatSlice'
 import * as ct from '../features/chat/chatThunks'
 
-import { getCodexTheme } from '../theme/codexTheme'
+import { getCodexTheme } from '../theme'
 import { getSettings } from '../features/settings/settingsSelectors'
 import { vim } from './codemirror-vim'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -108,7 +108,7 @@ export function CodeBlock({
                     viewRef.current.destroy()
                     viewRef.current = null
                 }
-                
+
                 // Find the language mode from the Codemirror language data
                 const langPackage = languages.find(
                     (lang) => lang.name.toLowerCase() == language.toLowerCase()
@@ -157,28 +157,36 @@ export function CodeBlock({
                 })
                 viewRef.current = view
                 setBlockStarted(true)
-            setCodeButton(true)
+                setCodeButton(true)
             } else if (children !== '' && !blockStarted && className === '') {
-            setCodeButton(false)
-            // append a code span to div ref
-            const codeSpan = document.createElement('span')
-            codeSpan.className = 'code__span'
-            codeSpan.innerText = removeBeginningAndEndingLineBreaks(
-                children as string
-            )
-            ref.current?.appendChild(codeSpan)
+                setCodeButton(false)
+                // append a code span to div ref
+                const codeSpan = document.createElement('span')
+                codeSpan.className = 'code__span'
+                codeSpan.innerText = removeBeginningAndEndingLineBreaks(
+                    children as string
+                )
+                ref.current?.appendChild(codeSpan)
+            }
         }
-        }
-        
+
         startBlock()
-        
+
         return () => {
             if (viewRef.current) {
                 viewRef.current.destroy()
                 viewRef.current = null
             }
         }
-    }, [className, setDiffArgs, settings.theme, children, language, isEditable, startLine])
+    }, [
+        className,
+        setDiffArgs,
+        settings.theme,
+        children,
+        language,
+        isEditable,
+        startLine,
+    ])
 
     useEffect(() => {
         if (viewRef.current) {

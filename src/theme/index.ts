@@ -10,4 +10,4 @@ export {
     type CodexTheme,
 } from './tokens'
 
-export { codexTheme, default as codex } from './codexTheme'
+export { getCodexTheme, codexTheme, default as codex } from './codexTheme'
