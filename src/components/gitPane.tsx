@@ -329,22 +329,22 @@ function FileItem({
     const fileName = file.file.split('/').pop() || file.file
     const dirPath = file.file.substring(0, file.file.length - fileName.length)
 
-    // Status Color - Using variables where possible, else keeping standard semantic colors
-    let statusColor = 'text-[#e2c08d]' // Modified (M) - Yellowish
+    // Status Color - Using semantic variables from theme system
+    let statusColor = 'text-[var(--yellow)]' // Modified (M)
     if (file.status === 'A' || file.status === '?')
-        statusColor = 'text-[var(--diff-bright-add)]'
-    if (file.status === 'D') statusColor = 'text-[var(--diff-bright-delete)]'
-    if (file.status === 'U') statusColor = 'text-[#e2c08d]' // Untracked/Modified proxy
+        statusColor = 'text-[var(--green)]'
+    if (file.status === 'D') statusColor = 'text-[var(--red)]'
+    if (file.status === 'U') statusColor = 'text-[var(--yellow)]' // Untracked/Modified proxy
 
     return (
-        <div className="flex items-center px-2 py-[3px] hover:bg-[var(--ui-hover)] cursor-pointer group select-none pl-6">
+        <div className="flex items-center px-2 py-[3px] hover:bg-[var(--sidebar-hover)] cursor-pointer group select-none pl-6 text-[var(--sidebar-fg)]">
             <div className="flex items-center gap-1.5 overflow-hidden flex-1">
                 <div className="shrink-0 w-4 text-center">{icon}</div>
                 <span
                     className={`text-[13px] ${
                         file.status === 'D'
                             ? 'line-through opacity-70'
-                            : 'text-[var(--foreground)]'
+                            : 'text-[var(--sidebar-fg)]'
                     } truncate`}
                 >
                     {fileName}

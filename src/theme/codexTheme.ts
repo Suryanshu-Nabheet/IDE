@@ -3,249 +3,226 @@ import { Extension } from '@codemirror/state'
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags as t } from '@lezer/highlight'
 import { CODEX_THEME } from './tokens'
-import { store } from '../app/store'
 
 const { typography } = CODEX_THEME
 
 /**
- * Anysphere Theme - Exact colors from Zed theme JSON
- * This is the ONLY theme - no variations
+ * Get color from CSS variable or fallback
  */
-const ANYSPHERE_THEME = {
-    // Editor colors
-    background: '#181818',
-    foreground: '#d6d6dd',
-    cursor: '#d6d6dd',
-    selection: '#163761',
-    lineHighlight: '#212121',
-    gutterBg: '#181818',
-    gutterFg: '#535353',
-    gutterFgActive: '#d6d6dd',
-    wrapGuide: '#383838',
-    bracketMatch: '#163761',
-    
-    // Syntax colors - exact from JSON
-    keyword: '#83d6c5',
-    constant: '#83d6c5',
-    function: '#ebc88d',
-    variable: '#aa9bf5',
-    variableSpecial: '#E1DAE8',
-    type: '#87c3ff',
-    string: '#e394dc',
-    stringEscape: '#CC7832',
-    stringRegex: '#DA2877',
-    stringSpecial: '#CC7832',
-    number: '#d6d6dd',
-    boolean: '#fad075',
-    comment: '#474747',
-    tag: '#fad075',
-    attribute: '#aaa0fa',
-    property: '#d6d6dd',
-    operator: '#d6d6dd',
-    punctuation: '#d6d6dd',
-    textLiteral: '#B5BD68',
-    text: '#fad075',
-    
-    // UI colors
-    border: '#383838',
-    uiBgElevated: '#1d1d1d',
+function getCssVar(name: string, fallback: string): string {
+    if (typeof document === 'undefined') return fallback
+    const val = getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim()
+    return val || fallback
 }
 
 /**
- * Get theme colors from the theme system - ensures CodeMirror syncs with IDE theme
- * Background colors come from theme, syntax colors are ALWAYS Anysphere
- * Safe to call even if store isn't initialized yet (uses CSS variables as fallback)
+ * Get theme colors from the theme system
+ * Completely dynamic - relies on CSS variables populated by index.css or the theme loader
  */
 function getThemeColors() {
-    // Try to get from store, but handle case when store isn't ready yet
-    let bg = ANYSPHERE_THEME.background
-    let fg = ANYSPHERE_THEME.foreground
-    let cursor = ANYSPHERE_THEME.cursor
-    let selection = ANYSPHERE_THEME.selection
-    let lineHighlight = ANYSPHERE_THEME.lineHighlight
-    
-    try {
-        const state = store.getState()
-        const settings = state.settingsState.settings
-        const themeName = settings.theme || 'codex-dark'
-        const availableThemes = state.extensionsState.availableThemes
-        const theme = availableThemes[themeName]
-        
-        if (theme?.colors) {
-            bg = theme.colors.background || ANYSPHERE_THEME.background
-            fg = theme.colors.foreground || ANYSPHERE_THEME.foreground
-            cursor = theme.colors.cursor || ANYSPHERE_THEME.cursor
-            selection = theme.colors.selection || ANYSPHERE_THEME.selection
-            lineHighlight = theme.colors.lineHighlight || ANYSPHERE_THEME.lineHighlight
-        }
-    } catch (e) {
-        // Store not ready yet - use CSS variables or defaults
-        if (typeof document !== 'undefined') {
-            const root = document.documentElement
-            const style = getComputedStyle(root)
-            bg = style.getPropertyValue('--editor-bg').trim() || ANYSPHERE_THEME.background
-            fg = style.getPropertyValue('--editor-fg').trim() || ANYSPHERE_THEME.foreground
-            cursor = style.getPropertyValue('--editor-cursor').trim() || ANYSPHERE_THEME.cursor
-            selection = style.getPropertyValue('--editor-selection').trim() || ANYSPHERE_THEME.selection
-            lineHighlight = style.getPropertyValue('--editor-line-highlight').trim() || ANYSPHERE_THEME.lineHighlight
-        }
-    }
-    
     return {
-        background: bg,
-        foreground: fg,
-        cursor: cursor,
-        selection: selection,
-        lineHighlight: lineHighlight,
-        // ALWAYS use Anysphere syntax colors
-        keyword: ANYSPHERE_THEME.keyword,
-        string: ANYSPHERE_THEME.string,
-        number: ANYSPHERE_THEME.number,
-        function: ANYSPHERE_THEME.function,
-        variable: ANYSPHERE_THEME.variable,
-        type: ANYSPHERE_THEME.type,
-        comment: ANYSPHERE_THEME.comment,
-        tag: ANYSPHERE_THEME.tag,
-        attribute: ANYSPHERE_THEME.attribute,
-        property: ANYSPHERE_THEME.property,
-        operator: ANYSPHERE_THEME.operator,
-        punctuation: ANYSPHERE_THEME.punctuation,
-        constant: ANYSPHERE_THEME.constant,
-        bracketMatch: selection,
-        gutterFg: ANYSPHERE_THEME.gutterFg,
-        gutterFgActive: ANYSPHERE_THEME.gutterFgActive,
-        uiBgElevated: ANYSPHERE_THEME.uiBgElevated,
-        border: ANYSPHERE_THEME.border,
+        background: getCssVar('--editor-bg', '#000000'),
+        foreground: getCssVar('--editor-fg', '#e5e5e5'),
+        cursor: getCssVar('--editor-cursor', '#3b82f6'),
+        selection: getCssVar('--editor-selection', 'rgba(59, 130, 246, 0.25)'),
+        lineHighlight: getCssVar('--editor-line-highlight', '#0a0a0a'),
+        gutterBg: getCssVar('--gutter-bg', '#000000'),
+        gutterFg: getCssVar('--gutter-fg', '#6b6b6b'),
+        gutterFgActive: getCssVar('--gutter-fg-active', '#a0a0a0'),
+        uiBgElevated: getCssVar('--ui-bg-elevated', '#121212'),
+        border: getCssVar('--border', '#1e1e1e'),
+        bracketMatch: getCssVar(
+            '--editor-selection-match',
+            'rgba(59, 130, 246, 0.35)'
+        ),
+
+        // Syntax
+        keyword: getCssVar('--keyword', '#569cd6'),
+        constant: getCssVar('--constant', '#4fc1ff'),
+        function: getCssVar('--function', '#dcdcaa'),
+        variable: getCssVar('--variable', '#9cdcfe'),
+        variableSpecial: getCssVar('--variable', '#9cdcfe'), // Fallback to variable
+        type: getCssVar('--type', '#4ec9b0'),
+        string: getCssVar('--string', '#ce9178'),
+        stringEscape: getCssVar('--string', '#ce9178'),
+        stringRegex: getCssVar('--string', '#ce9178'),
+        number: getCssVar('--number', '#b5cea8'),
+        boolean: getCssVar('--constant', '#569cd6'),
+        comment: getCssVar('--comment', '#6a9955'),
+        tag: getCssVar('--tag', '#569cd6'),
+        attribute: getCssVar('--attribute', '#9cdcfe'),
+        property: getCssVar('--property', '#d4d4d4'),
+        operator: getCssVar('--operator', '#d4d4d4'),
+        punctuation: getCssVar('--punctuation', '#d4d4d4'),
+        textLiteral: getCssVar('--string', '#ce9178'),
+        text: getCssVar('--editor-fg', '#e5e5e5'),
     }
 }
 
 /**
- * CodeMirror theme - Anysphere Theme
+ * CodeMirror theme - Dynamic from CSS variables
  * This function MUST be called fresh each time - it reads from store/theme system
  */
 export function getCodexTheme(): Extension {
     const colors = getThemeColors()
-    
+
     const editorTheme = EditorView.theme(
         {
-        '&': {
+            '&': {
                 color: colors.foreground,
                 backgroundColor: colors.background,
-            fontSize: 'var(--editor-font-size, 14px)',
-            fontFamily: typography.fontFamilyMono,
-            height: '100%',
-        },
-        '.cm-content': {
+                fontSize: 'var(--editor-font-size, 14px)',
+                fontFamily: typography.fontFamilyMono,
+                height: '100%',
+            },
+            '.cm-content': {
                 color: colors.foreground,
                 caretColor: colors.cursor,
-            padding: '4px 0',
-            fontFamily: typography.fontFamilyMono,
+                padding: '4px 0',
+                fontFamily: typography.fontFamilyMono,
                 lineHeight: '1.5',
-            fontVariantLigatures: typography.ligatures ? 'normal' : 'none',
-        },
-        '.cm-cursor, .cm-dropCursor': {
+                fontVariantLigatures: typography.ligatures ? 'normal' : 'none',
+            },
+            '.cm-cursor, .cm-dropCursor': {
                 borderLeftColor: colors.cursor,
-            borderLeftWidth: '2px',
-            borderLeftStyle: 'solid',
-        },
-        '.cm-selectionBackground, ::selection': {
+                borderLeftWidth: '2px',
+                borderLeftStyle: 'solid',
+            },
+            '.cm-selectionBackground, ::selection': {
                 backgroundColor: colors.selection + ' !important',
-        },
-        '&.cm-focused .cm-selectionBackground': {
+            },
+            '&.cm-focused .cm-selectionBackground': {
                 backgroundColor: colors.selection + ' !important',
-        },
-        '.cm-activeLine': {
+            },
+            '.cm-activeLine': {
                 backgroundColor: colors.lineHighlight,
-        },
-        '.cm-selectionMatch': {
+            },
+            '.cm-selectionMatch': {
                 backgroundColor: colors.bracketMatch,
-        },
-        '&.cm-focused .cm-matchingBracket': {
+            },
+            '&.cm-focused .cm-matchingBracket': {
                 backgroundColor: colors.bracketMatch,
                 outline: 'none',
-        },
-        '&.cm-focused .cm-nonmatchingBracket': {
+            },
+            '&.cm-focused .cm-nonmatchingBracket': {
                 backgroundColor: 'rgba(241, 76, 76, 0.3)',
-        },
-        '.cm-gutters': {
+            },
+            '.cm-gutters': {
                 backgroundColor: colors.background,
                 color: colors.gutterFg,
-            border: 'none',
-            paddingRight: '16px',
-            fontFamily: typography.fontFamilyMono,
-        },
-        '.cm-activeLineGutter': {
-            backgroundColor: 'transparent',
+                border: 'none',
+                paddingRight: '16px',
+                fontFamily: typography.fontFamilyMono,
+            },
+            '.cm-activeLineGutter': {
+                backgroundColor: 'transparent',
                 color: colors.gutterFgActive,
-            fontWeight: '500',
-        },
-        '.cm-lineNumbers .cm-gutterElement': {
-            padding: '0 12px 0 16px',
-            minWidth: '48px',
-            fontSize: typography.fontSize.sm,
-            textAlign: 'right',
-        },
-        '&.cm-focused': {
-            outline: 'none',
-        },
-        '.cm-panels': {
+                fontWeight: '500',
+            },
+            '.cm-lineNumbers .cm-gutterElement': {
+                padding: '0 12px 0 16px',
+                minWidth: '48px',
+                fontSize: typography.fontSize.sm,
+                textAlign: 'right',
+            },
+            '&.cm-focused': {
+                outline: 'none',
+            },
+            '.cm-panels': {
                 backgroundColor: colors.background,
                 color: colors.foreground,
-        },
-        '.cm-tooltip': {
+            },
+            '.cm-tooltip': {
                 backgroundColor: colors.uiBgElevated,
                 border: `1px solid ${colors.border}`,
                 color: colors.foreground,
-            borderRadius: '4px',
-            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.4)',
-        },
-        '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
+                borderRadius: '4px',
+                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.4)',
+            },
+            '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
                 backgroundColor: colors.selection,
                 color: colors.foreground,
-        },
-        '.cm-panel': {
+            },
+            '.cm-panel': {
                 backgroundColor: colors.background,
+            },
+            '.cm-scroller': {
+                fontFamily: typography.fontFamilyMono,
+            },
         },
-        '.cm-scroller': {
-            fontFamily: typography.fontFamilyMono,
-        },
-    },
-    { dark: true }
-)
+        { dark: true }
+    )
 
-    // ALWAYS use Anysphere syntax colors - exact from JSON
+    // Dynamic syntax highlighting
     const highlightStyle = HighlightStyle.define([
-        { tag: [t.keyword, t.modifier, t.definitionKeyword, t.controlKeyword, t.moduleKeyword], color: ANYSPHERE_THEME.keyword },
-        { tag: [t.constant(t.variableName)], color: ANYSPHERE_THEME.constant },
-        { tag: [t.function(t.variableName), t.macroName], color: ANYSPHERE_THEME.function },
-        { tag: [t.variableName, t.definition(t.variableName)], color: ANYSPHERE_THEME.variable },
-        { tag: [t.special(t.variableName)], color: ANYSPHERE_THEME.variableSpecial },
-        { tag: [t.typeName, t.className, t.namespace], color: ANYSPHERE_THEME.type },
-        { tag: [t.string, t.special(t.string)], color: ANYSPHERE_THEME.string },
-        { tag: [t.escape], color: ANYSPHERE_THEME.stringEscape },
-        { tag: [t.regexp], color: ANYSPHERE_THEME.stringRegex },
-        { tag: [t.number], color: ANYSPHERE_THEME.number },
-        { tag: [t.bool, t.null, t.atom], color: ANYSPHERE_THEME.boolean },
-        { tag: [t.comment, t.lineComment, t.blockComment, t.docComment], color: ANYSPHERE_THEME.comment, fontStyle: 'italic' },
-        { tag: [t.tagName], color: ANYSPHERE_THEME.tag },
-        { tag: [t.attributeName], color: ANYSPHERE_THEME.attribute, fontStyle: 'italic' },
-        { tag: [t.propertyName], color: ANYSPHERE_THEME.property },
-        { tag: [t.punctuation, t.operator, t.bracket, t.separator], color: ANYSPHERE_THEME.punctuation },
-        { tag: [t.literal], color: ANYSPHERE_THEME.textLiteral },
-        { tag: [t.content], color: ANYSPHERE_THEME.text },
-        { tag: [t.heading], color: ANYSPHERE_THEME.type, fontWeight: 'bold' },
-])
+        {
+            tag: [
+                t.keyword,
+                t.modifier,
+                t.definitionKeyword,
+                t.controlKeyword,
+                t.moduleKeyword,
+            ],
+            color: colors.keyword,
+        },
+        { tag: [t.constant(t.variableName)], color: colors.constant },
+        {
+            tag: [t.function(t.variableName), t.macroName],
+            color: colors.function,
+        },
+        {
+            tag: [t.variableName, t.definition(t.variableName)],
+            color: colors.variable,
+        },
+        { tag: [t.special(t.variableName)], color: colors.variableSpecial },
+        {
+            tag: [t.typeName, t.className, t.namespace],
+            color: colors.type,
+        },
+        {
+            tag: [t.string, t.special(t.string)],
+            color: colors.string,
+        },
+        { tag: [t.escape], color: colors.stringEscape },
+        { tag: [t.regexp], color: colors.stringRegex },
+        { tag: [t.number], color: colors.number },
+        { tag: [t.bool, t.null, t.atom], color: colors.boolean },
+        {
+            tag: [t.comment, t.lineComment, t.blockComment, t.docComment],
+            color: colors.comment,
+            fontStyle: 'italic',
+        },
+        { tag: [t.tagName], color: colors.tag },
+        {
+            tag: [t.attributeName],
+            color: colors.attribute,
+            fontStyle: 'italic',
+        },
+        { tag: [t.propertyName], color: colors.property },
+        {
+            tag: [t.punctuation, t.operator, t.bracket, t.separator],
+            color: colors.punctuation,
+        },
+        { tag: [t.literal], color: colors.textLiteral },
+        { tag: [t.content], color: colors.text },
+        { tag: [t.heading], color: colors.type, fontWeight: 'bold' },
+    ])
 
     return [editorTheme, syntaxHighlighting(highlightStyle)]
 }
 
-// Legacy export for compatibility - returns minimal theme to avoid circular dependency
-// Always use getCodexTheme() instead for reactive themes
-export const codexTheme: Extension = EditorView.theme({
-    '&': {
-        backgroundColor: ANYSPHERE_THEME.background,
-        color: ANYSPHERE_THEME.foreground,
+// Legacy export - returns a basic theme that matches the CSS variables
+// This ensures we don't break imports, but the theme is still dynamic
+export const codexTheme: Extension = EditorView.theme(
+    {
+        '&': {
+            backgroundColor: 'var(--editor-bg)',
+            color: 'var(--editor-fg)',
+        },
     },
-}, { dark: true })
+    { dark: true }
+)
 
 export default codexTheme

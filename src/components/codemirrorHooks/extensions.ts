@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import { acceptCompletion } from '@codemirror/autocomplete'
 import {
     Compartment,
     EditorState,
@@ -15,14 +16,14 @@ import {
     closeHoverTooltips,
     keymap,
     scrollPastEnd,
+    highlightActiveLine,
+    highlightActiveLineGutter,
 } from '@codemirror/view'
 import { syntaxBundle } from '../../features/extensions/syntax'
 import { indentationMarkers } from '../../features/extensions/indentLines'
 import { diffExtension } from '../../features/extensions/diff'
 import { hackExtension } from '../../features/extensions/hackDiff'
 import { diagnosticsField, lintGutter } from '../../features/linter/lint'
-import { autocompleteView } from '../../features/extensions/autocomplete'
-import { acceptCompletion } from '@codemirror/autocomplete'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import * as csel from '../../features/chat/chatSelectors'
 import * as ssel from '../../features/settings/settingsSelectors'
@@ -38,7 +39,6 @@ import { languageBundle } from '../../features/extensions/lsp'
 import { languageServerStatus } from '../../features/lsp/languageServerSelector'
 import { getLanguageFromFilename } from '../../features/extensions/utils'
 import { scrollbarPlugin } from '../../features/extensions/minimap'
-import { cursorTooltip } from '../../features/extensions/selectionTooltip'
 
 import { indentSelection } from '@codemirror/commands'
 import { emacs } from '@replit/codemirror-emacs'
@@ -52,10 +52,7 @@ import { updateCommentsEffect } from '../../features/extensions/comments'
 import { fixLintExtension } from '../../features/linter/fixLSPExtension'
 import { storePaneIdExtensions } from '../../features/extensions/storePane'
 import { store } from '../../app/store'
-import {
-    triggerFileSearch,
-    triggerInlineAI,
-} from '../../features/tools/toolSlice'
+import { triggerFileSearch } from '../../features/tools/toolSlice'
 import { createThemeFromData } from '../../theme/themeManager'
 import { ghostTextExtension } from '../../features/extensions/ghostText'
 
@@ -165,6 +162,8 @@ const globalExtensions = [
     //         }
     //     ])
     // ),
+    highlightActiveLine(),
+    highlightActiveLineGutter(),
     lineWrappingCompartment.of(EditorView.lineWrapping),
     indentationMarkers(),
     newLineText,
@@ -173,15 +172,13 @@ const globalExtensions = [
     lintGutter(),
     barExtension(),
     diagnosticsField,
-    autocompleteView,
     storePaneIdExtensions,
     fixLintExtension,
-    cursorTooltip(),
     scrollPastEnd(),
     // history({
     //     joinToEvent: (tr: Transaction, isAdjacent: boolean) => {
     //         return true
-
+    //
     // regexpLinter,
     Prec.highest(
         keymap.of([
@@ -189,13 +186,6 @@ const globalExtensions = [
                 key: getConnector().PLATFORM_CM_KEY + '-p',
                 run: (_view) => {
                     store.dispatch(triggerFileSearch())
-                    return true
-                },
-            },
-            {
-                key: getConnector().PLATFORM_CM_KEY + '-k',
-                run: (_view) => {
-                    store.dispatch(triggerInlineAI())
                     return true
                 },
             },

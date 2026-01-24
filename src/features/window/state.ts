@@ -380,7 +380,6 @@ export interface ToolState {
     fileSearchTriggered: boolean
     commandPaletteTriggered: boolean
     aiCommandPaletteTriggered: boolean
-    inlineAITriggered: boolean
     leftSideExpanded: boolean
     welcomeDismissed: boolean
 }
@@ -447,9 +446,10 @@ export const initialSettingsState = {
     settings: {
         keyBindings: 'none',
         useFour: 'disabled',
-        contextType: 'none',
         textWrapping: 'disabled',
-        tabSize: undefined,
+        tabSize: '4',
+        theme: 'codex-dark',
+        contextType: 'none',
     },
 }
 

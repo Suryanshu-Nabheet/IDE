@@ -10,13 +10,8 @@ import { FullState } from '../features/window/state'
 import * as gs from '../features/globalSlice'
 import * as ssel from '../features/settings/settingsSelectors'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faTimes,
-    faChevronUp,
-    faMagic,
-} from '@fortawesome/free-solid-svg-icons'
+import { faTimes, faChevronUp } from '@fortawesome/free-solid-svg-icons'
 import { throttleCallback } from './componentUtils'
-import { TerminalAISuggestion } from './terminalAISuggestion'
 
 export const BottomTerminal: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -36,7 +31,6 @@ export const BottomTerminal: React.FC = () => {
     const [height, setHeight] = useState(300)
     const [isDragging, setIsDragging] = useState(false)
     const [isMaximized, setIsMaximized] = useState(false)
-    const [showAISuggestion, setShowAISuggestion] = useState(false)
     const dataHandlerRef = useRef<
         ((_: any, payload: { id: string; data: string }) => void) | null
     >(null)
@@ -76,21 +70,44 @@ export const BottomTerminal: React.FC = () => {
         }
 
         if (!terminalRef.current && containerRef.current) {
-            const themeName = settings.theme || 'codex-dark'
-            const theme = availableThemes[themeName]
-            const terminalTheme = theme?.colors
-                ? {
-                      background: theme.colors.background || '#0d0d0d',
-                      foreground: theme.colors.foreground || '#d6d6dd',
-                      cursor: theme.colors.cursor || '#d6d6dd',
-                      selection: theme.colors.selection || '#163761',
-                  }
-                : {
-                      background: '#0d0d0d',
-                      foreground: '#d6d6dd',
-                      cursor: '#d6d6dd',
-                      selection: '#163761',
-                  }
+            // Helper to get CSS var
+            const getVar = (name: string, fallback: string) => {
+                if (typeof document === 'undefined') return fallback
+                return (
+                    getComputedStyle(document.documentElement)
+                        .getPropertyValue(name)
+                        .trim() || fallback
+                )
+            }
+
+            const terminalTheme = {
+                background: getVar('--terminal-bg', '#000000'),
+                foreground: getVar('--terminal-fg', '#e5e5e5'),
+                cursor: getVar('--terminal-cursor', '#3b82f6'),
+                selection: getVar('--terminal-selection', '#3b82f640'),
+                black: getVar('--terminal-ansi-black', '#000000'),
+                red: getVar('--terminal-ansi-red', '#cd3131'),
+                green: getVar('--terminal-ansi-green', '#0dbc79'),
+                yellow: getVar('--terminal-ansi-yellow', '#e5e510'),
+                blue: getVar('--terminal-ansi-blue', '#2472c8'),
+                magenta: getVar('--terminal-ansi-magenta', '#bc3fbc'),
+                cyan: getVar('--terminal-ansi-cyan', '#11a8cd'),
+                white: getVar('--terminal-ansi-white', '#e5e5e5'),
+                brightBlack: getVar('--terminal-ansi-bright-black', '#666666'),
+                brightRed: getVar('--terminal-ansi-bright-red', '#f14c4c'),
+                brightGreen: getVar('--terminal-ansi-bright-green', '#23d18b'),
+                brightYellow: getVar(
+                    '--terminal-ansi-bright-yellow',
+                    '#f5f543'
+                ),
+                brightBlue: getVar('--terminal-ansi-bright-blue', '#3b8eea'),
+                brightMagenta: getVar(
+                    '--terminal-ansi-bright-magenta',
+                    '#d670d6'
+                ),
+                brightCyan: getVar('--terminal-ansi-bright-cyan', '#29b8db'),
+                brightWhite: getVar('--terminal-ansi-bright-white', '#e5e5e5'),
+            }
 
             const term = new Terminal({
                 theme: terminalTheme,
@@ -230,16 +247,70 @@ export const BottomTerminal: React.FC = () => {
             terminalRef.current.options.fontFamily = fontFamily
             terminalRef.current.options.fontSize = fontSize
 
-            const themeName = settings.theme || 'codex-dark'
-            const theme = availableThemes[themeName]
-            if (theme?.colors) {
-                terminalRef.current.options.theme = {
-                    background: theme.colors.background || '#0d0d0d',
-                    foreground: theme.colors.foreground || '#d6d6dd',
-                    cursor: theme.colors.cursor || '#d6d6dd',
-                    selection: theme.colors.selection || '#163761',
+            // Delay theme update to ensure DOM CSS variables are fully propagated
+            // This prevents "hallucinations" where getComputedStyle reads stale values
+            const timer = setTimeout(() => {
+                // Helper to get CSS var
+                const getVar = (name: string, fallback: string) => {
+                    if (typeof document === 'undefined') return fallback
+                    return (
+                        getComputedStyle(document.documentElement)
+                            .getPropertyValue(name)
+                            .trim() || fallback
+                    )
                 }
-            }
+
+                // FULL Dynamic Theme Update - Syncs XTerm with Container CSS
+                const terminalTheme = {
+                    background: getVar('--terminal-bg', '#000000'),
+                    foreground: getVar('--terminal-fg', '#e5e5e5'),
+                    cursor: getVar('--terminal-cursor', '#3b82f6'),
+                    selection: getVar('--terminal-selection', '#3b82f640'),
+                    black: getVar('--terminal-ansi-black', '#000000'),
+                    red: getVar('--terminal-ansi-red', '#cd3131'),
+                    green: getVar('--terminal-ansi-green', '#0dbc79'),
+                    yellow: getVar('--terminal-ansi-yellow', '#e5e510'),
+                    blue: getVar('--terminal-ansi-blue', '#2472c8'),
+                    magenta: getVar('--terminal-ansi-magenta', '#bc3fbc'),
+                    cyan: getVar('--terminal-ansi-cyan', '#11a8cd'),
+                    white: getVar('--terminal-ansi-white', '#e5e5e5'),
+                    brightBlack: getVar(
+                        '--terminal-ansi-bright-black',
+                        '#666666'
+                    ),
+                    brightRed: getVar('--terminal-ansi-bright-red', '#f14c4c'),
+                    brightGreen: getVar(
+                        '--terminal-ansi-bright-green',
+                        '#23d18b'
+                    ),
+                    brightYellow: getVar(
+                        '--terminal-ansi-bright-yellow',
+                        '#f5f543'
+                    ),
+                    brightBlue: getVar(
+                        '--terminal-ansi-bright-blue',
+                        '#3b8eea'
+                    ),
+                    brightMagenta: getVar(
+                        '--terminal-ansi-bright-magenta',
+                        '#d670d6'
+                    ),
+                    brightCyan: getVar(
+                        '--terminal-ansi-bright-cyan',
+                        '#29b8db'
+                    ),
+                    brightWhite: getVar(
+                        '--terminal-ansi-bright-white',
+                        '#e5e5e5'
+                    ),
+                }
+
+                if (terminalRef.current) {
+                    terminalRef.current.options.theme = terminalTheme
+                }
+            }, 100)
+
+            return () => clearTimeout(timer)
         }
     }, [settings, availableThemes])
 
@@ -320,13 +391,6 @@ export const BottomTerminal: React.FC = () => {
                 <div className="terminal-actions">
                     <button
                         className="terminal-action-btn"
-                        onClick={() => setShowAISuggestion(!showAISuggestion)}
-                        title="AI Command"
-                    >
-                        <FontAwesomeIcon icon={faMagic} />
-                    </button>
-                    <button
-                        className="terminal-action-btn"
                         onClick={() => setIsMaximized(!isMaximized)}
                         title={isMaximized ? 'Restore' : 'Maximize'}
                     >
@@ -344,20 +408,6 @@ export const BottomTerminal: React.FC = () => {
             <div className="terminal-content">
                 <div ref={containerRef} className="terminal-instance-wrapper" />
             </div>
-            {showAISuggestion && (
-                <TerminalAISuggestion
-                    onClose={() => setShowAISuggestion(false)}
-                    onRunCommand={(cmd) => {
-                        if (terminalIdRef.current) {
-                            connector.terminalInto(
-                                terminalIdRef.current,
-                                cmd + '\r'
-                            )
-                            setTimeout(() => terminalRef.current?.focus(), 100)
-                        }
-                    }}
-                />
-            )}
         </div>
     )
 }

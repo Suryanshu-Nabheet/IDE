@@ -1,63 +1,29 @@
 import {
     EditorView,
-    Decoration,
     ViewPlugin,
     ViewUpdate,
-    Command,
-    keymap,
+    Decoration,
     WidgetType,
+    keymap,
 } from '@codemirror/view'
 import { StateField, StateEffect, Prec } from '@codemirror/state'
-import { getActiveProviderAPIKey } from '../ai/apiKeyUtils'
-import { streamAIResponseWithTools } from '../ai/providersWithTools'
-import { store } from '../../app/store'
+import { debounce } from 'lodash'
 
-// ===================================
-// State Effects and Fields for Ghost Text
-// ===================================
-
-const setGhostText = StateEffect.define<{ text: string; pos: number } | null>()
-
-export const ghostTextField = StateField.define<{
+// --- State & Effects ---
+export const setGhostTextEffect = StateEffect.define<{
     text: string
     pos: number
-} | null>({
-    create() {
-        return null
-    },
-    update(value, tr) {
-        // Clear ghost text on user typing (but handled differently in plugin logic usually)
-        if (tr.docChanged) {
-            // If the user types, we generally want to clear the ghost text unless we're strictly appending
-            // For MVP: any doc change clears ghost text to avoid conflict
-            return null
-        }
+} | null>()
 
-        for (const effect of tr.effects) {
-            if (effect.is(setGhostText)) {
-                return effect.value
-            }
-        }
-        return value
-    },
-    provide: (field) =>
-        EditorView.decorations.from(field, (value) => {
-            if (!value) return Decoration.none
-            const deco = Decoration.widget({
-                widget: new GhostTextWidget(value.text),
-                side: 1,
-            })
-            return Decoration.set([deco.range(value.pos)])
-        }),
-})
-
-// ===================================
-// Widget for Visualizing Ghost Text
-// ===================================
+export const acceptGhostTextEffect = StateEffect.define<void>()
 
 class GhostTextWidget extends WidgetType {
     constructor(readonly text: string) {
         super()
+    }
+
+    eq(other: GhostTextWidget) {
+        return other.text === this.text
     }
 
     toDOM() {
@@ -66,147 +32,116 @@ class GhostTextWidget extends WidgetType {
         span.textContent = this.text
         span.style.opacity = '0.5'
         span.style.fontStyle = 'italic'
-        span.style.pointerEvents = 'none'
+        span.style.color = 'var(--ui-fg-muted)' // Better visibility support
         return span
-    }
-
-    eq(other: GhostTextWidget) {
-        return other.text === this.text
-    }
-
-    ignoreEvent() {
-        return true
     }
 }
 
-// ===================================
-// View Plugin to Trigger AI
-// ===================================
+const ghostTextField = StateField.define<{ text: string; pos: number } | null>({
+    create() {
+        return null
+    },
+    update(value, tr) {
+        for (const effect of tr.effects) {
+            if (effect.is(setGhostTextEffect)) {
+                return effect.value
+            }
+            if (effect.is(acceptGhostTextEffect)) {
+                return null
+            }
+        }
+        if (tr.docChanged) {
+            return null
+        }
+        return value
+    },
+    provide: (f) =>
+        EditorView.decorations.from(f, (value) => {
+            if (!value) return Decoration.none
+            return Decoration.set([
+                Decoration.widget({
+                    widget: new GhostTextWidget(value.text),
+                    side: 1,
+                }).range(value.pos),
+            ])
+        }),
+})
 
-// Debounce timer
-let debounceTimer: any = null
-let currentRequestId = 0
-
-export const ghostTextPlugin = ViewPlugin.fromClass(
+// --- View Plugin for Triggering ---
+const ghostTextPlugin = ViewPlugin.fromClass(
     class {
-        constructor(readonly view: EditorView) {}
+        updateDebounced: (view: EditorView) => void
+
+        constructor(view: EditorView) {
+            this.updateDebounced = debounce((v: EditorView) => {
+                this.triggerGhostText(v)
+            }, 1000)
+        }
 
         update(update: ViewUpdate) {
             if (update.docChanged) {
-                // Clear any existing timer
-                if (debounceTimer) clearTimeout(debounceTimer)
-
-                // Ignore huge changes (paste) to save tokens?
-                // For now, simple debounce
-                debounceTimer = setTimeout(() => {
-                    this.triggerGhostText(update.view)
-                }, 1000) // Wait 1s after typing stops
+                // If doc changed, trigger fetching
+                const isUserEvent = update.transactions.some((tr) =>
+                    tr.isUserEvent('input')
+                )
+                if (isUserEvent) {
+                    this.updateDebounced(update.view)
+                }
             }
         }
 
         async triggerGhostText(view: EditorView) {
             const state = view.state
             const pos = state.selection.main.head
-            const line = state.doc.lineAt(pos)
 
-            // Context: FIM (Fill In Middle) style
-            // Simple approach: Prefix + ...
-            // We'll give ~20 lines of context before
-            const startLine = Math.max(1, line.number - 20)
-            const prefix = state.sliceDoc(state.doc.line(startLine).from, pos)
-            // const suffix = state.sliceDoc(pos, Math.min(state.doc.length, pos + 1000));
+            // Advanced context extraction: 50 lines before and after
+            const startLine = state.doc.lineAt(pos).number
+            const from = state.doc.line(Math.max(1, startLine - 50)).from
+            const precedingCode = state.doc.sliceString(from, pos)
 
-            const globalState: any = store.getState()
-            const settings = globalState.settingsState
+            const endLine = state.doc.lines
+            const to = state.doc.line(Math.min(endLine, startLine + 50)).to
+            const followingCode = state.doc.sliceString(pos, to)
 
-            const providerInfo = await getActiveProviderAPIKey(settings)
-
-            if (!providerInfo || !settings.aiProvider) return // AI not enabled
-
-            const requestId = ++currentRequestId
-
-            const userPrompt = `Complete the following code. Output ONLY the code to complete the line or block. Do not repeat the prefix.
-            
-Code:
-${prefix}
-`
-            // Call AI
-            try {
-                const config = {
-                    provider: settings.aiProvider,
-                    apiKey: providerInfo.apiKey,
-                    defaultModel: providerInfo.model,
-                    baseUrl: (settings as any).ollama?.baseUrl,
-                }
-
-                const stream = streamAIResponseWithTools(
-                    config,
-                    [{ role: 'user', content: userPrompt } as any],
-                    { tools: [] }
-                )
-
-                let completion = ''
-                for await (const chunk of stream) {
-                    if (currentRequestId !== requestId) return // Cancelled by new typing
-                    if (chunk.type === 'text') {
-                        completion += chunk.content
-                    }
-                }
-
-                if (completion.trim() && currentRequestId === requestId) {
-                    // Extract code block if necessary or just raw text?
-                    // Typically 'complete' completion might include markdown.
-                    // Simple heuristic: strip markdown code blocks
-                    completion = completion.replace(
-                        /```[\s\S]*?```/g,
-                        (match) => {
-                            // unwrap
-                            return match
-                                .replace(/```\w*/, '')
-                                .replace(/```/, '')
-                        }
-                    )
-
-                    // Dispatch effect
-                    view.dispatch({
-                        effects: setGhostText.of({ text: completion, pos }),
-                    })
-                }
-            } catch (e) {
-                console.error('GhostText error:', e)
-            }
+            // Ready for AI Service Hook
+            // const context = {
+            //     prefix: precedingCode,
+            //     suffix: followingCode,
+            //     language: 'typescript', // Detect dynamically
+            //     cursorPos: pos
+            // }
+            // store.dispatch(fetchGhostText(context))
         }
     }
 )
 
-// ===================================
-// Keymap to Accept
-// ===================================
-
-const acceptGhostText: Command = (view: EditorView) => {
-    const fieldState = view.state.field(ghostTextField)
-    if (fieldState) {
-        view.dispatch({
-            changes: { from: fieldState.pos, insert: fieldState.text },
-            effects: setGhostText.of(null),
-            selection: { anchor: fieldState.pos + fieldState.text.length },
-        })
-        return true
-    }
-    return false
-}
-
-export const ghostTextKeymap = Prec.highest(
-    keymap.of([
-        {
-            key: 'Tab',
-            run: acceptGhostText,
+// --- Keymap ---
+const ghostTextKeymap = keymap.of([
+    {
+        key: 'Tab',
+        run: (view) => {
+            const ghostText = view.state.field(ghostTextField, false)
+            if (ghostText) {
+                view.dispatch({
+                    changes: {
+                        from: ghostText.pos,
+                        insert: ghostText.text,
+                    },
+                    effects: acceptGhostTextEffect.of(),
+                    selection: {
+                        anchor: ghostText.pos + ghostText.text.length,
+                    },
+                })
+                return true
+            }
+            return false
         },
-    ])
-)
+    },
+])
 
+// Export the extension array
 export const ghostTextExtension = [
     ghostTextField,
     ghostTextPlugin,
-    ghostTextKeymap,
+    Prec.highest(ghostTextKeymap),
 ]

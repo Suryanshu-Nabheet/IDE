@@ -356,11 +356,11 @@ pre[class*="language-"] {
 .token.prolog,
 .token.doctype,
 .token.cdata {
-    color: #6a9955;
+    color: var(--comment);
 }
 
 .token.punctuation {
-    color: #d4d4d4;
+    color: var(--punctuation);
 }
 
 .token.property,
@@ -370,7 +370,7 @@ pre[class*="language-"] {
 .token.constant,
 .token.symbol,
 .token.deleted {
-    color: #b5cea8;
+    color: var(--number); /* or specific vars if available */
 }
 
 .token.selector,
@@ -379,7 +379,7 @@ pre[class*="language-"] {
 .token.char,
 .token.builtin,
 .token.inserted {
-    color: #ce9178;
+    color: var(--string);
 }
 
 .token.operator,
@@ -387,24 +387,24 @@ pre[class*="language-"] {
 .token.url,
 .language-css .token.string,
 .style .token.string {
-    color: #d4d4d4;
+    color: var(--operator);
 }
 
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-    color: #c586c0;
+    color: var(--keyword);
 }
 
 .token.function,
 .token.class-name {
-    color: #dcdcaa;
+    color: var(--function);
 }
 
 .token.regex,
 .token.important,
 .token.variable {
-    color: #d16969;
+    color: var(--variable);
 }
 /* ============================================
    PLAN CARD STYLES - PREMIUM

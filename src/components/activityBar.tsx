@@ -123,7 +123,7 @@ export const ActivityBar = () => {
                             left: '50%',
                             transform: 'translateX(-50%)',
                             zIndex: 9999,
-                            background: 'rgba(20, 20, 20, 0.98)',
+                            background: 'var(--ui-bg-elevated)',
                             backdropFilter: 'blur(12px)',
                         }}
                     >

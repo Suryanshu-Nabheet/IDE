@@ -11,6 +11,19 @@ export interface ThemeColors {
     cursor: string
     selection: string
     lineHighlight: string
+
+    // Specific UI Elements
+    sidebarBackground: string
+    sidebarForeground: string
+    activityBarBackground: string
+    activityBarForeground: string
+    panelBackground: string
+    panelForeground: string
+    titleBarBackground: string
+    titleBarForeground: string
+    itemHoverBackground: string
+
+    // Syntax
     keyword: string
     string: string
     number: string
@@ -20,13 +33,44 @@ export interface ThemeColors {
     comment: string
     tag: string
     attribute: string
+    constant: string
+    property: string
+    operator: string
+    punctuation: string
+
+    // Borders
+    borderColor?: string
+    sidebarBorder?: string
+    activityBarBorder?: string
+    panelBorder?: string
+    tabBorder?: string
+    titleBarBorder?: string
+    editorGroupBorder?: string
+
+    // Terminal ANSI
+    ansiBlack?: string
+    ansiRed?: string
+    ansiGreen?: string
+    ansiYellow?: string
+    ansiBlue?: string
+    ansiMagenta?: string
+    ansiCyan?: string
+    ansiWhite?: string
+    ansiBrightBlack?: string
+    ansiBrightRed?: string
+    ansiBrightGreen?: string
+    ansiBrightYellow?: string
+    ansiBrightBlue?: string
+    ansiBrightMagenta?: string
+    ansiBrightCyan?: string
+    ansiBrightWhite?: string
 }
 
 /**
  * Apply theme to root CSS variables
  * This is the only place theme values should be set
  */
-export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
+export function applyThemeToRoot(theme: ThemeColors) {
     const root = document.documentElement
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -34,14 +78,14 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
     // ═══════════════════════════════════════════════════════════════════════
     root.style.setProperty('--black', theme.background)
     root.style.setProperty('--black-soft', theme.lineHighlight)
-    root.style.setProperty('--black-elevated', theme.lineHighlight)
-    root.style.setProperty('--black-subtle', theme.lineHighlight)
+    root.style.setProperty('--black-elevated', theme.panelBackground)
+    root.style.setProperty('--black-subtle', theme.itemHoverBackground)
 
     // Gray scale matching Cursor IDE / VS Code
     root.style.setProperty('--gray-900', theme.background)
     root.style.setProperty('--gray-800', theme.lineHighlight)
-    root.style.setProperty('--gray-700', theme.lineHighlight)
-    root.style.setProperty('--gray-600', theme.lineHighlight)
+    root.style.setProperty('--gray-700', theme.panelBackground)
+    root.style.setProperty('--gray-600', theme.itemHoverBackground)
     root.style.setProperty('--gray-500', '#3e3e3e')
     root.style.setProperty('--gray-400', '#858585')
     root.style.setProperty('--gray-300', '#cccccc')
@@ -52,35 +96,35 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
     root.style.setProperty('--white-soft', '#f3f3f3')
 
     // ═══════════════════════════════════════════════════════════════════════
-    // CORE BACKGROUNDS - All use theme.background
+    // CORE BACKGROUNDS - Specific Mappings
     // ═══════════════════════════════════════════════════════════════════════
     root.style.setProperty('--background', theme.background)
     root.style.setProperty('--editor-bg', theme.background)
-    root.style.setProperty('--sidebar-bg', theme.background)
-    root.style.setProperty('--panel-bg', theme.background)
-    root.style.setProperty('--activity-bar-bg', theme.background)
-    root.style.setProperty('--titlebar-bg', theme.background)
-    root.style.setProperty('--terminal-bg', theme.background)
-    root.style.setProperty('--ui-bg', theme.background)
+    root.style.setProperty('--sidebar-bg', theme.sidebarBackground)
+    root.style.setProperty('--panel-bg', theme.panelBackground)
+    root.style.setProperty('--activity-bar-bg', theme.activityBarBackground)
+    root.style.setProperty('--titlebar-bg', theme.titleBarBackground)
+    root.style.setProperty('--terminal-bg', theme.panelBackground)
+    root.style.setProperty('--ui-bg', theme.sidebarBackground)
     root.style.setProperty('--gutter-bg', theme.background)
     root.style.setProperty('--chatbar-background', theme.background)
     root.style.setProperty('--welcome-bg', theme.background)
     root.style.setProperty('--welcome-container-bg', theme.background)
 
     // Elevated Surfaces - Cursor IDE / VS Code
-    root.style.setProperty('--ui-bg-elevated', theme.lineHighlight)
-    root.style.setProperty('--ui-bg-subtle', theme.lineHighlight)
-    root.style.setProperty('--panel-bg-elevated', theme.lineHighlight)
+    root.style.setProperty('--ui-bg-elevated', theme.panelBackground)
+    root.style.setProperty('--ui-bg-subtle', theme.itemHoverBackground)
+    root.style.setProperty('--panel-bg-elevated', theme.panelBackground)
 
     // ═══════════════════════════════════════════════════════════════════════
-    // CORE FOREGROUNDS - All use theme.foreground
+    // CORE FOREGROUNDS - Specific Mappings
     // ═══════════════════════════════════════════════════════════════════════
     root.style.setProperty('--editor-fg', theme.foreground)
-    root.style.setProperty('--ui-fg', theme.foreground)
-    root.style.setProperty('--sidebar-fg', theme.foreground)
-    root.style.setProperty('--panel-fg', theme.foreground)
-    root.style.setProperty('--titlebar-fg', theme.foreground)
-    root.style.setProperty('--terminal-fg', theme.foreground)
+    root.style.setProperty('--ui-fg', theme.sidebarForeground)
+    root.style.setProperty('--sidebar-fg', theme.sidebarForeground)
+    root.style.setProperty('--panel-fg', theme.panelForeground)
+    root.style.setProperty('--titlebar-fg', theme.titleBarForeground)
+    root.style.setProperty('--terminal-fg', theme.panelForeground)
     root.style.setProperty('--text', theme.foreground)
     root.style.setProperty('--active-text', theme.foreground)
     root.style.setProperty('--any-fg', theme.foreground)
@@ -121,42 +165,119 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
     root.style.setProperty('--constant', theme.keyword)
     root.style.setProperty('--property', theme.foreground)
     root.style.setProperty('--operator', theme.foreground)
-    root.style.setProperty('--punctuation', theme.foreground)
+    root.style.setProperty('--punctuation', theme.punctuation)
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TERMINAL ANSI COLORS
+    // ═══════════════════════════════════════════════════════════════════════
+    root.style.setProperty(
+        '--terminal-ansi-black',
+        theme.ansiBlack || '#000000'
+    )
+    root.style.setProperty('--terminal-ansi-red', theme.ansiRed || '#cd3131')
+    root.style.setProperty(
+        '--terminal-ansi-green',
+        theme.ansiGreen || '#0dbc79'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-yellow',
+        theme.ansiYellow || '#e5e510'
+    )
+    root.style.setProperty('--terminal-ansi-blue', theme.ansiBlue || '#2472c8')
+    root.style.setProperty(
+        '--terminal-ansi-magenta',
+        theme.ansiMagenta || '#bc3fbc'
+    )
+    root.style.setProperty('--terminal-ansi-cyan', theme.ansiCyan || '#11a8cd')
+    root.style.setProperty(
+        '--terminal-ansi-white',
+        theme.ansiWhite || '#e5e5e5'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-black',
+        theme.ansiBrightBlack || '#666666'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-red',
+        theme.ansiBrightRed || '#f14c4c'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-green',
+        theme.ansiBrightGreen || '#23d18b'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-yellow',
+        theme.ansiBrightYellow || '#f5f543'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-blue',
+        theme.ansiBrightBlue || '#3b8eea'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-magenta',
+        theme.ansiBrightMagenta || '#d670d6'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-cyan',
+        theme.ansiBrightCyan || '#29b8db'
+    )
+    root.style.setProperty(
+        '--terminal-ansi-bright-white',
+        theme.ansiBrightWhite || '#e5e5e5'
+    )
 
     // ═══════════════════════════════════════════════════════════════════════
     // UNIFIED BORDER SYSTEM - Cursor IDE / VS Code
     // ═══════════════════════════════════════════════════════════════════════
-    const borderColor = '#3e3e3e'
+    // ═══════════════════════════════════════════════════════════════════════
+    // UNIFIED BORDER SYSTEM - Cursor IDE / VS Code
+    // ═══════════════════════════════════════════════════════════════════════
+    const borderColor = theme.borderColor || '#3e3e3e'
     root.style.setProperty('--border', borderColor)
-    root.style.setProperty('--ui-border', 'var(--border)')
-    root.style.setProperty('--ui-border-subtle', 'var(--border)')
-    root.style.setProperty('--sidebar-border', 'var(--border)')
-    root.style.setProperty('--panel-border', 'var(--border)')
-    root.style.setProperty('--pane-border', 'var(--border)')
-    root.style.setProperty('--tab-border', 'var(--border)')
-    root.style.setProperty('--titlebar-border', 'var(--border)')
-    root.style.setProperty('--activity-bar-border', 'var(--border)')
-    root.style.setProperty('--input-border', 'var(--border)')
-    root.style.setProperty('--terminal-border', 'var(--border)')
-    root.style.setProperty('--editor-wrap-guide', 'var(--border)')
-    root.style.setProperty('--chatbar-border', 'var(--border)')
+    root.style.setProperty('--ui-border', borderColor)
+    root.style.setProperty('--ui-border-subtle', borderColor)
+    root.style.setProperty(
+        '--sidebar-border',
+        theme.sidebarBorder || borderColor
+    )
+    root.style.setProperty('--panel-border', theme.panelBorder || borderColor)
+    root.style.setProperty(
+        '--pane-border',
+        theme.editorGroupBorder || borderColor
+    )
+    root.style.setProperty('--tab-border', theme.tabBorder || borderColor)
+    root.style.setProperty(
+        '--titlebar-border',
+        theme.titleBarBorder || borderColor
+    )
+    root.style.setProperty(
+        '--activity-bar-border',
+        theme.activityBarBorder || borderColor
+    )
+    root.style.setProperty('--input-border', borderColor)
+    root.style.setProperty('--terminal-border', 'var(--pane-border)')
+    root.style.setProperty('--editor-wrap-guide', borderColor)
+    root.style.setProperty(
+        '--chatbar-border',
+        theme.sidebarBorder || borderColor
+    )
 
     // ═══════════════════════════════════════════════════════════════════════
     // HOVER STATES - Cursor IDE / VS Code
     // ═══════════════════════════════════════════════════════════════════════
-    root.style.setProperty('--ui-hover', theme.lineHighlight)
-    root.style.setProperty('--sidebar-hover', theme.lineHighlight)
-    root.style.setProperty('--tab-hover', theme.lineHighlight)
-    root.style.setProperty('--tab-hover-bg', theme.lineHighlight)
-    root.style.setProperty('--titlebar-button-hover', theme.lineHighlight)
-    root.style.setProperty('--accent-hover', theme.lineHighlight)
+    root.style.setProperty('--ui-hover', theme.itemHoverBackground)
+    root.style.setProperty('--sidebar-hover', theme.itemHoverBackground)
+    root.style.setProperty('--tab-hover', theme.itemHoverBackground)
+    root.style.setProperty('--tab-hover-bg', theme.itemHoverBackground)
+    root.style.setProperty('--titlebar-button-hover', theme.itemHoverBackground)
+    root.style.setProperty('--accent-hover', theme.itemHoverBackground)
 
     // ═══════════════════════════════════════════════════════════════════════
     // SELECTED STATES - Cursor IDE / VS Code
     // ═══════════════════════════════════════════════════════════════════════
     root.style.setProperty('--sidebar-selected', theme.selection)
-    root.style.setProperty('--sidebar-bg-active', theme.lineHighlight)
-    root.style.setProperty('--sidebar-fg-active', theme.foreground)
+    root.style.setProperty('--sidebar-bg-active', theme.itemHoverBackground)
+    root.style.setProperty('--sidebar-fg-active', theme.sidebarForeground)
     root.style.setProperty('--accent-active', theme.selection)
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -171,13 +292,11 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
     // ═══════════════════════════════════════════════════════════════════════
     // ACTIVITY BAR - Cursor IDE / VS Code
     // ═══════════════════════════════════════════════════════════════════════
-    if (isDark) {
-        root.style.setProperty('--activity-bar-fg', '#ffffff')
-        root.style.setProperty('--activity-bar-fg-muted', 'rgba(255, 255, 255, 0.4)')
-    } else {
-        root.style.setProperty('--activity-bar-fg', '#1f1f1f')
-        root.style.setProperty('--activity-bar-fg-muted', 'rgba(0, 0, 0, 0.4)')
-    }
+    root.style.setProperty('--activity-bar-fg', theme.activityBarForeground)
+    root.style.setProperty(
+        '--activity-bar-fg-muted',
+        'rgba(255, 255, 255, 0.4)'
+    )
 
     // ═══════════════════════════════════════════════════════════════════════
     // TABS - Cursor IDE / VS Code
@@ -192,10 +311,10 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
     // ═══════════════════════════════════════════════════════════════════════
     // INPUTS - Cursor IDE / VS Code
     // ═══════════════════════════════════════════════════════════════════════
-    root.style.setProperty('--input-bg', theme.lineHighlight)
+    root.style.setProperty('--input-bg', theme.itemHoverBackground)
     root.style.setProperty('--input-fg', theme.foreground)
     root.style.setProperty('--input-placeholder', '#858585')
-    root.style.setProperty('--input-background', theme.lineHighlight)
+    root.style.setProperty('--input-background', theme.itemHoverBackground)
     root.style.setProperty('--input-text', theme.foreground)
     root.style.setProperty('--input-border-focus', '#007acc')
 
@@ -203,50 +322,68 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
     // BUTTONS - Cursor IDE / VS Code
     // ═══════════════════════════════════════════════════════════════════════
     root.style.setProperty('--button-primary', '#007acc')
-    root.style.setProperty('--button-primary-hover', theme.lineHighlight)
+    root.style.setProperty('--button-primary-hover', theme.itemHoverBackground)
     root.style.setProperty('--button-success', '#28a745')
     root.style.setProperty('--button-success-hover', '#218838')
     root.style.setProperty('--button-danger', '#dc3545')
     root.style.setProperty('--button-danger-hover', '#c82333')
-    root.style.setProperty('--button-secondary', theme.lineHighlight)
-    root.style.setProperty('--button-secondary-hover', theme.lineHighlight)
+    root.style.setProperty('--button-secondary', theme.itemHoverBackground)
+    root.style.setProperty(
+        '--button-secondary-hover',
+        theme.itemHoverBackground
+    )
 
     // ═══════════════════════════════════════════════════════════════════════
     // SCROLLBAR - Cursor IDE / VS Code
     // ═══════════════════════════════════════════════════════════════════════
     root.style.setProperty('--scrollbar-bg', 'transparent')
     root.style.setProperty('--scrollbar-thumb', 'rgba(121, 121, 121, 0.4)')
-    root.style.setProperty('--scrollbar-thumb-hover', 'rgba(121, 121, 121, 0.6)')
-    root.style.setProperty('--scrollbar-thumb-border', 'rgba(121, 121, 121, 0.4)')
+    root.style.setProperty(
+        '--scrollbar-thumb-hover',
+        'rgba(121, 121, 121, 0.6)'
+    )
+    root.style.setProperty(
+        '--scrollbar-thumb-border',
+        'rgba(121, 121, 121, 0.4)'
+    )
     root.style.setProperty('--scrollbar-track-bg', theme.background)
-    root.style.setProperty('--scrollbar-track-border', 'rgba(121, 121, 121, 0.2)')
+    root.style.setProperty(
+        '--scrollbar-track-border',
+        'rgba(121, 121, 121, 0.2)'
+    )
     root.style.setProperty('--scrollbar-background', 'transparent')
     root.style.setProperty('--scrollbar', 'rgba(121, 121, 121, 0.4)')
 
     // ═══════════════════════════════════════════════════════════════════════
     // LEGACY COMPATIBILITY - Map old variable names
     // ═══════════════════════════════════════════════════════════════════════
-    root.style.setProperty('--left-pane-background', theme.background)
-    root.style.setProperty('--left-pane-hover', theme.lineHighlight)
+    root.style.setProperty('--left-pane-background', theme.sidebarBackground)
+    root.style.setProperty('--left-pane-hover', theme.itemHoverBackground)
     root.style.setProperty('--left-pane-selected', theme.selection)
     root.style.setProperty('--selected-text', '#1ba1e2')
     root.style.setProperty('--marked-text', '#007acc')
     root.style.setProperty('--user-chat-bubble', '#007acc')
-    root.style.setProperty('--assistant-chat-bubble', theme.lineHighlight)
-    root.style.setProperty('--title-bar-background', theme.background)
+    root.style.setProperty('--assistant-chat-bubble', theme.itemHoverBackground)
+    root.style.setProperty('--title-bar-background', theme.titleBarBackground)
     root.style.setProperty('--tab-bar-background', theme.background)
     root.style.setProperty('--tab-active', theme.background)
     root.style.setProperty('--tab-not-active', theme.background)
     root.style.setProperty('--selection-match', theme.selection)
-    root.style.setProperty('--button', theme.lineHighlight)
+    root.style.setProperty('--button', theme.itemHoverBackground)
     root.style.setProperty('--codex-theme-editor-background', theme.background)
     root.style.setProperty('--codex-blue', '#007acc')
     root.style.setProperty('--link-codex-blue', '#1ba1e2')
     root.style.setProperty('--submit-button', '#28a745')
     root.style.setProperty('--reject-button', '#dc3545')
-    root.style.setProperty('--submit-transparent-button', 'rgba(40, 167, 69, 0.5)')
-    root.style.setProperty('--reject-transparent-button', 'rgba(220, 53, 69, 0.5)')
-    root.style.setProperty('--cancel-button', theme.lineHighlight)
+    root.style.setProperty(
+        '--submit-transparent-button',
+        'rgba(40, 167, 69, 0.5)'
+    )
+    root.style.setProperty(
+        '--reject-transparent-button',
+        'rgba(220, 53, 69, 0.5)'
+    )
+    root.style.setProperty('--cancel-button', theme.itemHoverBackground)
     root.style.setProperty('--continue-button', '#007acc')
     root.style.setProperty('--full-continue-button', '#28a745')
     root.style.setProperty('--ai-color', '#007acc')
@@ -259,7 +396,7 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
     // ═══════════════════════════════════════════════════════════════════════
     // ANYSPHERE LEGACY
     // ═══════════════════════════════════════════════════════════════════════
-    root.style.setProperty('--any-bg-lighter', theme.lineHighlight)
+    root.style.setProperty('--any-bg-lighter', theme.itemHoverBackground)
     root.style.setProperty('--any-bg-darker', theme.background)
     root.style.setProperty('--any-bg', theme.background)
     root.style.setProperty('--any-fg', theme.foreground)
@@ -271,53 +408,105 @@ export function applyThemeToRoot(theme: ThemeColors, isDark = true) {
  * Sync theme from settings - called when theme changes
  * This is the ONLY place theme values should be set
  */
-export function syncThemeFromSettings(settings: Settings, availableThemes: any) {
+export function syncThemeFromSettings(
+    settings: Settings,
+    availableThemes: any
+) {
     const themeName = settings.theme || 'codex-dark'
-    const theme = availableThemes[themeName]
+    let theme = availableThemes[themeName]
 
-    if (theme && theme.colors) {
-        const c = theme.colors
-        applyThemeToRoot(
-            {
-                background: c.background || '#0d0d0d',
-                foreground: c.foreground || '#d6d6dd',
-                cursor: c.cursor || '#d6d6dd',
-                selection: c.selection || '#163761',
-                lineHighlight: c.lineHighlight || '#151515',
-                // ALWAYS use Anysphere syntax colors - no theme variations
-                keyword: '#83d6c5',
-                string: '#e394dc',
-                number: '#d6d6dd',
-                function: '#ebc88d',
-                variable: '#aa9bf5',
-                type: '#87c3ff',
-                comment: '#474747',
-                tag: '#fad075',
-                attribute: '#aaa0fa',
-            },
-            theme.type === 'dark'
-        )
-    } else {
-        // Fallback with Anysphere theme syntax colors
-        applyThemeToRoot(
-            {
-                background: '#0d0d0d',
-                foreground: '#d6d6dd',
-                cursor: '#d6d6dd',
-                selection: '#163761',
-                lineHighlight: '#151515',
-                // Syntax colors are always Anysphere - set in codexTheme.ts
-                keyword: '#83d6c5',
-                string: '#e394dc',
-                number: '#d6d6dd',
-                function: '#ebc88d',
-                variable: '#aa9bf5',
-                type: '#87c3ff',
-                comment: '#474747',
-                tag: '#fad075',
-                attribute: '#aaa0fa',
-            },
-            true
-        )
+    // Force fallback to codex-dark if the requested theme is missing or invalid
+    if (!theme || !theme.colors) {
+        theme = availableThemes['codex-dark']
     }
+
+    // Ultra-fallback if even codex-dark is missing from state (shouldn't happen if loaded correctly)
+    const c = theme?.colors || {
+        background: '#0a0a0a', // Matches codex-dark.json
+        foreground: '#e5e5e5',
+        cursor: '#3b82f6',
+        selection: 'rgba(59, 130, 246, 0.25)',
+        lineHighlight: '#1f1f1f',
+        sidebarBackground: '#121212',
+        sidebarForeground: '#e5e5e5',
+        activityBarBackground: '#141414',
+        activityBarForeground: '#e5e5e5',
+        panelBackground: '#0a0a0a',
+        panelForeground: '#e5e5e5',
+        titleBarBackground: '#121212',
+        titleBarForeground: '#e5e5e5',
+        itemHoverBackground: '#2a2a2a',
+    }
+
+    const itemHoverBackground = c.itemHoverBackground || '#2a2a2a'
+
+    // Robust fallback to prevent 'Blue Border' if state is stale
+    const effectiveBorderColor =
+        c.editorGroupBorder ||
+        c.panelBorder ||
+        c.sidebarBorder || // Note check casing: sidebarBorder vs sideBarBorder. In extensionsSlice mapping (Step 673) it was sidebarBorder: colors['sideBar.border']. So property name is 'sidebarBorder'.
+        c.activityBarBorder ||
+        '#3e3e3e'
+
+    const forceSidebarBorder = c.sidebarBorder || effectiveBorderColor
+
+    applyThemeToRoot({
+        background: c.background || '#0a0a0a',
+        foreground: c.foreground || '#e5e5e5',
+        cursor: c.cursor || '#3b82f6',
+        selection: c.selection || 'rgba(59, 130, 246, 0.25)',
+        lineHighlight: c.lineHighlight || '#1f1f1f',
+
+        sidebarBackground: c.sidebarBackground || '#121212',
+        sidebarForeground: c.sidebarForeground || '#e5e5e5',
+        activityBarBackground: c.activityBarBackground || '#141414',
+        activityBarForeground: c.activityBarForeground || '#e5e5e5',
+        panelBackground: c.panelBackground || '#0a0a0a',
+        panelForeground: c.panelForeground || '#e5e5e5',
+        titleBarBackground: c.titleBarBackground || '#121212',
+        titleBarForeground: c.titleBarForeground || '#e5e5e5',
+        itemHoverBackground: itemHoverBackground,
+
+        // DYNAMIC Syntax Colors - Respect the Theme
+        keyword: c.keyword || '#569cd6',
+        string: c.string || '#ce9178',
+        number: c.number || '#b5cea8',
+        function: c.function || '#dcdcaa',
+        variable: c.variable || '#9cdcfe',
+        type: c.type || '#4ec9b0',
+        comment: c.comment || '#6a9955',
+        tag: c.tag || '#569cd6',
+        attribute: c.attribute || '#9cdcfe',
+        constant: c.constant || '#4fc1ff',
+        property: c.property || '#d4d4d4',
+        operator: c.operator || '#d4d4d4',
+        punctuation: c.punctuation || '#d4d4d4',
+
+        // Borders
+        borderColor: effectiveBorderColor,
+        sidebarBorder: forceSidebarBorder,
+        activityBarBorder: c.activityBarBorder,
+        panelBorder: c.panelBorder,
+        tabBorder: c.tabBorder,
+        titleBarBorder: c.titleBarBorder,
+        editorGroupBorder: c.editorGroupBorder,
+
+        // Terminal ANSI
+        ansiBlack: c.ansiBlack,
+        ansiRed: c.ansiRed,
+        ansiGreen: c.ansiGreen,
+        ansiYellow: c.ansiYellow,
+        ansiBlue: c.ansiBlue,
+        ansiMagenta: c.ansiMagenta,
+        ansiCyan: c.ansiCyan,
+        ansiWhite: c.ansiWhite,
+        ansiBrightBlack: c.ansiBrightBlack,
+        ansiBrightRed: c.ansiBrightRed,
+        ansiBrightGreen: c.ansiBrightGreen,
+        ansiBrightYellow: c.ansiBrightYellow,
+        ansiBrightBlue: c.ansiBrightBlue,
+        ansiBrightMagenta: c.ansiBrightMagenta,
+        ansiBrightCyan: c.ansiBrightCyan,
+        ansiBrightWhite: c.ansiBrightWhite,
+    })
 }

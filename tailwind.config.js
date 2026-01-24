@@ -36,6 +36,10 @@ module.exports = {
                     purple: '#b88dff',
                 },
             },
+            fontFamily: {
+                mono: 'var(--font-mono)',
+                sans: 'var(--font-sans)',
+            },
         },
     },
     plugins: [],

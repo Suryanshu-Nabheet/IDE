@@ -8,6 +8,23 @@ import * as ts from './tools/toolSlice'
 // GLOBAL LISTENERS
 ////////
 
+// Safe accessor for connector to prevent crash if preload fails
+const getConnector = () => {
+    if (typeof window !== 'undefined' && 'connector' in window) {
+        return (window as any).connector
+    }
+    console.warn('Electron connector not found. Using mock to prevent crash.')
+    // Return a dummy proxy that eats all calls
+    return new Proxy(
+        {},
+        {
+            get: () => () => {},
+        }
+    )
+}
+
+const connector = getConnector()
+
 // @ts-ignore
 connector.registerRenameClick(() => {
     store.dispatch(gs.triggerRename(null))

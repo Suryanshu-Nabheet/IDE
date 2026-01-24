@@ -39,7 +39,6 @@ import {
 import { getSettings } from '../features/settings/settingsSelectors'
 import { useExtensions } from './codemirrorHooks/extensions'
 import { useSetDiff } from './codemirrorHooks/diffHook'
-import { InlineAIEdit } from './inlineAIEdit'
 
 export function getPrecedingLines(view: EditorView) {
     return view.state.doc.sliceString(0, view.state.selection.main.from)
@@ -340,7 +339,6 @@ export default function Editor({ tabId }: { tabId: number }) {
                     extensions={extensions}
                     initialState={initialState}
                 />
-                <InlineAIEdit editorRef={editorRef} tabId={tabId} />
             </div>
         </>
     )

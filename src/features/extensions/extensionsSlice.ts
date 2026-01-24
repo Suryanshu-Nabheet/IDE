@@ -1,5 +1,9 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import * as extensionsAPI from './extensionsAPI'
+import codexDarkTheme from '../../theme/themes/codex-dark.json'
+import darkModernTheme from '../../theme/themes/dark-modern.json'
+import darkPlusTheme from '../../theme/themes/dark-plus.json'
+import lightModernTheme from '../../theme/themes/light-modern.json'
 
 export interface Extension {
     id?: string
@@ -60,6 +64,45 @@ export interface ThemeData {
         cursor: string
         selection: string
         lineHighlight: string
+
+        // Specific UI Elements
+        sidebarBackground: string
+        sidebarForeground: string
+        activityBarBackground: string
+        activityBarForeground: string
+        panelBackground: string
+        panelForeground: string
+        titleBarBackground: string
+        titleBarForeground: string
+        itemHoverBackground: string
+
+        // Terminal ANSI Colors
+        ansiBlack?: string
+        ansiRed?: string
+        ansiGreen?: string
+        ansiYellow?: string
+        ansiBlue?: string
+        ansiMagenta?: string
+        ansiCyan?: string
+        ansiWhite?: string
+        ansiBrightBlack?: string
+        ansiBrightRed?: string
+        ansiBrightGreen?: string
+        ansiBrightYellow?: string
+        ansiBrightBlue?: string
+        ansiBrightMagenta?: string
+        ansiBrightCyan?: string
+        ansiBrightWhite?: string
+
+        // Borders
+        borderColor?: string
+        sidebarBorder?: string
+        activityBarBorder?: string
+        panelBorder?: string
+        tabBorder?: string
+        titleBarBorder?: string
+        editorGroupBorder?: string
+
         // Syntax colors
         keyword: string
         string: string
@@ -70,6 +113,10 @@ export interface ThemeData {
         comment: string
         tag: string
         attribute: string
+        constant?: string
+        property?: string
+        operator?: string
+        punctuation?: string
     }
 }
 
@@ -82,140 +129,141 @@ export interface ExtensionsState {
     availableThemes: { [key: string]: ThemeData }
 }
 
+function mapThemeToThemeData(theme: any): ThemeData {
+    const colors = theme.colors || {}
+    const tokenColors = theme.tokenColors || []
+
+    const getColor = (scopes: string | string[]) => {
+        const scopeArray = Array.isArray(scopes) ? scopes : [scopes]
+
+        for (const targetScope of scopeArray) {
+            const token = tokenColors.find((t: any) => {
+                const tokenScope = t.scope
+                if (!tokenScope) return false
+
+                // Handle single string, array, or comma-separated string
+                if (Array.isArray(tokenScope)) {
+                    return tokenScope.includes(targetScope)
+                }
+                if (typeof tokenScope === 'string') {
+                    if (tokenScope === targetScope) return true
+                    if (tokenScope.includes(',')) {
+                        const parts = tokenScope
+                            .split(',')
+                            .map((s: string) => s.trim())
+                        return parts.includes(targetScope)
+                    }
+                }
+                return tokenScope === targetScope
+            })
+
+            if (token && token.settings && token.settings.foreground) {
+                return token.settings.foreground
+            }
+        }
+        return null
+    }
+
+    return {
+        type: theme.type === 'light' ? 'light' : 'dark',
+        colors: {
+            // Editor
+            background: colors['editor.background'] || '#000000',
+            foreground: colors['editor.foreground'] || '#e5e5e5',
+            cursor: colors['editorCursor.foreground'] || '#3b82f6',
+            selection: colors['editor.selectionBackground'] || '#3b82f640',
+            lineHighlight:
+                colors['editor.lineHighlightBackground'] || '#0a0a0a',
+
+            // Sidebar
+            sidebarBackground: colors['sideBar.background'] || '#121212',
+            sidebarForeground: colors['sideBar.foreground'] || '#e5e5e5',
+
+            // Activity Bar
+            activityBarBackground:
+                colors['activityBar.background'] || '#141414',
+            activityBarForeground:
+                colors['activityBar.foreground'] || '#e5e5e5',
+
+            // Panel / Terminal
+            panelBackground:
+                colors['panel.background'] ||
+                colors['terminal.background'] ||
+                '#000000',
+            panelForeground:
+                colors['panel.foreground'] ||
+                colors['terminal.foreground'] ||
+                '#e5e5e5',
+
+            // Title Bar
+            titleBarBackground:
+                colors['titleBar.activeBackground'] || '#121212',
+            titleBarForeground:
+                colors['titleBar.activeForeground'] || '#e5e5e5',
+
+            // Misc
+            itemHoverBackground: colors['list.hoverBackground'] || '#2a2a2a',
+
+            // Borders
+            borderColor:
+                colors['editorGroup.border'] ||
+                colors['panel.border'] ||
+                colors['sideBar.border'] ||
+                colors['activityBar.border'] ||
+                '#3e3e3e',
+            sidebarBorder: colors['sideBar.border'],
+            activityBarBorder: colors['activityBar.border'],
+            panelBorder: colors['panel.border'],
+            tabBorder: colors['tab.border'],
+            titleBarBorder: colors['titleBar.border'],
+            editorGroupBorder: colors['editorGroup.border'],
+
+            // Terminal ANSI
+            ansiBlack: colors['terminal.ansiBlack'],
+            ansiRed: colors['terminal.ansiRed'],
+            ansiGreen: colors['terminal.ansiGreen'],
+            ansiYellow: colors['terminal.ansiYellow'],
+            ansiBlue: colors['terminal.ansiBlue'],
+            ansiMagenta: colors['terminal.ansiMagenta'],
+            ansiCyan: colors['terminal.ansiCyan'],
+            ansiWhite: colors['terminal.ansiWhite'],
+            ansiBrightBlack: colors['terminal.ansiBrightBlack'],
+            ansiBrightRed: colors['terminal.ansiBrightRed'],
+            ansiBrightGreen: colors['terminal.ansiBrightGreen'],
+            ansiBrightYellow: colors['terminal.ansiBrightYellow'],
+            ansiBrightBlue: colors['terminal.ansiBrightBlue'],
+            ansiBrightMagenta: colors['terminal.ansiBrightMagenta'],
+            ansiBrightCyan: colors['terminal.ansiBrightCyan'],
+            ansiBrightWhite: colors['terminal.ansiBrightWhite'],
+
+            // Extract syntax colors from tokenColors
+            keyword:
+                getColor(['keyword', 'storage', 'variable.language']) ||
+                '#3b82f6',
+            string: getColor('string') || '#ce9178',
+            number:
+                getColor(['constant.numeric', 'literal.number']) || '#b5cea8',
+            function:
+                getColor(['entity.name.function', 'support.function']) ||
+                '#dcdcaa',
+            variable: getColor('variable') || '#9cdcfe',
+            type: getColor(['entity.name.type', 'support.type']) || '#4ec9b0',
+            comment: getColor('comment') || '#6a9955',
+            tag: getColor('entity.name.tag') || '#569cd6',
+            attribute: getColor('entity.other.attribute-name') || '#9cdcfe',
+            constant: getColor('constant') || '#4fc1ff',
+            property: getColor('variable.other.property') || '#d4d4d4',
+            operator: getColor('keyword.operator') || '#d4d4d4',
+            punctuation: getColor(['punctuation', 'meta.brace']) || '#d4d4d4',
+        },
+    }
+}
+
 const defaultThemes: { [key: string]: ThemeData } = {
-    'codex-dark': {
-        type: 'dark',
-        colors: {
-            background: '#000000', // Pure Black - Premium Dark
-            foreground: '#e5e5e5', // Bright text for contrast
-            cursor: '#3b82f6', // Blue accent cursor
-            selection: '#1e3a5f', // Darker blue selection
-            lineHighlight: '#0a0a0a', // Subtle line highlight
-            keyword: '#3b82f6', // Blue keywords
-            string: '#ce9178', // Warm string color
-            number: '#b5cea8', // Green numbers
-            function: '#dcdcaa', // Yellow functions
-            variable: '#9cdcfe', // Light blue variables
-            type: '#4ec9b0', // Teal types
-            comment: '#6a9955', // Green comments
-            tag: '#569cd6', // Blue tags
-            attribute: '#92c5f7', // Light blue attributes
-        },
-    },
-    monokai: {
-        type: 'dark',
-        colors: {
-            background: '#272822',
-            foreground: '#F8F8F2',
-            cursor: '#F8F8F0',
-            selection: '#49483E',
-            lineHighlight: '#3E3D32',
-            keyword: '#F92672',
-            string: '#E6DB74',
-            number: '#AE81FF',
-            function: '#A6E22E',
-            variable: '#F8F8F2',
-            type: '#66D9EF',
-            comment: '#75715E',
-            tag: '#F92672',
-            attribute: '#A6E22E',
-        },
-    },
-    dracula: {
-        type: 'dark',
-        colors: {
-            background: '#282A36',
-            foreground: '#F8F8F2',
-            cursor: '#F8F8F0',
-            selection: '#44475A',
-            lineHighlight: '#44475A',
-            keyword: '#FF79C6',
-            string: '#F1FA8C',
-            number: '#BD93F9',
-            function: '#50FA7B',
-            variable: '#F8F8F2',
-            type: '#8BE9FD',
-            comment: '#6272A4',
-            tag: '#FF79C6',
-            attribute: '#50FA7B',
-        },
-    },
-    'github-dark': {
-        type: 'dark',
-        colors: {
-            background: '#0d1117',
-            foreground: '#c9d1d9',
-            cursor: '#c9d1d9',
-            selection: '#264F78',
-            lineHighlight: '#161b22',
-            keyword: '#FF7B72',
-            string: '#A5D6FF',
-            number: '#79C0FF',
-            function: '#D2A8FF',
-            variable: '#FFA657',
-            type: '#7EE787',
-            comment: '#8B949E',
-            tag: '#7EE787',
-            attribute: '#79C0FF',
-        },
-    },
-    'solarized-dark': {
-        type: 'dark',
-        colors: {
-            background: '#002B36',
-            foreground: '#839496',
-            cursor: '#839496',
-            selection: '#073642',
-            lineHighlight: '#073642',
-            keyword: '#859900',
-            string: '#2AA198',
-            number: '#D33682',
-            function: '#268BD2',
-            variable: '#839496',
-            type: '#B58900',
-            comment: '#586E75',
-            tag: '#268BD2',
-            attribute: '#93A1A1',
-        },
-    },
-    nord: {
-        type: 'dark',
-        colors: {
-            background: '#2E3440',
-            foreground: '#D8DEE9',
-            cursor: '#D8DEE9',
-            selection: '#434C5E',
-            lineHighlight: '#3B4252',
-            keyword: '#81A1C1',
-            string: '#A3BE8C',
-            number: '#B48EAD',
-            function: '#88C0D0',
-            variable: '#D8DEE9',
-            type: '#8FBCBB',
-            comment: '#616E88',
-            tag: '#81A1C1',
-            attribute: '#8FBCBB',
-        },
-    },
-    'one-dark': {
-        type: 'dark',
-        colors: {
-            background: '#282C34',
-            foreground: '#ABB2BF',
-            cursor: '#528BFF',
-            selection: '#3E4451',
-            lineHighlight: '#2C323C',
-            keyword: '#C678DD',
-            string: '#98C379',
-            number: '#D19A66',
-            function: '#61AFEF',
-            variable: '#E06C75',
-            type: '#E5C07B',
-            comment: '#5C6370',
-            tag: '#E06C75',
-            attribute: '#D19A66',
-        },
-    },
+    'codex-dark': mapThemeToThemeData(codexDarkTheme),
+    'dark-modern': mapThemeToThemeData(darkModernTheme),
+    'dark-plus': mapThemeToThemeData(darkPlusTheme),
+    'light-modern': mapThemeToThemeData(lightModernTheme),
 }
 
 export const initialExtensionsState: ExtensionsState = {
@@ -398,31 +446,6 @@ export const initializeExtensions = createAsyncThunk(
         return extensions
     }
 )
-
-function mapThemeToThemeData(theme: any): ThemeData {
-    const colors = theme.colors || {}
-
-    return {
-        type: theme.type === 'light' ? 'light' : 'dark',
-        colors: {
-            background: colors['editor.background'] || '#181818',
-            foreground: colors['editor.foreground'] || '#d6d6dd',
-            cursor: colors['editorCursor.foreground'] || '#d6d6dd',
-            selection: colors['editor.selectionBackground'] || '#163761',
-            lineHighlight:
-                colors['editor.lineHighlightBackground'] || '#212121',
-            keyword: '#83d6c5',
-            string: '#e394dc',
-            number: '#d6d6dd',
-            function: '#ebc88d',
-            variable: '#aa9bf5',
-            type: '#87c3ff',
-            comment: '#474747',
-            tag: '#fad075',
-            attribute: '#aaa0fa',
-        },
-    }
-}
 
 export const extensionsSlice = createSlice({
     name: 'extensions',

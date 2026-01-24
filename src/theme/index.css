@@ -14,11 +14,9 @@
     --blue-dim: #2563eb;             /* Darker blue for hover */
     --blue-glow: rgba(59, 130, 246, 0.15); /* Subtle glow effect */
     
-    /* Text Hierarchy */
-    --text-primary: #e5e5e5;         /* Primary text - bright */
-    --text-secondary: #a0a0a0;       /* Secondary text - muted */
-    --text-tertiary: #6b6b6b;        /* Tertiary text - very muted */
-    --text-disabled: #404040;        /* Disabled state */
+    /* Typography */
+    --font-mono: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 
     /* Editor */
     --editor-bg: var(--black-pure);
@@ -262,6 +260,72 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     user-select: none;
+}
+
+/* StatusBar - Themed */
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 22px;
+    min-height: 22px;
+    background-color: var(--activity-bar-bg); /* Use Activity Bar bg or Title Bar bg */
+    color: var(--ui-fg-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 11px;
+    font-family: var(--font-sans);
+    border-top: 1px solid var(--ui-border);
+    z-index: 50;
+    user-select: none;
+}
+
+.status-bar__left,
+.status-bar__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-bar__item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 4px;
+    height: 100%;
+    opacity: 0.8;
+    transition: opacity 0.2s, color 0.2s;
+}
+
+.status-bar__item:hover {
+    opacity: 1;
+    color: var(--ui-fg);
+    background-color: var(--ui-hover);
+    border-radius: 2px;
+}
+
+.status-bar__item--main {
+    background-color: var(--accent);
+    color: var(--white);
+    padding: 0 8px;
+    margin-right: 4px;
+    border-radius: 2px;
+    opacity: 1;
+    font-weight: 500;
+}
+
+.status-bar__item--main:hover {
+    background-color: var(--accent-hover);
+}
+
+.status-bar__center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.5;
 }
 
 #root {

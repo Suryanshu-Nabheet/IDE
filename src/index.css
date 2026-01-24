@@ -15,8 +15,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-        Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     margin: 0px;
     padding: 0px;
     height: 100vh;
@@ -72,7 +71,7 @@ body {
 .cm-gutterElement {
     line-height: 1.7;
     font-size: 14px;
-    font-family: Menlo !important;
+    font-family: var(--font-mono) !important;
 }
 
 .chatbar .cm-content {
@@ -794,63 +793,7 @@ body {
     margin-left: 8px;
 }
 
-/* ============================================
-   STATUS BAR - Professional Footer
-   ============================================ */
-.status-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 22px;
-    background-color: var(--activity-bar-bg);
-    color: var(--ui-fg);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 12px;
-    font-size: 12px;
-    flex-shrink: 0;
-    z-index: 100;
-    border-top: 1px solid var(--pane-border);
-}
-
-.status-bar__left,
-.status-bar__right {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    flex: 1;
-}
-
-.status-bar__right {
-    justify-content: flex-end;
-}
-
-.status-bar__center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    flex: 1;
-}
-
-.status-bar__item {
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    height: 100%;
-    cursor: pointer;
-    transition: background-color var(--transition-fast);
-}
-
-.status-bar__item:hover {
-    background-color: var(--ui-hover);
-}
-
-.status-bar__item--main {
-    padding-left: 4px;
-}
+/* Legacy Status Bar removed - see src/theme/index.css */
 
 /* ============================================
    TITLEBAR - Premium Production Ready
@@ -1257,45 +1200,45 @@ li.rta__item--selected mark {
     color: var(--sidebar-fg-active) !important;
 }
 
-/* Icons - "Real" Tech Colors */
+/* Icons - "Real" Tech Colors - Themed */
 .icon--js {
-    color: #f7df1e !important;
+    color: var(--terminal-ansi-yellow) !important;
 }
 .icon--ts {
-    color: #3178c6 !important;
+    color: var(--terminal-ansi-blue) !important;
 }
 .icon--react {
-    color: #61dafb !important;
+    color: var(--terminal-ansi-cyan) !important;
 }
 .icon--css {
-    color: #264de4 !important;
+    color: var(--terminal-ansi-blue) !important;
 }
 .icon--html {
-    color: #e34f26 !important;
+    color: var(--terminal-ansi-red) !important;
 }
 .icon--py {
-    color: #3776ab !important;
+    color: var(--terminal-ansi-blue) !important;
 }
 .icon--json {
-    color: #f90 !important;
+    color: var(--terminal-ansi-yellow) !important;
 }
 .icon--md {
     color: var(--ui-fg) !important;
 }
 .icon--img {
-    color: #b072d1 !important;
+    color: var(--terminal-ansi-magenta) !important;
 }
 .icon--config {
-    color: #6d6d6d !important;
+    color: var(--ui-fg-muted) !important;
 }
 .icon--folder {
-    color: #5f6b85 !important;
+    color: var(--terminal-ansi-blue) !important;
 }
 .icon--folder-open {
-    color: #9aa4bf !important;
+    color: var(--terminal-ansi-blue) !important;
 }
 .icon--binary {
-    color: #6d6d6d;
+    color: var(--ui-fg-muted);
 }
 
 .app__lefttopwrapper {
