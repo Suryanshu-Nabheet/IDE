@@ -8,17 +8,16 @@ import {
 import globalReducer from '../features/globalSlice'
 import { initialState } from '../features/window/state'
 import { fileSlice } from '../features/window/fileUtils'
-import { generationSlice } from '../features/generation/generate'
 import { chatSlice } from '../features/chat/chatSlice'
 import { settingsSlice } from '../features/settings/settingsSlice'
 import { toolSlice } from '../features/tools/toolSlice'
 import { loggingSlice } from '../features/logging/loggingSlice'
 import { languageServerSlice } from '../features/lsp/languageServerSlice'
 import { commentSlice } from '../features/comment/commentSlice'
-import { testSlice } from '../features/tests/testSlice'
-import { fixLSPSlice } from '../features/fixLSP/fixLSPSlice'
 import { codeMirrorSlice } from '../features/codemirror/codemirrorSlice'
 import { extensionsSlice } from '../features/extensions/extensionsSlice'
+import fixLSPReducer from '../features/fixLSP/fixLSPSlice'
+import testsReducer from '../features/tests/testSlice'
 
 const reduceReducers = (...args: any) => {
     const initialState = typeof args[0] !== 'function' && args.shift()
@@ -55,12 +54,7 @@ const reduceReducers = (...args: any) => {
 }
 
 export const fullReducer = combineReducers({
-    global: reduceReducers(
-        initialState,
-        globalReducer,
-        generationSlice.reducer,
-        fileSlice.reducer
-    ),
+    global: reduceReducers(initialState, globalReducer, fileSlice.reducer),
     chatState: chatSlice.reducer,
     settingsState: settingsSlice.reducer,
     toolState: toolSlice.reducer,
@@ -68,9 +62,9 @@ export const fullReducer = combineReducers({
     languageServerState: languageServerSlice.reducer,
     codeMirrorState: codeMirrorSlice.reducer,
     commentState: commentSlice.reducer,
-    fixLSPState: fixLSPSlice.reducer,
     extensionsState: extensionsSlice.reducer,
-    test: testSlice.reducer,
+    fixLSP: fixLSPReducer,
+    tests: testsReducer,
 })
 
 export const store = configureStore({

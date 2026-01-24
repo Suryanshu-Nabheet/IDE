@@ -1,8 +1,10 @@
-import { FixLSPState, FullState } from '../window/state'
-import { createSelector } from 'reselect'
+import { createSelector } from '@reduxjs/toolkit'
 
-export const selectFixesByFileId = (fileId: number) =>
+export const selectFixesByFileId = (fileId: number | undefined) =>
     createSelector(
-        (state: FullState) => state.fixLSPState.fixes,
-        (fixes: FixLSPState['fixes']) => fixes[fileId]
+        (state: any) => state.fixLSP.fixes,
+        (fixes) => {
+            if (fileId === undefined) return null
+            return fixes[fileId] || null
+        }
     )

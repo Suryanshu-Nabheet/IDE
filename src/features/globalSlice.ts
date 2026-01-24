@@ -158,7 +158,7 @@ export const selectFile = createAsyncThunk(
         dispatch(loadFoldersAboveFile(fileId))
 
         dispatch(updateCommentsForFile({ filePath }))
-        dispatch(updateTestsForFile(filePath))
+        dispatch(updateTestsForFile({ filePath, tests: [] }))
     }
 )
 
