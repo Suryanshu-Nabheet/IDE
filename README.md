@@ -5,7 +5,8 @@
 [![Platform: Cross-Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg?style=flat-square)](#)
 
 **CodeX** is a Demo Version AI-powered IDE built for modern developers. Featuring the sophisticated **Oxocarbon** theme and an offline-first architecture, CodeX delivers a professional, distraction-free environment for high-performance development.
-**You can Find the Real Codebase here [CodeBase](https://github.com/CodeX-IDE/CodeX)**
+**Offical CodeBase of CodeX is Closed Source.**
+**But can find some demo ripo in here**
 
 ---
 
@@ -147,4 +148,5 @@ _Lead Architect & Designer_
 _Engineered for the Modern Developer_
 
 </div>
+
 
