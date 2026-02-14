@@ -4,7 +4,8 @@
 [![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-emerald.svg?style=flat-square)](https://github.com/Suryanshu-Nabheet/CodeX)
 [![Platform: Cross-Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg?style=flat-square)](#)
 
-**CodeX** is a next-generation AI-powered IDE built for modern developers. Featuring the sophisticated **Oxocarbon** theme and an offline-first architecture, CodeX delivers a professional, distraction-free environment for high-performance development.
+**CodeX** is a Demo Version AI-powered IDE built for modern developers. Featuring the sophisticated **Oxocarbon** theme and an offline-first architecture, CodeX delivers a professional, distraction-free environment for high-performance development.
+**You can Find the Real Codebase here [CodeBase](https://github.com/CodeX-IDE/CodeX)**
 
 ---
 
@@ -146,3 +147,4 @@ _Lead Architect & Designer_
 _Engineered for the Modern Developer_
 
 </div>
+
