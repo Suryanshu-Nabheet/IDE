@@ -23,6 +23,7 @@ import {
 } from '../features/settings/settingsSlice'
 import { getActiveFileId } from '../features/window/paneUtils'
 import { getPathForFileId } from '../features/window/fileUtils'
+import { FullState } from '../features/window/state'
 import { CodeBlock, ToolCallCard, PlanCard } from './aiCodeBlock'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -51,13 +52,13 @@ export function AIChatSidebar() {
     const dispatch = useAppDispatch()
     const settings = useAppSelector(ssel.getSettings)
     const aiSidebarOpen = useAppSelector(
-        (state: any) => state.toolState?.aiCommandPaletteTriggered
+        (state: FullState) => state.toolState?.aiCommandPaletteTriggered
     )
-    const rootPath = useAppSelector((state: any) => state.global.rootPath)
-    const activeFileId = useAppSelector((state: any) =>
+    const rootPath = useAppSelector((state: FullState) => state.global.rootPath)
+    const activeFileId = useAppSelector((state: FullState) =>
         getActiveFileId(state.global)
     )
-    const activeFilePath = useAppSelector((state: any) =>
+    const activeFilePath = useAppSelector((state: FullState) =>
         activeFileId ? getPathForFileId(state.global, activeFileId) : null
     )
 
@@ -231,6 +232,7 @@ export function AIChatSidebar() {
                     {
                         tools: AI_TOOLS,
                         maxToolCalls: 50,
+                        signal: abortControllerRef.current?.signal,
                     }
                 )
 
@@ -309,7 +311,7 @@ export function AIChatSidebar() {
                                             id: toolCallId,
                                             name: parsed.name,
                                             arguments: parsed.arguments,
-                                            isExecuting: false, // Changed from true to respect approval system
+                                            isExecuting: false,
                                         }
                                         currentToolCalls.push(newToolCall)
                                         setPendingToolCalls([
@@ -318,24 +320,60 @@ export function AIChatSidebar() {
                                     }
 
                                     // Remove the JSON string from visible content
-                                    visibleContent = visibleContent.replace(
-                                        jsonStr,
-                                        ''
-                                    )
+                                    visibleContent = visibleContent
+                                        .replace(jsonStr, '')
+                                        .trim()
                                 }
                             } catch (e) {
                                 // Not valid JSON or partial JSON, ignore
                             }
                         }
 
-                        // Strip whitespace updates if just plan/tool is updating
+                        // Also detect tool calls from standard Markdown code blocks
+                        const markdownJsonRegex = /```json\s*(\{[\s\S]*?\})\s*```/g
+                        let mdMatch
+                        while (
+                            (mdMatch =
+                                markdownJsonRegex.exec(currentContent)) !== null
+                        ) {
+                            try {
+                                const jsonStr = mdMatch[1]
+                                const parsed = JSON.parse(jsonStr)
+
+                                if (parsed.name && parsed.arguments) {
+                                    const alreadyExists = currentToolCalls.some(
+                                        (tc) =>
+                                            tc.name === parsed.name &&
+                                            JSON.stringify(tc.arguments) ===
+                                                JSON.stringify(parsed.arguments)
+                                    )
+
+                                    if (!alreadyExists) {
+                                        const toolCallId = `call_${Date.now()}_${Math.random()
+                                            .toString(36)
+                                            .substr(2, 9)}`
+                                        const newToolCall: ToolCallState = {
+                                            id: toolCallId,
+                                            name: parsed.name,
+                                            arguments: parsed.arguments,
+                                            isExecuting: false,
+                                        }
+                                        currentToolCalls.push(newToolCall)
+                                        setPendingToolCalls([
+                                            ...currentToolCalls,
+                                        ])
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+
                         setStreamedText(visibleContent)
                     } else if (chunk.type === 'tool_call' && chunk.toolCall) {
                         const newToolCall: ToolCallState = {
                             id: chunk.toolCall.id,
                             name: chunk.toolCall.name,
                             arguments: chunk.toolCall.arguments,
-                            isExecuting: false, // Changed from true to respect approval system
+                            isExecuting: false,
                         }
                         currentToolCalls.push(newToolCall)
                         setPendingToolCalls([...currentToolCalls])
@@ -913,10 +951,6 @@ Active File: ${activeFilePath || 'No file open'}
                 {/* REMOVED sticky PlanCard */}
                 {messages.length === 0 && (
                     <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
-                        <FontAwesomeIcon
-                            icon={faSparkles}
-                            className="text-4xl text-[var(--ui-fg-muted)] mb-4"
-                        />
                         <p className="text-sm font-medium text-[var(--ui-fg)] mb-1">
                             Start a conversation
                         </p>
@@ -927,151 +961,59 @@ Active File: ${activeFilePath || 'No file open'}
                 )}
 
                 {messages.map((message) => (
-                    <div
-                        key={message.id}
-                        className={`flex gap-3 ${
-                            message.role === 'user'
-                                ? 'flex-row-reverse'
-                                : 'flex-row'
-                        }`}
-                    >
-                        {/* Avatar */}
+                    <div key={message.id} className="ai-message">
                         <div
-                            className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            className={
                                 message.role === 'user'
-                                    ? 'bg-[var(--accent)] text-white'
-                                    : 'bg-[var(--ui-bg-elevated)] text-[var(--ui-fg-muted)]'
-                            }`}
+                                    ? 'user-message-container'
+                                    : 'assistant-message-container'
+                            }
                         >
-                            {message.role === 'user' ? (
-                                <span className="text-xs font-bold">U</span>
-                            ) : (
-                                <FontAwesomeIcon
-                                    icon={faSparkles}
-                                    className="text-xs"
-                                />
-                            )}
-                        </div>
-
-                        {/* Message Bubble */}
-                        <div
-                            className={`max-w-[85%] text-[13px] leading-relaxed break-words rounded-lg p-3 overflow-hidden ${
-                                message.role === 'user'
-                                    ? 'bg-[var(--ui-bg-elevated)] border border-[var(--ui-border)] text-[var(--ui-fg)]'
-                                    : 'bg-transparent text-[var(--ui-fg)]'
-                            }`}
-                        >
-                            {/* Render Plan (if any) */}
-                            {message.plan && (
-                                <PlanCard planMarkdown={message.plan} />
-                            )}
-
-                            {/* Render Tool Calls */}
-                            {message.toolCalls &&
-                                message.toolCalls.length > 0 && (
-                                    <div className="mb-3 space-y-2">
-                                        {message.toolCalls.map((tc) => (
-                                            <ToolCallCard
-                                                key={tc.id}
-                                                toolName={tc.name}
-                                                arguments={tc.arguments}
-                                                result={tc.result}
-                                                success={tc.success}
-                                                isExecuting={tc.isExecuting}
-                                                needsApproval={tc.needsApproval}
-                                                onAccept={() =>
-                                                    handleToolApproval(
-                                                        tc.id,
-                                                        true
-                                                    )
-                                                }
-                                                onReject={() =>
-                                                    handleToolApproval(
-                                                        tc.id,
-                                                        false
-                                                    )
-                                                }
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-
-                            {/* Render Content */}
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                components={{
-                                    code({
-                                        node: _node,
-                                        inline,
-                                        className,
-                                        children,
-                                        ...props
-                                    }) {
-                                        const match = /language-(\w+)/.exec(
-                                            className || ''
-                                        )
-                                        const language = match
-                                            ? match[1]
-                                            : 'typescript'
-                                        const code = String(children).replace(
-                                            /\n$/,
-                                            ''
-                                        )
-
-                                        return !inline ? (
-                                            <CodeBlock
-                                                code={code}
-                                                language={language}
-                                            />
-                                        ) : (
-                                            <code
-                                                className={className}
-                                                {...props}
-                                            >
-                                                {children}
-                                            </code>
-                                        )
-                                    },
-                                }}
+                            <div
+                                className={
+                                    message.role === 'user'
+                                        ? 'user-message-box'
+                                        : 'assistant-message-flow'
+                                }
                             >
-                                {message.content}
-                            </ReactMarkdown>
-                        </div>
-                    </div>
-                ))}
-
-                {/* Streaming Content Display */}
-                {isGenerating &&
-                    (streamedText || pendingToolCalls.length > 0) && (
-                        <div className="flex gap-3 flex-row">
-                            <div className="w-7 h-7 rounded-full bg-[var(--ui-bg-elevated)] text-[var(--ui-fg-muted)] flex items-center justify-center flex-shrink-0">
-                                <FontAwesomeIcon
-                                    icon={faSparkles}
-                                    className="text-xs animate-pulse"
-                                />
-                            </div>
-                            <div className="max-w-[85%] text-[13px] leading-relaxed break-words rounded-lg p-3 bg-transparent text-[var(--ui-fg)] w-full">
-                                {/* Streaming Plan */}
-                                {currentPlan && (
-                                    <PlanCard planMarkdown={currentPlan} />
+                                {/* Render Plan (if any) */}
+                                {message.plan && (
+                                    <PlanCard planMarkdown={message.plan} />
                                 )}
 
-                                {/* Render Pending Tool Calls */}
-                                {pendingToolCalls.length > 0 && (
-                                    <div className="mb-3 space-y-2">
-                                        {pendingToolCalls.map((tc) => (
-                                            <ToolCallCard
-                                                key={tc.id}
-                                                toolName={tc.name}
-                                                arguments={tc.arguments}
-                                                result={tc.result}
-                                                success={tc.success}
-                                                isExecuting={tc.isExecuting}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
+                                {/* Render Tool Calls */}
+                                {message.toolCalls &&
+                                    message.toolCalls.length > 0 && (
+                                        <div className="mb-3 space-y-2">
+                                            {message.toolCalls.map((tc) => (
+                                                <ToolCallCard
+                                                    key={tc.id}
+                                                    toolName={tc.name}
+                                                    arguments={tc.arguments}
+                                                    result={tc.result}
+                                                    success={tc.success}
+                                                    isExecuting={tc.isExecuting}
+                                                    needsApproval={
+                                                        tc.needsApproval
+                                                    }
+                                                    onAccept={() =>
+                                                        handleToolApproval(
+                                                            tc.id,
+                                                            true
+                                                        )
+                                                    }
+                                                    onReject={() =>
+                                                        handleToolApproval(
+                                                            tc.id,
+                                                            false
+                                                        )
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
 
+                                {/* Render Content */}
                                 <ReactMarkdown
                                     remarkPlugins={[remarkGfm]}
                                     components={{
@@ -1108,8 +1050,86 @@ Active File: ${activeFilePath || 'No file open'}
                                         },
                                     }}
                                 >
-                                    {streamedText}
+                                    {message.content}
                                 </ReactMarkdown>
+                            </div>
+                            <div className="ai-message__timestamp">
+                                {message.timestamp.toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {/* Streaming Content Display */}
+                {isGenerating &&
+                    (streamedText || pendingToolCalls.length > 0) && (
+                        <div className="ai-message">
+                            <div className="assistant-message-container">
+                                <div className="assistant-message-flow">
+                                    {/* Streaming Plan */}
+                                    {currentPlan && (
+                                        <PlanCard planMarkdown={currentPlan} />
+                                    )}
+
+                                    {/* Render Pending Tool Calls */}
+                                    {pendingToolCalls.length > 0 && (
+                                        <div className="mb-3 space-y-2">
+                                            {pendingToolCalls.map((tc) => (
+                                                <ToolCallCard
+                                                    key={tc.id}
+                                                    toolName={tc.name}
+                                                    arguments={tc.arguments}
+                                                    result={tc.result}
+                                                    success={tc.success}
+                                                    isExecuting={tc.isExecuting}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
+                                        components={{
+                                            code({
+                                                node: _node,
+                                                inline,
+                                                className,
+                                                children,
+                                                ...props
+                                            }) {
+                                                const match =
+                                                    /language-(\w+)/.exec(
+                                                        className || ''
+                                                    )
+                                                const language = match
+                                                    ? match[1]
+                                                    : 'typescript'
+                                                const code = String(
+                                                    children
+                                                ).replace(/\n$/, '')
+
+                                                return !inline ? (
+                                                    <CodeBlock
+                                                        code={code}
+                                                        language={language}
+                                                    />
+                                                ) : (
+                                                    <code
+                                                        className={className}
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </code>
+                                                )
+                                            },
+                                        }}
+                                    >
+                                        {streamedText}
+                                    </ReactMarkdown>
+                                </div>
                             </div>
                         </div>
                     )}

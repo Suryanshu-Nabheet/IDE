@@ -97,7 +97,6 @@ export const chatSlice = createSlice({
             draftMessage.codeSymbols.push(symbol)
             chatState.isCommandBarOpen = true
         },
-        // Probs bad practice to have a setter as a redux action/reducer
         setCurrentConversation(chatState, action: PayloadAction<string>) {
             chatState.currentConversationId = action.payload
         },

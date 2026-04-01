@@ -324,12 +324,17 @@ export const continueGeneration = createAsyncThunk(
             }
             const server = `${API_ROOT}/continue/`
 
+            // Create an AbortController for this request
+            const controller = new AbortController()
+            const signal = controller.signal
+
             const response = await fetch(server, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
+                signal,
             }).then(async (resp) => {
                 if (resp.status != 200) {
                     const text = await resp.json()

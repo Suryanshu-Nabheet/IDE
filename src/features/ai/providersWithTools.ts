@@ -80,6 +80,7 @@ export async function* streamAIResponseWithTools(
         maxToolCalls?: number
         temperature?: number
         maxTokens?: number
+        signal?: AbortSignal
     }
 ): AsyncGenerator<StreamChunk, void, unknown> {
     const formattedTools = formatToolsForProvider(
@@ -237,6 +238,7 @@ async function* streamOpenAIWithTools(
                 ...extraHeaders,
             },
             body: JSON.stringify(requestBody),
+            signal: options?.signal,
         })
 
         if (!response.ok) {
@@ -419,6 +421,7 @@ async function* streamClaudeWithTools(
                 max_tokens: options?.maxTokens || 4096,
                 temperature: options?.temperature ?? 0.7,
             }),
+            signal: options?.signal,
         })
 
         if (!response.ok) {
@@ -571,6 +574,7 @@ async function* streamGeminiWithTools(
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody),
+                signal: options?.signal,
             }
         )
 

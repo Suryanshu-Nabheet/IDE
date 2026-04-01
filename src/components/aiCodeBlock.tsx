@@ -80,17 +80,11 @@ export function CodeBlock({
             <div className="code-block-header">
                 <div className="code-block-info">
                     {filename && (
-                        <>
-                            <FontAwesomeIcon
-                                icon={faFileCode}
-                                className="code-block-icon"
-                            />
-                            <span className="code-block-filename">
-                                {filename}
-                            </span>
-                        </>
+                        <span className="code-block-filename">
+                            {filename}
+                        </span>
                     )}
-                    <span className="code-block-language">{language}</span>
+                    <span className="code-block-language-tag">{language}</span>
                 </div>
                 <div className="code-block-actions">
                     {onApply && (
@@ -199,7 +193,42 @@ export function ToolCallCard({
         )
     }
 
-    const getToolLabel = (name: string) => {
+    const getToolLabel = (name: string, args: Record<string, any>) => {
+        if (name === 'read_file' || name === 'write_file' || name === 'edit_file') {
+            const path = args.TargetPath || args.TargetFile || args.path || args.filename
+            if (path) {
+                const parts = path.split('/')
+                const filename = parts[parts.length - 1]
+                return (
+                    <span className="tool-call-label-container">
+                        <span className="tool-call-action-name">
+                            {name.split('_')[0].charAt(0).toUpperCase() + name.split('_')[0].slice(1)}
+                        </span>
+                        <span className="tool-call-filename">{filename}</span>
+                    </span>
+                )
+            }
+        }
+        if (name === 'list_dir' || name === 'list_files') {
+            const path = args.DirectoryPath || args.path || './'
+            return (
+                <span className="tool-call-label-container">
+                    <span className="tool-call-action-name">List</span>
+                    <span className="tool-call-filename">{path}</span>
+                </span>
+            )
+        }
+        if (name === 'run_command') {
+            return (
+                <span className="tool-call-label-container">
+                    <span className="tool-call-action-name">Run</span>
+                    <span className="tool-call-filename" style={{ fontFamily: 'monospace' }}>
+                        {args.CommandLine?.slice(0, 30) || 'Command'}...
+                    </span>
+                </span>
+            )
+        }
+
         return name
             .split('_')
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -221,40 +250,36 @@ export function ToolCallCard({
                         {getToolIcon(toolName)}
                     </span>
                     <span className="tool-call-name">
-                        {getToolLabel(toolName)}
+                        {getToolLabel(toolName, args)}
                     </span>
 
                     {/* Status Indicators */}
-                    {needsApproval && !isExecuting && success === undefined && (
-                        <span className="tool-call-status tool-call-waiting-badge">
-                            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse mr-1.5" />
-                            Waiting for Approval
-                        </span>
-                    )}
+                    <div className="tool-call-status-right">
+                        {needsApproval && !isExecuting && success === undefined && (
+                            <span className="tool-call-status tool-call-waiting-badge">
+                                Pending
+                            </span>
+                        )}
 
-                    {isExecuting && (
-                        <span className="tool-call-status tool-call-executing">
-                            <FontAwesomeIcon
-                                icon={faBolt}
-                                className="animate-spin"
-                            />{' '}
-                            Executing
-                        </span>
-                    )}
-                    {success === true && (
-                        <span className="tool-call-status tool-call-success">
-                            <FontAwesomeIcon icon={faCheck} /> Success
-                        </span>
-                    )}
-                    {success === false && (
-                        <span className="tool-call-status tool-call-failed">
-                            <FontAwesomeIcon icon={faXmark} />{' '}
-                            {result === 'User rejected' ? 'Rejected' : 'Failed'}
-                        </span>
-                    )}
+                        {isExecuting && (
+                            <span className="tool-call-status tool-call-executing">
+                                <span className="loader-mini" />
+                            </span>
+                        )}
+                        {success === true && (
+                            <span className="tool-call-status tool-call-success">
+                                <FontAwesomeIcon icon={faCheck} />
+                            </span>
+                        )}
+                        {success === false && (
+                            <span className="tool-call-status tool-call-failed">
+                                <FontAwesomeIcon icon={faXmark} />
+                            </span>
+                        )}
+                    </div>
                 </div>
-                <button className="tool-call-expand">
-                    {isExpanded ? '▼' : '▶'}
+                <button className="tool-call-expand-icon">
+                    <FontAwesomeIcon icon={isExpanded ? faXmark : faListTree} style={{ opacity: 0.4 }} />
                 </button>
             </div>
 

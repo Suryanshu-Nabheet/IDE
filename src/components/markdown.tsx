@@ -452,45 +452,21 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
     const textareaRef = useRef<{ value: HTMLTextAreaElement | null }>({
         value: null,
     })
-    const dummyRef = useRef<
-        ReactTextareaAutocomplete<{
-            name: string
-            type: CodeSymbolType
-            path: string
-            summary: string
-            startIndex: number
-            endIndex: number
-        }>
-    >(null)
+    const rtaRef = useRef<any>(null)
 
     const getMsgType = useAppSelector(csel.getMsgType)
-    let placeholder = '...'
-    if (getMsgType == 'edit') {
+    let placeholder = 'Chat about the current file/selection...'
+    if (getMsgType === 'edit') {
         placeholder = 'Instructions for editing selection...'
-    } else if (getMsgType == 'freeform') {
-        placeholder = 'Chat about the current file/selection...'
-    } else if (getMsgType == 'generate') {
+    } else if (getMsgType === 'generate') {
         placeholder = 'Instructions for code to generate...'
-    } else if (getMsgType == 'chat_edit') {
+    } else if (getMsgType === 'chat_edit') {
         placeholder = 'Instructions for editing the current file...'
-    } else {
-        placeholder = 'Chat about the current file/selection...'
     }
 
     const builder = useRef<ContextBuilder>()
 
-    const getCompletions = useCallback<
-        (text: string) => Promise<
-            {
-                name: string
-                type: CodeSymbolType
-                path: string
-                summary: string
-                startIndex: number
-                endIndex: number
-            }[]
-        >
-    >(async (text: string) => {
+    const getCompletions = useCallback(async (text: string) => {
         return (await builder.current?.getCompletion(text, [])) || []
     }, [])
 
@@ -500,16 +476,8 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
         }
     }, [repoId])
 
-    // const draftMessage = useAppSelector(
-    //     (state) => state.chatState.draftMessages[converstationId]
-    // )
-    // const commandBarLinks =
-    //     draftMessage?.otherCodeBlocks.map((codeBlock, i) => {
-    //         return <CodeBlockLink key={i} index={i} codeBlock={codeBlock} />
-    //     }) ?? []
-
     return (
-        <ReactTextareaAutocomplete
+        <ReactTextareaAutocomplete<any>
             className="commandBar__input"
             placeholder={placeholder}
             loadingComponent={Loading}
@@ -518,18 +486,15 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
                     item.scrollIntoView({ block: 'nearest', inline: 'nearest' })
                 }
             }}
-            ref={dummyRef}
+            ref={rtaRef}
             rows={1}
             trigger={{
                 '`': {
                     dataProvider: async (token) => {
                         return getCompletions(token)
-                        // return emoji(token)
-                        //   .slice(0, 10)
-                        //   .map(({ name, char }) => ({ name, char }));
                     },
-                    component: Item,
-                    output: (item) => {
+                    component: Item as any,
+                    output: (item: any) => {
                         return (
                             '<|START_SPECIAL|>' +
                             JSON.stringify(item) +
@@ -546,7 +511,7 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
             }}
             value={currentDraft?.message || ''}
             autoFocus={autofocus}
-            onChange={(e) => {
+            onChange={(e: any) => {
                 if (e.target.value.includes('<|START_SPECIAL|>')) {
                     const start =
                         e.target.value.indexOf('<|START_SPECIAL|>') +
@@ -562,8 +527,6 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
                             type: item.type,
                         })
                     )
-                    // Change e.target.value to be the text before the special
-                    // and then add the special to the message
                     e.target.value =
                         e.target.value.slice(
                             0,
@@ -573,49 +536,36 @@ export function CommandBarInner({ autofocus }: { autofocus: boolean }) {
                         item.name +
                         '`' +
                         e.target.value.slice(end + '<|END_SPECIAL|>'.length)
-                    //return
                 }
-                textareaRef.current.value!.style.height = 'auto'
-                textareaRef.current.value!.style.height =
-                    textareaRef.current.value!.scrollHeight + 'px'
-                //getCompletions(e.target.value);
+                if (textareaRef.current.value) {
+                    textareaRef.current.value.style.height = 'auto'
+                    textareaRef.current.value.style.height =
+                        textareaRef.current.value.scrollHeight + 'px'
+                }
                 dispatch(cs.setCurrentDraftMessage(e.target.value))
             }}
-            // ref = {textareaRef}
-            innerRef={(ref) => void (textareaRef.current.value = ref)}
+            innerRef={(ref: any) => {
+                textareaRef.current.value = ref
+            }}
             onKeyDown={(e) => {
-                /**
-                 *  问题 兼容中文输入法时的冲突问题，中文输入法时enter键对应keycode是229，中文输入法关闭的时候keycode为13，所以增加一个keycode为13的条件即能解决此问题
-                 *  修改人：方晓
-                 *  公司：神策数据
-                 *  修改时间：2023年4月5号
-                 */
-                if (!e.shiftKey && e.key === 'Enter' && e.keyCode == 13) {
-                    // Don't submit an empty prompt
-                    if (textareaRef.current.value!.value.trim().length > 0) {
+                if (!e.shiftKey && e.key === 'Enter') {
+                    if (textareaRef.current.value?.value.trim().length) {
                         dispatch(ct.submitCommandBar(null))
                         e.preventDefault()
                     }
                 }
-                // if up arrow and control key
-                if (e.keyCode == 38 && e.ctrlKey) {
+                if (e.keyCode === 38 && e.ctrlKey) {
                     dispatch(cs.moveCommandBarHistory('up'))
                     e.preventDefault()
                 }
-                if (e.keyCode == 40 && e.ctrlKey) {
+                if (e.keyCode === 40 && e.ctrlKey) {
                     dispatch(cs.moveCommandBarHistory('down'))
                     e.preventDefault()
                 }
-                // if command j
-                if (e.keyCode == 74 && e.metaKey) {
+                if ((e.keyCode === 74 || e.keyCode === 75 || e.keyCode === 76) && e.metaKey) {
                     dispatch(cs.abortCommandBar())
                 }
-                // if command k
-                if ((e.keyCode == 75 || e.keyCode == 76) && e.metaKey) {
-                    dispatch(cs.abortCommandBar())
-                }
-                // if command z
-                if (e.keyCode == 90 && e.metaKey) {
+                if (e.keyCode === 90 && e.metaKey) {
                     dispatch(cs.abortCommandBar())
                 }
             }}
