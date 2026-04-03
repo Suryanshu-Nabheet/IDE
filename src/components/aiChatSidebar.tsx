@@ -1,12 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faPaperPlaneTop,
-    faXmark,
-    faSparkles,
-    faTrash,
-} from '@fortawesome/pro-regular-svg-icons'
+import { Codicon } from './codicon'
 import * as ts from '../features/tools/toolSlice'
 import { getActiveProviderAPIKey } from '../features/ai/apiKeyUtils'
 import { streamAIResponseWithTools } from '../features/ai/providersWithTools'
@@ -861,9 +855,9 @@ Active File: ${activeFilePath || 'No file open'}
                     style={{ borderTop: '1px solid var(--pane-border)' }}
                 >
                     <div className="ai-sidebar__header-left">
-                        <FontAwesomeIcon
-                            icon={faSparkles}
-                            style={{ color: 'var(--accent)', fontSize: '12px' }}
+                        <Codicon
+                            name="sparkle"
+                            style={{ color: 'var(--accent)', fontSize: '13px' }}
                         />
                         <span>AI Assistant</span>
                     </div>
@@ -873,7 +867,7 @@ Active File: ${activeFilePath || 'No file open'}
                         type="button"
                         title="Close AI Panel"
                     >
-                        <FontAwesomeIcon icon={faXmark} />
+                        <Codicon name="close" />
                     </button>
                 </div>
 
@@ -881,7 +875,7 @@ Active File: ${activeFilePath || 'No file open'}
                 <div className="ai-sidebar__messages" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                     <div className="ai-sidebar__empty">
                         <div className="ai-sidebar__empty-icon">
-                            <FontAwesomeIcon icon={faSparkles} />
+                            <Codicon name="sparkle" style={{ fontSize: '28px', color: 'var(--accent)' }} />
                         </div>
                         <div className="ai-sidebar__empty-text">
                             <div className="ai-sidebar__empty-title">AI Not Configured</div>
@@ -924,9 +918,9 @@ Active File: ${activeFilePath || 'No file open'}
                 style={{ borderTop: '1px solid var(--pane-border)' }}
             >
                 <div className="ai-sidebar__header-left">
-                    <FontAwesomeIcon
-                        icon={faSparkles}
-                        style={{ color: 'var(--accent)', fontSize: '12px' }}
+                    <Codicon
+                        name="sparkle"
+                        style={{ color: 'var(--accent)', fontSize: '13px' }}
                     />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                         <span>{providerDisplayName.provider}</span>
@@ -950,7 +944,7 @@ Active File: ${activeFilePath || 'No file open'}
                             title="Clear Chat"
                             type="button"
                         >
-                            <FontAwesomeIcon icon={faTrash} style={{ fontSize: '11px' }} />
+                            <Codicon name="trash" style={{ fontSize: '11px' }} />
                         </button>
                     )}
                     <button
@@ -959,7 +953,7 @@ Active File: ${activeFilePath || 'No file open'}
                         title="Close AI Panel (⌘L)"
                         type="button"
                     >
-                        <FontAwesomeIcon icon={faXmark} style={{ fontSize: '12px' }} />
+                        <Codicon name="close" style={{ fontSize: '12px' }} />
                     </button>
                 </div>
             </div>
@@ -969,7 +963,7 @@ Active File: ${activeFilePath || 'No file open'}
                 {messages.length === 0 && (
                     <div className="ai-sidebar__empty">
                         <div className="ai-sidebar__empty-icon">
-                            <FontAwesomeIcon icon={faSparkles} />
+                            <Codicon name="sparkle" style={{ fontSize: '28px', color: 'var(--accent)' }} />
                         </div>
                         <div className="ai-sidebar__empty-text">
                             <div className="ai-sidebar__empty-title">Start a conversation</div>
@@ -1215,9 +1209,7 @@ Active File: ${activeFilePath || 'No file open'}
                                     }} />
                                     Generating...
                                 </span>
-                            ) : (
-                                <span>↵ Send  · ⇧↵ New line</span>
-                            )}
+                            ) : null}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {isGenerating && (
@@ -1234,12 +1226,12 @@ Active File: ${activeFilePath || 'No file open'}
                                         color: 'white',
                                         border: 'none',
                                         cursor: 'pointer',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                     }}
                                     title="Stop Generation"
                                     type="button"
                                 >
-                                    <FontAwesomeIcon icon={faXmark} />
+                                    <Codicon name="close" />
                                 </button>
                             )}
                             <button
@@ -1263,7 +1255,7 @@ Active File: ${activeFilePath || 'No file open'}
                                 title="Send Message (Enter)"
                                 type="button"
                             >
-                                <FontAwesomeIcon icon={faPaperPlaneTop} />
+                                <Codicon name="send" style={{ fontSize: '12px' }} />
                             </button>
                         </div>
                     </div>

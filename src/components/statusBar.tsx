@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faCodeBranch,
-    faCircleCheck,
-    faCircleExclamation,
-    faBell,
-    faTowerBroadcast,
-} from '@fortawesome/pro-regular-svg-icons'
+import { Codicon } from './codicon'
 import { useAppSelector } from '../app/hooks'
 import { getRootPath, getCurrentFileId } from '../features/selectors'
 import { getSettings } from '../features/settings/settingsSelectors'
@@ -169,12 +162,12 @@ export const StatusBar = () => {
                     className="status-bar__item status-bar__item--main"
                     title="Language Server Status"
                 >
-                    <FontAwesomeIcon icon={faTowerBroadcast} className="mr-2" />
+                    <Codicon name="broadcast" style={{ marginRight: '6px', fontSize: '12px' }} />
                     <span>Connected</span>
                 </div>
                 {isRepo && gitBranch && (
                     <div className="status-bar__item" title="Git Branch">
-                        <FontAwesomeIcon icon={faCodeBranch} className="mr-2" />
+                        <Codicon name="git-branch" style={{ marginRight: '6px', fontSize: '12px' }} />
                         <span>
                             {gitBranch}
                             {gitChanges > 0 && `*`}
@@ -185,19 +178,24 @@ export const StatusBar = () => {
                     className="status-bar__item"
                     title={`${diagnosticsCount.errors} errors, ${diagnosticsCount.warnings} warnings`}
                 >
-                    <FontAwesomeIcon
-                        icon={
+                    <Codicon
+                        name={
                             diagnosticsCount.errors > 0
-                                ? faCircleExclamation
-                                : faCircleCheck
-                        }
-                        className={`mr-2 ${
-                            diagnosticsCount.errors > 0
-                                ? 'text-red-400'
+                                ? 'error'
                                 : diagnosticsCount.warnings > 0
-                                ? 'text-yellow-400'
-                                : 'text-green-400'
-                        }`}
+                                ? 'warning'
+                                : 'check'
+                        }
+                        style={{
+                            marginRight: '6px',
+                            fontSize: '12px',
+                            color:
+                                diagnosticsCount.errors > 0
+                                    ? 'var(--color-error)'
+                                    : diagnosticsCount.warnings > 0
+                                    ? 'var(--color-warning)'
+                                    : 'var(--color-success)',
+                        }}
                     />
                     <span>{totalProblems}</span>
                 </div>
@@ -223,7 +221,7 @@ export const StatusBar = () => {
                     <span>{fileInfo.language}</span>
                 </div>
                 <div className="status-bar__item" title="Notifications">
-                    <FontAwesomeIcon icon={faBell} />
+                    <Codicon name="bell" style={{ fontSize: '12px' }} />
                 </div>
             </div>
         </div>

@@ -1,35 +1,7 @@
 import React, { useEffect } from 'react'
 
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faFileCode,
-    faFileLines,
-    faFileCirclePlus,
-    faFolderPlus,
-    faPuzzlePiece,
-    faPalette,
-    faVial,
-    faImages,
-    faCube,
-} from '@fortawesome/pro-regular-svg-icons'
-import {
-    faChevronDown,
-    faChevronRight,
-    faFolder,
-    faFolderOpen,
-    faFile,
-    faCode,
-    faGear,
-    faImage,
-    faFilePdf,
-    faFileCsv,
-    faFileArchive,
-    faTerminal as faTerminalIcon,
-    faDatabase,
-    faCircle as faCircleSolid,
-    faRotateRight,
-} from '@fortawesome/free-solid-svg-icons'
+import { Codicon } from './codicon'
 import * as gs from '../features/globalSlice'
 
 import {
@@ -48,118 +20,64 @@ export function getIconElement(fname: string) {
 
     // exact names
     if (fname.toLowerCase() === 'package.json')
-        return (
-            <FontAwesomeIcon icon={faGear} className="file-icon icon--json" />
-        )
+        return <Codicon name="gear" className="file-icon icon--json" />
     if (fname.toLowerCase().includes('config'))
-        return (
-            <FontAwesomeIcon icon={faGear} className="file-icon icon--config" />
-        )
+        return <Codicon name="gear" className="file-icon icon--config" />
     if (fname.toLowerCase().startsWith('readme'))
-        return (
-            <FontAwesomeIcon
-                icon={faFileLines}
-                className="file-icon icon--md"
-            />
-        )
+        return <Codicon name="markdown" className="file-icon icon--md" />
     if (fname.toLowerCase().includes('license'))
-        return (
-            <FontAwesomeIcon
-                icon={faFileCode}
-                className="file-icon icon--config"
-            />
-        )
+        return <Codicon name="file-text" className="file-icon icon--config" />
 
     // language mappings
     if (['js', 'cjs', 'mjs'].includes(ext))
-        return <FontAwesomeIcon icon={faCode} className="file-icon icon--js" />
+        return <Codicon name="file-code" className="file-icon icon--js" />
     if (ext === 'ts')
-        return <FontAwesomeIcon icon={faCode} className="file-icon icon--ts" />
+        return <Codicon name="file-code" className="file-icon icon--ts" />
     if (ext === 'tsx' || ext === 'jsx')
-        return (
-            <FontAwesomeIcon icon={faCode} className="file-icon icon--react" />
-        )
+        return <Codicon name="file-code" className="file-icon icon--react" />
     if (ext === 'py')
-        return <FontAwesomeIcon icon={faCode} className="file-icon icon--py" />
+        return <Codicon name="file-code" className="file-icon icon--py" />
     if (ext === 'html' || ext === 'htm')
-        return (
-            <FontAwesomeIcon icon={faCode} className="file-icon icon--html" />
-        )
+        return <Codicon name="file-code" className="file-icon icon--html" />
     if (['css', 'scss', 'sass', 'less'].includes(ext))
-        return <FontAwesomeIcon icon={faCode} className="file-icon icon--css" />
+        return <Codicon name="symbol-color" className="file-icon icon--css" />
     if (ext === 'md' || ext === 'markdown')
-        return (
-            <FontAwesomeIcon
-                icon={faFileLines}
-                className="file-icon icon--md"
-            />
-        )
+        return <Codicon name="markdown" className="file-icon icon--md" />
     if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico'].includes(ext))
-        return (
-            <FontAwesomeIcon icon={faImage} className="file-icon icon--img" />
-        )
+        return <Codicon name="file-media" className="file-icon icon--img" />
     if (['sh', 'bash', 'zsh', 'bat', 'cmd', 'ps1'].includes(ext))
-        return (
-            <FontAwesomeIcon
-                icon={faTerminalIcon}
-                className="file-icon icon--config"
-            />
-        )
+        return <Codicon name="terminal" className="file-icon icon--config" />
     if (ext === 'pdf')
-        return (
-            <FontAwesomeIcon
-                icon={faFilePdf}
-                className="file-icon icon--config"
-            />
-        )
+        return <Codicon name="file-pdf" className="file-icon icon--config" />
     if (ext === 'csv')
-        return (
-            <FontAwesomeIcon
-                icon={faFileCsv}
-                className="file-icon icon--config"
-            />
-        )
+        return <Codicon name="table" className="file-icon icon--config" />
     if (['zip', 'tar', 'gz', 'rar', '7z'].includes(ext))
-        return (
-            <FontAwesomeIcon
-                icon={faFileArchive}
-                className="file-icon icon--config"
-            />
-        )
+        return <Codicon name="file-binary" className="file-icon icon--config" />
     if (ext === 'sql' || ext === 'db')
-        return (
-            <FontAwesomeIcon
-                icon={faDatabase}
-                className="file-icon icon--config"
-            />
-        )
+        return <Codicon name="database" className="file-icon icon--config" />
 
-    return <FontAwesomeIcon icon={faFile} className="file-icon opacity-40" />
+    return <Codicon name="file" className="file-icon" style={{ opacity: 0.4 }} />
 }
 
-function getFolderIcon(name: string, isOpen: boolean) {
+function getFolderIcon(name: string, isOpen: boolean): { codiconName: string; className: string } {
     const lname = name.toLowerCase()
 
-    // Coordination colors for folders
     if (lname === '.github' || lname === '.git')
-        return {
-            icon: isOpen ? faFolderOpen : faFolder,
-            className: 'icon--config',
-        }
+        return { codiconName: isOpen ? 'folder-opened' : 'folder', className: 'icon--config' }
     if (lname === 'node_modules' || lname === 'dist' || lname === 'build')
-        return { icon: faCube, className: 'icon--config' }
+        return { codiconName: 'package', className: 'icon--config' }
     if (lname === 'src')
-        return { icon: isOpen ? faFolderOpen : faFolder, className: 'icon--ts' }
+        return { codiconName: isOpen ? 'folder-opened' : 'folder', className: 'icon--ts' }
     if (lname === 'components')
-        return { icon: faPuzzlePiece, className: 'icon--react' }
+        return { codiconName: 'extensions', className: 'icon--react' }
     if (lname === 'assets' || lname === 'public')
-        return { icon: faImages, className: 'icon--img' }
+        return { codiconName: 'file-media', className: 'icon--img' }
     if (lname === 'tests' || lname === '__tests__')
-        return { icon: faVial, className: 'icon--py' }
+        return { codiconName: 'beaker', className: 'icon--py' }
     if (lname === 'theme' || lname === 'styles')
-        return { icon: faPalette, className: 'icon--css' }
+        return { codiconName: 'symbol-color', className: 'icon--css' }
 
-    return { icon: isOpen ? faFolderOpen : faFolder, className: 'icon--folder' }
+    return { codiconName: isOpen ? 'folder-opened' : 'folder', className: 'icon--folder' }
 }
 
 function File({ fid }: { fid: number }) {
@@ -211,8 +129,8 @@ function File({ fid }: { fid: number }) {
             )}
             {!file.saved && (
                 <div className="file__status">
-                    <FontAwesomeIcon
-                        icon={faCircleSolid}
+                    <Codicon
+                        name="circle-filled"
                         style={{ fontSize: '6px', color: 'var(--amber)' }}
                     />
                 </div>
@@ -251,19 +169,19 @@ function Folder({ fid }: { fid: number }) {
                 }}
             >
                 <div className="folder__icon">
-                    <FontAwesomeIcon
-                        icon={isOpen ? faChevronDown : faChevronRight}
+                    <Codicon
+                        name={isOpen ? 'chevron-down' : 'chevron-right'}
                         style={{ fontSize: '10px', opacity: 0.5 }}
                     />
                 </div>
                 {(() => {
-                    const { icon, className } = getFolderIcon(
+                    const { codiconName, className } = getFolderIcon(
                         folder.name,
                         isOpen
                     )
                     return (
-                        <FontAwesomeIcon
-                            icon={icon}
+                        <Codicon
+                            name={codiconName}
                             className={`file-icon ${className}`}
                             style={{
                                 marginRight: '8px',
@@ -317,7 +235,7 @@ function Folder({ fid }: { fid: number }) {
                             dispatch(gs.newFile({ parentFolderId: fid }))
                         }}
                     >
-                        <FontAwesomeIcon icon={faFileCirclePlus} />
+                        <Codicon name="new-file" style={{ fontSize: '12px' }} />
                     </div>
                     <div
                         className="folder__hoverbutton"
@@ -326,7 +244,7 @@ function Folder({ fid }: { fid: number }) {
                             dispatch(gs.newFolder({ parentFolderId: fid }))
                         }}
                     >
-                        <FontAwesomeIcon icon={faFolderPlus} />
+                        <Codicon name="new-folder" style={{ fontSize: '12px' }} />
                     </div>
                 </div>
             </div>
@@ -402,12 +320,9 @@ export function FileTree() {
                     className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
                     onClick={toggleOpen}
                 >
-                    <FontAwesomeIcon
-                        icon={isOpen ? faChevronDown : faChevronRight}
-                        style={{
-                            fontSize: '9px',
-                            opacity: 0.7,
-                        }}
+                    <Codicon
+                        name={isOpen ? 'chevron-down' : 'chevron-right'}
+                        style={{ fontSize: '9px', opacity: 0.7 }}
                     />
                     <div className="truncate font-bold text-[11px]">
                         {rootFolder.name}
@@ -427,10 +342,7 @@ export function FileTree() {
                         title="New File"
                         type="button"
                     >
-                        <FontAwesomeIcon
-                            icon={faFileCirclePlus}
-                            className="text-xs"
-                        />
+                        <Codicon name="new-file" style={{ fontSize: '13px' }} />
                     </button>
                     <button
                         className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--ui-hover)] text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] transition-colors"
@@ -443,10 +355,7 @@ export function FileTree() {
                         title="New Folder"
                         type="button"
                     >
-                        <FontAwesomeIcon
-                            icon={faFolderPlus}
-                            className="text-xs"
-                        />
+                        <Codicon name="new-folder" style={{ fontSize: '13px' }} />
                     </button>
                     <button
                         className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--ui-hover)] text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] transition-colors"
@@ -462,10 +371,7 @@ export function FileTree() {
                         title="Refresh Explorer"
                         type="button"
                     >
-                        <FontAwesomeIcon
-                            icon={faRotateRight}
-                            className="text-xs"
-                        />
+                        <Codicon name="refresh" style={{ fontSize: '13px' }} />
                     </button>
                 </div>
             </div>

@@ -114,6 +114,7 @@
         "@types/react-modal": "^3.13.1",
         "@uiw/codemirror-theme-vscode": "^4.19.4",
         "@uiw/codemirror-themes-all": "^4.19.4",
+        "@vscode/codicons": "^0.0.45",
         "@webscopeio/react-textarea-autocomplete": "^4.9.2",
         "adm-zip": "^0.5.10",
         "await-semaphore": "^0.1.3",

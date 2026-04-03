@@ -12,15 +12,7 @@ import {
     collapseLeftSide,
     expandLeftSide,
 } from '../features/tools/toolSlice'
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faFiles,
-    faMagnifyingGlass,
-    faCodeBranch,
-    faPuzzlePiece,
-} from '@fortawesome/pro-regular-svg-icons'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { Codicon } from './codicon'
 
 export const ActivityBar = () => {
     const dispatch = useAppDispatch()
@@ -49,10 +41,10 @@ export const ActivityBar = () => {
     }
 
     const navItems = [
-        { id: 'filetree', icon: faFiles, title: 'Explorer' },
-        { id: 'search', icon: faMagnifyingGlass, title: 'Search' },
-        { id: 'git', icon: faCodeBranch, title: 'Source Control' },
-        { id: 'extensions', icon: faPuzzlePiece, title: 'Extensions' },
+        { id: 'filetree', icon: 'files', title: 'Explorer' },
+        { id: 'search', icon: 'search', title: 'Search' },
+        { id: 'git', icon: 'source-control', title: 'Source Control' },
+        { id: 'extensions', icon: 'extensions', title: 'Extensions' },
     ]
 
     return (
@@ -74,9 +66,9 @@ export const ActivityBar = () => {
                         title={item.title}
                         type="button"
                     >
-                        <FontAwesomeIcon
-                            icon={item.icon}
-                            className="text-[15px]"
+                        <Codicon
+                            name={item.icon}
+                            style={{ fontSize: '16px' }}
                         />
                     </button>
                 ))}
@@ -98,10 +90,7 @@ export const ActivityBar = () => {
                     title="More Views"
                     type="button"
                 >
-                    <FontAwesomeIcon
-                        icon={faChevronDown}
-                        className="text-[11px]"
-                    />
+                    <Codicon name="chevron-down" style={{ fontSize: '11px' }} />
                 </button>
             </div>
 

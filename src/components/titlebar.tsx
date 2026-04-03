@@ -8,16 +8,7 @@ import * as gsel from '../features/selectors'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { useEffect, useState } from 'react'
 import SearchFiles from './searchFiles'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faCog,
-    faMinus,
-    faSparkles,
-    faSidebar,
-    faSquare,
-    faSquareTerminal,
-    faTimes,
-} from '@fortawesome/pro-regular-svg-icons'
+import { Codicon } from './codicon'
 
 function Menu({
     title,
@@ -226,7 +217,7 @@ function WindowsFrameButtons() {
                     connector.minimize()
                 }}
             >
-                <FontAwesomeIcon icon={faMinus} />
+                <Codicon name="chrome-minimize" />
             </div>
             <div
                 className="titlebar__right_button"
@@ -234,7 +225,7 @@ function WindowsFrameButtons() {
                     connector.maximize()
                 }}
             >
-                <FontAwesomeIcon icon={faSquare} />
+                <Codicon name="chrome-maximize" />
             </div>
             <div
                 className="titlebar__right_button windows__closebutton"
@@ -242,7 +233,7 @@ function WindowsFrameButtons() {
                     connector.close()
                 }}
             >
-                <FontAwesomeIcon icon={faTimes} />
+                <Codicon name="chrome-close" />
             </div>
         </div>
     )
@@ -352,7 +343,7 @@ export function TitleBar({
                             }}
                             title="Toggle Sidebar (⌘B)"
                         >
-                            <FontAwesomeIcon icon={faSidebar} />
+                            <Codicon name="layout-sidebar-left" />
                         </div>
 
                         <div
@@ -362,7 +353,7 @@ export function TitleBar({
                             }}
                             title="AI Assistant (⌘K)"
                         >
-                            <FontAwesomeIcon icon={faSparkles} />
+                            <Codicon name="sparkle" />
                         </div>
 
                         <div
@@ -372,7 +363,7 @@ export function TitleBar({
                             }}
                             title="Toggle Terminal (⌃`)"
                         >
-                            <FontAwesomeIcon icon={faSquareTerminal} />
+                            <Codicon name="terminal" />
                         </div>
 
                         <div
@@ -382,7 +373,7 @@ export function TitleBar({
                             }}
                             title="Settings (⌘,)"
                         >
-                            <FontAwesomeIcon icon={faCog} />
+                            <Codicon name="gear" />
                         </div>
                     </div>
                 )}
