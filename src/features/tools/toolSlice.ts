@@ -14,7 +14,9 @@ const initialState: ToolState = {
 const untriggerAll = (state: ToolState) => {
     state.fileSearchTriggered = false
     state.commandPaletteTriggered = false
-    state.aiCommandPaletteTriggered = false
+    // NOTE: aiCommandPaletteTriggered is intentionally NOT cleared here.
+    // The AI sidebar is a persistent panel (like the file tree), not a popup.
+    // Only triggerAICommandPalette (toggle) or untriggerAICommandPalette explicitly close it.
 }
 
 export const toolSlice = createSlice({
@@ -63,7 +65,8 @@ export const toolSlice = createSlice({
             state.aiCommandPaletteTriggered = newAICommandPaletteTriggered
         },
         untriggerAICommandPalette: (state: ToolState) => {
-            untriggerAll(state)
+            // Only close the AI sidebar — do NOT clear other palettes
+            state.aiCommandPaletteTriggered = false
         },
         untriggerCommandPalette: (state: ToolState) => {
             untriggerAll(state)

@@ -130,6 +130,19 @@ export function applyThemeToRoot(theme: ThemeColors) {
     root.style.setProperty('--any-fg', theme.foreground)
     root.style.setProperty('--chat-text', theme.foreground)
 
+    // Typed text vars - used by theme/index.css references to --text-primary etc.
+    root.style.setProperty('--text-primary', theme.foreground)
+    root.style.setProperty('--text-secondary', theme.sidebarForeground)
+    root.style.setProperty('--text-tertiary', theme.comment || '#858585')
+
+    // White/Black helpers - dynamic per theme type
+    root.style.setProperty('--white', '#ffffff')
+    root.style.setProperty('--white-soft', '#f3f3f3')
+
+    // Autofill override variables - theme-aware so autofill doesn't break light themes
+    root.style.setProperty('--autofill-bg', theme.itemHoverBackground)
+    root.style.setProperty('--autofill-fg', theme.foreground)
+
     // Muted Foregrounds - Cursor IDE / VS Code
     root.style.setProperty('--ui-fg-muted', '#858585')
     root.style.setProperty('--any-fg-muted', '#858585')
@@ -270,7 +283,6 @@ export function applyThemeToRoot(theme: ThemeColors) {
     root.style.setProperty('--tab-hover', theme.itemHoverBackground)
     root.style.setProperty('--tab-hover-bg', theme.itemHoverBackground)
     root.style.setProperty('--titlebar-button-hover', theme.itemHoverBackground)
-    root.style.setProperty('--accent-hover', theme.itemHoverBackground)
 
     // ═══════════════════════════════════════════════════════════════════════
     // SELECTED STATES - Cursor IDE / VS Code
@@ -285,9 +297,31 @@ export function applyThemeToRoot(theme: ThemeColors) {
     // ═══════════════════════════════════════════════════════════════════════
     root.style.setProperty('--accent', '#007acc')
     root.style.setProperty('--accent-rgb', '0, 122, 204') // For rgba() usage
+    root.style.setProperty('--accent-hover', '#1ba1e2')
     root.style.setProperty('--blue', '#007acc')
     root.style.setProperty('--blue-light', '#1ba1e2')
     root.style.setProperty('--sidebar-selected-accent', '#007acc')
+
+    // Semantic colors - these remain stable as they reference standard meanings
+    root.style.setProperty('--color-success', '#4ade80')
+    root.style.setProperty('--color-error', '#f87171')
+    root.style.setProperty('--color-warning', '#facc15')
+    root.style.setProperty('--color-info', '#007acc')
+
+    // Purple for AI annotations (stable semantic color)
+    root.style.setProperty('--purple', '#c586c0')
+
+    // Glass/overlay helpers - computed from theme values
+    root.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.04)')
+    root.style.setProperty('--glass-subtle', 'rgba(0, 0, 0, 0.06)')
+    root.style.setProperty('--glass-hover', 'rgba(0, 0, 0, 0.08)')
+    root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.1)')
+
+    // Shadow overlays - stable
+    root.style.setProperty('--shadow-overlay-sm', 'rgba(0, 0, 0, 0.15)')
+    root.style.setProperty('--shadow-overlay-md', 'rgba(0, 0, 0, 0.3)')
+    root.style.setProperty('--shadow-overlay-lg', 'rgba(0, 0, 0, 0.5)')
+    root.style.setProperty('--shadow-overlay-xl', 'rgba(0, 0, 0, 0.7)')
 
     // ═══════════════════════════════════════════════════════════════════════
     // ACTIVITY BAR - Cursor IDE / VS Code
@@ -402,6 +436,19 @@ export function applyThemeToRoot(theme: ThemeColors) {
     root.style.setProperty('--any-fg', theme.foreground)
     root.style.setProperty('--any-fg-muted', '#858585')
     root.style.setProperty('--any-tag', '#007acc')
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // BRACKET COLORIZATION - Stable semantic colors
+    // ═══════════════════════════════════════════════════════════════════════
+    root.style.setProperty('--bracket-1', '#f9d949')
+    root.style.setProperty('--bracket-2', '#bf6fc3')
+    root.style.setProperty('--bracket-3', '#4a9df8')
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // BORDER VARIANTS
+    // ═══════════════════════════════════════════════════════════════════════
+    root.style.setProperty('--ui-border-hover', theme.selection || theme.itemHoverBackground)
+    root.style.setProperty('--ui-border-subtle', theme.itemHoverBackground)
 }
 
 /**

@@ -13,6 +13,38 @@
     --blue-accent: #3b82f6;          /* Bright blue for buttons, selections */
     --blue-dim: #2563eb;             /* Darker blue for hover */
     --blue-glow: rgba(59, 130, 246, 0.15); /* Subtle glow effect */
+
+    /* Typography Color Scale - Core Text */
+    --text-primary: #e5e5e5;         /* Primary text - set by themeSync */
+    --text-secondary: #cccccc;       /* Secondary text */
+    --text-tertiary: #858585;        /* Muted/tertiary text */
+
+    /* White/Black helpers */
+    --white: #ffffff;
+    --white-soft: #f3f3f3;
+
+    /* Shadow overlay helpers - adaptive */
+    --shadow-overlay-sm: rgba(0, 0, 0, 0.15);
+    --shadow-overlay-md: rgba(0, 0, 0, 0.3);
+    --shadow-overlay-lg: rgba(0, 0, 0, 0.5);
+    --shadow-overlay-xl: rgba(0, 0, 0, 0.7);
+
+    /* Semantic state colors */
+    --color-success: #4ade80;        /* Success state */
+    --color-error: #f87171;          /* Error state */
+    --color-warning: #facc15;        /* Warning state */
+    --color-info: var(--blue-accent); /* Info state */
+
+    /* Bracket colorization */
+    --bracket-1: #f9d949;
+    --bracket-2: #bf6fc3;
+    --bracket-3: #4a9df8;
+
+    /* Glass/overlay backgrounds (theme-agnostic) */
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --glass-subtle: rgba(255, 255, 255, 0.05);
     
     /* Typography */
     --font-mono: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace;

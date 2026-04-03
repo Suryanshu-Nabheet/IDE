@@ -356,7 +356,7 @@ export function TitleBar({
                         </div>
 
                         <div
-                            className="titlebar__ai_button"
+                            className="titlebar__right_button titlebar__ai_button--active"
                             onClick={() => {
                                 dispatch(ts.triggerAICommandPalette())
                             }}

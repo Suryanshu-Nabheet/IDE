@@ -854,49 +854,62 @@ Active File: ${activeFilePath || 'No file open'}
     // --- RENDER: Not Configured State ---
     if (!isAIConfigured) {
         return (
-            <div className="h-full flex flex-col bg-[var(--sidebar-bg)] border-l border-[var(--ui-border)]">
-                {/* Header */}
-                <div className="h-[42px] min-h-[42px] flex items-center justify-between px-4 border-b border-[var(--ui-border)] bg-[var(--sidebar-bg)]">
-                    <div className="flex items-center gap-2">
+            <div className="ai-sidebar">
+                {/* Header - matches filetree__project-header style */}
+                <div
+                    className="ai-sidebar__header"
+                    style={{ borderTop: '1px solid var(--pane-border)' }}
+                >
+                    <div className="ai-sidebar__header-left">
                         <FontAwesomeIcon
                             icon={faSparkles}
-                            className="text-[var(--accent)] text-sm"
+                            style={{ color: 'var(--accent)', fontSize: '12px' }}
                         />
-                        <span className="text-xs font-semibold text-[var(--ui-fg)]">
-                            AI Assistant
-                        </span>
+                        <span>AI Assistant</span>
                     </div>
                     <button
                         onClick={handleClose}
-                        className="w-7 h-7 flex items-center justify-center rounded-md text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)] transition-colors"
+                        className="ai-sidebar__close-btn"
                         type="button"
+                        title="Close AI Panel"
                     >
-                        <FontAwesomeIcon icon={faXmark} className="text-sm" />
+                        <FontAwesomeIcon icon={faXmark} />
                     </button>
                 </div>
 
-                {/* Empty State */}
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                    <div className="w-16 h-16 rounded-full bg-[var(--ui-bg-elevated)] flex items-center justify-center mb-4">
-                        <FontAwesomeIcon
-                            icon={faSparkles}
-                            className="text-2xl text-[var(--accent)]"
-                        />
+                {/* Not Configured State */}
+                <div className="ai-sidebar__messages" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                    <div className="ai-sidebar__empty">
+                        <div className="ai-sidebar__empty-icon">
+                            <FontAwesomeIcon icon={faSparkles} />
+                        </div>
+                        <div className="ai-sidebar__empty-text">
+                            <div className="ai-sidebar__empty-title">AI Not Configured</div>
+                            <div className="ai-sidebar__empty-subtitle">
+                                Configure an AI provider (Ollama, OpenAI, Claude, etc.) to start chatting.
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleConfigureAI}
+                            style={{
+                                marginTop: '8px',
+                                padding: '8px 20px',
+                                backgroundColor: 'var(--accent)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: 'var(--radius-md)',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                                transition: 'background-color 0.15s ease',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent-hover)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent)')}
+                            type="button"
+                        >
+                            Configure AI Provider
+                        </button>
                     </div>
-                    <h3 className="text-base font-semibold text-[var(--ui-fg)] mb-2">
-                        AI Not Configured
-                    </h3>
-                    <p className="text-xs text-[var(--ui-fg-muted)] mb-6 max-w-[280px]">
-                        Configure an AI provider (Ollama, OpenAI, Claude, etc.)
-                        to start chatting with your AI assistant.
-                    </p>
-                    <button
-                        onClick={handleConfigureAI}
-                        className="px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg text-xs font-medium transition-colors shadow-sm"
-                        type="button"
-                    >
-                        Configure AI Provider
-                    </button>
                 </div>
             </div>
         )
@@ -904,59 +917,66 @@ Active File: ${activeFilePath || 'No file open'}
 
     // --- RENDER: Main Chat Interface ---
     return (
-        <div className="h-full flex flex-col bg-[var(--sidebar-bg)] border-l border-[var(--ui-border)]">
-            {/* Header */}
-            <div className="h-[42px] min-h-[42px] flex items-center justify-between px-4 border-b border-[var(--ui-border)] bg-[var(--sidebar-bg)]">
-                <div className="flex items-center gap-2">
+        <div className="ai-sidebar">
+            {/* Header - mirrors filetree__project-header exactly */}
+            <div
+                className="ai-sidebar__header"
+                style={{ borderTop: '1px solid var(--pane-border)' }}
+            >
+                <div className="ai-sidebar__header-left">
                     <FontAwesomeIcon
                         icon={faSparkles}
-                        className="text-[var(--accent)] text-sm"
+                        style={{ color: 'var(--accent)', fontSize: '12px' }}
                     />
-                    <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-[var(--ui-fg)]">
-                            {providerDisplayName.provider}
-                        </span>
-                        <span className="text-[9px] text-[var(--ui-fg-muted)]">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                        <span>{providerDisplayName.provider}</span>
+                        <span style={{
+                            fontSize: '9px',
+                            fontWeight: 400,
+                            textTransform: 'none',
+                            letterSpacing: 0,
+                            color: 'var(--ui-fg-muted)',
+                            opacity: 0.8,
+                        }}>
                             {providerDisplayName.model}
                         </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                     {messages.length > 0 && (
                         <button
                             onClick={handleClearChat}
-                            className="w-7 h-7 flex items-center justify-center rounded-md text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)] transition-colors"
+                            className="ai-sidebar__close-btn"
                             title="Clear Chat"
                             type="button"
                         >
-                            <FontAwesomeIcon
-                                icon={faTrash}
-                                className="text-xs"
-                            />
+                            <FontAwesomeIcon icon={faTrash} style={{ fontSize: '11px' }} />
                         </button>
                     )}
                     <button
                         onClick={handleClose}
-                        className="w-7 h-7 flex items-center justify-center rounded-md text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)] transition-colors"
-                        title="Close"
+                        className="ai-sidebar__close-btn"
+                        title="Close AI Panel (⌘L)"
                         type="button"
                     >
-                        <FontAwesomeIcon icon={faXmark} className="text-sm" />
+                        <FontAwesomeIcon icon={faXmark} style={{ fontSize: '12px' }} />
                     </button>
                 </div>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 min-h-0">
-                {/* REMOVED sticky PlanCard */}
+            <div className="ai-sidebar__messages">
                 {messages.length === 0 && (
-                    <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
-                        <p className="text-sm font-medium text-[var(--ui-fg)] mb-1">
-                            Start a conversation
-                        </p>
-                        <p className="text-xs text-[var(--ui-fg-muted)]">
-                            Ask anything or use @ for context
-                        </p>
+                    <div className="ai-sidebar__empty">
+                        <div className="ai-sidebar__empty-icon">
+                            <FontAwesomeIcon icon={faSparkles} />
+                        </div>
+                        <div className="ai-sidebar__empty-text">
+                            <div className="ai-sidebar__empty-title">Start a conversation</div>
+                            <div className="ai-sidebar__empty-subtitle">
+                                Ask anything about your code, get suggestions, or use tools to edit files.
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -1137,9 +1157,22 @@ Active File: ${activeFilePath || 'No file open'}
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <div className="p-4 bg-[var(--sidebar-bg)] border-t border-[var(--ui-border)]">
-                <div className="relative bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg focus-within:border-[var(--accent)] transition-colors">
+            {/* Input Area — full-width, flush bottom */}
+            <div style={{
+                padding: '12px',
+                backgroundColor: 'var(--sidebar-bg)',
+                borderTop: '1px solid var(--ui-border)',
+                flexShrink: 0,
+            }}>
+                <div style={{
+                    position: 'relative',
+                    backgroundColor: 'var(--input-bg)',
+                    border: '1px solid var(--input-border)',
+                    borderRadius: 'var(--radius-md)',
+                    transition: 'border-color 0.15s ease',
+                }}
+                    onFocus={() => {/* focus handled by CSS */}}
+                >
                     <textarea
                         ref={textareaRef}
                         value={input}
@@ -1147,53 +1180,90 @@ Active File: ${activeFilePath || 'No file open'}
                         onKeyDown={handleKeyDown}
                         placeholder="Ask anything... (Shift+Enter for new line)"
                         rows={1}
-                        className="w-full bg-transparent text-[var(--input-fg)] placeholder-[var(--input-placeholder)] text-[13px] focus:outline-none resize-none px-4 py-3"
-                        disabled={isGenerating}
                         style={{
+                            width: '100%',
+                            backgroundColor: 'transparent',
+                            color: 'var(--input-fg)',
+                            fontSize: '13px',
                             fontFamily: 'var(--font-mono)',
+                            outline: 'none',
+                            resize: 'none',
+                            padding: '10px 14px',
                             maxHeight: '200px',
+                            display: 'block',
+                            border: 'none',
                         }}
+                        disabled={isGenerating}
                     />
-                    <div className="flex justify-between items-center px-4 pb-3">
-                        <div className="text-[10px] text-[var(--ui-fg-muted)]">
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '0 12px 10px',
+                        gap: '8px',
+                    }}>
+                        <div style={{ fontSize: '10px', color: 'var(--ui-fg-muted)' }}>
                             {isGenerating ? (
-                                <span className="flex items-center gap-1">
-                                    <span className="inline-block w-1 h-1 bg-[var(--accent)] rounded-full animate-pulse" />
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <span style={{
+                                        display: 'inline-block',
+                                        width: '6px',
+                                        height: '6px',
+                                        backgroundColor: 'var(--accent)',
+                                        borderRadius: '50%',
+                                        animation: 'pulse 1.5s infinite',
+                                    }} />
                                     Generating...
                                 </span>
                             ) : (
-                                <span>Press Enter to send</span>
+                                <span>↵ Send  · ⇧↵ New line</span>
                             )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {isGenerating && (
                                 <button
                                     onClick={handleStopGeneration}
-                                    className="w-7 h-7 flex items-center justify-center rounded-md bg-[var(--button-danger)] text-white hover:opacity-90 transition-opacity"
+                                    style={{
+                                        width: '26px',
+                                        height: '26px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: 'var(--radius-sm)',
+                                        backgroundColor: 'var(--button-danger)',
+                                        color: 'white',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '11px',
+                                    }}
                                     title="Stop Generation"
                                     type="button"
                                 >
-                                    <FontAwesomeIcon
-                                        icon={faXmark}
-                                        className="text-xs"
-                                    />
+                                    <FontAwesomeIcon icon={faXmark} />
                                 </button>
                             )}
                             <button
                                 onClick={handleSend}
                                 disabled={!input.trim() || isGenerating}
-                                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${
-                                    !input.trim() || isGenerating
-                                        ? 'text-[var(--ui-fg-muted)] opacity-40 cursor-not-allowed'
-                                        : 'bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] shadow-sm'
-                                }`}
-                                title="Send Message"
+                                style={{
+                                    width: '26px',
+                                    height: '26px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 'var(--radius-sm)',
+                                    backgroundColor: !input.trim() || isGenerating ? 'transparent' : 'var(--accent)',
+                                    color: !input.trim() || isGenerating ? 'var(--ui-fg-muted)' : 'white',
+                                    border: 'none',
+                                    cursor: !input.trim() || isGenerating ? 'not-allowed' : 'pointer',
+                                    opacity: !input.trim() || isGenerating ? 0.35 : 1,
+                                    fontSize: '11px',
+                                    transition: 'all 0.15s ease',
+                                }}
+                                title="Send Message (Enter)"
                                 type="button"
                             >
-                                <FontAwesomeIcon
-                                    icon={faPaperPlaneTop}
-                                    className="text-xs"
-                                />
+                                <FontAwesomeIcon icon={faPaperPlaneTop} />
                             </button>
                         </div>
                     </div>
