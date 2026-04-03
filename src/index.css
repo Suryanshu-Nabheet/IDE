@@ -328,6 +328,7 @@ body {
 }
 
 .app__lefttopwrapper {
+    min-width: 250px;
     flex-direction: column;
     width: 250px;
     background-color: var(--sidebar-bg);
@@ -341,6 +342,7 @@ body {
     will-change: transform;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    min-width: 250px; /* Match standard IDE minimum widths */
 }
 
 .app__righttopwrapper {
@@ -363,6 +365,7 @@ body {
 }
 
 .app__rightsidebarwrapper {
+    min-width: 300px;
     flex-direction: column;
     background-color: var(--sidebar-bg);
     border-left: 1px solid var(--pane-border);
@@ -646,6 +649,10 @@ body {
     font-size: 10px;
     color: var(--ui-fg-muted);
     padding-left: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .ai-sidebar__generating-indicator {

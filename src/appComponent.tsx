@@ -168,7 +168,7 @@ export function App() {
                 event.stopPropagation()
 
                 const diff = event.clientX
-                setLeftSideWidth(diff)
+                setLeftSideWidth(Math.max(250, Math.min(diff, 600)))
             }
         }, 10)
         document.addEventListener('mousemove', throttledMouseMove)
