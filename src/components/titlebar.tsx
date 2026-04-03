@@ -249,6 +249,10 @@ export function TitleBar({
     const dispatch = useAppDispatch()
     const generating = useAppSelector(csel.getGenerating)
     const appVersion = useAppSelector(gsel.getVersion)
+    const leftSideExpanded = useAppSelector((state: any) => state.toolState?.leftSideExpanded)
+    const aiSidebarOpen = useAppSelector((state: any) => state.toolState?.aiCommandPaletteTriggered)
+    const settingsOpen = useAppSelector((state: any) => state.settings?.settingsVisible)
+    const terminalOpen = useAppSelector((state: any) => state.global?.terminalVisible)
 
     const [isWindows, setIsWindows] = useState(false)
 
@@ -337,7 +341,7 @@ export function TitleBar({
                         )}
 
                         <div
-                            className="titlebar__right_button"
+                            className={`titlebar__right_button ${leftSideExpanded ? 'active' : ''}`}
                             onClick={() => {
                                 dispatch(ts.toggleLeftSide())
                             }}
@@ -347,7 +351,7 @@ export function TitleBar({
                         </div>
 
                         <div
-                            className="titlebar__right_button titlebar__ai_button--active"
+                            className={`titlebar__right_button ${aiSidebarOpen ? 'active' : ''}`}
                             onClick={() => {
                                 dispatch(ts.triggerAICommandPalette())
                             }}
@@ -357,7 +361,7 @@ export function TitleBar({
                         </div>
 
                         <div
-                            className="titlebar__right_button"
+                            className={`titlebar__right_button ${terminalOpen ? 'active' : ''}`}
                             onClick={() => {
                                 dispatch(gs.toggleTerminal())
                             }}
@@ -367,7 +371,7 @@ export function TitleBar({
                         </div>
 
                         <div
-                            className="titlebar__right_button"
+                            className={`titlebar__right_button ${settingsOpen ? 'active' : ''}`}
                             onClick={() => {
                                 dispatch(ss.toggleSettings())
                             }}

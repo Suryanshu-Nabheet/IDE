@@ -4,6 +4,14 @@
 /* Import the new pure black theme system */
 @import './theme/index.css';
 
+/* Global Icons */
+.codicon {
+    font-size: 16px; /* Standardize larger icons */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
 @font-face {
     font-family: 'Menlo';
     src: url('../assets/Menlo-Regular.ttf');
@@ -424,7 +432,7 @@ body {
 .ai-sidebar__close-btn {
     width: 24px;
     height: 24px;
-    border-radius: var(--radius-sm);
+    border-radius: 4px;
     border: none;
     background: transparent;
     color: var(--ui-fg-muted);
@@ -432,25 +440,27 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s ease;
-    font-size: 12px;
-    opacity: 0.7;
-    transition: all 0.1s ease;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
 }
 
 .ai-sidebar__close-btn:hover {
     color: var(--ui-fg);
-    background-color: var(--ui-hover);
+    background-color: var(--ui-hover, rgba(255, 255, 255, 0.08));
+}
+
+.ai-sidebar__close-btn:active {
+    background-color: var(--ui-active, rgba(255, 255, 255, 0.12));
 }
 
 .ai-sidebar__messages {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 20px;
+    padding: 12px 16px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
     min-height: 0;
     position: relative;
     z-index: 1;
@@ -522,8 +532,44 @@ body {
 .ai-message {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 4px;
+    margin-bottom: 20px;
+    position: relative;
+    width: 100%;
+}
+
+.ai-message__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.markdown-container {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ui-fg);
+    word-wrap: break-word;
+}
+
+.ai-message__footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.ai-message__timestamp {
+    font-size: 9px;
+    color: var(--ui-fg-muted);
+    opacity: 0.4;
+    font-family: var(--font-mono);
+}
+
+.tool-calls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 4px;
 }
 
 .user-message-container {
@@ -540,7 +586,6 @@ body {
     font-size: 13px;
     line-height: 1.5;
     word-wrap: break-word;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .assistant-message-container {
@@ -549,184 +594,122 @@ body {
 }
 
 .assistant-message-flow {
-    color: var(--ui-fg);
-    font-size: 14px;
-    line-height: 1.6;
-    word-wrap: break-word;
-}
-
-.ai-message__timestamp {
-    font-size: 10px;
-    color: var(--ui-fg-muted);
-    margin-top: 6px;
-    opacity: 0.5;
-}
-
-.ai-sidebar__input-wrapper {
-    border-top: 1px solid var(--ui-border);
-    padding: 16px;
-    background-color: var(--sidebar-bg);
-    flex-shrink: 0;
-    z-index: 10;
-    position: relative;
-    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
 }
 
 .ai-sidebar__input-container {
+    padding: 12px;
+    background-color: var(--sidebar-bg);
+    border-top: 1px solid var(--ui-border);
+    flex-shrink: 0;
+}
+
+.ai-sidebar__input-wrapper {
     position: relative;
-    background-color: var(--ui-bg-elevated);
-    border-radius: var(--radius-lg);
+    background-color: var(--input-bg);
     border: 1px solid var(--ui-border);
+    border-radius: 8px;
     transition: all 0.15s ease;
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
 }
 
-.ai-sidebar__input-container:focus-within {
-    border-color: var(--accent);
-}
-
-.ai-sidebar__textarea-wrapper {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 300px;
-    min-height: 72px;
+.ai-sidebar__input-wrapper:focus-within {
+    border-color: var(--ui-border-active, rgba(255, 255, 255, 0.2));
 }
 
 .ai-sidebar__textarea {
     width: 100%;
-    min-height: 72px;
-    max-height: 300px;
-    padding: 12px 16px;
-    border: none;
     background: transparent;
-    color: var(--ui-fg);
+    color: var(--input-fg);
     font-size: 13px;
-    resize: none;
+    font-family: var(--font-mono);
     outline: none;
-    font-family: inherit;
+    resize: none;
+    padding: 10px 14px;
+    max-height: 200px;
+    display: block;
+    border: none;
     line-height: 1.5;
-    box-sizing: border-box;
 }
 
-.ai-sidebar__textarea::placeholder {
-    color: var(--ui-fg-muted);
-    opacity: 0.6;
-}
-
-.ai-sidebar__input-footer {
-    min-height: 56px;
-    height: auto;
-    border-top: 1px solid var(--ui-border);
-    background-color: var(--ui-bg-elevated);
+.ai-sidebar__input-toolbar {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 12px;
-    position: relative;
-    overflow: visible;
-    z-index: 10001;
-}
-
-.ai-sidebar__input-controls {
-    width: 100%;
-    display: flex;
-    align-items: center;
+    padding: 0 8px 8px;
     gap: 8px;
 }
 
-.ai-sidebar__model-select-btn {
-    display: flex;
-    align-items: center;
-    padding: 0;
-    background: transparent;
-    border: none;
-    color: var(--ui-fg);
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    height: 32px;
+.ai-sidebar__input-status {
+    font-size: 10px;
+    color: var(--ui-fg-muted);
+    padding-left: 6px;
 }
 
-.ai-sidebar__model-select-btn:focus {
-    outline: none;
-}
-
-.ai-sidebar__model-select-btn:hover .ai-sidebar__model-select-content {
-    opacity: 0.8;
-}
-
-.ai-sidebar__model-select-content {
+.ai-sidebar__generating-indicator {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 10px;
-    background-color: var(--ui-bg-subtle);
-    border: 1px solid var(--ui-border);
-    border-radius: var(--radius-md);
-    transition: all 0.15s ease;
 }
 
-.ai-sidebar__model-select-btn:hover .ai-sidebar__model-select-content {
-    background-color: var(--ui-hover);
-    border-color: var(--accent);
+.dot-pulse {
+    width: 6px;
+    height: 6px;
+    background-color: var(--ui-fg-muted);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
 }
 
-.ai-sidebar__model-select-text {
-    white-space: nowrap;
-    max-width: 140px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 11px;
+@keyframes pulse {
+    0% { transform: scale(0.8); opacity: 0.4; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.4; }
 }
 
-.ai-sidebar__model-select-chevron {
-    opacity: 0.5;
-    margin-left: 2px;
+.ai-sidebar__input-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.ai-sidebar__input-divider {
-    width: 1px;
-    height: 20px;
-    background-color: var(--ui-border);
-    margin: 0 8px;
-    flex-shrink: 0;
-}
-
-.ai-sidebar__send-btn-inline {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-md);
-    border: none;
-    background-color: var(--ui-bg-subtle);
-    color: var(--ui-fg);
-    cursor: pointer;
+.ai-sidebar__icon-btn {
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s ease;
-    margin-left: auto;
-    flex-shrink: 0;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: var(--ui-fg-muted);
+    cursor: pointer;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
 }
 
-.ai-sidebar__send-btn-inline:hover:not(:disabled) {
-    background-color: var(--accent);
+.ai-sidebar__icon-btn:hover {
+    background-color: var(--ui-hover, rgba(255, 255, 255, 0.08));
     color: var(--ui-fg);
 }
 
-.ai-sidebar__send-btn-inline:disabled {
+.ai-sidebar__icon-btn:active {
+    background-color: var(--ui-active, rgba(255, 255, 255, 0.12));
+}
+
+.ai-sidebar__icon-btn.disabled {
+    opacity: 0.2;
     cursor: not-allowed;
-    opacity: 0.5;
+    background: transparent !important;
 }
 
-.ai-sidebar__send-icon {
-    font-size: 14px;
-    transition: opacity 0.2s;
+.ai-sidebar__stop-btn {
+    color: #ef4444; /* red-500 */
 }
 
-.ai-sidebar__send-icon--disabled {
-    opacity: 0.3;
+.ai-sidebar__send-btn {
+    color: var(--ui-fg);
 }
 
 /* Model Dropdown - Reference Design */
@@ -870,39 +853,31 @@ body {
     margin-right: 8px;
 }
 
-.titlebar__ai_button,
 .titlebar__right_button {
-    width: 32px;
-    height: 32px;
-    padding: 0;
+    width: 26px;
+    height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 4px;
     -webkit-app-region: no-drag !important;
-    transition: all 0.2s ease;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    position: relative;
-}
-
-.titlebar__right_button>svg {
-    font-size: 14px;
-    color: var(--titlebar-fg) !important;
-    opacity: 0.65;
-    transition: all 0.2s ease;
+    color: var(--ui-fg-muted);
 }
 
 .titlebar__right_button:hover {
-    background-color: var(--ui-bg-elevated);
-}
-
-.titlebar__right_button:hover>svg {
-    opacity: 1;
+    background-color: var(--ui-hover, rgba(255, 255, 255, 0.08));
+    color: var(--ui-fg);
 }
 
 .titlebar__right_button:active {
-    background-color: var(--ui-hover);
-    transform: scale(0.95);
+    background-color: var(--ui-active, rgba(255, 255, 255, 0.12));
+}
+
+.titlebar__right_button.active {
+    color: var(--ui-fg);
+    background-color: var(--ui-active, rgba(255, 255, 255, 0.12));
 }
 
 .titlebar__ai_button {

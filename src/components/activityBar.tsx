@@ -48,18 +48,18 @@ export const ActivityBar = () => {
     ]
 
     return (
-        <div className="w-full h-[42px] min-h-[42px] bg-[var(--sidebar-bg)] flex items-center justify-center relative flex-shrink-0 z-[100]">
+        <div className="w-full h-[42px] min-h-[42px] bg-[var(--sidebar-bg)] flex items-center justify-center relative flex-shrink-0 z-[100] border-b border-[var(--ui-border)]">
             {/* Centered Button Container */}
             <div className="flex items-center gap-1">
                 {navItems.map((item) => (
                     <button
                         key={item.id}
                         className={`
-                            w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200
+                            w-[28px] h-[28px] flex items-center justify-center rounded-[5px] cursor-pointer transition-all duration-200
                             ${
                                 activeTab === item.id && isExpanded
-                                    ? 'bg-[var(--ui-bg-elevated)] text-[var(--accent)] shadow-sm'
-                                    : 'text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)]'
+                                    ? 'bg-[var(--ui-active,rgba(255,255,255,0.1))] text-[var(--ui-fg)]'
+                                    : 'text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover,rgba(255,255,255,0.08))]'
                             }
                         `}
                         onClick={() => handleTabClick(item.id as any)}
@@ -68,29 +68,29 @@ export const ActivityBar = () => {
                     >
                         <Codicon
                             name={item.icon}
-                            style={{ fontSize: '16px' }}
+                            style={{ fontSize: '17px' }}
                         />
                     </button>
                 ))}
 
                 {/* Divider */}
-                <div className="w-[1px] h-5 bg-[var(--ui-border)] mx-1.5 opacity-30" />
+                <div className="w-[1px] h-4 bg-[var(--ui-border)] mx-1 opacity-20" />
 
                 {/* More Menu Toggle */}
                 <button
                     className={`
-                        w-9 h-9 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200
+                        w-[28px] h-[28px] flex items-center justify-center rounded-[5px] cursor-pointer transition-all duration-200
                         ${
                             showMore
-                                ? 'bg-[var(--ui-bg-elevated)] text-[var(--accent)]'
-                                : 'text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover)]'
+                                ? 'bg-[var(--ui-active,rgba(255,255,255,0.1))] text-[var(--ui-fg)]'
+                                : 'text-[var(--ui-fg-muted)] hover:text-[var(--ui-fg)] hover:bg-[var(--ui-hover,rgba(255,255,255,0.08))]'
                         }
                     `}
                     onClick={() => setShowMore(!showMore)}
                     title="More Views"
                     type="button"
                 >
-                    <Codicon name="chevron-down" style={{ fontSize: '11px' }} />
+                    <Codicon name="chevron-down" style={{ fontSize: '12px' }} />
                 </button>
             </div>
 

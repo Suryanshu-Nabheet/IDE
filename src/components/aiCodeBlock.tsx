@@ -15,24 +15,7 @@ import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
 import 'prismjs/components/prism-css'
 import 'prismjs/components/prism-markdown'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faCopy,
-    faCheck,
-    faFileCode,
-    faXmark,
-    faBook,
-    faPenToSquare,
-    faPencil,
-    faFolder,
-    faFolderPlus,
-    faTrashCan,
-    faBolt,
-    faMagnifyingGlass,
-    faWrench,
-    faFile,
-    faListTree,
-} from '@fortawesome/pro-regular-svg-icons'
+import { Codicon } from './codicon'
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -84,7 +67,6 @@ export function CodeBlock({
                             {filename}
                         </span>
                     )}
-                    <span className="code-block-language-tag">{language}</span>
                 </div>
                 <div className="code-block-actions">
                     {onApply && (
@@ -93,6 +75,7 @@ export function CodeBlock({
                             onClick={onApply}
                             title="Apply to file"
                         >
+                            <Codicon name="check" style={{ fontSize: '12px' }} />
                             Apply
                         </button>
                     )}
@@ -101,7 +84,7 @@ export function CodeBlock({
                         onClick={handleCopy}
                         title="Copy code"
                     >
-                        <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
+                        <Codicon name={copied ? 'check' : 'copy'} style={{ fontSize: '12px' }} />
                         {copied ? 'Copied!' : 'Copy'}
                     </button>
                 </div>
@@ -172,25 +155,22 @@ export function ToolCallCard({
     }, [needsApproval])
 
     const getToolIcon = (name: string) => {
-        const icons: Record<string, any> = {
-            read_file: faBook,
-            write_file: faPenToSquare,
-            edit_file: faPencil,
-            list_files: faListTree,
-            create_directory: faFolderPlus,
-            delete_file: faTrashCan,
-            run_terminal_command: faBolt,
-            search_code: faMagnifyingGlass,
-            get_diagnostics: faWrench,
-            open_file: faFile,
-            get_file_outline: faListTree,
+        const icons: Record<string, string> = {
+            read_file: 'book',
+            write_file: 'edit',
+            edit_file: 'pencil',
+            list_files: 'list-tree',
+            create_directory: 'new-folder',
+            delete_file: 'trash',
+            run_terminal_command: 'terminal',
+            run_command: 'terminal',
+            search_code: 'search',
+            get_diagnostics: 'warning',
+            open_file: 'file',
+            get_file_outline: 'symbol-structure',
+            list_dir: 'folder',
         }
-        return (
-            <FontAwesomeIcon
-                icon={icons[name] || faWrench}
-                className="tool-call-icon-svg"
-            />
-        )
+        return <Codicon name={icons[name] || 'tools'} />
     }
 
     const getToolLabel = (name: string, args: Record<string, any>) => {
@@ -199,11 +179,10 @@ export function ToolCallCard({
             if (path) {
                 const parts = path.split('/')
                 const filename = parts[parts.length - 1]
+                const action = name.includes('read') ? 'Read' : name.includes('write') ? 'Write' : 'Edit'
                 return (
                     <span className="tool-call-label-container">
-                        <span className="tool-call-action-name">
-                            {name.split('_')[0].charAt(0).toUpperCase() + name.split('_')[0].slice(1)}
-                        </span>
+                        <span className="tool-call-action-name">{action}</span>
                         <span className="tool-call-filename">{filename}</span>
                     </span>
                 )
@@ -218,77 +197,66 @@ export function ToolCallCard({
                 </span>
             )
         }
-        if (name === 'run_command') {
+        if (name === 'run_command' || name === 'run_terminal_command') {
             return (
                 <span className="tool-call-label-container">
                     <span className="tool-call-action-name">Run</span>
-                    <span className="tool-call-filename" style={{ fontFamily: 'monospace' }}>
-                        {args.CommandLine?.slice(0, 30) || 'Command'}...
+                    <span className="tool-call-filename" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', opacity: 0.8 }}>
+                        {args.CommandLine?.slice(0, 40) || 'command'}
                     </span>
                 </span>
             )
         }
 
-        return name
-            .split('_')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ')
+        return (
+            <span className="tool-call-label-container">
+                <span className="tool-call-action-name">
+                    {name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                </span>
+            </span>
+        )
     }
 
     return (
         <div
-            className={`tool-call-card ${
-                success === false ? 'tool-call-error' : ''
-            } ${needsApproval ? 'tool-call-waiting' : ''}`}
+            className={`tool-call-card ${needsApproval ? 'tool-call-waiting' : ''}`}
         >
             <div
                 className="tool-call-header"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
-                <div className="tool-call-title">
-                    <span className="tool-call-icon">
-                        {getToolIcon(toolName)}
-                    </span>
-                    <span className="tool-call-name">
-                        {getToolLabel(toolName, args)}
-                    </span>
+                <span className="tool-call-icon">
+                    {getToolIcon(toolName)}
+                </span>
+                
+                {getToolLabel(toolName, args)}
 
-                    {/* Status Indicators */}
-                    <div className="tool-call-status-right">
-                        {needsApproval && !isExecuting && success === undefined && (
-                            <span className="tool-call-status tool-call-waiting-badge">
-                                Pending
-                            </span>
-                        )}
-
-                        {isExecuting && (
-                            <span className="tool-call-status tool-call-executing">
-                                <span className="loader-mini" />
-                            </span>
-                        )}
-                        {success === true && (
-                            <span className="tool-call-status tool-call-success">
-                                <FontAwesomeIcon icon={faCheck} />
-                            </span>
-                        )}
-                        {success === false && (
-                            <span className="tool-call-status tool-call-failed">
-                                <FontAwesomeIcon icon={faXmark} />
-                            </span>
-                        )}
-                    </div>
+                <div className="tool-call-status-right">
+                    {isExecuting && (
+                        <div className="tool-call-executing">
+                            <Codicon name="loading" className="codicon-modifier-spin" />
+                        </div>
+                    )}
+                    {success === true && (
+                        <div className="tool-call-success">
+                            <Codicon name="check" />
+                        </div>
+                    )}
+                    {success === false && (
+                        <div className="tool-call-failed">
+                            <Codicon name="error" />
+                        </div>
+                    )}
+                    <button className="tool-call-expand-icon">
+                        <Codicon name={isExpanded ? 'chevron-up' : 'chevron-down'} />
+                    </button>
                 </div>
-                <button className="tool-call-expand-icon">
-                    <FontAwesomeIcon icon={isExpanded ? faXmark : faListTree} style={{ opacity: 0.4 }} />
-                </button>
             </div>
 
-            {(isExpanded || needsApproval) && (
+            {isExpanded && (
                 <div className="tool-call-body">
                     <div className="tool-call-section">
-                        <div className="tool-call-section-title">
-                            Arguments:
-                        </div>
+                        <div className="tool-call-section-title">Arguments</div>
                         <pre className="tool-call-json">
                             {JSON.stringify(args, null, 2)}
                         </pre>
@@ -296,46 +264,31 @@ export function ToolCallCard({
 
                     {result && (
                         <div className="tool-call-section">
-                            <div className="tool-call-section-title">
-                                Result:
-                            </div>
+                            <div className="tool-call-section-title">Result</div>
                             <pre className="tool-call-result">{result}</pre>
                         </div>
                     )}
 
-                    {/* Waiting for Approval UI */}
                     {needsApproval && !isExecuting && success === undefined && (
                         <div className="tool-call-actions">
-                            <div className="flex items-center gap-3 w-full p-2 bg-[var(--ui-bg-elevated)] rounded border border-yellow-500/20 mb-2">
-                                <FontAwesomeIcon
-                                    icon={faCheck}
-                                    className="text-yellow-500"
-                                />
-                                <span className="text-xs text-[var(--ui-fg)] flex-1">
-                                    This action requires your confirmation.
-                                </span>
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    className="tool-call-btn tool-call-accept w-full justify-center"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onAccept?.()
-                                    }}
-                                >
-                                    <FontAwesomeIcon icon={faCheck} /> Approve &
-                                    Run
-                                </button>
-                                <button
-                                    className="tool-call-btn tool-call-reject w-full justify-center"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onReject?.()
-                                    }}
-                                >
-                                    <FontAwesomeIcon icon={faXmark} /> Reject
-                                </button>
-                            </div>
+                            <button
+                                className="tool-call-btn tool-call-accept"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onAccept?.()
+                                }}
+                            >
+                                <Codicon name="check" /> Approve
+                            </button>
+                            <button
+                                className="tool-call-btn tool-call-reject"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onReject?.()
+                                }}
+                            >
+                                <Codicon name="close" /> Reject
+                            </button>
                         </div>
                     )}
                 </div>
@@ -381,9 +334,9 @@ export function PlanCard({ planMarkdown }: { planMarkdown: string }) {
     return (
         <div className="plan-card">
             <div className="plan-header">
-                <FontAwesomeIcon
-                    icon={faFileCode}
-                    style={{ marginRight: '8px' }}
+                <Codicon
+                    name="list-ordered"
+                    style={{ marginRight: '8px', fontSize: '12px' }}
                 />
                 EXECUTION PLAN
             </div>

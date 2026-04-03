@@ -922,15 +922,17 @@ Active File: ${activeFilePath || 'No file open'}
                         name="sparkle"
                         style={{ color: 'var(--accent)', fontSize: '13px' }}
                     />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                        <span>{providerDisplayName.provider}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.05em' }}>
+                            {providerDisplayName.provider.toUpperCase()}
+                        </span>
                         <span style={{
                             fontSize: '9px',
                             fontWeight: 400,
                             textTransform: 'none',
                             letterSpacing: 0,
                             color: 'var(--ui-fg-muted)',
-                            opacity: 0.8,
+                            opacity: 0.6,
                         }}>
                             {providerDisplayName.model}
                         </span>
@@ -995,10 +997,11 @@ Active File: ${activeFilePath || 'No file open'}
                                     <PlanCard planMarkdown={message.plan} />
                                 )}
 
+                            <div className="ai-message__content">
                                 {/* Render Tool Calls */}
                                 {message.toolCalls &&
                                     message.toolCalls.length > 0 && (
-                                        <div className="mb-3 space-y-2">
+                                        <div className="tool-calls-container">
                                             {message.toolCalls.map((tc) => (
                                                 <ToolCallCard
                                                     key={tc.id}
@@ -1028,82 +1031,7 @@ Active File: ${activeFilePath || 'No file open'}
                                     )}
 
                                 {/* Render Content */}
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    components={{
-                                        code({
-                                            node: _node,
-                                            inline,
-                                            className,
-                                            children,
-                                            ...props
-                                        }) {
-                                            const match = /language-(\w+)/.exec(
-                                                className || ''
-                                            )
-                                            const language = match
-                                                ? match[1]
-                                                : 'typescript'
-                                            const code = String(
-                                                children
-                                            ).replace(/\n$/, '')
-
-                                            return !inline ? (
-                                                <CodeBlock
-                                                    code={code}
-                                                    language={language}
-                                                />
-                                            ) : (
-                                                <code
-                                                    className={className}
-                                                    {...props}
-                                                >
-                                                    {children}
-                                                </code>
-                                            )
-                                        },
-                                    }}
-                                >
-                                    {message.content}
-                                </ReactMarkdown>
-                            </div>
-                            <div className="ai-message__timestamp">
-                                {message.timestamp.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                ))}
-
-                {/* Streaming Content Display */}
-                {isGenerating &&
-                    (streamedText || pendingToolCalls.length > 0) && (
-                        <div className="ai-message">
-                            <div className="assistant-message-container">
-                                <div className="assistant-message-flow">
-                                    {/* Streaming Plan */}
-                                    {currentPlan && (
-                                        <PlanCard planMarkdown={currentPlan} />
-                                    )}
-
-                                    {/* Render Pending Tool Calls */}
-                                    {pendingToolCalls.length > 0 && (
-                                        <div className="mb-3 space-y-2">
-                                            {pendingToolCalls.map((tc) => (
-                                                <ToolCallCard
-                                                    key={tc.id}
-                                                    toolName={tc.name}
-                                                    arguments={tc.arguments}
-                                                    result={tc.result}
-                                                    success={tc.success}
-                                                    isExecuting={tc.isExecuting}
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-
+                                <div className="markdown-container">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
                                         components={{
@@ -1114,10 +1042,9 @@ Active File: ${activeFilePath || 'No file open'}
                                                 children,
                                                 ...props
                                             }) {
-                                                const match =
-                                                    /language-(\w+)/.exec(
-                                                        className || ''
-                                                    )
+                                                const match = /language-(\w+)/.exec(
+                                                    className || ''
+                                                )
                                                 const language = match
                                                     ? match[1]
                                                     : 'typescript'
@@ -1141,8 +1068,92 @@ Active File: ${activeFilePath || 'No file open'}
                                             },
                                         }}
                                     >
-                                        {streamedText}
+                                        {message.content}
                                     </ReactMarkdown>
+                                </div>
+                            </div>
+                            <div className="ai-message__footer">
+                                <span className="ai-message__timestamp">
+                                    {message.timestamp.toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false
+                                    })}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ))}
+
+                {/* Streaming Content Display */}
+                {isGenerating &&
+                    (streamedText || pendingToolCalls.length > 0) && (
+                        <div className="ai-message assistant-message-container">
+                            <div className="assistant-message-flow">
+                                {/* Streaming Plan */}
+                                {currentPlan && (
+                                    <PlanCard planMarkdown={currentPlan} />
+                                )}
+
+                                <div className="ai-message__content">
+                                    {/* Render Pending Tool Calls */}
+                                    {pendingToolCalls.length > 0 && (
+                                        <div className="tool-calls-container">
+                                            {pendingToolCalls.map((tc) => (
+                                                <ToolCallCard
+                                                    key={tc.id}
+                                                    toolName={tc.name}
+                                                    arguments={tc.arguments}
+                                                    result={tc.result}
+                                                    success={tc.success}
+                                                    isExecuting={tc.isExecuting}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className="markdown-container">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                code({
+                                                    node: _node,
+                                                    inline,
+                                                    className,
+                                                    children,
+                                                    ...props
+                                                }) {
+                                                    const match =
+                                                        /language-(\w+)/.exec(
+                                                            className || ''
+                                                        )
+                                                    const language = match
+                                                        ? match[1]
+                                                        : 'typescript'
+                                                    const code = String(
+                                                        children
+                                                    ).replace(/\n$/, '')
+
+                                                    return !inline ? (
+                                                        <CodeBlock
+                                                            code={code}
+                                                            language={language}
+                                                        />
+                                                    ) : (
+                                                        <code
+                                                            className={className}
+                                                            {...props}
+                                                        >
+                                                            {children}
+                                                        </code>
+                                                    )
+                                                },
+                                            }}
+                                        >
+                                            {streamedText}
+                                        </ReactMarkdown>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1152,21 +1163,8 @@ Active File: ${activeFilePath || 'No file open'}
             </div>
 
             {/* Input Area — full-width, flush bottom */}
-            <div style={{
-                padding: '12px',
-                backgroundColor: 'var(--sidebar-bg)',
-                borderTop: '1px solid var(--ui-border)',
-                flexShrink: 0,
-            }}>
-                <div style={{
-                    position: 'relative',
-                    backgroundColor: 'var(--input-bg)',
-                    border: '1px solid var(--input-border)',
-                    borderRadius: 'var(--radius-md)',
-                    transition: 'border-color 0.15s ease',
-                }}
-                    onFocus={() => {/* focus handled by CSS */}}
-                >
+            <div className="ai-sidebar__input-container">
+                <div className="ai-sidebar__input-wrapper">
                     <textarea
                         ref={textareaRef}
                         value={input}
@@ -1174,60 +1172,23 @@ Active File: ${activeFilePath || 'No file open'}
                         onKeyDown={handleKeyDown}
                         placeholder="Ask anything... (Shift+Enter for new line)"
                         rows={1}
-                        style={{
-                            width: '100%',
-                            backgroundColor: 'transparent',
-                            color: 'var(--input-fg)',
-                            fontSize: '13px',
-                            fontFamily: 'var(--font-mono)',
-                            outline: 'none',
-                            resize: 'none',
-                            padding: '10px 14px',
-                            maxHeight: '200px',
-                            display: 'block',
-                            border: 'none',
-                        }}
+                        className="ai-sidebar__textarea"
                         disabled={isGenerating}
                     />
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '0 12px 10px',
-                        gap: '8px',
-                    }}>
-                        <div style={{ fontSize: '10px', color: 'var(--ui-fg-muted)' }}>
+                    <div className="ai-sidebar__input-toolbar">
+                        <div className="ai-sidebar__input-status">
                             {isGenerating ? (
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <span style={{
-                                        display: 'inline-block',
-                                        width: '6px',
-                                        height: '6px',
-                                        backgroundColor: 'var(--accent)',
-                                        borderRadius: '50%',
-                                        animation: 'pulse 1.5s infinite',
-                                    }} />
-                                    Generating...
+                                <span className="ai-sidebar__generating-indicator">
+                                    <span className="dot-pulse" />
+                                    Thinking...
                                 </span>
                             ) : null}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div className="ai-sidebar__input-actions">
                             {isGenerating && (
                                 <button
                                     onClick={handleStopGeneration}
-                                    style={{
-                                        width: '26px',
-                                        height: '26px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: 'var(--radius-sm)',
-                                        backgroundColor: 'var(--button-danger)',
-                                        color: 'white',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        fontSize: '13px',
-                                    }}
+                                    className="ai-sidebar__icon-btn ai-sidebar__stop-btn"
                                     title="Stop Generation"
                                     type="button"
                                 >
@@ -1237,25 +1198,11 @@ Active File: ${activeFilePath || 'No file open'}
                             <button
                                 onClick={handleSend}
                                 disabled={!input.trim() || isGenerating}
-                                style={{
-                                    width: '26px',
-                                    height: '26px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderRadius: 'var(--radius-sm)',
-                                    backgroundColor: !input.trim() || isGenerating ? 'transparent' : 'var(--accent)',
-                                    color: !input.trim() || isGenerating ? 'var(--ui-fg-muted)' : 'white',
-                                    border: 'none',
-                                    cursor: !input.trim() || isGenerating ? 'not-allowed' : 'pointer',
-                                    opacity: !input.trim() || isGenerating ? 0.35 : 1,
-                                    fontSize: '11px',
-                                    transition: 'all 0.15s ease',
-                                }}
+                                className={`ai-sidebar__icon-btn ai-sidebar__send-btn ${(!input.trim() || isGenerating) ? 'disabled' : ''}`}
                                 title="Send Message (Enter)"
                                 type="button"
                             >
-                                <Codicon name="send" style={{ fontSize: '12px' }} />
+                                <Codicon name="send" />
                             </button>
                         </div>
                     </div>
