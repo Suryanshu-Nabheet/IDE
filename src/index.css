@@ -169,22 +169,24 @@ body {
     display: none;
 }
 
-.left-pane-header {
+.pane-header {
     height: 42px;
     min-height: 42px;
+    padding: 0 8px 0 12px;
     display: flex;
     align-items: center;
-    padding: 0 16px;
-    font-size: 10px;
+    justify-content: space-between;
+    font-size: 11px;
     font-weight: 700;
-    color: var(--ui-fg-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--ui-border);
-    user-select: none;
     background-color: var(--sidebar-bg);
+    border-bottom: 1px solid var(--ui-border);
+    color: var(--ui-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
     flex-shrink: 0;
-    z-index: 10;
+    position: relative;
+    z-index: 20;
+    user-select: none;
 }
 
 .search-input-wrapper {
@@ -407,7 +409,7 @@ body {
     border-left: 1px solid var(--pane-border);
 }
 
-.ai-sidebar__header {
+.pane-header, .ai-sidebar__header {
     height: 42px;
     min-height: 42px;
     padding: 0 8px 0 12px;
@@ -418,12 +420,13 @@ body {
     font-weight: 700;
     background-color: var(--sidebar-bg);
     border-bottom: 1px solid var(--ui-border);
-    color: var(--ui-fg);
+    color: var(--ui-fg-muted);
     text-transform: uppercase;
     letter-spacing: 0.8px;
     flex-shrink: 0;
     position: relative;
     z-index: 20;
+    user-select: none;
 }
 
 .ai-sidebar__header-left {
@@ -1732,32 +1735,38 @@ textarea:focus {
 
 .quick-open-wrapper {
     position: absolute;
-    top: 10%;
+    top: 5px; /* Floating from top */
     left: 50%;
     transform: translateX(-50%);
-    z-index: 9999;
+    z-index: 10000;
     width: 600px;
     max-width: 90vw;
     font-family: var(--font-sans);
+    animation: quickOpenFadeIn 0.1s ease-out;
+}
+
+@keyframes quickOpenFadeIn {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 .quick-open-container {
     background-color: var(--ui-bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--ui-border);
+    border-radius: 6px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
     overflow: hidden;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
 }
 
 .quick-open-input {
     width: 100%;
-    background-color: var(--input-bg);
+    background-color: var(--ui-bg-elevated);
     border: none;
-    border-bottom: 1px solid var(--border);
-    color: var(--input-fg);
-    padding: 16px 20px;
-    font-size: 15px;
+    border-bottom: 1px solid var(--ui-border);
+    color: var(--ui-fg);
+    padding: 12px 14px;
+    font-size: 13px;
     outline: none !important;
     font-family: var(--font-sans);
 }
@@ -1782,22 +1791,22 @@ textarea:focus {
 .quick-open-item {
     display: flex;
     align-items: center;
-    padding: 10px 20px;
+    padding: 6px 12px;
     cursor: pointer;
-    color: var(--ui-fg);
-    transition: all 0.15s ease;
-    border-left: 3px solid transparent;
-    gap: 12px;
+    color: var(--ui-fg-muted);
+    transition: none;
+    gap: 8px;
+    font-size: 13px;
 }
 
-.quick-open-item:hover {
+.quick-open-item:hover,
+.quick-open-item.selected {
     background-color: var(--ui-hover);
+    color: var(--ui-fg);
 }
 
 .quick-open-item.selected {
-    background-color: var(--sidebar-selected);
-    border-left-color: var(--accent);
-    color: var(--ui-fg);
+    background-color: var(--ui-active);
 }
 
 .quick-open-item .file__icon {
@@ -2250,20 +2259,18 @@ input[type='file']::before {
 
 .commandBar {
     background-color: var(--ui-bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-    padding: var(--spacing-md);
+    border: 1px solid var(--ui-border);
+    border-radius: 6px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    backdrop-filter: blur(10px);
-    transition: all 0.2s ease;
+    backdrop-filter: blur(12px);
 }
 
 .commandBar:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--accent);
+    border-color: var(--ui-border-active, rgba(255, 255, 255, 0.2));
 }
 
 .commandBar__input_container {
@@ -2275,14 +2282,14 @@ input[type='file']::before {
 .commandBar__input {
     background: transparent;
     border: none;
-    color: var(--input-fg);
+    color: var(--ui-fg);
     font-family: var(--font-sans);
-    font-size: var(--font-size-base);
+    font-size: 13px;
     line-height: 1.5;
     width: 100%;
     outline: none !important;
     resize: none;
-    padding: var(--spacing-xs) 0;
+    padding: 2px 0;
 }
 
 .commandBar__input::placeholder {

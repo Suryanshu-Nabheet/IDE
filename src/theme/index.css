@@ -54,8 +54,8 @@
     --editor-bg: var(--black-pure);
     --editor-fg: var(--text-primary);
     --editor-line-highlight: var(--black-subtle);
-    --editor-selection: rgba(59, 130, 246, 0.25);
-    --editor-selection-match: rgba(59, 130, 246, 0.35);
+    --editor-selection: rgba(215, 186, 125, 0.2);
+    --editor-selection-match: rgba(215, 186, 125, 0.4);
     --editor-cursor: var(--blue-accent);
     --editor-wrap-guide: var(--black-border);
 

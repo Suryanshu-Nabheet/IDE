@@ -53,7 +53,7 @@ const HighlightedText = ({
     return (
         <span>
             {text.slice(0, start)}
-            <span className="bg-[var(--selection)] text-[var(--foreground)] rounded-[2px] border border-[var(--selection)]">
+            <span className="bg-[var(--editor-selection-match)] text-[var(--ui-fg)] rounded-[1px] px-[2px] transition-all duration-150">
                 {text.slice(start, end)}
             </span>
             {text.slice(end)}
@@ -183,7 +183,7 @@ function SearchComponent() {
     return (
         <div className="flex flex-col h-full bg-[var(--sidebar-bg)] text-[var(--sidebar-fg)]">
             {/* Header */}
-            <div className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[var(--ui-fg-muted)] flex justify-between items-center select-none">
+            <div className="pane-header">
                 <span>Search</span>
                 <button
                     onClick={() => setResults([])}
@@ -199,9 +199,9 @@ function SearchComponent() {
                 <div className="relative group">
                     <div className="flex flex-col gap-[6px]">
                         {/* Search Input Box */}
-                        <div className="relative flex items-center bg-[var(--input-bg)] border border-[var(--input-border)] focus-within:border-[var(--accent)] rounded-[3px] overflow-hidden">
+                        <div className="relative flex items-center bg-[var(--ui-bg-elevated)] border border-[var(--ui-border)] focus-within:border-[var(--accent)] rounded-[4px] transition-all duration-200">
                             <div
-                                className="pl-2 pr-1 cursor-pointer opacity-70 hover:opacity-100"
+                                className="pl-2 pr-1 cursor-pointer opacity-70 hover:opacity-100 flex items-center justify-center h-full min-h-[30px]"
                                 onClick={toggleReplace}
                             >
                                 <FontAwesomeIcon
@@ -215,7 +215,7 @@ function SearchComponent() {
                             </div>
                             <textarea
                                 ref={textareaRef}
-                                className="w-full bg-transparent border-none outline-none text-[13px] text-[var(--input-fg)] px-1 py-[6px] resize-none h-[30px] leading-[18px] placeholder:text-[var(--input-placeholder)]"
+                                className="w-full bg-transparent border-none outline-none text-[13px] text-[var(--ui-fg)] px-1 py-[6px] resize-none h-[30px] leading-[18px] placeholder:text-[var(--input-placeholder)]"
                                 placeholder="Search"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
@@ -228,7 +228,7 @@ function SearchComponent() {
                                 }}
                             />
                             {/* Toggles */}
-                            <div className="flex items-center gap-[2px] pr-1">
+                            <div className="flex items-center gap-[1px] pr-1 h-full">
                                 <SearchToggle
                                     active={matchCase}
                                     onClick={() => setMatchCase(!matchCase)}
@@ -240,7 +240,7 @@ function SearchComponent() {
                                     onClick={() =>
                                         setMatchWholeWord(!matchWholeWord)
                                     }
-                                    icon={faItalic} // Visual proxy
+                                    icon={faItalic}
                                     title="Match Whole Word (Alt+W)"
                                 />
                                 <SearchToggle
@@ -254,18 +254,17 @@ function SearchComponent() {
 
                         {/* Replace Input Box */}
                         {isReplaceOpen && (
-                            <div className="relative flex items-center bg-[var(--input-bg)] border border-[var(--input-border)] focus-within:border-[var(--accent)] rounded-[3px] overflow-hidden">
+                            <div className="relative flex items-center bg-[var(--ui-bg-elevated)] border border-[var(--ui-border)] focus-within:border-[var(--accent)] rounded-[4px] overflow-hidden transition-all duration-200">
                                 <div className="pl-2 pr-1 w-4" />{' '}
                                 {/* Spacer alignment */}
                                 <input
-                                    className="w-full bg-transparent border-none outline-none text-[13px] text-[var(--input-fg)] px-1 py-[5px] h-[30px] placeholder:text-[var(--input-placeholder)]"
+                                    className="w-full bg-transparent border-none outline-none text-[13px] text-[var(--ui-fg)] px-1 py-[5px] h-[30px] placeholder:text-[var(--input-placeholder)]"
                                     placeholder="Replace"
                                     value={replaceText}
                                     onChange={(e) =>
                                         setReplaceText(e.target.value)
                                     }
                                 />
-                                {/* Replace Actions could go here */}
                             </div>
                         )}
 
@@ -338,9 +337,9 @@ function SearchToggle({ active, onClick, icon, title }: any) {
     return (
         <button
             onClick={onClick}
-            className={`w-5 h-5 flex items-center justify-center rounded-[3px] transition-colors ${
+            className={`w-6 h-6 flex items-center justify-center rounded-[4px] transition-all duration-150 ${
                 active
-                    ? 'bg-[var(--ui-bg-elevated)] text-[var(--foreground)]'
+                    ? 'bg-[var(--amber)] text-black font-bold'
                     : 'text-[var(--ui-fg-muted)] hover:bg-[var(--ui-hover)]'
             }`}
             title={title}

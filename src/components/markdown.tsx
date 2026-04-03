@@ -649,24 +649,26 @@ export function CommandBar({
 
     const customStyles = {
         overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
             display: 'flex',
             alignItems: 'center',
             zIndex: 10000,
+            backdropFilter: 'blur(2px)',
         },
         content: {
-            padding: 'none',
-            bottom: 'none',
+            padding: '0',
+            bottom: 'auto',
             background: 'none',
             border: 'none',
             marginLeft: 'auto',
             marginRight: 'auto',
-            top: '100px',
+            top: '20%',
             width: '600px',
-            maxWidth: '100vw',
+            maxWidth: '90vw',
             left: '50%',
-            right: 'none',
+            right: 'auto',
             transform: 'translateX(-50%)',
+            overflow: 'visible',
         },
     }
 
@@ -682,13 +684,6 @@ export function CommandBar({
                     }}
                     style={customStyles}
                 >
-                    <div className="tipArea">
-                        Previous
-                        <div className="tipKeyCommand">
-                            Ctrl+Shift+
-                            <FontAwesomeIcon icon={faArrowUp} />
-                        </div>
-                    </div>
                     <div className="commandBar__container">
                         <div className="commandBar">
                             <div className="commandBar__input_container">

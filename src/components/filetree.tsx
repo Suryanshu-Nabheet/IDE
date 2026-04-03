@@ -295,26 +295,7 @@ export function FileTree() {
             }}
         >
             {/* Sticky project header */}
-            <div
-                className="filetree__project-header relative"
-                style={{
-                    height: '42px',
-                    minHeight: '42px',
-                    padding: '0 8px 0 12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    backgroundColor: 'var(--sidebar-bg)',
-                    borderTop: '1px solid var(--pane-border)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.8px',
-                    color: 'var(--ui-fg)',
-                    flexShrink: 0,
-                    zIndex: 20,
-                }}
-            >
+            <div className="pane-header relative">
                 {/* Left: Project Name */}
                 <div
                     className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
