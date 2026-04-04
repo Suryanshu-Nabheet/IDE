@@ -1,20 +1,18 @@
+/**
+ * AIChatSidebar — Advanced Agentic AI Assistant
+ * All styling via Tailwind utility classes.
+ * Single unified message per AI turn (no fragmented bubbles).
+ */
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { Codicon } from './codicon'
 import * as ts from '../features/tools/toolSlice'
 import { getActiveProviderAPIKey } from '../features/ai/apiKeyUtils'
 import { streamAIResponseWithTools } from '../features/ai/providersWithTools'
-import {
-    AI_TOOLS,
-    AI_SYSTEM_PROMPT,
-    executeToolCall,
-} from '../features/ai/tools'
+import { AI_TOOLS, AI_SYSTEM_PROMPT, executeToolCall } from '../features/ai/tools'
 import { openFile, fileWasUpdated } from '../features/globalSlice'
 import * as ssel from '../features/settings/settingsSelectors'
-import {
-    toggleSettings,
-    setSettingsTab,
-} from '../features/settings/settingsSlice'
+import { toggleSettings, setSettingsTab } from '../features/settings/settingsSlice'
 import { getActiveFileId } from '../features/window/paneUtils'
 import { getPathForFileId } from '../features/window/fileUtils'
 import { FullState } from '../features/window/state'
@@ -23,30 +21,17 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import '../styles/aiCodeBlock.css'
 
-// Quick prompts shown in the empty state
+// ─── Quick prompts ──────────────────────────────────────────────────────────
 const QUICK_PROMPTS = [
-    'Explain the current file',
-    'Find potential bugs in this code',
-    'Add TypeScript types to this file',
-    'Write unit tests for the selected code',
-    'Refactor this for better readability',
-    'What does this function do?',
+    { label: 'Explain this file', icon: 'book' },
+    { label: 'Find potential bugs', icon: 'bug' },
+    { label: 'Add TypeScript types', icon: 'symbol-class' },
+    { label: 'Write unit tests', icon: 'beaker' },
+    { label: 'Refactor for readability', icon: 'wand' },
+    { label: 'Optimize performance', icon: 'dashboard' },
 ]
 
-// Typing cursor component
-function TypingCursor() {
-    return <span className="ai-typing-cursor" aria-hidden="true" />
-}
-
-// Thinking dots animation
-function ThinkingDots() {
-    return (
-        <span className="ai-thinking-dots" aria-label="AI is thinking">
-            <span /><span /><span />
-        </span>
-    )
-}
-
+// ─── Types ───────────────────────────────────────────────────────────────────
 interface ToolCallState {
     id: string
     name: string
@@ -66,49 +51,106 @@ interface Message {
     plan?: string
 }
 
-// Reusable markdown renderer
+// ─── Shimmer Loader ───────────────────────────────────────────────────────────
+function ShimmerLoader({ label }: { label?: string }) {
+    return (
+        <div className="flex flex-col gap-1.5 py-2">
+            {/* Sweeping shimmer bar */}
+            <div
+                className="h-0.5 rounded-full bg-[length:200%_100%] animate-shimmer"
+                style={{
+                    background: 'linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--accent) 40%, transparent) 25%, var(--accent) 50%, color-mix(in srgb, var(--accent) 40%, transparent) 75%, transparent 100%)',
+                    backgroundSize: '200% 100%',
+                }}
+            />
+            {label && (
+                <span className="text-[10px] text-ui-fg-muted opacity-60 italic tracking-wide">
+                    {label}
+                </span>
+            )}
+        </div>
+    )
+}
+
+// ─── Typing cursor ────────────────────────────────────────────────────────────
+function TypingCursor() {
+    return (
+        <span
+            className="inline-block w-0.5 h-3.5 rounded-sm bg-accent ml-0.5 align-text-bottom animate-blink"
+            aria-hidden="true"
+        />
+    )
+}
+
+// ─── Markdown Renderer (stable — no re-render jitter) ────────────────────────
 function AiMarkdown({ content }: { content: string }) {
     return (
         <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-                code({ node: _node, inline, className, children, ...props }: any) {
+                code({ node: _n, inline, className, children, ...props }: any) {
                     const match = /language-(\w+)/.exec(className || '')
-                    const language = match ? match[1] : 'plaintext'
+                    const lang = match ? match[1] : 'plaintext'
                     const code = String(children).replace(/\n$/, '')
                     return !inline ? (
-                        <CodeBlock code={code} language={language} />
+                        <CodeBlock code={code} language={lang} />
                     ) : (
-                        <code className={`ai-inline-code ${className || ''}`} {...props}>
+                        <code
+                            className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-ui-bg-elevated border border-ui-border text-ui-fg"
+                            {...props}
+                        >
                             {children}
                         </code>
                     )
                 },
-                a({ href, children, ...props }: any) {
-                    return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>
-                },
-                p({ children }: any) {
-                    return <p className="ai-md-p">{children}</p>
-                },
-                ul({ children }: any) {
-                    return <ul className="ai-md-ul">{children}</ul>
-                },
-                ol({ children }: any) {
-                    return <ol className="ai-md-ol">{children}</ol>
-                },
-                li({ children }: any) {
-                    return <li className="ai-md-li">{children}</li>
-                },
-                h1({ children }: any) { return <h1 className="ai-md-h1">{children}</h1> },
-                h2({ children }: any) { return <h2 className="ai-md-h2">{children}</h2> },
-                h3({ children }: any) { return <h3 className="ai-md-h3">{children}</h3> },
-                blockquote({ children }: any) {
-                    return <blockquote className="ai-md-blockquote">{children}</blockquote>
-                },
-                table({ children }: any) {
-                    return <div className="ai-md-table-wrap"><table className="ai-md-table">{children}</table></div>
-                },
-                hr() { return <hr className="ai-md-hr" /> },
+                a: ({ href, children, ...p }: any) => (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2 hover:opacity-75 transition-opacity" {...p}>{children}</a>
+                ),
+                p: ({ children }: any) => (
+                    <p className="mb-2.5 last:mb-0 leading-relaxed text-[13px] text-ui-fg">{children}</p>
+                ),
+                ul: ({ children }: any) => (
+                    <ul className="list-disc pl-5 mb-2.5 space-y-1 text-[13px] text-ui-fg">{children}</ul>
+                ),
+                ol: ({ children }: any) => (
+                    <ol className="list-decimal pl-5 mb-2.5 space-y-1 text-[13px] text-ui-fg">{children}</ol>
+                ),
+                li: ({ children }: any) => <li className="leading-relaxed">{children}</li>,
+                h1: ({ children }: any) => (
+                    <h1 className="text-base font-bold mb-2 mt-3 text-ui-fg border-b border-ui-border pb-1.5">{children}</h1>
+                ),
+                h2: ({ children }: any) => (
+                    <h2 className="text-[13px] font-bold mb-1.5 mt-3 text-ui-fg">{children}</h2>
+                ),
+                h3: ({ children }: any) => (
+                    <h3 className="text-[12px] font-semibold mb-1 mt-2 text-ui-fg">{children}</h3>
+                ),
+                blockquote: ({ children }: any) => (
+                    <blockquote className="border-l-[3px] border-accent pl-3 py-1 my-2 bg-[color:color-mix(in_srgb,var(--accent)_5%,transparent)] rounded-r text-ui-fg-muted italic text-[12px]">
+                        {children}
+                    </blockquote>
+                ),
+                table: ({ children }: any) => (
+                    <div className="overflow-x-auto my-2 rounded border border-ui-border">
+                        <table className="w-full border-collapse text-[12px]">{children}</table>
+                    </div>
+                ),
+                thead: ({ children }: any) => (
+                    <thead className="bg-ui-bg-elevated">{children}</thead>
+                ),
+                th: ({ children }: any) => (
+                    <th className="px-3 py-1.5 text-left font-semibold text-[11px] uppercase tracking-wide text-ui-fg-muted border-b border-ui-border">{children}</th>
+                ),
+                td: ({ children }: any) => (
+                    <td className="px-3 py-1.5 text-ui-fg border-b border-ui-border">{children}</td>
+                ),
+                tr: ({ children }: any) => (
+                    <tr className="hover:bg-ui-hover transition-colors">{children}</tr>
+                ),
+                hr: () => <hr className="border-ui-border my-3" />,
+                strong: ({ children }: any) => <strong className="font-semibold text-ui-fg">{children}</strong>,
+                em: ({ children }: any) => <em className="italic text-ui-fg-muted">{children}</em>,
+                pre: ({ children }: any) => <>{children}</>,
             }}
         >
             {content}
@@ -116,109 +158,252 @@ function AiMarkdown({ content }: { content: string }) {
     )
 }
 
-// Message bubble component for rendered messages
+// ─── Tool Calls Group ─────────────────────────────────────────────────────────
+function ToolCallsGroup({
+    toolCalls,
+    onToolApproval,
+    isStreaming,
+}: {
+    toolCalls: ToolCallState[]
+    onToolApproval: (id: string, approved: boolean) => void
+    isStreaming: boolean
+}) {
+    const [expanded, setExpanded] = useState(true)
+    const pendingApproval = toolCalls.find(tc => tc.needsApproval)
+    const runningTool = toolCalls.find(tc => tc.isExecuting)
+    const doneCount = toolCalls.filter(tc => tc.success !== undefined).length
+    const totalCount = toolCalls.length
+    const allDone = doneCount === totalCount && totalCount > 0
+
+    useEffect(() => {
+        if (pendingApproval) setExpanded(true)
+    }, [pendingApproval])
+
+    const borderClass = pendingApproval
+        ? 'border-warn/40 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-warning)_12%,transparent)]'
+        : 'border-ui-border'
+
+    const statusIcon = runningTool ? (
+        <Codicon name="loading" className="codicon-modifier-spin" style={{ fontSize: 11, color: 'var(--accent)' }} />
+    ) : pendingApproval ? (
+        <Codicon name="shield" style={{ fontSize: 11, color: 'var(--color-warning)' }} />
+    ) : allDone ? (
+        <Codicon name="check-all" style={{ fontSize: 11, color: 'var(--color-success)' }} />
+    ) : (
+        <Codicon name="tools" style={{ fontSize: 11, color: 'var(--ui-fg-muted)' }} />
+    )
+
+    const headerLabel = runningTool
+        ? `Running ${runningTool.name.replace(/_/g, ' ')}…`
+        : pendingApproval
+        ? 'Approval required'
+        : allDone
+        ? `${totalCount} action${totalCount !== 1 ? 's' : ''} completed`
+        : `${totalCount} action${totalCount !== 1 ? 's' : ''}`
+
+    return (
+        <div className={`rounded-md border ${borderClass} overflow-hidden mb-2 transition-[border-color] duration-200`}>
+            <button
+                className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left hover:bg-ui-hover transition-colors"
+                onClick={() => setExpanded(e => !e)}
+            >
+                <span className="w-4 flex items-center justify-center shrink-0">{statusIcon}</span>
+                <span className="text-[11px] font-medium text-ui-fg flex-1">{headerLabel}</span>
+                <div className="flex items-center gap-2 shrink-0">
+                    {isStreaming && runningTool && (
+                        <div
+                            className="w-7 h-0.5 rounded-full animate-shimmer-fast"
+                            style={{
+                                background: 'linear-gradient(90deg, transparent, var(--accent), transparent)',
+                                backgroundSize: '200% 100%',
+                            }}
+                        />
+                    )}
+                    <span className="text-[10px] text-ui-fg-muted opacity-60 font-mono">{doneCount}/{totalCount}</span>
+                    <Codicon name={expanded ? 'chevron-up' : 'chevron-down'} style={{ fontSize: 10, opacity: 0.5 }} />
+                </div>
+            </button>
+            {expanded && (
+                <div className="border-t border-ui-border divide-y divide-ui-border/50">
+                    {toolCalls.map(tc => (
+                        <ToolCallCard
+                            key={tc.id}
+                            toolName={tc.name}
+                            arguments={tc.arguments}
+                            result={tc.result}
+                            success={tc.success}
+                            isExecuting={tc.isExecuting}
+                            needsApproval={tc.needsApproval}
+                            onAccept={() => onToolApproval(tc.id, true)}
+                            onReject={() => onToolApproval(tc.id, false)}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ─── Message Bubble ───────────────────────────────────────────────────────────
 function MessageBubble({
     message,
     onToolApproval,
     onRetry,
+    isStreaming = false,
+    streamedText = '',
+    pendingToolCalls = [],
+    currentPlan,
 }: {
     message: Message
-    onToolApproval: (toolId: string, approved: boolean) => void
+    onToolApproval: (id: string, approved: boolean) => void
     onRetry?: () => void
+    isStreaming?: boolean
+    streamedText?: string
+    pendingToolCalls?: ToolCallState[]
+    currentPlan?: string | null
 }) {
     const [copied, setCopied] = useState(false)
+    const isUser = message.role === 'user'
 
     const handleCopy = async () => {
-        await navigator.clipboard.writeText(message.content)
+        const text = isStreaming ? streamedText : message.content
+        await navigator.clipboard.writeText(text)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
 
-    const isUser = message.role === 'user'
+    const toolsToRender = isStreaming ? pendingToolCalls : (message.toolCalls ?? [])
+    const contentToRender = isStreaming ? streamedText : message.content
+    const planToRender = isStreaming ? currentPlan : message.plan
+    const doneTools = toolsToRender.filter(tc => tc.success !== undefined).length
+    const totalTools = toolsToRender.length
 
-    return (
-        <div className="ai-message">
-            <div className={isUser ? 'user-message-container' : 'assistant-message-container'}>
-                {!isUser && (
-                    <div className="ai-avatar">
-                        <Codicon name="sparkle" style={{ fontSize: '11px' }} />
+    /* ── User message ────────────────────────────────────────────────── */
+    if (isUser) {
+        return (
+            <div className="group flex justify-end mb-4">
+                <div className="max-w-[88%]">
+                    <div className="bg-ui-bg-elevated border border-ui-border rounded-lg px-3.5 py-2.5 text-[13px] text-ui-fg leading-relaxed whitespace-pre-wrap break-words">
+                        {message.content}
                     </div>
-                )}
-                <div className={isUser ? 'user-message-box' : 'assistant-message-flow'}>
-                    {/* Plan card */}
-                    {message.plan && <PlanCard planMarkdown={message.plan} />}
-
-                    <div className="ai-message__content">
-                        {/* Tool calls */}
-                        {message.toolCalls && message.toolCalls.length > 0 && (
-                            <div className="tool-calls-container">
-                                {message.toolCalls.map((tc) => (
-                                    <ToolCallCard
-                                        key={tc.id}
-                                        toolName={tc.name}
-                                        arguments={tc.arguments}
-                                        result={tc.result}
-                                        success={tc.success}
-                                        isExecuting={tc.isExecuting}
-                                        needsApproval={tc.needsApproval}
-                                        onAccept={() => onToolApproval(tc.id, true)}
-                                        onReject={() => onToolApproval(tc.id, false)}
-                                    />
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Content */}
-                        {message.content && (
-                            <div className="markdown-container">
-                                <AiMarkdown content={message.content} />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Footer with actions */}
-                    <div className="ai-message__footer">
-                        <span className="ai-message__timestamp">
-                            {message.timestamp.toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false,
-                            })}
+                    <div className="flex items-center justify-end gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[9px] font-mono text-ui-fg-muted opacity-50">
+                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
                         </span>
-                        <div className="ai-message__actions">
-                            {!isUser && message.content && (
-                                <button
-                                    className="ai-msg-action-btn"
-                                    onClick={handleCopy}
-                                    title={copied ? 'Copied!' : 'Copy message'}
-                                >
-                                    <Codicon name={copied ? 'check' : 'copy'} style={{ fontSize: '10px' }} />
-                                </button>
-                            )}
-                            {onRetry && (
-                                <button
-                                    className="ai-msg-action-btn"
-                                    onClick={onRetry}
-                                    title="Edit and resend"
-                                >
-                                    <Codicon name="edit" style={{ fontSize: '10px' }} />
-                                </button>
-                            )}
-                        </div>
+                        {onRetry && (
+                            <button
+                                className="flex items-center justify-center w-5 h-5 rounded hover:bg-ui-hover text-ui-fg-muted hover:text-ui-fg transition-colors"
+                                onClick={onRetry}
+                                title="Edit and resend"
+                            >
+                                <Codicon name="edit" style={{ fontSize: 10 }} />
+                            </button>
+                        )}
                     </div>
                 </div>
+            </div>
+        )
+    }
+
+    /* ── Assistant message ───────────────────────────────────────────── */
+    return (
+        <div className="group mb-5">
+            {/* Header row */}
+            <div className="flex items-center gap-2 mb-2">
+                <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-accent border"
+                    style={{
+                        background: 'color-mix(in srgb, var(--accent) 15%, transparent)',
+                        borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)',
+                    }}
+                >
+                    <Codicon name="sparkle" style={{ fontSize: 10 }} />
+                </div>
+                <span className="text-[11px] font-medium text-ui-fg-muted opacity-60">Assistant</span>
+
+                {totalTools > 0 && (
+                    <div
+                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-accent text-[9px] font-semibold border"
+                        style={{
+                            background: 'color-mix(in srgb, var(--accent) 10%, transparent)',
+                            borderColor: 'color-mix(in srgb, var(--accent) 20%, transparent)',
+                        }}
+                    >
+                        <Codicon name="tools" style={{ fontSize: 9 }} />
+                        <span>{isStreaming ? `${doneTools}/${totalTools}` : totalTools}</span>
+                    </div>
+                )}
+
+                {isStreaming && (
+                    <div className="ml-auto">
+                        <span
+                            className="block w-1.5 h-1.5 rounded-full bg-accent animate-live-dot"
+                            style={{ boxShadow: '0 0 6px var(--accent)' }}
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* Content area */}
+            <div className="pl-7">
+                {/* Plan card */}
+                {planToRender && <PlanCard planMarkdown={planToRender} />}
+
+                {/* Tool calls group */}
+                {toolsToRender.length > 0 && (
+                    <ToolCallsGroup
+                        toolCalls={toolsToRender}
+                        onToolApproval={onToolApproval}
+                        isStreaming={isStreaming}
+                    />
+                )}
+
+                {/* Text content */}
+                {contentToRender ? (
+                    <div className="text-[13px] text-ui-fg leading-relaxed">
+                        <AiMarkdown content={contentToRender} />
+                        {isStreaming && <TypingCursor />}
+                    </div>
+                ) : isStreaming ? (
+                    <ShimmerLoader label={
+                        toolsToRender.some(tc => tc.isExecuting)
+                            ? `Running ${toolsToRender.find(tc => tc.isExecuting)?.name?.replace(/_/g, ' ')}…`
+                            : totalTools > 0 && doneTools === totalTools
+                            ? 'Synthesizing results…'
+                            : 'Thinking…'
+                    } />
+                ) : null}
+
+                {/* Footer */}
+                {!isStreaming && (contentToRender || toolsToRender.length > 0) && (
+                    <div className="flex items-center justify-end gap-1 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[9px] font-mono text-ui-fg-muted opacity-50">
+                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                        </span>
+                        {contentToRender && (
+                            <button
+                                className="flex items-center justify-center w-5 h-5 rounded hover:bg-ui-hover text-ui-fg-muted hover:text-ui-fg transition-colors"
+                                onClick={handleCopy}
+                                title={copied ? 'Copied!' : 'Copy response'}
+                            >
+                                <Codicon name={copied ? 'check' : 'copy'} style={{ fontSize: 10 }} />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     )
 }
 
+// ─── Main Component ───────────────────────────────────────────────────────────
 export function AIChatSidebar() {
     const dispatch = useAppDispatch()
     const settings = useAppSelector(ssel.getSettings)
+    const rootPath = useAppSelector((state: FullState) => state.global.rootPath)
     const aiSidebarOpen = useAppSelector(
         (state: FullState) => state.toolState?.aiCommandPaletteTriggered
     )
-    const rootPath = useAppSelector((state: FullState) => state.global.rootPath)
     const activeFileId = useAppSelector((state: FullState) =>
         getActiveFileId(state.global)
     )
@@ -226,605 +411,295 @@ export function AIChatSidebar() {
         activeFileId ? getPathForFileId(state.global, activeFileId) : null
     )
 
-    // State
+    // ── State ────────────────────────────────────────────────────────────────
     const [messages, setMessages] = useState<Message[]>([])
-    // plan state removed, now part of messages or streaming state
     const [currentPlan, setCurrentPlan] = useState<string | null>(null)
     const [input, setInput] = useState('')
     const [isGenerating, setIsGenerating] = useState(false)
     const [streamedText, setStreamedText] = useState('')
-    const [pendingToolCalls, setPendingToolCalls] = useState<ToolCallState[]>(
-        []
-    )
+    const [pendingToolCalls, setPendingToolCalls] = useState<ToolCallState[]>([])
 
-    // Refs
+    // ── Refs ─────────────────────────────────────────────────────────────────
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const abortControllerRef = useRef<AbortController | null>(null)
-    const confirmationResolvers = useRef<
-        Record<string, { resolve: (v: boolean) => void; reject: () => void }>
-    >({})
+    const confirmationResolvers = useRef<Record<string, { resolve: (v: boolean) => void; reject: () => void }>>({})
 
-    // Check if AI is configured
+    // KEY ARCHITECTURE: single message ID + accumulated state persist across recursive turns
+    const activeAssistantIdRef = useRef<string | null>(null)
+    const accumulatedToolCallsRef = useRef<ToolCallState[]>([])
+    // STREAMING BUG FIX: store ONLY completed-turn text; current-turn text is local
+    const completedTurnTextRef = useRef<string>('')
+
+    // ── Computed ─────────────────────────────────────────────────────────────
     const isAIConfigured = useMemo(() => {
-        const provider = settings.aiProvider
-        if (provider === 'openai')
-            return !!(settings.useOpenAIKey && settings.openAIKey)
-        if (provider === 'openrouter')
-            return !!(settings.useOpenRouterKey && settings.openRouterKey)
-        if (provider === 'gemini')
-            return !!(settings.useGeminiKey && settings.geminiKey)
-        if (provider === 'claude')
-            return !!(settings.useClaudeKey && settings.claudeKey)
-        if (provider === 'ollama') return true
+        const p = settings.aiProvider
+        if (p === 'openai') return !!(settings.useOpenAIKey && settings.openAIKey)
+        if (p === 'openrouter') return !!(settings.useOpenRouterKey && settings.openRouterKey)
+        if (p === 'gemini') return !!(settings.useGeminiKey && settings.geminiKey)
+        if (p === 'claude') return !!(settings.useClaudeKey && settings.claudeKey)
+        if (p === 'ollama') return true
         return false
     }, [settings])
 
-    // Get current provider display name
-    const providerDisplayName = useMemo(() => {
-        const provider = settings.aiProvider || 'ollama'
-        const modelName =
-            provider === 'openai'
-                ? settings.openAIModel
-                : provider === 'openrouter'
-                ? settings.openRouterModel
-                : provider === 'gemini'
-                ? settings.geminiModel
-                : provider === 'claude'
-                ? settings.claudeModel
-                : settings.ollamaModel || 'llama3'
-
-        return {
-            provider: provider.charAt(0).toUpperCase() + provider.slice(1),
-            model: modelName || 'Default',
-        }
+    const providerInfo = useMemo(() => {
+        const p = settings.aiProvider || 'ollama'
+        const model =
+            p === 'openai' ? settings.openAIModel
+            : p === 'openrouter' ? settings.openRouterModel
+            : p === 'gemini' ? settings.geminiModel
+            : p === 'claude' ? settings.claudeModel
+            : settings.ollamaModel || 'llama3'
+        return { provider: p.charAt(0).toUpperCase() + p.slice(1), model: model || 'Default' }
     }, [settings])
 
-    // Auto-scroll to bottom
-    const scrollToBottom = useCallback(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [])
-
+    // ── Effects ───────────────────────────────────────────────────────────────
     useEffect(() => {
-        scrollToBottom()
-    }, [messages, streamedText, pendingToolCalls, scrollToBottom])
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages, streamedText, pendingToolCalls])
 
-    // Auto-resize textarea
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto'
-            textareaRef.current.style.height =
-                Math.min(textareaRef.current.scrollHeight, 200) + 'px'
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`
         }
     }, [input])
 
-    // Handle Command+K query injection
     useEffect(() => {
         if (aiSidebarOpen && textareaRef.current) {
-            if (
-                typeof window !== 'undefined' &&
-                (window as any).__codexChatQuery
-            ) {
+            if ((window as any).__codexChatQuery) {
                 const query = (window as any).__codexChatQuery
                 delete (window as any).__codexChatQuery
                 setInput(query)
-                setTimeout(() => {
-                    if (query.trim() && !isGenerating) {
-                        handleSend()
-                    }
-                }, 300)
+                setTimeout(() => { if (query.trim() && !isGenerating) handleSend() }, 300)
             } else {
-                setTimeout(() => {
-                    textareaRef.current?.focus()
-                }, 100)
+                setTimeout(() => textareaRef.current?.focus(), 100)
             }
         }
     }, [aiSidebarOpen])
 
-    // Get model configuration
-    const getModelToUse = useCallback(async (): Promise<{
-        model: string
-        provider: any
-        apiKey: string
-    }> => {
-        const providerInfo = await getActiveProviderAPIKey(settings)
-
-        if (!providerInfo) {
-            return {
-                model: 'llama3',
-                provider: 'ollama',
-                apiKey: 'ollama',
-            }
-        }
-
-        const currentProvider = settings.aiProvider || 'ollama'
-        if (currentProvider === 'openrouter') {
-            return {
-                model: providerInfo.model,
-                provider: 'openrouter',
-                apiKey: providerInfo.apiKey!,
-            }
-        }
-
-        const selectedModelClean = providerInfo.model.replace(':free', '')
-        return {
-            model: selectedModelClean,
-            provider: currentProvider,
-            apiKey: providerInfo.apiKey!,
-        }
+    // ── Model ─────────────────────────────────────────────────────────────────
+    const getModelToUse = useCallback(async () => {
+        const info = await getActiveProviderAPIKey(settings)
+        if (!info) return { model: 'llama3', provider: 'ollama', apiKey: 'ollama' }
+        const p = settings.aiProvider || 'ollama'
+        if (p === 'openrouter') return { model: info.model, provider: 'openrouter', apiKey: info.apiKey! }
+        return { model: info.model.replace(':free', ''), provider: p, apiKey: info.apiKey! }
     }, [settings])
 
-    // Recursive function to handle AI turn
+    // ── THE CORE FIX: processTurn updates the single message, NEVER creates new ones ──
     const processTurn = useCallback(
-        async (
-            currentMessages: any[],
-            currentModel: any,
-            provider: any,
-            apiKey: any
-        ) => {
-            let currentContent = ''
-            const currentToolCalls: ToolCallState[] = []
-
-            // Cleanup old resolvers
-            confirmationResolvers.current = {}
-
-            // Create placeholder for assistant message
-            const assistantId = (Date.now() + Math.random()).toString()
-            const assistantMessage: Message = {
-                id: assistantId,
-                role: 'assistant',
-                content: '',
-                timestamp: new Date(),
-                toolCalls: [],
-            }
-
-            // Update UI with empty assistant message to show thinking
-            // Note: we don't add it to 'messages' yet to prevent flicker, we use streaming states
+        async (currentMessages: any[], currentModel: any, provider: any, apiKey: any) => {
+            // Text for THIS turn only (reset per recursive call)
+            let thisTurnText = ''
+            const thisTurnToolCalls: ToolCallState[] = []
 
             const providerConfig = {
-                provider,
-                apiKey,
-                enabled: true,
-                defaultModel: currentModel,
+                provider, apiKey, enabled: true, defaultModel: currentModel,
                 baseUrl: (settings as any).ollama?.baseUrl,
             }
 
             try {
                 const stream = streamAIResponseWithTools(
                     providerConfig,
-                    currentMessages, // @ts-ignore
-                    {
-                        tools: AI_TOOLS,
-                        maxToolCalls: 50,
-                        signal: abortControllerRef.current?.signal,
-                    }
+                    currentMessages,
+                    // @ts-ignore
+                    { tools: AI_TOOLS, maxToolCalls: 50, signal: abortControllerRef.current?.signal }
                 )
 
-                // 1. Stream the response (Text + Tool Calls)
                 for await (const chunk of stream) {
-                    if (abortControllerRef.current?.signal.aborted)
-                        throw new Error('Aborted')
+                    if (abortControllerRef.current?.signal.aborted) throw new Error('Aborted')
 
                     if (chunk.type === 'text') {
                         const text = chunk.content || ''
-                        currentContent += text
+                        thisTurnText += text
 
-                        // Robust Plan Parsing
-                        const planStart = currentContent.indexOf('<plan>')
-                        const planEnd = currentContent.indexOf('</plan>')
+                        // Plan extraction
+                        const ps = thisTurnText.indexOf('<plan>')
+                        const pe = thisTurnText.indexOf('</plan>')
+                        let visibleText = thisTurnText
 
-                        let visibleContent = currentContent
-
-                        if (planStart !== -1) {
-                            if (planEnd !== -1) {
-                                // Plan is complete
-                                const planContent = currentContent.substring(
-                                    planStart + 6,
-                                    planEnd
-                                )
-                                setCurrentPlan(planContent.trim())
-                                // Remove plan block from visible chat
-                                visibleContent =
-                                    currentContent.substring(0, planStart) +
-                                    currentContent.substring(planEnd + 7)
+                        if (ps !== -1) {
+                            if (pe !== -1) {
+                                setCurrentPlan(thisTurnText.substring(ps + 6, pe).trim())
+                                visibleText = (thisTurnText.substring(0, ps) + thisTurnText.substring(pe + 7)).trim()
                             } else {
-                                // Plan is streaming...
-                                const partialPlan = currentContent.substring(
-                                    planStart + 6
-                                )
-                                setCurrentPlan(partialPlan.trim())
-                                // Hide plan streaming from chat
-                                visibleContent = currentContent.substring(
-                                    0,
-                                    planStart
-                                )
+                                setCurrentPlan(thisTurnText.substring(ps + 6).trim())
+                                visibleText = thisTurnText.substring(0, ps)
                             }
                         }
 
-                        // Regex to find potential JSON objects. This is a heuristic.
-                        // Matches { "name": "...", "arguments": ... } across lines
-                        const jsonToolRegexCheck =
-                            /\{\s*"name"\s*:\s*"[^"]+"\s*,\s*"arguments"\s*:\s*\{[\s\S]*?\}\s*\}/g
-                        let match
+                        // STREAMING FIX: display = completed previous turns + THIS turn text only
+                        // NO accumulation during streaming — visibleText is the full current turn state
+                        const previousText = completedTurnTextRef.current
+                        const display = previousText ? `${previousText}\n\n${visibleText}` : visibleText
+                        setStreamedText(display)
 
-                        // We iterate to find all matches in the current content
-                        while (
-                            (match =
-                                jsonToolRegexCheck.exec(currentContent)) !==
-                            null
-                        ) {
-                            try {
-                                const jsonStr = match[0]
-                                const parsed = JSON.parse(jsonStr)
-
-                                if (parsed.name && parsed.arguments) {
-                                    // It's a valid tool call!
-                                    // De-duplication: check if we already have this exact tool call
-                                    const alreadyExists = currentToolCalls.some(
-                                        (tc) =>
-                                            tc.name === parsed.name &&
-                                            JSON.stringify(tc.arguments) ===
-                                                JSON.stringify(parsed.arguments)
-                                    )
-
-                                    if (!alreadyExists) {
-                                        const toolCallId = `call_${Date.now()}_${Math.random()
-                                            .toString(36)
-                                            .substr(2, 9)}`
-                                        const newToolCall: ToolCallState = {
-                                            id: toolCallId,
-                                            name: parsed.name,
-                                            arguments: parsed.arguments,
-                                            isExecuting: false,
-                                        }
-                                        currentToolCalls.push(newToolCall)
-                                        setPendingToolCalls([
-                                            ...currentToolCalls,
-                                        ])
-                                    }
-
-                                    // Remove the JSON string from visible content
-                                    visibleContent = visibleContent
-                                        .replace(jsonStr, '')
-                                        .trim()
-                                }
-                            } catch (e) {
-                                // Not valid JSON or partial JSON, ignore
-                            }
-                        }
-
-                        // Also detect tool calls from standard Markdown code blocks
-                        const markdownJsonRegex = /```json\s*(\{[\s\S]*?\})\s*```/g
-                        let mdMatch
-                        while (
-                            (mdMatch =
-                                markdownJsonRegex.exec(currentContent)) !== null
-                        ) {
-                            try {
-                                const jsonStr = mdMatch[1]
-                                const parsed = JSON.parse(jsonStr)
-
-                                if (parsed.name && parsed.arguments) {
-                                    const alreadyExists = currentToolCalls.some(
-                                        (tc) =>
-                                            tc.name === parsed.name &&
-                                            JSON.stringify(tc.arguments) ===
-                                                JSON.stringify(parsed.arguments)
-                                    )
-
-                                    if (!alreadyExists) {
-                                        const toolCallId = `call_${Date.now()}_${Math.random()
-                                            .toString(36)
-                                            .substr(2, 9)}`
-                                        const newToolCall: ToolCallState = {
-                                            id: toolCallId,
-                                            name: parsed.name,
-                                            arguments: parsed.arguments,
-                                            isExecuting: false,
-                                        }
-                                        currentToolCalls.push(newToolCall)
-                                        setPendingToolCalls([
-                                            ...currentToolCalls,
-                                        ])
-                                    }
-                                }
-                            } catch (e) {}
-                        }
-
-                        setStreamedText(visibleContent)
                     } else if (chunk.type === 'tool_call' && chunk.toolCall) {
-                        const newToolCall: ToolCallState = {
+                        const tc: ToolCallState = {
                             id: chunk.toolCall.id,
                             name: chunk.toolCall.name,
                             arguments: chunk.toolCall.arguments,
                             isExecuting: false,
                         }
-                        currentToolCalls.push(newToolCall)
-                        setPendingToolCalls([...currentToolCalls])
+                        thisTurnToolCalls.push(tc)
+                        accumulatedToolCallsRef.current = [...accumulatedToolCallsRef.current, tc]
+                        setPendingToolCalls([...accumulatedToolCallsRef.current])
+
                     } else if (chunk.type === 'error') {
-                        currentContent += `\n\nError: ${chunk.error}`
-                        setStreamedText(currentContent)
+                        thisTurnText += `\n\nError: ${chunk.error}`
+                        const prev = completedTurnTextRef.current
+                        setStreamedText(prev ? `${prev}\n\n${thisTurnText}` : thisTurnText)
                     }
                 }
 
-                // 2. Finalize the assistant message in UI
-                const finalizedAssistantMessage: Message = {
-                    ...assistantMessage,
-                    content: currentContent
-                        .replace(/<plan>[\s\S]*?<\/plan>/g, '')
-                        .trim(), // Clean content one last time
-                    toolCalls: currentToolCalls,
-                    plan: currentPlan || undefined,
-                }
+                // ── Turn complete: no tool calls → finalize single message ──
+                if (thisTurnToolCalls.length === 0) {
+                    const cleanThisTurn = thisTurnText.replace(/<plan>[\s\S]*?<\/plan>/g, '').trim()
+                    const finalContent = completedTurnTextRef.current
+                        ? cleanThisTurn ? `${completedTurnTextRef.current}\n\n${cleanThisTurn}` : completedTurnTextRef.current
+                        : cleanThisTurn
 
-                // Add the completed message to the history
-                setMessages((prev) => [...prev, finalizedAssistantMessage])
+                    setMessages(prev => prev.map(m =>
+                        m.id === activeAssistantIdRef.current
+                            ? { ...m, content: finalContent, toolCalls: accumulatedToolCallsRef.current, plan: currentPlan || undefined }
+                            : m
+                    ))
 
-                // Reset streaming states
-                setStreamedText('')
-                setCurrentPlan(null)
-                setPendingToolCalls([])
-
-                // 3. If no tool calls, we are done
-                if (currentToolCalls.length === 0) {
+                    setStreamedText('')
+                    setCurrentPlan(null)
+                    setPendingToolCalls([])
+                    completedTurnTextRef.current = ''
                     return
                 }
 
-                // 4. Executing Tools
-                const toolResults = []
+                // ── Has tool calls: store this turn's visited text, then execute tools ──
+                const cleanThisTurn = thisTurnText.replace(/<plan>[\s\S]*?<\/plan>/g, '').trim()
+                if (cleanThisTurn) {
+                    completedTurnTextRef.current = completedTurnTextRef.current
+                        ? `${completedTurnTextRef.current}\n\n${cleanThisTurn}`
+                        : cleanThisTurn
+                }
 
-                for (const toolCall of currentToolCalls) {
+                const toolResults: any[] = []
+                for (const toolCall of thisTurnToolCalls) {
                     try {
-                        // Check for approval Requirement (Wait for User)
-                        // Only require approval for DESTRUCTIVE operations:
-                        // - edit_file: modifies existing code
-                        // - delete_file: removes files
-                        // - run_terminal_command: executes arbitrary commands
-                        // NOTE: write_file (creating new files) does NOT require approval
-                        if (
-                            toolCall.name === 'edit_file' ||
-                            toolCall.name === 'delete_file' ||
-                            toolCall.name === 'run_terminal_command'
-                        ) {
-                            // Update UI to show WAITING state
-                            setMessages((prev) =>
-                                prev.map((m) => {
-                                    if (m.id === assistantId && m.toolCalls) {
-                                        return {
-                                            ...m,
-                                            toolCalls: m.toolCalls.map((tc) =>
-                                                tc.id === toolCall.id
-                                                    ? {
-                                                          ...tc,
-                                                          isExecuting: false,
-                                                          needsApproval: true,
-                                                      }
-                                                    : tc
-                                            ),
-                                        }
-                                    }
-                                    return m
-                                })
+                        // Destructive ops need approval
+                        if (['edit_file', 'delete_file', 'run_terminal_command'].includes(toolCall.name)) {
+                            accumulatedToolCallsRef.current = accumulatedToolCallsRef.current.map(tc =>
+                                tc.id === toolCall.id ? { ...tc, needsApproval: true } : tc
                             )
+                            setPendingToolCalls([...accumulatedToolCallsRef.current])
 
-                            // Wait for User Confirmation
                             try {
-                                const approved = await new Promise<boolean>(
-                                    (resolve, reject) => {
-                                        confirmationResolvers.current[
-                                            toolCall.id
-                                        ] = { resolve, reject }
-                                    }
-                                )
-
-                                delete confirmationResolvers.current[
-                                    toolCall.id
-                                ]
+                                const approved = await new Promise<boolean>((resolve, reject) => {
+                                    confirmationResolvers.current[toolCall.id] = { resolve, reject }
+                                })
+                                delete confirmationResolvers.current[toolCall.id]
 
                                 if (!approved) {
-                                    // User Rejected
-                                    toolResults.push({
-                                        id: toolCall.id,
-                                        name: toolCall.name,
-                                        result: 'User rejected',
-                                        success: false,
-                                    })
-
-                                    // Update UI to Rejected
-                                    setMessages((prev) =>
-                                        prev.map((m) => {
-                                            if (
-                                                m.id === assistantId &&
-                                                m.toolCalls
-                                            ) {
-                                                return {
-                                                    ...m,
-                                                    toolCalls: m.toolCalls.map(
-                                                        (tc) =>
-                                                            tc.id ===
-                                                            toolCall.id
-                                                                ? {
-                                                                      ...tc,
-                                                                      isExecuting:
-                                                                          false,
-                                                                      needsApproval:
-                                                                          false,
-                                                                      success:
-                                                                          false,
-                                                                      result: 'User rejected',
-                                                                  }
-                                                                : tc
-                                                    ),
-                                                }
-                                            }
-                                            return m
-                                        })
+                                    accumulatedToolCallsRef.current = accumulatedToolCallsRef.current.map(tc =>
+                                        tc.id === toolCall.id ? { ...tc, needsApproval: false, success: false, result: 'Rejected by user' } : tc
                                     )
-                                    continue // Skip execution
+                                    setPendingToolCalls([...accumulatedToolCallsRef.current])
+                                    toolResults.push({ toolCallId: toolCall.id, result: 'User rejected', name: toolCall.name })
+                                    continue
                                 }
-                            } catch (e) {
-                                // Promise rejected (e.g. stop generation)
+                            } catch {
                                 throw new Error('Aborted')
                             }
                         }
 
-                        // Update UI to show execution started
-                        setMessages((prev) =>
-                            prev.map((m) => {
-                                if (m.id === assistantId && m.toolCalls) {
-                                    return {
-                                        ...m,
-                                        toolCalls: m.toolCalls.map((tc) =>
-                                            tc.id === toolCall.id
-                                                ? {
-                                                      ...tc,
-                                                      isExecuting: true,
-                                                      needsApproval: false,
-                                                  }
-                                                : tc
-                                        ),
-                                    }
-                                }
-                                return m
-                            })
+                        // Mark executing
+                        accumulatedToolCallsRef.current = accumulatedToolCallsRef.current.map(tc =>
+                            tc.id === toolCall.id ? { ...tc, isExecuting: true, needsApproval: false } : tc
                         )
+                        setPendingToolCalls([...accumulatedToolCallsRef.current])
 
                         const result = await executeToolCall(
-                            {
-                                id: toolCall.id,
-                                name: toolCall.name,
-                                arguments: toolCall.arguments,
-                            },
+                            { id: toolCall.id, name: toolCall.name, arguments: toolCall.arguments },
                             rootPath || '',
                             dispatch,
                             { openFile, fileWasUpdated }
                         )
 
-                        toolResults.push({
-                            toolCallId: toolCall.id,
-                            result: result.result,
-                            name: toolCall.name,
-                        })
-
-                        setMessages((prev) =>
-                            prev.map((m) => {
-                                if (m.id === assistantId && m.toolCalls) {
-                                    return {
-                                        ...m,
-                                        toolCalls: m.toolCalls.map((tc) =>
-                                            tc.id === toolCall.id
-                                                ? {
-                                                      ...tc,
-                                                      isExecuting: false,
-                                                      success: result.success,
-                                                      result: result.result,
-                                                  }
-                                                : tc
-                                        ),
-                                    }
-                                }
-                                return m
-                            })
+                        toolResults.push({ toolCallId: toolCall.id, result: result.result, name: toolCall.name })
+                        accumulatedToolCallsRef.current = accumulatedToolCallsRef.current.map(tc =>
+                            tc.id === toolCall.id ? { ...tc, isExecuting: false, success: result.success, result: result.result } : tc
                         )
+                        setPendingToolCalls([...accumulatedToolCallsRef.current])
                     } catch (e: any) {
-                        // Handle execution error
-                        toolResults.push({
-                            toolCallId: toolCall.id,
-                            result: `Error: ${e.message}`,
-                            name: toolCall.name,
-                        })
-
-                        setMessages((prev) =>
-                            prev.map((m) => {
-                                if (m.id === assistantId && m.toolCalls) {
-                                    return {
-                                        ...m,
-                                        toolCalls: m.toolCalls.map((tc) =>
-                                            tc.id === toolCall.id
-                                                ? {
-                                                      ...tc,
-                                                      isExecuting: false,
-                                                      success: false,
-                                                      result: e.message,
-                                                  }
-                                                : tc
-                                        ),
-                                    }
-                                }
-                                return m
-                            })
+                        toolResults.push({ toolCallId: toolCall.id, result: `Error: ${e.message}`, name: toolCall.name })
+                        accumulatedToolCallsRef.current = accumulatedToolCallsRef.current.map(tc =>
+                            tc.id === toolCall.id ? { ...tc, isExecuting: false, success: false, result: e.message } : tc
                         )
+                        setPendingToolCalls([...accumulatedToolCallsRef.current])
                     }
                 }
 
-                // 5. Construct History for Next Turn
-                // Note: API needs pure message objects, not our UI Message type
+                // Build next turn
                 const nextMessages = [
                     ...currentMessages,
                     {
                         role: 'assistant',
-                        content: currentContent || null, // Some providers require content to be null if tool_calls present
-                        tool_calls: currentToolCalls.map((tc) => ({
-                            id: tc.id,
-                            type: 'function',
-                            function: {
-                                name: tc.name, // Must include arguments in history
-                                arguments: JSON.stringify(tc.arguments),
-                            },
+                        content: thisTurnText || null,
+                        tool_calls: thisTurnToolCalls.map(tc => ({
+                            id: tc.id, type: 'function',
+                            function: { name: tc.name, arguments: JSON.stringify(tc.arguments) },
                         })),
                     },
-                    ...toolResults.map((tr) => ({
-                        role: 'tool',
-                        tool_call_id: tr.toolCallId,
-                        name: tr.name,
-                        content: tr.result,
+                    ...toolResults.map(tr => ({
+                        role: 'tool', tool_call_id: tr.toolCallId, name: tr.name, content: tr.result,
                     })),
                 ]
 
-                // 6. Recursively call for next turn
+                // Recurse — same activeAssistantIdRef, same accumulated refs
                 await processTurn(nextMessages, currentModel, provider, apiKey)
+
             } catch (error: any) {
                 if (error.message === 'Aborted') throw error
-                console.error('Error in processTurn:', error)
-                setMessages((prev) => [
-                    ...prev,
-                    {
-                        id: Date.now().toString(),
-                        role: 'assistant',
-                        content: `System Error: ${error.message}`,
-                        timestamp: new Date(),
-                    },
-                ])
+                console.error('processTurn error:', error)
+                setMessages(prev => prev.map(m =>
+                    m.id === activeAssistantIdRef.current
+                        ? { ...m, content: (m.content ? m.content + '\n\n' : '') + `**Error:** ${error.message}` }
+                        : m
+                ))
             }
         },
-        [
-            rootPath,
-            settings,
-            setMessages,
-            setStreamedText,
-            setPendingToolCalls,
-            dispatch,
-        ]
+        [rootPath, settings, dispatch, currentPlan]
     )
 
-    // Send message
+    // ── Send ─────────────────────────────────────────────────────────────────
     const handleSend = useCallback(async () => {
         if (!input.trim() || isGenerating) return
-
         if (!isAIConfigured) {
             dispatch(setSettingsTab('AI'))
             dispatch(toggleSettings())
             return
         }
 
-        const userMessage: Message = {
+        const userMsg: Message = {
             id: Date.now().toString(),
             role: 'user',
             content: input.trim(),
             timestamp: new Date(),
         }
 
-        const updatedMessages = [...messages, userMessage]
+        // Create the ONE assistant placeholder for the entire response
+        const assistantId = `${Date.now() + 1}`
+        activeAssistantIdRef.current = assistantId
+        accumulatedToolCallsRef.current = []
+        completedTurnTextRef.current = ''
+
+        const placeholder: Message = {
+            id: assistantId,
+            role: 'assistant',
+            content: '',
+            timestamp: new Date(),
+            toolCalls: [],
+        }
+
+        const updatedMessages = [...messages, userMsg, placeholder]
         setMessages(updatedMessages)
         setInput('')
         setIsGenerating(true)
@@ -832,244 +707,184 @@ export function AIChatSidebar() {
         setCurrentPlan(null)
         setPendingToolCalls([])
 
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort()
-        }
+        if (abortControllerRef.current) abortControllerRef.current.abort()
         abortControllerRef.current = new AbortController()
 
         try {
             const { model, provider, apiKey } = await getModelToUse()
 
-            // Prepare Initial Messages with System Prompt
-            // We need to construct the chain from scratch if we want to include the system prompt correctly for every request
-
-            const contextMessage = `STARTING CONTEXT:
-Project Root: ${rootPath || 'No folder open'}
-Active File: ${activeFilePath || 'No file open'}
-`
+            const context = `CONTEXT:\nProject Root: ${rootPath || 'No folder open'}\nActive File: ${activeFilePath || 'No file open'}`
             const apiMessages = [
                 { role: 'system', content: AI_SYSTEM_PROMPT },
-                { role: 'system', content: contextMessage },
-                ...updatedMessages.flatMap((m) => {
-                    if (m.role === 'user') {
-                        return [{ role: 'user', content: m.content }]
-                    }
-
-                    // For assistant messages, handle tool calls
-                    const messages: any[] = []
-
-                    const toolCalls = m.toolCalls?.map((tc) => ({
-                        id: tc.id,
-                        type: 'function',
-                        function: {
-                            name: tc.name, // Must include arguments in history
-                            arguments: JSON.stringify(tc.arguments),
-                        },
+                { role: 'system', content: context },
+                ...messages.flatMap((m): any[] => {
+                    if (m.role === 'user') return [{ role: 'user', content: m.content }]
+                    const msgs: any[] = []
+                    const tcs = m.toolCalls?.map(tc => ({
+                        id: tc.id, type: 'function',
+                        function: { name: tc.name, arguments: JSON.stringify(tc.arguments) },
                     }))
-
-                    messages.push({
-                        role: 'assistant',
-                        content: m.content || null,
-                        tool_calls:
-                            toolCalls && toolCalls.length > 0
-                                ? toolCalls
-                                : undefined,
+                    msgs.push({ role: 'assistant', content: m.content || null, tool_calls: tcs?.length ? tcs : undefined })
+                    m.toolCalls?.forEach(tc => {
+                        if (tc.result !== undefined) {
+                            msgs.push({ role: 'tool', tool_call_id: tc.id, name: tc.name, content: tc.result || (tc.success ? 'Success' : 'Failed') })
+                        }
                     })
-
-                    // We also need to append the Tool Results if they exist in the UI state?
-                    // The UI 'Message' type aggregates the result into `toolCalls[i].result`
-                    // But the API expects separate 'tool' role messages following the assistant message.
-
-                    if (m.toolCalls) {
-                        m.toolCalls.forEach((tc) => {
-                            if (tc.result || tc.success === false) {
-                                // If result exists (even empty string if success) or failure
-                                messages.push({
-                                    role: 'tool',
-                                    tool_call_id: tc.id,
-                                    name: tc.name,
-                                    content:
-                                        tc.result ||
-                                        (tc.success ? 'Success' : 'Failed'),
-                                })
-                            }
-                        })
-                    }
-
-                    return messages
+                    return msgs
                 }),
+                { role: 'user', content: userMsg.content },
             ]
 
             await processTurn(apiMessages, model, provider, apiKey)
         } catch (error: any) {
             if (error.message !== 'Aborted') {
-                const errorMessage = error.message || 'Failed to get response.'
-                setMessages((prev) => [
-                    ...prev,
-                    {
-                        id: (Date.now() + 1).toString(),
-                        role: 'assistant',
-                        content: `❌ Error: ${errorMessage}`,
-                        timestamp: new Date(),
-                    },
-                ])
+                setMessages(prev => prev.map(m =>
+                    m.id === assistantId
+                        ? { ...m, content: `**Error:** ${error.message || 'Failed to get response.'}` }
+                        : m
+                ))
             }
         } finally {
             setIsGenerating(false)
+            setStreamedText('')
+            setCurrentPlan(null)
+            setPendingToolCalls([])
+            completedTurnTextRef.current = ''
             abortControllerRef.current = null
         }
-    }, [
-        input,
-        isGenerating,
-        isAIConfigured,
-        messages,
-        settings,
-        getModelToUse,
-        rootPath,
-        dispatch,
-        processTurn,
-    ])
+    }, [input, isGenerating, isAIConfigured, messages, getModelToUse, rootPath, activeFilePath, dispatch, processTurn])
 
-    // Handle keyboard shortcuts
-    const handleKeyDown = useCallback(
-        (e: React.KeyboardEvent) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                handleSend()
-            }
-        },
-        [handleSend]
-    )
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
+    }, [handleSend])
 
-    // Clear chat
     const handleClearChat = useCallback(() => {
         setMessages([])
         setStreamedText('')
         setCurrentPlan(null)
         setPendingToolCalls([])
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort()
-            abortControllerRef.current = null
-        }
+        completedTurnTextRef.current = ''
+        accumulatedToolCallsRef.current = []
+        if (abortControllerRef.current) { abortControllerRef.current.abort(); abortControllerRef.current = null }
         setIsGenerating(false)
-
-        // Reject all pending confirmations to prevent memory leaks
-        Object.values(confirmationResolvers.current).forEach((r) => {
-            try {
-                r.reject()
-            } catch (e) {
-                // Ignore rejection errors during cleanup
-            }
-        })
+        Object.values(confirmationResolvers.current).forEach(r => { try { r.reject() } catch {} })
         confirmationResolvers.current = {}
     }, [])
 
-    // Stop generation
     const handleStopGeneration = useCallback(() => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort()
-            abortControllerRef.current = null
-        }
+        if (abortControllerRef.current) { abortControllerRef.current.abort(); abortControllerRef.current = null }
         setIsGenerating(false)
-
-        // Save whatever we have so far
-        if (streamedText || pendingToolCalls.length > 0) {
-            setMessages((prev) => [
-                ...prev,
-                {
-                    id: Date.now().toString(),
-                    role: 'assistant',
-                    content: streamedText + ' [Stopped]',
-                    timestamp: new Date(),
-                    toolCalls: pendingToolCalls,
-                },
-            ])
+        if (activeAssistantIdRef.current) {
+            const finalContent = completedTurnTextRef.current || streamedText
+            setMessages(prev => prev.map(m =>
+                m.id === activeAssistantIdRef.current
+                    ? {
+                        ...m,
+                        content: finalContent.replace(/<plan>[\s\S]*?<\/plan>/g, '').trim() + ' *(stopped)*',
+                        toolCalls: accumulatedToolCallsRef.current.length ? accumulatedToolCallsRef.current : m.toolCalls,
+                    }
+                    : m
+            ))
         }
-
         setStreamedText('')
         setCurrentPlan(null)
         setPendingToolCalls([])
-
-        // Reject all pending confirmations
-        Object.values(confirmationResolvers.current).forEach((r) => r.reject())
+        completedTurnTextRef.current = ''
+        Object.values(confirmationResolvers.current).forEach(r => r.reject())
         confirmationResolvers.current = {}
-    }, [streamedText, pendingToolCalls])
+    }, [streamedText])
 
-    const handleToolApproval = useCallback(
-        (toolId: string, approved: boolean) => {
-            if (confirmationResolvers.current[toolId]) {
-                confirmationResolvers.current[toolId].resolve(approved)
-            }
-        },
-        []
-    )
+    const handleToolApproval = useCallback((toolId: string, approved: boolean) => {
+        confirmationResolvers.current[toolId]?.resolve(approved)
+    }, [])
 
-    // Close sidebar
-    const handleClose = useCallback(() => {
-        dispatch(ts.untriggerAICommandPalette())
-    }, [dispatch])
-
-    // Configure AI
+    const handleClose = useCallback(() => dispatch(ts.untriggerAICommandPalette()), [dispatch])
     const handleConfigureAI = useCallback(() => {
         dispatch(setSettingsTab('AI'))
         dispatch(toggleSettings())
     }, [dispatch])
 
-    // --- RENDER: Not Configured State ---
+    const activeFileName = activeFilePath?.split('/').pop()
+
+    // ── Shared header ─────────────────────────────────────────────────────────
+    const Header = () => (
+        <div
+            className="flex items-center gap-2 px-3 h-10 shrink-0 border-b border-t border-ui-border"
+            style={{ borderTopColor: 'var(--pane-border)' }}
+        >
+            {/* Icon */}
+            <div
+                className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-accent border"
+                style={{
+                    background: 'color-mix(in srgb, var(--accent) 14%, transparent)',
+                    borderColor: 'color-mix(in srgb, var(--accent) 28%, transparent)',
+                }}
+            >
+                <Codicon name="sparkle" style={{ fontSize: 11, color: 'var(--accent)' }} />
+            </div>
+
+            {/* Provider + model */}
+            <div className="flex flex-col leading-none min-w-0">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-ui-fg">{providerInfo.provider}</span>
+                <span className="text-[9px] text-ui-fg-muted opacity-50 truncate max-w-[90px]">{providerInfo.model}</span>
+            </div>
+
+            {/* Active file chip */}
+            {activeFileName && (
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-ui-border bg-ui-bg-elevated text-[10px] text-ui-fg-muted max-w-[110px] overflow-hidden">
+                    <Codicon name="file" style={{ fontSize: 9 }} />
+                    <span className="truncate">{activeFileName}</span>
+                </div>
+            )}
+
+            <div className="flex items-center gap-0.5 ml-auto">
+                {messages.length > 0 && (
+                    <button
+                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-ui-hover text-ui-fg-muted hover:text-ui-fg transition-colors"
+                        onClick={handleClearChat}
+                        title="New chat"
+                    >
+                        <Codicon name="add" style={{ fontSize: 11 }} />
+                    </button>
+                )}
+                <button
+                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-ui-hover text-ui-fg-muted hover:text-ui-fg transition-colors"
+                    onClick={handleClose}
+                    title="Close (⌘L)"
+                >
+                    <Codicon name="close" style={{ fontSize: 12 }} />
+                </button>
+            </div>
+        </div>
+    )
+
+    // ── Not configured ────────────────────────────────────────────────────────
     if (!isAIConfigured) {
         return (
-            <div className="ai-sidebar">
-                {/* Header - matches filetree__project-header style */}
-                <div
-                    className="ai-sidebar__header"
-                    style={{ borderTop: '1px solid var(--pane-border)' }}
-                >
-                    <div className="ai-sidebar__header-left">
-                        <Codicon
-                            name="sparkle"
-                            style={{ color: 'var(--accent)', fontSize: '13px' }}
+            <div className="ai-sidebar flex flex-col h-full w-full bg-sidebar">
+                <Header />
+                <div className="flex-1 flex items-center justify-center p-6">
+                    <div className="flex flex-col items-center text-center gap-3 max-w-[240px] relative">
+                        <div
+                            className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 rounded-full pointer-events-none animate-glow-pulse"
+                            style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 70%)' }}
                         />
-                        <span>AI Assistant</span>
-                    </div>
-                    <button
-                        onClick={handleClose}
-                        className="ai-sidebar__close-btn"
-                        type="button"
-                        title="Close AI Panel"
-                    >
-                        <Codicon name="close" />
-                    </button>
-                </div>
-
-                {/* Not Configured State */}
-                <div className="ai-sidebar__messages" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                    <div className="ai-sidebar__empty">
-                        <div className="ai-sidebar__empty-icon">
-                            <Codicon name="sparkle" style={{ fontSize: '28px', color: 'var(--accent)' }} />
-                        </div>
-                        <div className="ai-sidebar__empty-text">
-                            <div className="ai-sidebar__empty-title">AI Not Configured</div>
-                            <div className="ai-sidebar__empty-subtitle">
-                                Configure an AI provider (Ollama, OpenAI, Claude, etc.) to start chatting.
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleConfigureAI}
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 border"
                             style={{
-                                marginTop: '8px',
-                                padding: '8px 20px',
-                                backgroundColor: 'var(--accent)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: 'var(--radius-md)',
-                                fontSize: '12px',
-                                fontWeight: 500,
-                                cursor: 'pointer',
-                                transition: 'background-color 0.15s ease',
+                                background: 'color-mix(in srgb, var(--accent) 10%, transparent)',
+                                borderColor: 'color-mix(in srgb, var(--accent) 24%, transparent)',
                             }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent-hover)')}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent)')}
-                            type="button"
+                        >
+                            <Codicon name="sparkle" style={{ fontSize: 26, color: 'var(--accent)' }} />
+                        </div>
+                        <p className="text-sm font-bold text-ui-fg -tracking-wide">AI Not Configured</p>
+                        <p className="text-[11px] text-ui-fg-muted opacity-60 leading-snug">
+                            Connect an AI provider to start your agentic coding session.
+                        </p>
+                        <button
+                            className="mt-1 px-5 py-2 bg-accent text-white text-[12px] font-semibold rounded-md hover:opacity-90 hover:-translate-y-px transition-all"
+                            onClick={handleConfigureAI}
                         >
                             Configure AI Provider
                         </button>
@@ -1079,206 +894,156 @@ Active File: ${activeFilePath || 'No file open'}
         )
     }
 
-    // --- RENDER: Main Chat Interface ---
-    return (
-        <div className="ai-sidebar">
-            {/* Header - mirrors filetree__project-header exactly */}
-            <div
-                className="ai-sidebar__header"
-                style={{ borderTop: '1px solid var(--pane-border)' }}
-            >
-                <div className="ai-sidebar__header-left">
-                    <Codicon
-                        name="sparkle"
-                        style={{ color: 'var(--accent)', fontSize: '13px' }}
-                    />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
-                        <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.05em' }}>
-                            {providerDisplayName.provider.toUpperCase()}
-                        </span>
-                        <span style={{
-                            fontSize: '9px',
-                            fontWeight: 400,
-                            textTransform: 'none',
-                            letterSpacing: 0,
-                            color: 'var(--ui-fg-muted)',
-                            opacity: 0.6,
-                        }}>
-                            {providerDisplayName.model}
-                        </span>
-                    </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                    {messages.length > 0 && (
-                        <button
-                            onClick={handleClearChat}
-                            className="ai-sidebar__close-btn"
-                            title="Clear Chat"
-                            type="button"
-                        >
-                            <Codicon name="trash" style={{ fontSize: '11px' }} />
-                        </button>
-                    )}
-                    <button
-                        onClick={handleClose}
-                        className="ai-sidebar__close-btn"
-                        title="Close AI Panel (⌘L)"
-                        type="button"
-                    >
-                        <Codicon name="close" style={{ fontSize: '12px' }} />
-                    </button>
-                </div>
-            </div>
+    // ── Main chatbox ──────────────────────────────────────────────────────────
+    const runningToolName = pendingToolCalls.find(tc => tc.isExecuting)?.name?.replace(/_/g, ' ')
+    const genStatusText = runningToolName
+        ? `Running ${runningToolName}…`
+        : pendingToolCalls.length > 0
+        ? 'Analyzing…'
+        : 'Generating…'
 
-            {/* Messages Area */}
-            <div className="ai-sidebar__messages">
+    return (
+        <div className="ai-sidebar flex flex-col h-full w-full bg-sidebar">
+            <Header />
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 flex flex-col gap-0 min-h-0 [scrollbar-width:thin]">
+                {/* Empty state */}
                 {messages.length === 0 && (
-                    <div className="ai-sidebar__empty">
-                        <div className="ai-sidebar__empty-icon">
-                            <Codicon name="sparkle" style={{ fontSize: '32px', color: 'var(--accent)' }} />
+                    <div className="flex flex-col items-center text-center gap-3 my-auto max-w-[260px] mx-auto relative py-8">
+                        <div
+                            className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full pointer-events-none animate-glow-pulse"
+                            style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 70%)' }}
+                        />
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 border"
+                            style={{
+                                background: 'color-mix(in srgb, var(--accent) 10%, transparent)',
+                                borderColor: 'color-mix(in srgb, var(--accent) 24%, transparent)',
+                            }}
+                        >
+                            <Codicon name="sparkle" style={{ fontSize: 26, color: 'var(--accent)' }} />
                         </div>
-                        <div className="ai-sidebar__empty-text">
-                            <div className="ai-sidebar__empty-title">AI Assistant</div>
-                            <div className="ai-sidebar__empty-subtitle">
-                                Ask anything about your code, get suggestions, or let AI edit files directly.
-                            </div>
+                        <div className="relative z-10">
+                            <p className="text-[14px] font-bold text-ui-fg -tracking-wide mb-1">AI Assistant</p>
+                            <p className="text-[11px] text-ui-fg-muted opacity-60 leading-snug">
+                                Reads files, runs commands, edits code, and thinks through complex multi-file tasks.
+                            </p>
                         </div>
-                        <div className="ai-quick-prompts">
-                            {QUICK_PROMPTS.map((prompt) => (
+                        <div className="flex flex-col gap-1 w-full mt-1">
+                            {QUICK_PROMPTS.map(({ label, icon }) => (
                                 <button
-                                    key={prompt}
-                                    className="ai-quick-prompt-chip"
-                                    onClick={() => {
-                                        setInput(prompt)
-                                        setTimeout(() => textareaRef.current?.focus(), 50)
-                                    }}
+                                    key={label}
+                                    className="flex items-center gap-2 text-left px-3 py-2 rounded-md border border-ui-border bg-ui-bg-elevated text-[11px] text-ui-fg hover:border-accent hover:text-accent hover:translate-x-1 hover:bg-[color-mix(in_srgb,var(--accent)_6%,transparent)] transition-all"
+                                    onClick={() => { setInput(label); setTimeout(() => textareaRef.current?.focus(), 50) }}
                                 >
-                                    {prompt}
+                                    <Codicon name={icon} style={{ fontSize: 11, opacity: 0.65 }} />
+                                    {label}
                                 </button>
                             ))}
                         </div>
                     </div>
                 )}
 
-                {messages.map((message) => (
-                    <MessageBubble
-                        key={message.id}
-                        message={message}
-                        onToolApproval={handleToolApproval}
-                        onRetry={message.role === 'user' ? () => {
-                            setInput(message.content)
-                            setTimeout(() => textareaRef.current?.focus(), 50)
-                        } : undefined}
-                    />
-                ))}
+                {/* Message list */}
+                {messages.map(message => {
+                    const isStreamingThis = isGenerating && message.id === activeAssistantIdRef.current
 
-                {/* Streaming Content Display */}
-                {isGenerating && (
-                    <div className="ai-message">
-                        <div className="assistant-message-container">
-                            <div className="assistant-message-flow">
-                                {/* Streaming Plan */}
-                                {currentPlan && (
-                                    <PlanCard planMarkdown={currentPlan} />
-                                )}
+                    // Skip empty placeholder visually when streaming state is rendering it
+                    if (
+                        !isStreamingThis &&
+                        message.role === 'assistant' &&
+                        !message.content &&
+                        (!message.toolCalls || message.toolCalls.length === 0)
+                    ) return null
 
-                                <div className="ai-message__content">
-                                    {/* Streaming tool calls */}
-                                    {pendingToolCalls.length > 0 && (
-                                        <div className="tool-calls-container">
-                                            {pendingToolCalls.map((tc) => (
-                                                <ToolCallCard
-                                                    key={tc.id}
-                                                    toolName={tc.name}
-                                                    arguments={tc.arguments}
-                                                    result={tc.result}
-                                                    success={tc.success}
-                                                    isExecuting={tc.isExecuting}
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    <div className="markdown-container">
-                                        {streamedText ? (
-                                            <>
-                                                <ReactMarkdown
-                                                    remarkPlugins={[remarkGfm]}
-                                                    components={{
-                                                        code({ node: _node, inline, className, children, ...props }: any) {
-                                                            const match = /language-(\w+)/.exec(className || '')
-                                                            const language = match ? match[1] : 'typescript'
-                                                            const code = String(children).replace(/\n$/, '')
-                                                            return !inline ? (
-                                                                <CodeBlock code={code} language={language} />
-                                                            ) : (
-                                                                <code className={className} {...props}>{children}</code>
-                                                            )
-                                                        },
-                                                    }}
-                                                >
-                                                    {streamedText}
-                                                </ReactMarkdown>
-                                                <TypingCursor />
-                                            </>
-                                        ) : (
-                                            <div className="ai-thinking-state">
-                                                <ThinkingDots />
-                                                <span className="ai-thinking-label">Thinking</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    return (
+                        <MessageBubble
+                            key={message.id}
+                            message={message}
+                            onToolApproval={handleToolApproval}
+                            onRetry={message.role === 'user' ? () => {
+                                setInput(message.content)
+                                setTimeout(() => textareaRef.current?.focus(), 50)
+                            } : undefined}
+                            isStreaming={isStreamingThis}
+                            streamedText={isStreamingThis ? streamedText : undefined}
+                            pendingToolCalls={isStreamingThis ? pendingToolCalls : undefined}
+                            currentPlan={isStreamingThis ? currentPlan : undefined}
+                        />
+                    )
+                })}
 
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area — full-width, flush bottom */}
-            <div className="ai-sidebar__input-container">
-                <div className="ai-sidebar__input-wrapper">
-                    <textarea
-                        ref={textareaRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Ask anything... (Shift+Enter for new line)"
-                        rows={1}
-                        className="ai-sidebar__textarea"
-                        disabled={isGenerating}
-                    />
-                    <div className="ai-sidebar__input-toolbar">
-                        <div className="ai-sidebar__input-status">
-                            {isGenerating ? (
-                                <span className="ai-sidebar__generating-indicator">
-                                    <ThinkingDots />
-                                    <span>Generating...</span>
-                                </span>
-                            ) : null}
-                        </div>
-                        <div className="ai-sidebar__input-actions">
-                            {isGenerating && (
+            {/* Input */}
+            <div className="shrink-0 border-t border-ui-border">
+                {/* Progress bar */}
+                {isGenerating && (
+                    <div className="h-0.5 w-full overflow-hidden" style={{ background: 'color-mix(in srgb, var(--accent) 10%, transparent)' }}>
+                        <div
+                            className="h-full w-2/5 rounded-full animate-progress"
+                            style={{ background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }}
+                        />
+                    </div>
+                )}
+                <div className="p-3">
+                    <div
+                        className={`rounded-lg border overflow-hidden transition-all ${
+                            isGenerating
+                                ? 'border-[color-mix(in_srgb,var(--accent)_35%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_10%,transparent)]'
+                                : 'border-ui-border focus-within:border-[rgba(255,255,255,0.18)]'
+                        }`}
+                        style={{ background: 'var(--input-bg)' }}
+                    >
+                        <textarea
+                            ref={textareaRef}
+                            value={input}
+                            onChange={e => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder={isGenerating ? 'AI is working…' : 'Ask anything… (Shift+Enter for new line)'}
+                            rows={1}
+                            disabled={isGenerating}
+                            className="w-full bg-transparent text-ui-fg text-[13px] font-mono px-3.5 py-2.5 resize-none outline-none border-none placeholder:text-ui-fg-muted placeholder:opacity-50 max-h-[200px] leading-relaxed"
+                        />
+                        <div className="flex items-center justify-between px-2.5 pb-2.5">
+                            {/* Status */}
+                            <div className="flex items-center gap-2 min-w-0">
+                                {isGenerating && (
+                                    <div className="flex items-center gap-1.5">
+                                        <span
+                                            className="block w-1.5 h-1.5 rounded-full bg-accent animate-live-dot shrink-0"
+                                            style={{ boxShadow: '0 0 5px var(--accent)' }}
+                                        />
+                                        <span className="text-[10px] text-accent font-medium tracking-wide">{genStatusText}</span>
+                                    </div>
+                                )}
+                            </div>
+                            {/* Actions */}
+                            <div className="flex items-center gap-1">
+                                {isGenerating && (
+                                    <button
+                                        onClick={handleStopGeneration}
+                                        className="w-7 h-7 flex items-center justify-center rounded border border-ui-border hover:border-danger/50 text-danger hover:bg-[color-mix(in_srgb,var(--color-error)_10%,transparent)] transition-all"
+                                        title="Stop"
+                                    >
+                                        <Codicon name="square-filled" style={{ fontSize: 10 }} />
+                                    </button>
+                                )}
                                 <button
-                                    onClick={handleStopGeneration}
-                                    className="ai-sidebar__icon-btn ai-sidebar__stop-btn"
-                                    title="Stop Generation"
-                                    type="button"
+                                    onClick={handleSend}
+                                    disabled={!input.trim() || isGenerating}
+                                    className={`w-7 h-7 flex items-center justify-center rounded transition-all ${
+                                        input.trim() && !isGenerating
+                                            ? 'bg-accent text-white hover:opacity-85'
+                                            : 'border border-ui-border text-ui-fg-muted opacity-40 cursor-not-allowed'
+                                    }`}
+                                    title="Send (Enter)"
                                 >
-                                    <Codicon name="close" />
+                                    <Codicon name="send" style={{ fontSize: 12 }} />
                                 </button>
-                            )}
-                            <button
-                                onClick={handleSend}
-                                disabled={!input.trim() || isGenerating}
-                                className={`ai-sidebar__icon-btn ai-sidebar__send-btn ${(!input.trim() || isGenerating) ? 'disabled' : ''}`}
-                                title="Send Message (Enter)"
-                                type="button"
-                            >
-                                <Codicon name="send" />
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
