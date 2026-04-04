@@ -10,8 +10,34 @@ import { FullState } from '../features/window/state'
 import * as gs from '../features/globalSlice'
 import * as ssel from '../features/settings/settingsSelectors'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faTimes, faChevronUp, faPlus, faTerminal } from '@fortawesome/free-solid-svg-icons'
 import { throttleCallback } from './componentUtils'
+
+interface TerminalSession {
+    id: string
+    label: string
+    terminalInstance: Terminal | null
+    fitAddon: FitAddon | null
+    terminalId: string | null
+    containerRef: React.RefObject<HTMLDivElement>
+    dataHandler: ((_: any, payload: { id: string; data: string }) => void) | null
+    exitHandler: ((_: any, payload: { id: string; exitCode: number }) => void) | null
+}
+
+let sessionCounter = 1
+
+function createSession(): Omit<TerminalSession, 'containerRef'> & { containerRef: React.RefObject<HTMLDivElement> } {
+    return {
+        id: `session-${Date.now()}-${sessionCounter}`,
+        label: `bash ${sessionCounter++}`,
+        terminalInstance: null,
+        fitAddon: null,
+        terminalId: null,
+        containerRef: React.createRef<HTMLDivElement>(),
+        dataHandler: null,
+        exitHandler: null,
+    }
+}
 
 export const BottomTerminal: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -23,43 +49,178 @@ export const BottomTerminal: React.FC = () => {
         (state: any) => state.extensionsState.availableThemes
     )
 
-    const terminalRef = useRef<Terminal | null>(null)
-    const fitAddonRef = useRef<FitAddon | null>(null)
-    const containerRef = useRef<HTMLDivElement | null>(null)
-    const terminalIdRef = useRef<string | null>(null)
+    const [sessions, setSessions] = useState<TerminalSession[]>(() => [createSession() as TerminalSession])
+    const [activeSessionId, setActiveSessionId] = useState<string>(() => '')
+    const sessionsRef = useRef<TerminalSession[]>([])
+
     const observerRef = useRef<ResizeObserver | null>(null)
     const [height, setHeight] = useState(300)
     const [isDragging, setIsDragging] = useState(false)
     const [isMaximized, setIsMaximized] = useState(false)
-    const dataHandlerRef = useRef<
-        ((_: any, payload: { id: string; data: string }) => void) | null
-    >(null)
-    const exitHandlerRef = useRef<
-        ((_: any, payload: { id: string; exitCode: number }) => void) | null
-    >(null)
 
-    const fitTerminal = useCallback(() => {
-        if (!fitAddonRef.current || !containerRef.current || !isOpen) return
+    // Keep ref in sync with state
+    useEffect(() => {
+        sessionsRef.current = sessions
+        // Initialize activeSessionId if not set
+        if (!activeSessionId && sessions.length > 0) {
+            setActiveSessionId(sessions[0].id)
+        }
+    }, [sessions])
+
+    const getActiveSession = useCallback(() => {
+        return sessionsRef.current.find(s => s.id === activeSessionId) || null
+    }, [activeSessionId])
+
+    const getTerminalTheme = useCallback(() => {
+        const getVar = (name: string, fallback: string) => {
+            if (typeof document === 'undefined') return fallback
+            return (
+                getComputedStyle(document.documentElement)
+                    .getPropertyValue(name)
+                    .trim() || fallback
+            )
+        }
+        return {
+            background: getVar('--terminal-bg', '#000000'),
+            foreground: getVar('--terminal-fg', '#e5e5e5'),
+            cursor: getVar('--terminal-cursor', '#3b82f6'),
+            selection: getVar('--terminal-selection', '#3b82f640'),
+            black: getVar('--terminal-ansi-black', '#000000'),
+            red: getVar('--terminal-ansi-red', '#cd3131'),
+            green: getVar('--terminal-ansi-green', '#0dbc79'),
+            yellow: getVar('--terminal-ansi-yellow', '#e5e510'),
+            blue: getVar('--terminal-ansi-blue', '#2472c8'),
+            magenta: getVar('--terminal-ansi-magenta', '#bc3fbc'),
+            cyan: getVar('--terminal-ansi-cyan', '#11a8cd'),
+            white: getVar('--terminal-ansi-white', '#e5e5e5'),
+            brightBlack: getVar('--terminal-ansi-bright-black', '#666666'),
+            brightRed: getVar('--terminal-ansi-bright-red', '#f14c4c'),
+            brightGreen: getVar('--terminal-ansi-bright-green', '#23d18b'),
+            brightYellow: getVar('--terminal-ansi-bright-yellow', '#f5f543'),
+            brightBlue: getVar('--terminal-ansi-bright-blue', '#3b8eea'),
+            brightMagenta: getVar('--terminal-ansi-bright-magenta', '#d670d6'),
+            brightCyan: getVar('--terminal-ansi-bright-cyan', '#29b8db'),
+            brightWhite: getVar('--terminal-ansi-bright-white', '#e5e5e5'),
+        }
+    }, [])
+
+    const fitSession = useCallback((session: TerminalSession) => {
+        if (!session.fitAddon || !session.containerRef.current || !isOpen) return
         try {
-            fitAddonRef.current.fit()
-            const dims = fitAddonRef.current.proposeDimensions()
-            if (
-                dims &&
-                dims.cols > 0 &&
-                dims.rows > 0 &&
-                terminalIdRef.current
-            ) {
-                connector.terminalResize(
-                    terminalIdRef.current,
-                    dims.cols,
-                    dims.rows
-                )
+            session.fitAddon.fit()
+            const dims = session.fitAddon.proposeDimensions()
+            if (dims && dims.cols > 0 && dims.rows > 0 && session.terminalId) {
+                connector.terminalResize(session.terminalId, dims.cols, dims.rows)
             }
         } catch (e) {
             // Silent error handling
         }
     }, [isOpen])
 
+    const initializeSession = useCallback(async (session: TerminalSession) => {
+        if (session.terminalInstance || !session.containerRef.current) return
+
+        const term = new Terminal({
+            theme: getTerminalTheme(),
+            fontFamily: settings.fontFamily || "'JetBrains Mono', monospace",
+            fontSize: parseInt(settings.fontSize || '13'),
+            lineHeight: 1.4,
+            cursorBlink: true,
+            cursorStyle: 'block',
+            allowTransparency: false,
+        })
+
+        const fitAddon = new FitAddon()
+        const linkAddon = new WebLinksAddon((e: Event, url: string) => {
+            e.preventDefault()
+            connector.terminalClickLink(url)
+        })
+        const searchAddon = new SearchAddon()
+
+        term.loadAddon(fitAddon)
+        term.loadAddon(linkAddon)
+        term.loadAddon(searchAddon)
+
+        term.open(session.containerRef.current)
+
+        // Assign to session
+        session.terminalInstance = term
+        session.fitAddon = fitAddon
+
+        try {
+            const result: { id: string } = await connector.terminalCreate(80, 24)
+            session.terminalId = result.id
+
+            term.onData((data: string) => {
+                connector.terminalInto(result.id, data)
+            })
+
+            const dataHandler = (_: any, payload: { id: string; data: string }) => {
+                if (term && session.terminalId === payload.id) {
+                    try {
+                        term.write(payload.data)
+                    } catch (e) {
+                        // Silent error handling
+                    }
+                }
+            }
+
+            const exitHandler = (_: any, payload: { id: string; exitCode: number }) => {
+                if (session.terminalId === payload.id) {
+                    // Mark session as exited - show message in terminal
+                    try {
+                        term.writeln('\r\n\x1b[31mProcess exited. Close tab or press Enter to restart.\x1b[0m')
+                    } catch (e) {
+                        // Silent
+                    }
+                }
+            }
+
+            connector.registerIncData(dataHandler)
+            connector.registerTerminalExited(exitHandler)
+            session.dataHandler = dataHandler
+            session.exitHandler = exitHandler
+
+            setTimeout(() => {
+                fitSession(session)
+                term.focus()
+            }, 100)
+        } catch (e) {
+            // Silent error handling
+        }
+
+        // Update state with initialized session
+        setSessions(prev => prev.map(s => s.id === session.id ? { ...s, terminalInstance: term, fitAddon, terminalId: session.terminalId, dataHandler: session.dataHandler, exitHandler: session.exitHandler } : s))
+    }, [settings, getTerminalTheme, fitSession])
+
+    // Initialize sessions when panel opens
+    useEffect(() => {
+        if (!isOpen) return
+
+        const initAll = async () => {
+            for (const session of sessionsRef.current) {
+                if (!session.terminalInstance) {
+                    await initializeSession(session)
+                }
+            }
+        }
+
+        setTimeout(initAll, 50)
+    }, [isOpen])
+
+    // Re-fit the active session when it changes
+    useEffect(() => {
+        if (!isOpen) return
+        setTimeout(() => {
+            const active = getActiveSession()
+            if (active) {
+                fitSession(active)
+                active.terminalInstance?.focus()
+            }
+        }, 50)
+    }, [activeSessionId, isOpen])
+
+    // Setup resize observer on the terminal wrapper
     useEffect(() => {
         if (!isOpen) {
             if (observerRef.current) {
@@ -69,251 +230,41 @@ export const BottomTerminal: React.FC = () => {
             return
         }
 
-        if (!terminalRef.current && containerRef.current) {
-            // Helper to get CSS var
-            const getVar = (name: string, fallback: string) => {
-                if (typeof document === 'undefined') return fallback
-                return (
-                    getComputedStyle(document.documentElement)
-                        .getPropertyValue(name)
-                        .trim() || fallback
-                )
-            }
-
-            const terminalTheme = {
-                background: getVar('--terminal-bg', '#000000'),
-                foreground: getVar('--terminal-fg', '#e5e5e5'),
-                cursor: getVar('--terminal-cursor', '#3b82f6'),
-                selection: getVar('--terminal-selection', '#3b82f640'),
-                black: getVar('--terminal-ansi-black', '#000000'),
-                red: getVar('--terminal-ansi-red', '#cd3131'),
-                green: getVar('--terminal-ansi-green', '#0dbc79'),
-                yellow: getVar('--terminal-ansi-yellow', '#e5e510'),
-                blue: getVar('--terminal-ansi-blue', '#2472c8'),
-                magenta: getVar('--terminal-ansi-magenta', '#bc3fbc'),
-                cyan: getVar('--terminal-ansi-cyan', '#11a8cd'),
-                white: getVar('--terminal-ansi-white', '#e5e5e5'),
-                brightBlack: getVar('--terminal-ansi-bright-black', '#666666'),
-                brightRed: getVar('--terminal-ansi-bright-red', '#f14c4c'),
-                brightGreen: getVar('--terminal-ansi-bright-green', '#23d18b'),
-                brightYellow: getVar(
-                    '--terminal-ansi-bright-yellow',
-                    '#f5f543'
-                ),
-                brightBlue: getVar('--terminal-ansi-bright-blue', '#3b8eea'),
-                brightMagenta: getVar(
-                    '--terminal-ansi-bright-magenta',
-                    '#d670d6'
-                ),
-                brightCyan: getVar('--terminal-ansi-bright-cyan', '#29b8db'),
-                brightWhite: getVar('--terminal-ansi-bright-white', '#e5e5e5'),
-            }
-
-            const term = new Terminal({
-                theme: terminalTheme,
-                fontFamily:
-                    settings.fontFamily || "'JetBrains Mono', monospace",
-                fontSize: parseInt(settings.fontSize || '13'),
-                lineHeight: 1.4,
-                cursorBlink: true,
-                cursorStyle: 'block',
-                allowTransparency: false,
-            })
-
-            const fitAddon = new FitAddon()
-            const linkAddon = new WebLinksAddon((e, url) => {
-                e.preventDefault()
-                connector.terminalClickLink(url)
-            })
-            const searchAddon = new SearchAddon()
-
-            term.loadAddon(fitAddon)
-            term.loadAddon(linkAddon)
-            term.loadAddon(searchAddon)
-
-            term.open(containerRef.current)
-            terminalRef.current = term
-            fitAddonRef.current = fitAddon
-
-            connector
-                .terminalCreate(80, 24)
-                .then((result: { id: string }) => {
-                    terminalIdRef.current = result.id
-                    term.onData((data) => {
-                        connector.terminalInto(result.id, data)
-                    })
-                    setTimeout(() => {
-                        fitTerminal()
-                        term.focus()
-                    }, 100)
-                })
-                .catch(() => {
-                    // Silent error handling
-                })
-        } else if (terminalRef.current && isOpen) {
-            setTimeout(() => {
-                fitTerminal()
-                terminalRef.current?.focus()
-            }, 50)
-        }
-    }, [isOpen, settings, availableThemes, fitTerminal])
-
-    useEffect(() => {
-        if (!dataHandlerRef.current) {
-            const dataHandler = (
-                _: any,
-                payload: { id: string; data: string }
-            ) => {
-                if (
-                    terminalRef.current &&
-                    terminalIdRef.current === payload.id
-                ) {
-                    try {
-                        terminalRef.current.write(payload.data)
-                    } catch (e) {
-                        // Silent error handling
-                    }
-                }
-            }
-
-            const exitHandler = (
-                _: any,
-                payload: { id: string; exitCode: number }
-            ) => {
-                if (terminalIdRef.current === payload.id) {
-                    try {
-                        if (terminalRef.current) {
-                            terminalRef.current.dispose()
-                            terminalRef.current = null
-                        }
-                        if (fitAddonRef.current) {
-                            fitAddonRef.current = null
-                        }
-                        terminalIdRef.current = null
-                    } catch (e) {
-                        // Silent error handling
-                    }
-                }
-            }
-
-            connector.registerIncData(dataHandler)
-            connector.registerTerminalExited(exitHandler)
-            dataHandlerRef.current = dataHandler
-            exitHandlerRef.current = exitHandler
-
-            return () => {
-                if (dataHandlerRef.current) {
-                    connector.deregisterIncData(dataHandlerRef.current)
-                    dataHandlerRef.current = null
-                }
-                if (exitHandlerRef.current) {
-                    connector.deregisterTerminalExited(exitHandlerRef.current)
-                    exitHandlerRef.current = null
-                }
-            }
-        }
-    }, [])
-
-    useEffect(() => {
-        if (!containerRef.current || !isOpen) {
-            if (observerRef.current) {
-                observerRef.current.disconnect()
-                observerRef.current = null
-            }
-            return
-        }
-
         const observer = new ResizeObserver(() => {
-            fitTerminal()
+            const active = getActiveSession()
+            if (active) fitSession(active)
         })
 
-        observer.observe(containerRef.current)
+        // Observe all session containers
+        sessionsRef.current.forEach(s => {
+            if (s.containerRef.current) observer.observe(s.containerRef.current)
+        })
         observerRef.current = observer
-        fitTerminal()
 
         return () => {
-            if (observerRef.current) {
-                observerRef.current.disconnect()
-                observerRef.current = null
-            }
+            observer.disconnect()
+            observerRef.current = null
         }
-    }, [isOpen, fitTerminal])
+    }, [isOpen, sessions, fitSession, getActiveSession])
 
+    // Update font/theme in all sessions when settings change
     useEffect(() => {
-        if (terminalRef.current) {
-            const fontFamily =
-                settings.fontFamily || "'JetBrains Mono', monospace"
+        sessionsRef.current.forEach(session => {
+            if (!session.terminalInstance) return
+            const fontFamily = settings.fontFamily || "'JetBrains Mono', monospace"
             const fontSize = parseInt(settings.fontSize || '13')
-            terminalRef.current.options.fontFamily = fontFamily
-            terminalRef.current.options.fontSize = fontSize
-
-            // Delay theme update to ensure DOM CSS variables are fully propagated
-            // This prevents "hallucinations" where getComputedStyle reads stale values
+            session.terminalInstance.options.fontFamily = fontFamily
+            session.terminalInstance.options.fontSize = fontSize
             const timer = setTimeout(() => {
-                // Helper to get CSS var
-                const getVar = (name: string, fallback: string) => {
-                    if (typeof document === 'undefined') return fallback
-                    return (
-                        getComputedStyle(document.documentElement)
-                            .getPropertyValue(name)
-                            .trim() || fallback
-                    )
-                }
-
-                // FULL Dynamic Theme Update - Syncs XTerm with Container CSS
-                const terminalTheme = {
-                    background: getVar('--terminal-bg', '#000000'),
-                    foreground: getVar('--terminal-fg', '#e5e5e5'),
-                    cursor: getVar('--terminal-cursor', '#3b82f6'),
-                    selection: getVar('--terminal-selection', '#3b82f640'),
-                    black: getVar('--terminal-ansi-black', '#000000'),
-                    red: getVar('--terminal-ansi-red', '#cd3131'),
-                    green: getVar('--terminal-ansi-green', '#0dbc79'),
-                    yellow: getVar('--terminal-ansi-yellow', '#e5e510'),
-                    blue: getVar('--terminal-ansi-blue', '#2472c8'),
-                    magenta: getVar('--terminal-ansi-magenta', '#bc3fbc'),
-                    cyan: getVar('--terminal-ansi-cyan', '#11a8cd'),
-                    white: getVar('--terminal-ansi-white', '#e5e5e5'),
-                    brightBlack: getVar(
-                        '--terminal-ansi-bright-black',
-                        '#666666'
-                    ),
-                    brightRed: getVar('--terminal-ansi-bright-red', '#f14c4c'),
-                    brightGreen: getVar(
-                        '--terminal-ansi-bright-green',
-                        '#23d18b'
-                    ),
-                    brightYellow: getVar(
-                        '--terminal-ansi-bright-yellow',
-                        '#f5f543'
-                    ),
-                    brightBlue: getVar(
-                        '--terminal-ansi-bright-blue',
-                        '#3b8eea'
-                    ),
-                    brightMagenta: getVar(
-                        '--terminal-ansi-bright-magenta',
-                        '#d670d6'
-                    ),
-                    brightCyan: getVar(
-                        '--terminal-ansi-bright-cyan',
-                        '#29b8db'
-                    ),
-                    brightWhite: getVar(
-                        '--terminal-ansi-bright-white',
-                        '#e5e5e5'
-                    ),
-                }
-
-                if (terminalRef.current) {
-                    terminalRef.current.options.theme = terminalTheme
+                if (session.terminalInstance) {
+                    session.terminalInstance.options.theme = getTerminalTheme()
                 }
             }, 100)
-
             return () => clearTimeout(timer)
-        }
-    }, [settings, availableThemes])
+        })
+    }, [settings, availableThemes, getTerminalTheme])
 
+    // Keyboard shortcut Ctrl+`
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === '`') {
@@ -324,13 +275,12 @@ export const BottomTerminal: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKey)
     }, [dispatch])
 
+    // Drag resize
     useEffect(() => {
         const handleMove = throttleCallback((e: MouseEvent) => {
             if (!isDragging) return
             const newHeight = window.innerHeight - e.clientY
-            setHeight(
-                Math.max(100, Math.min(newHeight, window.innerHeight - 50))
-            )
+            setHeight(Math.max(100, Math.min(newHeight, window.innerHeight - 50)))
         }, 10)
 
         const handleUp = () => setIsDragging(false)
@@ -346,30 +296,79 @@ export const BottomTerminal: React.FC = () => {
         }
     }, [isDragging])
 
+    // Cleanup on unmount
     useEffect(() => {
         return () => {
-            if (terminalRef.current) {
-                try {
-                    terminalRef.current.dispose()
-                } catch (e) {
-                    // Silent error handling
+            sessionsRef.current.forEach(session => {
+                if (session.dataHandler) {
+                    try { connector.deregisterIncData(session.dataHandler) } catch (e) {}
                 }
-                terminalRef.current = null
-            }
-            if (terminalIdRef.current) {
-                try {
-                    connector.terminalKill(terminalIdRef.current)
-                } catch (e) {
-                    // Silent error handling
+                if (session.exitHandler) {
+                    try { connector.deregisterTerminalExited(session.exitHandler) } catch (e) {}
                 }
-                terminalIdRef.current = null
-            }
+                if (session.terminalInstance) {
+                    try { session.terminalInstance.dispose() } catch (e) {}
+                }
+                if (session.terminalId) {
+                    try { connector.terminalKill(session.terminalId) } catch (e) {}
+                }
+            })
             if (observerRef.current) {
                 observerRef.current.disconnect()
-                observerRef.current = null
             }
         }
     }, [])
+
+    const addNewSession = useCallback(() => {
+        const newSession = createSession() as TerminalSession
+        setSessions(prev => [...prev, newSession])
+        setActiveSessionId(newSession.id)
+        // Initialize the new session after it mounts
+        setTimeout(async () => {
+            await initializeSession(newSession)
+        }, 100)
+    }, [initializeSession])
+
+    const closeSession = useCallback((sessionId: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        setSessions(prev => {
+            const sessionToClose = prev.find(s => s.id === sessionId)
+            if (sessionToClose) {
+                // Cleanup
+                if (sessionToClose.dataHandler) {
+                    try { connector.deregisterIncData(sessionToClose.dataHandler) } catch (e) {}
+                }
+                if (sessionToClose.exitHandler) {
+                    try { connector.deregisterTerminalExited(sessionToClose.exitHandler) } catch (e) {}
+                }
+                if (sessionToClose.terminalInstance) {
+                    try { sessionToClose.terminalInstance.dispose() } catch (e) {}
+                }
+                if (sessionToClose.terminalId) {
+                    try { connector.terminalKill(sessionToClose.terminalId) } catch (e) {}
+                }
+            }
+
+            const newSessions = prev.filter(s => s.id !== sessionId)
+
+            if (newSessions.length === 0) {
+                // Close the terminal panel if no sessions remain
+                dispatch(gs.closeTerminal())
+                return prev
+            }
+
+            return newSessions
+        })
+
+        // Pick another session to activate
+        setActiveSessionId(prev => {
+            if (prev === sessionId) {
+                const remaining = sessionsRef.current.filter(s => s.id !== sessionId)
+                return remaining.length > 0 ? remaining[remaining.length - 1].id : ''
+            }
+            return prev
+        })
+    }, [dispatch])
 
     if (!isOpen) return null
 
@@ -385,16 +384,44 @@ export const BottomTerminal: React.FC = () => {
                 onMouseDown={() => setIsDragging(true)}
             />
             <div className="terminal-header">
-                <div className="terminal-title">
-                    <span>Terminal</span>
+                {/* Tabs */}
+                <div className="terminal-tabs">
+                    {sessions.map((session) => (
+                        <div
+                            key={session.id}
+                            className={`terminal-tab ${session.id === activeSessionId ? 'terminal-tab--active' : ''}`}
+                            onClick={() => setActiveSessionId(session.id)}
+                            title={session.label}
+                        >
+                            <FontAwesomeIcon icon={faTerminal} className="terminal-tab-icon" />
+                            <span className="terminal-tab-label">{session.label}</span>
+                            {sessions.length > 1 && (
+                                <button
+                                    className="terminal-tab-close"
+                                    onClick={(e) => closeSession(session.id, e)}
+                                    title="Close terminal"
+                                >
+                                    <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                    <button
+                        className="terminal-new-session-btn"
+                        onClick={addNewSession}
+                        title="New terminal session"
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </button>
                 </div>
+
                 <div className="terminal-actions">
                     <button
                         className="terminal-action-btn"
                         onClick={() => setIsMaximized(!isMaximized)}
                         title={isMaximized ? 'Restore' : 'Maximize'}
                     >
-                        <FontAwesomeIcon icon={faChevronUp} />
+                        <FontAwesomeIcon icon={faChevronUp} style={{ transform: isMaximized ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                     </button>
                     <button
                         className="terminal-action-btn"
@@ -406,7 +433,14 @@ export const BottomTerminal: React.FC = () => {
                 </div>
             </div>
             <div className="terminal-content">
-                <div ref={containerRef} className="terminal-instance-wrapper" />
+                {sessions.map((session) => (
+                    <div
+                        key={session.id}
+                        ref={session.containerRef}
+                        className="terminal-instance-wrapper"
+                        style={{ display: session.id === activeSessionId ? 'flex' : 'none', flexDirection: 'column', flex: 1, height: '100%' }}
+                    />
+                ))}
             </div>
         </div>
     )

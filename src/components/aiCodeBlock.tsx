@@ -3,7 +3,7 @@
  * Professional code rendering for AI chat
  */
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import Prism from 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css' // Dark theme
 import 'prismjs/components/prism-typescript'
@@ -15,11 +15,47 @@ import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
 import 'prismjs/components/prism-css'
 import 'prismjs/components/prism-markdown'
+import 'prismjs/components/prism-yaml'
+import 'prismjs/components/prism-rust'
+import 'prismjs/components/prism-go'
+import 'prismjs/components/prism-java'
+import 'prismjs/components/prism-c'
+import 'prismjs/components/prism-cpp'
 import { Codicon } from './codicon'
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import '../styles/aiCodeBlock.css'
+
+// Language display name mapping
+const LANGUAGE_DISPLAY: Record<string, string> = {
+    typescript: 'TypeScript',
+    javascript: 'JavaScript',
+    tsx: 'TSX',
+    jsx: 'JSX',
+    python: 'Python',
+    bash: 'Bash',
+    sh: 'Shell',
+    json: 'JSON',
+    css: 'CSS',
+    scss: 'SCSS',
+    html: 'HTML',
+    markdown: 'Markdown',
+    md: 'Markdown',
+    yaml: 'YAML',
+    yml: 'YAML',
+    rust: 'Rust',
+    go: 'Go',
+    java: 'Java',
+    c: 'C',
+    cpp: 'C++',
+    plaintext: 'Text',
+    text: 'Text',
+}
+
+function getLanguageDisplayName(lang: string): string {
+    return LANGUAGE_DISPLAY[lang.toLowerCase()] || lang.toUpperCase()
+}
 
 interface CodeBlockProps {
     code: string
@@ -37,38 +73,63 @@ export function CodeBlock({
     onApply,
 }: CodeBlockProps) {
     const [copied, setCopied] = useState(false)
+    const [linesVisible, setLinesVisible] = useState(showLineNumbers)
 
-    const handleCopy = async () => {
+    const handleCopy = useCallback(async () => {
         await navigator.clipboard.writeText(code)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
-    }
+    }, [code])
 
     // Highlight code
     const highlighted = React.useMemo(() => {
         try {
-            const grammar =
-                Prism.languages[language] || Prism.languages.typescript
-            return Prism.highlight(code, grammar, language)
+            const normalizedLang = language.toLowerCase()
+            // Map aliases
+            const langMap: Record<string, string> = {
+                ts: 'typescript',
+                js: 'javascript',
+                sh: 'bash',
+                shell: 'bash',
+                yml: 'yaml',
+                md: 'markdown',
+                cpp: 'cpp',
+                c: 'c',
+            }
+            const resolvedLang = langMap[normalizedLang] || normalizedLang
+            const grammar = Prism.languages[resolvedLang] || Prism.languages.typescript || Prism.languages.plaintext
+            if (!grammar) return escapeHtml(code)
+            return Prism.highlight(code, grammar, resolvedLang)
         } catch (e) {
-            return code
+            return escapeHtml(code)
         }
     }, [code, language])
 
     const lines = code.split('\n')
+    const displayLang = getLanguageDisplayName(language)
 
     return (
         <div className="code-block-container">
             {/* Header */}
             <div className="code-block-header">
                 <div className="code-block-info">
+                    <span className="code-block-lang-badge">{displayLang}</span>
                     {filename && (
                         <span className="code-block-filename">
+                            <Codicon name="file" style={{ fontSize: '10px', marginRight: '4px' }} />
                             {filename}
                         </span>
                     )}
+                    <span className="code-block-line-count">{lines.length} line{lines.length !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="code-block-actions">
+                    <button
+                        className="code-block-action-btn"
+                        onClick={() => setLinesVisible(!linesVisible)}
+                        title={linesVisible ? 'Hide line numbers' : 'Show line numbers'}
+                    >
+                        <Codicon name="list-ordered" style={{ fontSize: '11px' }} />
+                    </button>
                     {onApply && (
                         <button
                             className="code-block-action-btn code-block-apply-btn"
@@ -92,7 +153,7 @@ export function CodeBlock({
 
             {/* Code */}
             <div className="code-block-content">
-                {showLineNumbers ? (
+                {linesVisible ? (
                     <div className="code-block-with-lines">
                         <div className="code-block-line-numbers">
                             {lines.map((_, i) => (
@@ -121,6 +182,15 @@ export function CodeBlock({
             </div>
         </div>
     )
+}
+
+function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
 }
 
 /**
@@ -156,9 +226,9 @@ export function ToolCallCard({
 
     const getToolIcon = (name: string) => {
         const icons: Record<string, string> = {
-            read_file: 'book',
-            write_file: 'edit',
-            edit_file: 'pencil',
+            read_file: 'file-text',
+            write_file: 'new-file',
+            edit_file: 'edit',
             list_files: 'list-tree',
             create_directory: 'new-folder',
             delete_file: 'trash',
@@ -166,11 +236,19 @@ export function ToolCallCard({
             run_command: 'terminal',
             search_code: 'search',
             get_diagnostics: 'warning',
-            open_file: 'file',
+            open_file: 'go-to-file',
             get_file_outline: 'symbol-structure',
             list_dir: 'folder',
         }
         return <Codicon name={icons[name] || 'tools'} />
+    }
+
+    const getToolStatusColor = () => {
+        if (needsApproval) return 'var(--color-warning)'
+        if (isExecuting) return 'var(--accent)'
+        if (success === true) return 'var(--color-success)'
+        if (success === false) return 'var(--color-error)'
+        return 'var(--ui-fg-muted)'
     }
 
     const getToolLabel = (name: string, args: Record<string, any>) => {
@@ -202,7 +280,7 @@ export function ToolCallCard({
                 <span className="tool-call-label-container">
                     <span className="tool-call-action-name">Run</span>
                     <span className="tool-call-filename" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', opacity: 0.8 }}>
-                        {args.CommandLine?.slice(0, 40) || 'command'}
+                        {args.CommandLine?.slice(0, 50) || 'command'}
                     </span>
                 </span>
             )
@@ -219,19 +297,22 @@ export function ToolCallCard({
 
     return (
         <div
-            className={`tool-call-card ${needsApproval ? 'tool-call-waiting' : ''}`}
+            className={`tool-call-card ${needsApproval ? 'tool-call-waiting' : ''} ${success === true ? 'tool-call-done' : ''}`}
         >
             <div
                 className="tool-call-header"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
-                <span className="tool-call-icon">
+                <span className="tool-call-icon" style={{ color: getToolStatusColor() }}>
                     {getToolIcon(toolName)}
                 </span>
                 
                 {getToolLabel(toolName, args)}
 
                 <div className="tool-call-status-right">
+                    {needsApproval && !isExecuting && (
+                        <span className="tool-call-approval-badge">Needs Approval</span>
+                    )}
                     {isExecuting && (
                         <div className="tool-call-executing">
                             <Codicon name="loading" className="codicon-modifier-spin" />
@@ -330,21 +411,28 @@ export function DiffView({
  * Renders the execution plan
  */
 export function PlanCard({ planMarkdown }: { planMarkdown: string }) {
+    const [collapsed, setCollapsed] = useState(false)
     if (!planMarkdown) return null
     return (
         <div className="plan-card">
-            <div className="plan-header">
+            <div className="plan-header" onClick={() => setCollapsed(!collapsed)} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 <Codicon
                     name="list-ordered"
                     style={{ marginRight: '8px', fontSize: '12px' }}
                 />
                 EXECUTION PLAN
+                <Codicon
+                    name={collapsed ? 'chevron-right' : 'chevron-down'}
+                    style={{ marginLeft: 'auto', fontSize: '10px', opacity: 0.6 }}
+                />
             </div>
-            <div className="plan-content">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {planMarkdown}
-                </ReactMarkdown>
-            </div>
+            {!collapsed && (
+                <div className="plan-content">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {planMarkdown}
+                    </ReactMarkdown>
+                </div>
+            )}
         </div>
     )
 }

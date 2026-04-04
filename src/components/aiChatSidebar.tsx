@@ -23,6 +23,30 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import '../styles/aiCodeBlock.css'
 
+// Quick prompts shown in the empty state
+const QUICK_PROMPTS = [
+    'Explain the current file',
+    'Find potential bugs in this code',
+    'Add TypeScript types to this file',
+    'Write unit tests for the selected code',
+    'Refactor this for better readability',
+    'What does this function do?',
+]
+
+// Typing cursor component
+function TypingCursor() {
+    return <span className="ai-typing-cursor" aria-hidden="true" />
+}
+
+// Thinking dots animation
+function ThinkingDots() {
+    return (
+        <span className="ai-thinking-dots" aria-label="AI is thinking">
+            <span /><span /><span />
+        </span>
+    )
+}
+
 interface ToolCallState {
     id: string
     name: string
@@ -40,6 +64,152 @@ interface Message {
     timestamp: Date
     toolCalls?: ToolCallState[]
     plan?: string
+}
+
+// Reusable markdown renderer
+function AiMarkdown({ content }: { content: string }) {
+    return (
+        <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+                code({ node: _node, inline, className, children, ...props }: any) {
+                    const match = /language-(\w+)/.exec(className || '')
+                    const language = match ? match[1] : 'plaintext'
+                    const code = String(children).replace(/\n$/, '')
+                    return !inline ? (
+                        <CodeBlock code={code} language={language} />
+                    ) : (
+                        <code className={`ai-inline-code ${className || ''}`} {...props}>
+                            {children}
+                        </code>
+                    )
+                },
+                a({ href, children, ...props }: any) {
+                    return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>
+                },
+                p({ children }: any) {
+                    return <p className="ai-md-p">{children}</p>
+                },
+                ul({ children }: any) {
+                    return <ul className="ai-md-ul">{children}</ul>
+                },
+                ol({ children }: any) {
+                    return <ol className="ai-md-ol">{children}</ol>
+                },
+                li({ children }: any) {
+                    return <li className="ai-md-li">{children}</li>
+                },
+                h1({ children }: any) { return <h1 className="ai-md-h1">{children}</h1> },
+                h2({ children }: any) { return <h2 className="ai-md-h2">{children}</h2> },
+                h3({ children }: any) { return <h3 className="ai-md-h3">{children}</h3> },
+                blockquote({ children }: any) {
+                    return <blockquote className="ai-md-blockquote">{children}</blockquote>
+                },
+                table({ children }: any) {
+                    return <div className="ai-md-table-wrap"><table className="ai-md-table">{children}</table></div>
+                },
+                hr() { return <hr className="ai-md-hr" /> },
+            }}
+        >
+            {content}
+        </ReactMarkdown>
+    )
+}
+
+// Message bubble component for rendered messages
+function MessageBubble({
+    message,
+    onToolApproval,
+    onRetry,
+}: {
+    message: Message
+    onToolApproval: (toolId: string, approved: boolean) => void
+    onRetry?: () => void
+}) {
+    const [copied, setCopied] = useState(false)
+
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(message.content)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+    }
+
+    const isUser = message.role === 'user'
+
+    return (
+        <div className="ai-message">
+            <div className={isUser ? 'user-message-container' : 'assistant-message-container'}>
+                {!isUser && (
+                    <div className="ai-avatar">
+                        <Codicon name="sparkle" style={{ fontSize: '11px' }} />
+                    </div>
+                )}
+                <div className={isUser ? 'user-message-box' : 'assistant-message-flow'}>
+                    {/* Plan card */}
+                    {message.plan && <PlanCard planMarkdown={message.plan} />}
+
+                    <div className="ai-message__content">
+                        {/* Tool calls */}
+                        {message.toolCalls && message.toolCalls.length > 0 && (
+                            <div className="tool-calls-container">
+                                {message.toolCalls.map((tc) => (
+                                    <ToolCallCard
+                                        key={tc.id}
+                                        toolName={tc.name}
+                                        arguments={tc.arguments}
+                                        result={tc.result}
+                                        success={tc.success}
+                                        isExecuting={tc.isExecuting}
+                                        needsApproval={tc.needsApproval}
+                                        onAccept={() => onToolApproval(tc.id, true)}
+                                        onReject={() => onToolApproval(tc.id, false)}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Content */}
+                        {message.content && (
+                            <div className="markdown-container">
+                                <AiMarkdown content={message.content} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer with actions */}
+                    <div className="ai-message__footer">
+                        <span className="ai-message__timestamp">
+                            {message.timestamp.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false,
+                            })}
+                        </span>
+                        <div className="ai-message__actions">
+                            {!isUser && message.content && (
+                                <button
+                                    className="ai-msg-action-btn"
+                                    onClick={handleCopy}
+                                    title={copied ? 'Copied!' : 'Copy message'}
+                                >
+                                    <Codicon name={copied ? 'check' : 'copy'} style={{ fontSize: '10px' }} />
+                                </button>
+                            )}
+                            {onRetry && (
+                                <button
+                                    className="ai-msg-action-btn"
+                                    onClick={onRetry}
+                                    title="Edit and resend"
+                                >
+                                    <Codicon name="edit" style={{ fontSize: '10px' }} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export function AIChatSidebar() {
@@ -965,131 +1135,47 @@ Active File: ${activeFilePath || 'No file open'}
                 {messages.length === 0 && (
                     <div className="ai-sidebar__empty">
                         <div className="ai-sidebar__empty-icon">
-                            <Codicon name="sparkle" style={{ fontSize: '28px', color: 'var(--accent)' }} />
+                            <Codicon name="sparkle" style={{ fontSize: '32px', color: 'var(--accent)' }} />
                         </div>
                         <div className="ai-sidebar__empty-text">
-                            <div className="ai-sidebar__empty-title">Start a conversation</div>
+                            <div className="ai-sidebar__empty-title">AI Assistant</div>
                             <div className="ai-sidebar__empty-subtitle">
-                                Ask anything about your code, get suggestions, or use tools to edit files.
+                                Ask anything about your code, get suggestions, or let AI edit files directly.
                             </div>
+                        </div>
+                        <div className="ai-quick-prompts">
+                            {QUICK_PROMPTS.map((prompt) => (
+                                <button
+                                    key={prompt}
+                                    className="ai-quick-prompt-chip"
+                                    onClick={() => {
+                                        setInput(prompt)
+                                        setTimeout(() => textareaRef.current?.focus(), 50)
+                                    }}
+                                >
+                                    {prompt}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 )}
 
                 {messages.map((message) => (
-                    <div key={message.id} className="ai-message">
-                        <div
-                            className={
-                                message.role === 'user'
-                                    ? 'user-message-container'
-                                    : 'assistant-message-container'
-                            }
-                        >
-                            <div
-                                className={
-                                    message.role === 'user'
-                                        ? 'user-message-box'
-                                        : 'assistant-message-flow'
-                                }
-                            >
-                                {/* Render Plan (if any) */}
-                                {message.plan && (
-                                    <PlanCard planMarkdown={message.plan} />
-                                )}
-
-                            <div className="ai-message__content">
-                                {/* Render Tool Calls */}
-                                {message.toolCalls &&
-                                    message.toolCalls.length > 0 && (
-                                        <div className="tool-calls-container">
-                                            {message.toolCalls.map((tc) => (
-                                                <ToolCallCard
-                                                    key={tc.id}
-                                                    toolName={tc.name}
-                                                    arguments={tc.arguments}
-                                                    result={tc.result}
-                                                    success={tc.success}
-                                                    isExecuting={tc.isExecuting}
-                                                    needsApproval={
-                                                        tc.needsApproval
-                                                    }
-                                                    onAccept={() =>
-                                                        handleToolApproval(
-                                                            tc.id,
-                                                            true
-                                                        )
-                                                    }
-                                                    onReject={() =>
-                                                        handleToolApproval(
-                                                            tc.id,
-                                                            false
-                                                        )
-                                                    }
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-
-                                {/* Render Content */}
-                                <div className="markdown-container">
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            code({
-                                                node: _node,
-                                                inline,
-                                                className,
-                                                children,
-                                                ...props
-                                            }) {
-                                                const match = /language-(\w+)/.exec(
-                                                    className || ''
-                                                )
-                                                const language = match
-                                                    ? match[1]
-                                                    : 'typescript'
-                                                const code = String(
-                                                    children
-                                                ).replace(/\n$/, '')
-
-                                                return !inline ? (
-                                                    <CodeBlock
-                                                        code={code}
-                                                        language={language}
-                                                    />
-                                                ) : (
-                                                    <code
-                                                        className={className}
-                                                        {...props}
-                                                    >
-                                                        {children}
-                                                    </code>
-                                                )
-                                            },
-                                        }}
-                                    >
-                                        {message.content}
-                                    </ReactMarkdown>
-                                </div>
-                            </div>
-                            <div className="ai-message__footer">
-                                <span className="ai-message__timestamp">
-                                    {message.timestamp.toLocaleTimeString([], {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        hour12: false
-                                    })}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <MessageBubble
+                        key={message.id}
+                        message={message}
+                        onToolApproval={handleToolApproval}
+                        onRetry={message.role === 'user' ? () => {
+                            setInput(message.content)
+                            setTimeout(() => textareaRef.current?.focus(), 50)
+                        } : undefined}
+                    />
                 ))}
 
                 {/* Streaming Content Display */}
-                {isGenerating &&
-                    (streamedText || pendingToolCalls.length > 0) && (
-                        <div className="ai-message assistant-message-container">
+                {isGenerating && (
+                    <div className="ai-message">
+                        <div className="assistant-message-container">
                             <div className="assistant-message-flow">
                                 {/* Streaming Plan */}
                                 {currentPlan && (
@@ -1097,7 +1183,7 @@ Active File: ${activeFilePath || 'No file open'}
                                 )}
 
                                 <div className="ai-message__content">
-                                    {/* Render Pending Tool Calls */}
+                                    {/* Streaming tool calls */}
                                     {pendingToolCalls.length > 0 && (
                                         <div className="tool-calls-container">
                                             {pendingToolCalls.map((tc) => (
@@ -1114,50 +1200,39 @@ Active File: ${activeFilePath || 'No file open'}
                                     )}
 
                                     <div className="markdown-container">
-                                        <ReactMarkdown
-                                            remarkPlugins={[remarkGfm]}
-                                            components={{
-                                                code({
-                                                    node: _node,
-                                                    inline,
-                                                    className,
-                                                    children,
-                                                    ...props
-                                                }) {
-                                                    const match =
-                                                        /language-(\w+)/.exec(
-                                                            className || ''
-                                                        )
-                                                    const language = match
-                                                        ? match[1]
-                                                        : 'typescript'
-                                                    const code = String(
-                                                        children
-                                                    ).replace(/\n$/, '')
-
-                                                    return !inline ? (
-                                                        <CodeBlock
-                                                            code={code}
-                                                            language={language}
-                                                        />
-                                                    ) : (
-                                                        <code
-                                                            className={className}
-                                                            {...props}
-                                                        >
-                                                            {children}
-                                                        </code>
-                                                    )
-                                                },
-                                            }}
-                                        >
-                                            {streamedText}
-                                        </ReactMarkdown>
+                                        {streamedText ? (
+                                            <>
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkGfm]}
+                                                    components={{
+                                                        code({ node: _node, inline, className, children, ...props }: any) {
+                                                            const match = /language-(\w+)/.exec(className || '')
+                                                            const language = match ? match[1] : 'typescript'
+                                                            const code = String(children).replace(/\n$/, '')
+                                                            return !inline ? (
+                                                                <CodeBlock code={code} language={language} />
+                                                            ) : (
+                                                                <code className={className} {...props}>{children}</code>
+                                                            )
+                                                        },
+                                                    }}
+                                                >
+                                                    {streamedText}
+                                                </ReactMarkdown>
+                                                <TypingCursor />
+                                            </>
+                                        ) : (
+                                            <div className="ai-thinking-state">
+                                                <ThinkingDots />
+                                                <span className="ai-thinking-label">Thinking</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    )}
+                    </div>
+                )}
 
                 <div ref={messagesEndRef} />
             </div>
@@ -1179,8 +1254,8 @@ Active File: ${activeFilePath || 'No file open'}
                         <div className="ai-sidebar__input-status">
                             {isGenerating ? (
                                 <span className="ai-sidebar__generating-indicator">
-                                    <span className="dot-pulse" />
-                                    Thinking...
+                                    <ThinkingDots />
+                                    <span>Generating...</span>
                                 </span>
                             ) : null}
                         </div>

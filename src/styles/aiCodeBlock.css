@@ -25,7 +25,63 @@
     font-weight: 500;
     font-size: 11px;
     letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
 }
+
+.code-block-lang-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-family: var(--font-mono);
+    margin-right: 6px;
+}
+
+.code-block-line-count {
+    font-size: 10px;
+    color: var(--ui-fg-muted);
+    opacity: 0.5;
+    margin-left: 4px;
+    font-family: var(--font-mono);
+}
+
+.code-block-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.code-block-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+/* Tool call approval badge */
+.tool-call-approval-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--color-warning);
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-warning) 25%, transparent);
+}
+
+/* Tool call done state */
+.tool-call-done {
+    opacity: 0.75;
+}
+
 
 .code-block-action-btn {
     padding: 4px 10px;

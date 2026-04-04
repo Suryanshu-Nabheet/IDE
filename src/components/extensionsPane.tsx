@@ -1,18 +1,57 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import {
     fetchPopularExtensions,
     searchExtensions,
     setSearchQuery,
+    installExtension,
+    uninstallExtension,
 } from '../features/extensions/extensionsSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch, faCube, faSpinner } from '@fortawesome/pro-regular-svg-icons'
+import { faSearch, faCube, faSpinner, faDownload, faTrash, faCheck, faStar, faCode, faPaintBrush, faTools, faFont, faKeyboard, faLanguage } from '@fortawesome/free-solid-svg-icons'
+
+const CATEGORIES = [
+    { label: 'All', icon: faCode, value: '' },
+    { label: 'Themes', icon: faPaintBrush, value: 'Themes' },
+    { label: 'Language', icon: faLanguage, value: 'Programming Languages' },
+    { label: 'Snippets', icon: faFont, value: 'Snippets' },
+    { label: 'Linters', icon: faTools, value: 'Linters' },
+    { label: 'Keymaps', icon: faKeyboard, value: 'Keymaps' },
+]
+
+function formatDownloads(count?: number): string {
+    if (!count) return ''
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`
+    if (count >= 1000) return `${(count / 1000).toFixed(0)}K`
+    return String(count)
+}
+
+function StarRating({ rating }: { rating?: number }) {
+    if (!rating) return null
+    const stars = Math.round(rating)
+    return (
+        <div className="ext-stars" title={`${rating.toFixed(1)} / 5`}>
+            {[1, 2, 3, 4, 5].map(i => (
+                <FontAwesomeIcon
+                    key={i}
+                    icon={faStar}
+                    className={i <= stars ? 'ext-star ext-star--filled' : 'ext-star ext-star--empty'}
+                />
+            ))}
+        </div>
+    )
+}
 
 export const ExtensionsPane: React.FC = () => {
     const dispatch = useAppDispatch()
     const { available, installed, isSearching, searchQuery } = useAppSelector(
         (state: any) => state.extensionsState
     )
+    const [selectedCategory, setSelectedCategory] = useState('')
+    const [installingId, setInstallingId] = useState<string | null>(null)
+    const [uninstallingId, setUninstallingId] = useState<string | null>(null)
+    const [installedRecently, setInstalledRecently] = useState<Set<string>>(new Set())
+    const [activeTab, setActiveTab] = useState<'marketplace' | 'installed'>('marketplace')
 
     useEffect(() => {
         dispatch(fetchPopularExtensions())
@@ -23,82 +62,227 @@ export const ExtensionsPane: React.FC = () => {
         dispatch(searchExtensions(searchQuery))
     }
 
+    const handleCategoryClick = (value: string) => {
+        setSelectedCategory(value)
+        if (value) {
+            dispatch(searchExtensions(value))
+        } else {
+            dispatch(fetchPopularExtensions())
+        }
+    }
+
+    const handleInstall = async (ext: any, e: React.MouseEvent) => {
+        e.stopPropagation()
+        const id = ext.extensionId || ext.id
+        setInstallingId(id)
+        try {
+            await dispatch(installExtension(ext)).unwrap()
+            setInstalledRecently(prev => new Set([...prev, id]))
+            setTimeout(() => {
+                setInstalledRecently(prev => {
+                    const next = new Set(prev)
+                    next.delete(id)
+                    return next
+                })
+            }, 3000)
+        } catch (e) {
+            // Ignore
+        } finally {
+            setInstallingId(null)
+        }
+    }
+
+    const handleUninstall = async (extId: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        setUninstallingId(extId)
+        try {
+            await dispatch(uninstallExtension(extId)).unwrap()
+        } catch (e) {
+            // Ignore
+        } finally {
+            setUninstallingId(null)
+        }
+    }
+
+    const installedList = Object.values(installed) as any[]
+
+    const filteredAvailable = available.filter((ext: any) => {
+        if (!selectedCategory) return true
+        const cats = ext.categories || []
+        return cats.some((c: string) => c.toLowerCase().includes(selectedCategory.toLowerCase()))
+    })
+
+    const displayList = activeTab === 'installed' ? installedList : filteredAvailable
+
     return (
-        <div className="flex flex-col h-full bg-[var(--sidebar-bg)] text-[var(--sidebar-fg)]">
-            <div className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[var(--ui-fg-muted)]">
-                Extensions
+        <div className="ext-pane">
+            {/* Header */}
+            <div className="ext-pane__header">
+                <span className="ext-pane__title">Extensions</span>
+                <div className="ext-pane__tabs">
+                    <button
+                        className={`ext-tab ${activeTab === 'marketplace' ? 'ext-tab--active' : ''}`}
+                        onClick={() => setActiveTab('marketplace')}
+                    >
+                        Marketplace
+                    </button>
+                    <button
+                        className={`ext-tab ${activeTab === 'installed' ? 'ext-tab--active' : ''}`}
+                        onClick={() => setActiveTab('installed')}
+                    >
+                        Installed
+                        {installedList.length > 0 && (
+                            <span className="ext-badge">{installedList.length}</span>
+                        )}
+                    </button>
+                </div>
             </div>
-            <div className="px-4 pb-2">
-                <form
-                    onSubmit={handleSearch}
-                    className="relative flex items-center bg-[var(--input-bg)] border border-[var(--input-border)] focus-within:border-[var(--accent)] rounded-[3px] overflow-hidden"
-                >
-                    <div className="pl-2 pr-1 opacity-70">
-                        <FontAwesomeIcon
-                            icon={faSearch}
-                            className="text-[10px]"
-                        />
-                    </div>
+
+            {/* Search */}
+            <div className="ext-search-wrap">
+                <form onSubmit={handleSearch} className="ext-search-form">
+                    <FontAwesomeIcon icon={faSearch} className="ext-search-icon" />
                     <input
-                        className="w-full bg-transparent border-none outline-none text-[13px] text-[var(--input-fg)] px-1 py-[6px] placeholder:text-[var(--input-placeholder)]"
-                        placeholder="Search Extensions"
+                        className="ext-search-input"
+                        placeholder="Search extensions..."
                         value={searchQuery}
-                        onChange={(e) =>
-                            dispatch(setSearchQuery(e.target.value))
-                        }
+                        onChange={(e) => dispatch(setSearchQuery(e.target.value))}
                     />
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            className="ext-search-clear"
+                            onClick={() => {
+                                dispatch(setSearchQuery(''))
+                                dispatch(fetchPopularExtensions())
+                            }}
+                        >
+                            ×
+                        </button>
+                    )}
                 </form>
             </div>
-            <div className="flex-1 overflow-y-auto no-scrollbar">
+
+            {/* Categories - only show on marketplace tab */}
+            {activeTab === 'marketplace' && (
+                <div className="ext-categories">
+                    {CATEGORIES.map((cat) => (
+                        <button
+                            key={cat.value}
+                            className={`ext-category-chip ${selectedCategory === cat.value ? 'ext-category-chip--active' : ''}`}
+                            onClick={() => handleCategoryClick(cat.value)}
+                        >
+                            <FontAwesomeIcon icon={cat.icon} className="ext-category-chip-icon" />
+                            {cat.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* List */}
+            <div className="ext-list">
                 {isSearching ? (
-                    <div className="p-10 flex flex-col items-center gap-2 opacity-50">
-                        <FontAwesomeIcon icon={faSpinner} spin size="lg" />
-                        <span className="text-[11px]">Searching...</span>
+                    <div className="ext-loading">
+                        <FontAwesomeIcon icon={faSpinner} spin />
+                        <span>Searching...</span>
+                    </div>
+                ) : displayList.length === 0 ? (
+                    <div className="ext-empty">
+                        <FontAwesomeIcon icon={faCube} className="ext-empty-icon" />
+                        <span>{activeTab === 'installed' ? 'No extensions installed' : 'No extensions found'}</span>
                     </div>
                 ) : (
-                    <div className="flex flex-col">
-                        {available.map((ext: any) => (
-                            <div
-                                key={ext.extensionId || ext.id}
-                                className="px-4 py-2 hover:bg-[var(--sidebar-hover)] cursor-pointer flex gap-3 group transition-colors border-b border-[var(--sidebar-border)] last:border-none"
-                            >
-                                <div className="w-10 h-10 rounded bg-[var(--ui-bg-elevated)] flex items-center justify-center shrink-0">
+                    displayList.map((ext: any) => {
+                        const id = ext.extensionId || ext.id
+                        const isInstalled = !!installed[id]
+                        const isInstalling = installingId === id
+                        const isUninstalling = uninstallingId === id
+                        const justInstalled = installedRecently.has(id)
+
+                        return (
+                            <div key={id} className="ext-item">
+                                <div className="ext-item__icon-wrap">
                                     {ext.files?.icon ? (
                                         <img
                                             src={ext.files.icon}
                                             alt=""
-                                            className="w-8 h-8 object-contain"
+                                            className="ext-item__icon-img"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none'
+                                            }}
                                         />
                                     ) : (
-                                        <FontAwesomeIcon
-                                            icon={faCube}
-                                            className="text-[18px] opacity-30"
-                                        />
+                                        <div className="ext-item__icon-placeholder">
+                                            <FontAwesomeIcon icon={faCube} />
+                                        </div>
                                     )}
                                 </div>
-                                <div className="flex flex-col min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[13px] font-bold truncate group-hover:text-[var(--accent)] transition-colors">
+
+                                <div className="ext-item__info">
+                                    <div className="ext-item__top-row">
+                                        <span className="ext-item__name">
                                             {ext.displayName || ext.name}
                                         </span>
-                                        {installed[
-                                            ext.extensionId || ext.id
-                                        ] && (
-                                            <span className="text-[9px] px-1 bg-[var(--accent)] text-[var(--white)] rounded-sm uppercase font-bold">
-                                                Installed
-                                            </span>
+                                        {isInstalled && !justInstalled && (
+                                            <span className="ext-installed-badge">Installed</span>
+                                        )}
+                                        {justInstalled && (
+                                            <span className="ext-installed-badge ext-installed-badge--new">✓ Installed</span>
                                         )}
                                     </div>
-                                    <span className="text-[11px] text-[var(--ui-fg-muted)] truncate">
-                                        {ext.publisher}
-                                    </span>
-                                    <span className="text-[12px] opacity-70 line-clamp-2 mt-0.5">
-                                        {ext.description}
-                                    </span>
+                                    <span className="ext-item__publisher">{ext.publisher}</span>
+                                    <span className="ext-item__desc">{ext.description}</span>
+
+                                    <div className="ext-item__meta">
+                                        {(ext.averageRating || ext.rating) && (
+                                            <StarRating rating={ext.averageRating || ext.rating} />
+                                        )}
+                                        {(ext.downloadCount || ext.downloads) && (
+                                            <span className="ext-meta-stat">
+                                                <FontAwesomeIcon icon={faDownload} className="ext-meta-icon" />
+                                                {formatDownloads(ext.downloadCount || ext.downloads)}
+                                            </span>
+                                        )}
+                                        {ext.version && (
+                                            <span className="ext-meta-version">v{ext.version}</span>
+                                        )}
+                                    </div>
+
+                                    <div className="ext-item__actions">
+                                        {isInstalled ? (
+                                            <button
+                                                className="ext-btn ext-btn--uninstall"
+                                                onClick={(e) => handleUninstall(id, e)}
+                                                disabled={isUninstalling}
+                                                title="Uninstall extension"
+                                            >
+                                                {isUninstalling ? (
+                                                    <><FontAwesomeIcon icon={faSpinner} spin /> Removing...</>
+                                                ) : (
+                                                    <><FontAwesomeIcon icon={faTrash} /> Uninstall</>
+                                                )}
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="ext-btn ext-btn--install"
+                                                onClick={(e) => handleInstall(ext, e)}
+                                                disabled={isInstalling}
+                                                title="Install extension"
+                                            >
+                                                {isInstalling ? (
+                                                    <><FontAwesomeIcon icon={faSpinner} spin /> Installing...</>
+                                                ) : justInstalled ? (
+                                                    <><FontAwesomeIcon icon={faCheck} /> Installed</>
+                                                ) : (
+                                                    <><FontAwesomeIcon icon={faDownload} /> Install</>
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        )
+                    })
                 )}
             </div>
         </div>
