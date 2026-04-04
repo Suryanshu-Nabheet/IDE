@@ -244,11 +244,11 @@ export function ToolCallCard({
     }
 
     const getToolStatusColor = () => {
-        if (needsApproval) return 'var(--color-warning)'
-        if (isExecuting) return 'var(--accent)'
-        if (success === true) return 'var(--color-success)'
-        if (success === false) return 'var(--color-error)'
-        return 'var(--ui-fg-muted)'
+        if (needsApproval) return 'text-warn'
+        if (isExecuting) return 'text-accent'
+        if (success === true) return 'text-success'
+        if (success === false) return 'text-danger'
+        return 'text-ui-fg-muted'
     }
 
     const getToolLabel = (name: string, args: Record<string, any>) => {
@@ -259,9 +259,9 @@ export function ToolCallCard({
                 const filename = parts[parts.length - 1]
                 const action = name.includes('read') ? 'Read' : name.includes('write') ? 'Write' : 'Edit'
                 return (
-                    <span className="tool-call-label-container">
-                        <span className="tool-call-action-name">{action}</span>
-                        <span className="tool-call-filename">{filename}</span>
+                    <span className="flex items-center gap-1.5 text-[12px]">
+                        <span className="text-ui-fg-muted">{action}</span>
+                        <span className="text-ui-fg font-medium">{filename}</span>
                     </span>
                 )
             }
@@ -269,17 +269,17 @@ export function ToolCallCard({
         if (name === 'list_dir' || name === 'list_files') {
             const path = args.DirectoryPath || args.path || './'
             return (
-                <span className="tool-call-label-container">
-                    <span className="tool-call-action-name">List</span>
-                    <span className="tool-call-filename">{path}</span>
+                <span className="flex items-center gap-1.5 text-[12px]">
+                    <span className="text-ui-fg-muted">List</span>
+                    <span className="text-ui-fg font-medium">{path}</span>
                 </span>
             )
         }
         if (name === 'run_command' || name === 'run_terminal_command') {
             return (
-                <span className="tool-call-label-container">
-                    <span className="tool-call-action-name">Run</span>
-                    <span className="tool-call-filename" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', opacity: 0.8 }}>
+                <span className="flex items-center gap-1.5 text-[12px]">
+                    <span className="text-ui-fg-muted">Run</span>
+                    <span className="text-ui-fg font-medium font-mono text-[11px] opacity-80">
                         {args.CommandLine?.slice(0, 50) || 'command'}
                     </span>
                 </span>
@@ -287,8 +287,8 @@ export function ToolCallCard({
         }
 
         return (
-            <span className="tool-call-label-container">
-                <span className="tool-call-action-name">
+            <span className="flex items-center gap-1.5 text-[12px]">
+                <span className="text-ui-fg-muted">
                     {name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                 </span>
             </span>
@@ -297,63 +297,65 @@ export function ToolCallCard({
 
     return (
         <div
-            className={`tool-call-card ${needsApproval ? 'tool-call-waiting' : ''} ${success === true ? 'tool-call-done' : ''}`}
+            className={`my-0.5 rounded-md transition-all ${
+                needsApproval ? 'bg-[color-mix(in_srgb,var(--color-warning)_5%,transparent)]' : 'bg-transparent hover:bg-ui-hover'
+            } ${success === true ? 'opacity-75' : ''}`}
         >
             <div
-                className="tool-call-header"
+                className="flex items-center px-3 py-1.5 cursor-pointer min-h-[28px] gap-2"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
-                <span className="tool-call-icon" style={{ color: getToolStatusColor() }}>
+                <span className={`text-[14px] w-5 flex items-center justify-center ${getToolStatusColor()}`}>
                     {getToolIcon(toolName)}
                 </span>
                 
                 {getToolLabel(toolName, args)}
 
-                <div className="tool-call-status-right">
+                <div className="ml-auto flex items-center gap-3">
                     {needsApproval && !isExecuting && (
-                        <span className="tool-call-approval-badge">Needs Approval</span>
+                        <span className="text-warn text-[10px] font-semibold border border-warn/30 px-1.5 py-0.5 rounded">Needs Approval</span>
                     )}
                     {isExecuting && (
-                        <div className="tool-call-executing">
+                        <div className="text-ui-fg-muted text-[10px]">
                             <Codicon name="loading" className="codicon-modifier-spin" />
                         </div>
                     )}
                     {success === true && (
-                        <div className="tool-call-success">
+                        <div className="text-success text-[12px]">
                             <Codicon name="check" />
                         </div>
                     )}
                     {success === false && (
-                        <div className="tool-call-failed">
+                        <div className="text-danger text-[12px]">
                             <Codicon name="error" />
                         </div>
                     )}
-                    <button className="tool-call-expand-icon">
+                    <button className="bg-transparent border-none p-0.5 text-ui-fg-muted opacity-30 text-[10px] flex items-center hover:opacity-100 hover:bg-ui-hover rounded cursor-pointer transition-all">
                         <Codicon name={isExpanded ? 'chevron-up' : 'chevron-down'} />
                     </button>
                 </div>
             </div>
 
             {isExpanded && (
-                <div className="tool-call-body">
-                    <div className="tool-call-section">
-                        <div className="tool-call-section-title">Arguments</div>
-                        <pre className="tool-call-json">
+                <div className="pt-1 pb-3 pl-10 pr-3 border-l-2 border-ui-border ml-[21px]">
+                    <div className="mb-2">
+                        <div className="text-[10px] font-semibold text-ui-fg-muted mb-1 uppercase tracking-wide">Arguments</div>
+                        <pre className="bg-ui-bg-elevated border border-ui-border rounded-md px-3 py-2 font-mono text-[11px] text-ui-fg overflow-x-auto m-0">
                             {JSON.stringify(args, null, 2)}
                         </pre>
                     </div>
 
                     {result && (
-                        <div className="tool-call-section">
-                            <div className="tool-call-section-title">Result</div>
-                            <pre className="tool-call-result">{result}</pre>
+                        <div className="mb-2">
+                            <div className="text-[10px] font-semibold text-ui-fg-muted mb-1 uppercase tracking-wide">Result</div>
+                            <pre className="bg-ui-bg-elevated border border-ui-border rounded-md px-3 py-2 font-mono text-[11px] text-ui-fg overflow-x-auto m-0">{result}</pre>
                         </div>
                     )}
 
                     {needsApproval && !isExecuting && success === undefined && (
-                        <div className="tool-call-actions">
+                        <div className="flex gap-2 mt-2">
                             <button
-                                className="tool-call-btn tool-call-accept"
+                                className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded cursor-pointer transition-all bg-[color-mix(in_srgb,var(--color-success)_15%,transparent)] text-success hover:bg-success hover:text-white border-none"
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     onAccept?.()
@@ -362,7 +364,7 @@ export function ToolCallCard({
                                 <Codicon name="check" /> Approve
                             </button>
                             <button
-                                className="tool-call-btn tool-call-reject"
+                                className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded cursor-pointer transition-all border border-ui-border bg-transparent text-ui-fg-muted hover:bg-ui-hover border-none"
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     onReject?.()

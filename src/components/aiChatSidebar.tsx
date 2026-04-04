@@ -196,10 +196,10 @@ function ToolCallsGroup({
     const headerLabel = runningTool
         ? `Running ${runningTool.name.replace(/_/g, ' ')}…`
         : pendingApproval
-        ? 'Approval required'
-        : allDone
-        ? `${totalCount} action${totalCount !== 1 ? 's' : ''} completed`
-        : `${totalCount} action${totalCount !== 1 ? 's' : ''}`
+            ? 'Approval required'
+            : allDone
+                ? `${totalCount} action${totalCount !== 1 ? 's' : ''} completed`
+                : `${totalCount} action${totalCount !== 1 ? 's' : ''}`
 
     return (
         <div className={`rounded-md border ${borderClass} overflow-hidden mb-2 transition-[border-color] duration-200`}>
@@ -224,7 +224,7 @@ function ToolCallsGroup({
                 </div>
             </button>
             {expanded && (
-                <div className="border-t border-ui-border divide-y divide-ui-border/50">
+                <div className="border-t border-ui-border divide-y divide-[rgba(255,255,255,0.03)]">
                     {toolCalls.map(tc => (
                         <ToolCallCard
                             key={tc.id}
@@ -311,11 +311,7 @@ function MessageBubble({
             {/* Header row */}
             <div className="flex items-center gap-2 mb-2">
                 <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-accent border"
-                    style={{
-                        background: 'color-mix(in srgb, var(--accent) 15%, transparent)',
-                        borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)',
-                    }}
+                    className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-accent bg-[color-mix(in_srgb,var(--accent)_15%,transparent)]"
                 >
                     <Codicon name="sparkle" style={{ fontSize: 10 }} />
                 </div>
@@ -323,11 +319,7 @@ function MessageBubble({
 
                 {totalTools > 0 && (
                     <div
-                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-accent text-[9px] font-semibold border"
-                        style={{
-                            background: 'color-mix(in srgb, var(--accent) 10%, transparent)',
-                            borderColor: 'color-mix(in srgb, var(--accent) 20%, transparent)',
-                        }}
+                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-accent text-[9px] font-semibold bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
                     >
                         <Codicon name="tools" style={{ fontSize: 9 }} />
                         <span>{isStreaming ? `${doneTools}/${totalTools}` : totalTools}</span>
@@ -369,8 +361,8 @@ function MessageBubble({
                         toolsToRender.some(tc => tc.isExecuting)
                             ? `Running ${toolsToRender.find(tc => tc.isExecuting)?.name?.replace(/_/g, ' ')}…`
                             : totalTools > 0 && doneTools === totalTools
-                            ? 'Synthesizing results…'
-                            : 'Thinking…'
+                                ? 'Synthesizing results…'
+                                : 'Thinking…'
                     } />
                 ) : null}
 
@@ -446,10 +438,10 @@ export function AIChatSidebar() {
         const p = settings.aiProvider || 'ollama'
         const model =
             p === 'openai' ? settings.openAIModel
-            : p === 'openrouter' ? settings.openRouterModel
-            : p === 'gemini' ? settings.geminiModel
-            : p === 'claude' ? settings.claudeModel
-            : settings.ollamaModel || 'llama3'
+                : p === 'openrouter' ? settings.openRouterModel
+                    : p === 'gemini' ? settings.geminiModel
+                        : p === 'claude' ? settings.claudeModel
+                            : settings.ollamaModel || 'llama3'
         return { provider: p.charAt(0).toUpperCase() + p.slice(1), model: model || 'Default' }
     }, [settings])
 
@@ -767,7 +759,7 @@ export function AIChatSidebar() {
         accumulatedToolCallsRef.current = []
         if (abortControllerRef.current) { abortControllerRef.current.abort(); abortControllerRef.current = null }
         setIsGenerating(false)
-        Object.values(confirmationResolvers.current).forEach(r => { try { r.reject() } catch {} })
+        Object.values(confirmationResolvers.current).forEach(r => { try { r.reject() } catch { } })
         confirmationResolvers.current = {}
     }, [])
 
@@ -814,11 +806,7 @@ export function AIChatSidebar() {
         >
             {/* Icon */}
             <div
-                className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-accent border"
-                style={{
-                    background: 'color-mix(in srgb, var(--accent) 14%, transparent)',
-                    borderColor: 'color-mix(in srgb, var(--accent) 28%, transparent)',
-                }}
+                className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-accent bg-[color-mix(in_srgb,var(--accent)_14%,transparent)]"
             >
                 <Codicon name="sparkle" style={{ fontSize: 11, color: 'var(--accent)' }} />
             </div>
@@ -870,11 +858,7 @@ export function AIChatSidebar() {
                             style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 70%)' }}
                         />
                         <div
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 border"
-                            style={{
-                                background: 'color-mix(in srgb, var(--accent) 10%, transparent)',
-                                borderColor: 'color-mix(in srgb, var(--accent) 24%, transparent)',
-                            }}
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] shadow-[0_0_15px_color-mix(in_srgb,var(--accent)_10%,transparent)]"
                         >
                             <Codicon name="sparkle" style={{ fontSize: 26, color: 'var(--accent)' }} />
                         </div>
@@ -899,8 +883,8 @@ export function AIChatSidebar() {
     const genStatusText = runningToolName
         ? `Running ${runningToolName}…`
         : pendingToolCalls.length > 0
-        ? 'Analyzing…'
-        : 'Generating…'
+            ? 'Analyzing…'
+            : 'Generating…'
 
     return (
         <div className="ai-sidebar flex flex-col h-full w-full bg-sidebar">
@@ -916,11 +900,7 @@ export function AIChatSidebar() {
                             style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 70%)' }}
                         />
                         <div
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 border"
-                            style={{
-                                background: 'color-mix(in srgb, var(--accent) 10%, transparent)',
-                                borderColor: 'color-mix(in srgb, var(--accent) 24%, transparent)',
-                            }}
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] shadow-[0_0_15px_color-mix(in_srgb,var(--accent)_10%,transparent)]"
                         >
                             <Codicon name="sparkle" style={{ fontSize: 26, color: 'var(--accent)' }} />
                         </div>
@@ -990,12 +970,11 @@ export function AIChatSidebar() {
                 )}
                 <div className="p-3">
                     <div
-                        className={`rounded-lg border overflow-hidden transition-all ${
-                            isGenerating
-                                ? 'border-[color-mix(in_srgb,var(--accent)_35%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_10%,transparent)]'
-                                : 'border-ui-border focus-within:border-[rgba(255,255,255,0.18)]'
-                        }`}
-                        style={{ background: 'var(--input-bg)' }}
+                        className={`rounded-lg overflow-hidden transition-all ${isGenerating
+                            ? 'shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_2%,transparent)]'
+                            : 'border border-ui-border focus-within:border-[rgba(255,255,255,0.18)]'
+                            }`}
+                        style={{ background: isGenerating ? undefined : 'var(--input-bg)' }}
                     >
                         <textarea
                             ref={textareaRef}
@@ -1034,11 +1013,10 @@ export function AIChatSidebar() {
                                 <button
                                     onClick={handleSend}
                                     disabled={!input.trim() || isGenerating}
-                                    className={`w-7 h-7 flex items-center justify-center rounded transition-all ${
-                                        input.trim() && !isGenerating
-                                            ? 'bg-accent text-white hover:opacity-85'
-                                            : 'border border-ui-border text-ui-fg-muted opacity-40 cursor-not-allowed'
-                                    }`}
+                                    className={`w-7 h-7 flex items-center justify-center rounded transition-all ${input.trim() && !isGenerating
+                                        ? 'bg-accent text-white hover:opacity-85'
+                                        : 'border border-ui-border text-ui-fg-muted opacity-40 cursor-not-allowed'
+                                        }`}
                                     title="Send (Enter)"
                                 >
                                     <Codicon name="send" style={{ fontSize: 12 }} />
@@ -1051,3 +1029,4 @@ export function AIChatSidebar() {
         </div>
     )
 }
+
