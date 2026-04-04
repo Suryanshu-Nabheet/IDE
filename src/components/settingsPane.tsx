@@ -127,7 +127,7 @@ export function SettingsPopup() {
     if (!isSettingsOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/70 backdrop-blur-sm">
             <div className="w-[1000px] h-[660px] bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-lg shadow-2xl flex overflow-hidden">
                 {/* Sidebar */}
                 <div className="w-56 bg-[var(--sidebar-bg)] border-r border-[var(--ui-border)] flex flex-col">

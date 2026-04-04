@@ -386,7 +386,7 @@ body {
     cursor: ew-resize;
     flex-shrink: 0;
     transition: background-color 0.1s ease;
-    z-index: 100;
+    z-index: 10;
 }
 
 .leftDrag:hover,
@@ -1313,7 +1313,7 @@ li.rta__item--selected mark {
     cursor: ew-resize;
     flex-shrink: 0;
     transition: background-color 0.1s ease;
-    z-index: 100;
+    z-index: 10;
 }
 
 .leftDrag:hover,
@@ -3824,7 +3824,7 @@ cm-diff-cancel>div {
     height: 100%;
     width: 5px;
     cursor: ew-resize;
-    background: var(--left-pane-background);
+    background: transparent;
 }
 
 .apply-button-holder {
